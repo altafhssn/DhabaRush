@@ -1,0 +1,35 @@
+; Copy this file to res://config/monetization.local.cfg (git-ignored by
+; config/.gitignore) and fill in the real values. Only non-empty keys here
+; override config/monetization.cfg; empty strings are ignored. The export
+; presets include config/*.cfg, so the local file ships inside the APK / AAB /
+; IPA built on this machine.
+;
+; Never commit the filled-in copy.
+
+[ads]
+
+; AdMob > Apps > Dhaba Rush (Android) > Ad units, format
+; "ca-app-pub-1234567890123456/1234567890"
+android_rewarded=""
+android_interstitial=""
+; AdMob > Apps > Dhaba Rush (iOS) > Ad units (later, global launch)
+ios_rewarded=""
+ios_interstitial=""
+; Your own phones (ids from logcat), so they get test ads on real units.
+; Example: PackedStringArray("33BE2250B43518CCDA7DE426D04EE231")
+test_device_ids=PackedStringArray()
+consent_test_device_hashed_ids=PackedStringArray()
+
+[analytics]
+
+; GameAnalytics > (release game) > Settings > Game information (keys)
+game_key=""
+secret_key=""
+; Optional second GameAnalytics game used only by debug builds
+debug_game_key=""
+debug_secret_key=""
+
+[legal]
+
+; Public URL of the privacy policy, e.g. "https://littletagartstudios.com/dhaba-rush/privacy"
+privacy_policy_url=""

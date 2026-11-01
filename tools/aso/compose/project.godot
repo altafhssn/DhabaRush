@@ -1,0 +1,19 @@
+; Tiny Godot project used only by tools/aso/make_store_art.sh to composite
+; store screenshots (caption bands) and the Play feature graphic. It is NOT
+; part of the game; Godot skips nested projects when scanning/exporting.
+config_version=5
+
+[application]
+
+config/name="Dhaba Rush store-art compositor"
+run/main_scene=""
+
+[display]
+
+window/size/viewport_width=400
+window/size/viewport_height=300
+window/dpi/allow_hidpi=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"

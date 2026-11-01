@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dhaba Rush · Tap &amp; Go</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #f3b664;
+    overscroll-behavior: none; touch-action: none; -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+  #wrap { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; }
+  canvas { display: block; touch-action: none; box-shadow: 0 8px 40px rgba(110, 50, 0, .25); }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<script>
+(function () {
+  'use strict';
+  var W = 360, H = 640, SP = 6.5, TAU = Math.PI * 2;
+  var FONT = '"Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  var cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  var bgc = document.createElement('canvas'), bgx = bgc.getContext('2d');
+  var T = 0, last = 0, paused = false, S = null;
+
+  // ---------------- tuning ----------------
+  var CFG = {
+    shift: 120, goal: 400, stars: [200, 400, 600],
+    speed: 170, cap: 8, chotuSpeed: 95, chotuCap: 2, chotuPause: 0.3, pileCap: 6,
+    patience: 16, gateWait: 6, eat: 2, custSpeed: 100,
+    firstSpawn: 0.3, spawnMin: 3.5, spawnMax: 4.5, queueMax: 3,
+    passR: 32, cashR: 26, mateServe: true, comboWin: 3.2, tipMax: 0.3, payTime: 1.0,
+    guideTime: 22, idleNudge: 5
+  };
+  var ITEM = {
+    chai: { price: 10, every: 1.0, label: 'CHAI', word: 'chai' },
+    roti: { price: 25, every: 1.6, label: 'TANDOOR', word: 'roti' },
+    dal: { price: 45, every: 2.4, label: 'DAL', word: 'dal' }
+  };
+  var ST_COL = { chai: ['#3cbfae', '#1f8378'], roti: ['#e58f50', '#b5602b'], dal: ['#efc94c', '#b8922a'] };
+  var SHIRTS = ['#e63946', '#2a9d8f', '#457b9d', '#f4a261', '#8e5bd0', '#2b2d42', '#e9c46a', '#06a77d', '#ff6f91'];
+  var SKINS = ['#8d5524', '#a8693c', '#c68642', '#7a4a26', '#b5774a'];
+  var TURBANS = ['#ff7f11', '#d00000', '#ffba08', '#3a86ff', '#f15bb5'];
+  var HAIRS = ['#1d1208', '#2e1d10', '#3b2a1a', '#4a4a4a'];
+  var CAR_COLS = ['#e63946', '#1d70b8', '#f1f1ea', '#2a9d8f', '#ffb703', '#6d597a', '#9aa5b1'];
+  var CAB_COLS = ['#ff8c1a', '#e63946', '#1d9e75', '#ffd23f', '#3a86ff'];
+  var PANEL_COLS = ['#e63946', '#ffd23f', '#1d70b8', '#06d6a0', '#ff7f11', '#8e44ad', '#f15bb5'];
+  var LANE = { '1': 54, '-1': 78 }, BAY_Y = 130;
+  var WAIT_SPOTS = [{ x: 150, y: 204 }, { x: 210, y: 204 }, { x: 122, y: 214 }, { x: 238, y: 214 }, { x: 96, y: 224 }, { x: 264, y: 224 }, { x: 180, y: 226 }];
+
+  // ---------------- utils ----------------
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function dist(ax, ay, bx, by) { var dx = ax - bx, dy = ay - by; return Math.sqrt(dx * dx + dy * dy); }
+  function backOut(t) { t = clamp(t, 0, 1) - 1; return 1 + 2.70158 * t * t * t + 1.70158 * t * t; }
+  function inOut(t) { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); }
+  function popS(born, d) { return backOut((T - born) / (d || 0.35)); }
+  function seeded(s) { return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; }
+  function fmt(t) { t = Math.max(0, Math.ceil(t)); return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2); }
+  function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* not supported */ } }
+
+  // ---------------- draw primitives ----------------
+  function rr(c, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function frr(c, x, y, w, h, r, col) { rr(c, x, y, w, h, r); c.fillStyle = col; c.fill(); }
+  function circ(c, x, y, r, col) { c.beginPath(); c.arc(x, y, Math.max(0, r), 0, TAU); c.fillStyle = col; c.fill(); }
+  function ell(c, x, y, rx, ry, col) { c.beginPath(); c.ellipse(x, y, Math.max(0, rx), Math.max(0, ry), 0, 0, TAU); c.fillStyle = col; c.fill(); }
+  function label(c, s, x, y, size, col, o) {
+    o = o || {};
+    var w = o.w || 800;
+    c.font = w + ' ' + size + 'px ' + FONT; c.textAlign = o.a || 'center'; c.textBaseline = 'middle';
+    if (o.max) { var mw = c.measureText(s).width; if (mw > o.max) c.font = w + ' ' + (size * o.max / mw) + 'px ' + FONT; }
+    if (o.sw) { c.lineJoin = 'round'; c.lineWidth = o.sw; c.strokeStyle = o.sc || 'rgba(70,30,0,.9)'; c.strokeText(s, x, y); }
+    c.fillStyle = col; c.fillText(s, x, y);
+  }
+  function coin(c, x, y, r) { circ(c, x, y + 1.2, r, '#c77d00'); circ(c, x, y, r, '#ffc531'); circ(c, x, y, r * 0.72, '#ffd85e'); label(c, '₹', x, y + 0.5, r * 1.15, '#b86b00'); }
+  function star(c, x, y, r, fill, stroke) {
+    c.beginPath();
+    for (var i = 0; i < 10; i++) { var a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r * 0.48 : r; c.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q); }
+    c.closePath(); c.fillStyle = fill; c.fill();
+    if (stroke) { c.lineWidth = Math.max(1.4, r * 0.14); c.strokeStyle = stroke; c.lineJoin = 'round'; c.stroke(); }
+  }
+  function drawItem(c, type, x, y, s) {
+    c.save(); c.translate(x, y); c.scale(s, s);
+    if (type === 'chai') {
+      c.beginPath(); c.moveTo(-6, -5); c.lineTo(6, -5); c.lineTo(4.5, 6); c.lineTo(-4.5, 6); c.closePath(); c.fillStyle = '#b4532a'; c.fill();
+      c.fillStyle = 'rgba(255,255,255,.2)'; c.fillRect(-4.2, -3, 1.8, 7);
+      ell(c, 0, -5, 6, 2.2, '#8a3a1a'); ell(c, 0, -5, 4.8, 1.5, '#e8c48f');
+    } else if (type === 'roti') {
+      ell(c, 0, 1, 9, 6, '#c98f45'); ell(c, 0, 0, 8.5, 5.5, '#ecc27a');
+      circ(c, -3, -1, 1.3, '#a8662a'); circ(c, 2.5, 1.5, 1.1, '#a8662a'); circ(c, 3, -2, 0.9, '#b8763a'); circ(c, -1, 2.5, 0.8, '#b8763a');
+    } else {
+      c.beginPath(); c.ellipse(0, 0, 8.5, 7, 0, 0, Math.PI); c.fillStyle = '#8f99a4'; c.fill();
+      ell(c, 0, 0, 8.5, 3.2, '#d3dae0'); ell(c, 0, 0, 7, 2.4, '#f2b630'); circ(c, -2, -0.4, 1, '#d1495b'); circ(c, 2, 0.2, 0.9, '#3a9d23');
+    }
+    c.restore();
+  }
+
+  // ---------------- audio ----------------
+  var AC = null, master = null, lastSnd = {};
+  function quiet(p) { if (p && p.catch) p.catch(function () { /* resume can be refused outside a gesture */ }); }
+  function initAudio() {
+    if (!AC) {
+      try {
+        var A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+        AC = new A(); master = AC.createGain(); master.gain.value = 0.7; master.connect(AC.destination);
+      } catch (e) { AC = null; master = null; return; }
+    }
+    // 'suspended' (created before a gesture) or iOS 'interrupted' (call, background): resume inside this gesture
+    if (AC.state !== 'running' && !paused) {
+      try {
+        quiet(AC.resume());
+        var b = AC.createBufferSource(); b.buffer = AC.createBuffer(1, 1, 22050); b.connect(AC.destination); b.start(0); // iOS unlock
+      } catch (e) { /* audio is optional */ }
+    }
+  }
+  function tone(f, d, type, vol, f2, delay) {
+    if (!AC || !master) return;
+    try {
+      var t0 = AC.currentTime + (delay || 0), o = AC.createOscillator(), g = AC.createGain();
+      o.type = type || 'sine'; o.frequency.setValueAtTime(f, t0);
+      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + d);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.08, t0 + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(master); o.start(t0); o.stop(t0 + d + 0.03);
+    } catch (e) { /* audio is optional */ }
+  }
+  function sfx(n) {
+    if (!AC) return;
+    if (lastSnd[n] !== undefined && T - lastSnd[n] < 0.04) return;
+    lastSnd[n] = T;
+    switch (n) {
+      case 'tap': tone(700, 0.05, 'sine', 0.05, 950); break;
+      case 'grab': tone(rnd(520, 640), 0.07, 'triangle', 0.07, 1150); break;
+      case 'order': tone(990, 0.06, 'sine', 0.035, 1320); break;
+      case 'serve': tone(523, 0.09, 'triangle', 0.11, 784); tone(1046, 0.12, 'triangle', 0.08, 0, 0.07); break;
+      case 'cash': tone(1568, 0.05, 'square', 0.022); tone(2093, 0.09, 'square', 0.022, 0, 0.05); break;
+      case 'coin': tone(1318, 0.05, 'square', 0.03); tone(1760, 0.08, 'square', 0.03, 0, 0.04); break;
+      case 'cook': tone(880, 0.07, 'sine', 0.03, 1100); break;
+      case 'bill': tone(rnd(900, 1100), 0.03, 'triangle', 0.03); break;
+      case 'buy': [523, 659, 784, 1046].forEach(function (f, i) { tone(f, 0.18, 'triangle', 0.1, 0, i * 0.07); }); break;
+      case 'ready': tone(784, 0.1, 'sine', 0.06); tone(1175, 0.14, 'sine', 0.06, 0, 0.09); break;
+      case 'angry': tone(260, 0.3, 'sawtooth', 0.06, 110); break;
+      case 'err': tone(200, 0.12, 'square', 0.045, 150); break;
+      case 'tick': tone(1250, 0.04, 'sine', 0.06); break;
+      case 'combo': tone(660, 0.08, 'square', 0.035, 1320); break;
+      case 'start': [392, 523, 659, 784].forEach(function (f, i) { tone(f, 0.16, 'triangle', 0.09, 0, i * 0.06); }); break;
+      case 'end': [784, 659, 523, 659, 1046].forEach(function (f, i) { tone(f, 0.2, 'triangle', 0.09, 0, i * 0.1); }); break;
+      case 'star': tone(880, 0.25, 'triangle', 0.1, 1760); break;
+    }
+  }
+
+  // ---------------- state ----------------
+  function newState() {
+    var s = {
+      mode: 'start', timeLeft: CFG.shift, wallet: 0, shown: 0, earned: 0, served: 0, lost: 0,
+      combo: 0, bestCombo: 0, lastServe: -99, spawnT: CFG.firstSpawn, trafficT: 0.3, nVeh: 0, nCust: 0, orderN: 0,
+      customers: [], vehicles: [], parts: [], texts: [], flyers: [], ripples: [], queue: [],
+      shake: 0, walletPop: -9, msg: '', msgT: 0, hint: '', hintT: 0, na: null, guide: null,
+      idleT: 0, playT: 0, guideForce: 0, forcePad: null,
+      endT: 0, stars: 0, leftCash: 0, starShown: [false, false, false], btn: null, lastTick: 99, tips: {}, bornT: T,
+      bays: [{ x: 64, v: null }, { x: 180, v: null }, { x: 296, v: null }], chotu: null
+    };
+    s.stations = ['chai', 'roti', 'dal'].map(function (id, i) {
+      var x = [65, 180, 295][i];
+      return { id: id, x: x, px: x, py: 503, count: [2, 1, 0][i], t: 0, locked: i === 2, pop: -9, born: -9 };
+    });
+    s.tables = [{ i: 0, cx: 95, cy: 318, locked: false, cash: 0, bounce: -9, born: -9 },
+                { i: 1, cx: 265, cy: 318, locked: true, cash: 0, bounce: -9, born: -9 }];
+    s.seats = [];
+    s.tables.forEach(function (tb) {
+      [-1, 1].forEach(function (side) { [-1, 1].forEach(function (v) { s.seats.push({ t: tb, side: side, x: tb.cx + side * 41, y: tb.cy + v * 17, occ: null }); }); });
+    });
+    s.pads = [
+      { id: 'table2', label: 'Table 2', price: 60, x: 265, y: 318, w: 80, h: 50, paid: 0, done: false },
+      { id: 'dal', label: 'Dal Pot', price: 120, x: 295, y: 488, w: 72, h: 40, paid: 0, done: false },
+      { id: 'chotu', label: 'Hire Chotu', price: 200, x: 316, y: 424, w: 70, h: 50, paid: 0, done: false }
+    ];
+    s.bh = { x: 180, y: 462, stack: [], act: null, walk: 0, moving: false, squash: 0, park: null };
+    return s;
+  }
+  function stationOf(type) { for (var i = 0; i < S.stations.length; i++) if (S.stations[i].id === type) return S.stations[i]; return S.stations[0]; }
+  function padById(id) { for (var i = 0; i < S.pads.length; i++) if (S.pads[i].id === id) return S.pads[i]; return null; }
+  function hasItem(e, type) { for (var i = 0; i < e.stack.length; i++) if (e.stack[i].type === type) return true; return false; }
+  function mateOf(s) { for (var i = 0; i < S.seats.length; i++) { var o = S.seats[i]; if (o !== s && o.t === s.t && o.side === s.side) return o; } return null; }
+  function setMsg(t, d) { S.msg = t; S.msgT = d || 3; }
+  function pileX(st, i) { return st.x - 26 + (i % 3) * 26; }
+  function pileY(st, i) { return i < 3 ? 534 : 522; }
+
+  // ---------------- fx ----------------
+  function floatText(x, y, s, col, size) { S.texts.push({ x: x, y: y, s: s, col: col, size: size || 14, born: T, max: 1.1 }); if (S.texts.length > 40) S.texts.shift(); }
+  function part(p) { S.parts.push(p); }
+  function burst(x, y, n, cols, conf) {
+    for (var i = 0; i < n; i++) {
+      var a = rnd(0, TAU), v = rnd(60, 190);
+      part({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, g: 360, life: rnd(0.45, 0.85), max: 0.85, col: pick(cols), sz: rnd(2, 3.8), kind: conf ? 'conf' : 'spark', rot: rnd(0, 6) });
+    }
+  }
+  function dust(x, y) { part({ x: x + rnd(-5, 5), y: y, vx: rnd(-15, 15), vy: rnd(-22, -6), g: 0, life: 0.35, max: 0.35, col: 'rgba(150,90,40,.35)', sz: rnd(2.5, 4.5), kind: 'dust' }); }
+  function steam(x, y, col) { part({ x: x + rnd(-4, 4), y: y, vx: rnd(-6, 6), vy: rnd(-26, -16), g: 0, life: 1.1, max: 1.1, col: col || 'rgba(255,255,255,.45)', sz: rnd(2.5, 4), kind: 'steam' }); }
+  function addFlyer(f) { f.t = -(f.delay || 0); S.flyers.push(f); }
+  function ripple(x, y, col) { S.ripples.push({ x: x, y: y, born: T, col: col || '#fff' }); }
+
+  // ---------------- vehicles ----------------
+  function makeVeh(type, dir) {
+    var L = type === 'bike' ? 24 : type === 'car' ? 44 : 78, Wd = type === 'bike' ? 10 : type === 'car' ? 22 : 26, p = [];
+    for (var i = 0; i < 4; i++) p.push(pick(PANEL_COLS));
+    return { type: type, dir: dir, len: L, wid: Wd, x: dir > 0 ? -L : W + L, y: LANE[dir], laneY: LANE[dir], col: type === 'truck' ? pick(CAB_COLS) : pick(CAR_COLS),
+      rider: pick(SHIRTS), panels: p, sp: rnd(150, 210), st: 'pass', t: 0, dead: false, bay: null, party: 0, unl: 0 };
+  }
+  function spawnVehicle() {
+    S.spawnT = rnd(CFG.spawnMin, CFG.spawnMax);
+    var free = S.bays.filter(function (b) { return !b.v; });
+    if (!free.length) { S.spawnT = 0.8; return; }
+    var first = S.nVeh === 0, r = Math.random();
+    var n = first ? 2 : r < 0.33 ? 1 : r < 0.75 ? 2 : 3;
+    var bay = first && !S.bays[1].v ? S.bays[1] : pick(free);
+    var type = n === 1 ? (Math.random() < 0.55 ? 'bike' : 'car') : n === 2 ? (Math.random() < 0.7 ? 'car' : 'truck') : (Math.random() < 0.65 ? 'truck' : 'car');
+    var v = makeVeh(type, first ? 1 : (Math.random() < 0.5 ? 1 : -1));
+    v.st = 'in'; v.bay = bay; bay.v = v; v.party = n; v.sp = 230;
+    S.vehicles.push(v); S.nVeh++;
+  }
+  function updVehicles(dt) {
+    S.trafficT -= dt;
+    if (S.trafficT <= 0) { S.trafficT = rnd(1.4, 3.2); var r = Math.random(); S.vehicles.push(makeVeh(r < 0.2 ? 'bike' : r < 0.6 ? 'car' : 'truck', Math.random() < 0.5 ? 1 : -1)); }
+    for (var i = 0; i < S.vehicles.length; i++) {
+      var v = S.vehicles[i]; v.t += dt;
+      if (v.st === 'pass' || v.st === 'out') {
+        if (v.st === 'out') v.sp = Math.min(220, v.sp + 260 * dt);
+        v.x += v.dir * v.sp * dt;
+        if (v.x < -130 || v.x > W + 130) v.dead = true;
+      } else if (v.st === 'in') {
+        var dx = v.bay.x - v.x, ad = Math.abs(dx), sp = Math.min(v.sp, 40 + ad * 2.6);
+        if (ad < 1.5) { v.x = v.bay.x; v.st = 'dock'; v.t = 0; } else v.x += (dx > 0 ? 1 : -1) * Math.min(ad, sp * dt);
+      } else if (v.st === 'dock') {
+        v.y = lerp(v.laneY, BAY_Y, inOut(v.t / 0.45)); if (v.t >= 0.45) { v.st = 'unload'; v.t = 0; }
+      } else if (v.st === 'unload') {
+        if (S.mode !== 'play') v.unl = v.party;
+        if (v.unl < v.party && v.t > 0.1 + v.unl * 0.3) { newCustomer(v.x + (v.unl - (v.party - 1) / 2) * 14, BAY_Y + v.wid / 2 + 6); v.unl++; }
+        if (v.unl >= v.party && v.t > v.party * 0.3 + 0.9) { v.st = 'undock'; v.t = 0; }
+      } else if (v.st === 'undock') {
+        v.y = lerp(BAY_Y, v.laneY, inOut(v.t / 0.45)); if (v.t >= 0.45) { v.st = 'out'; v.sp = 30; v.bay.v = null; }
+      }
+    }
+    S.vehicles = S.vehicles.filter(function (v) { return !v.dead; });
+  }
+
+  // ---------------- customers ----------------
+  function newCustomer(x, y) {
+    S.customers.push({ id: ++S.nCust, x: x, y: y, st: 'walkin', path: [{ x: 180 + rnd(-8, 8), y: 150 }, { x: 180 + rnd(-6, 6), y: 166 }, { x: 180 + rnd(-10, 10), y: 194 }],
+      seat: null, order: null, pat: 0, patMax: CFG.patience, wait: 0, eat: 0, born: T, sat: 0, shirt: pick(SHIRTS), skin: pick(SKINS),
+      turban: Math.random() < 0.4 ? pick(TURBANS) : null, hair: pick(HAIRS), walk: rnd(0, 6), alpha: 1, angry: false,
+      speed: CFG.custSpeed * rnd(0.92, 1.08), moving: false, spot: -1, bx: 0, by: 0, up: true, pay: 0, servedAt: 0, shakeT: -9, dead: false });
+  }
+  function pickOrder() {
+    var n = S.orderN++, r = Math.random();
+    if (n === 0) return 'chai';
+    if (n === 1) return 'roti';
+    if (S.stations[2].locked) return r < 0.52 ? 'chai' : 'roti';
+    return r < 0.36 ? 'chai' : r < 0.68 ? 'roti' : 'dal';
+  }
+  function waitSpot(c) {
+    var used = {};
+    S.customers.forEach(function (o) { if (o !== c && o.st === 'waitgate') used[o.spot] = 1; });
+    for (var i = 0; i < WAIT_SPOTS.length; i++) if (!used[i]) { c.spot = i; return WAIT_SPOTS[i]; }
+    c.spot = -1; return { x: 180 + rnd(-40, 40), y: 210 + rnd(0, 20) };
+  }
+  function seekSeat(c) {
+    var fs = S.seats.filter(function (s) { return !s.occ && !s.t.locked; });
+    if (!fs.length) {
+      if (c.st !== 'waitgate') { c.st = 'waitgate'; c.wait = CFG.gateWait; c.path = [waitSpot(c)]; }
+      return;
+    }
+    var s = pick(fs), ax = s.x + s.side * 18;
+    s.occ = c; c.seat = s; c.spot = -1; c.st = 'toseat';
+    c.path = [{ x: ax, y: 262 }, { x: ax, y: s.y }, { x: s.x, y: s.y }];
+  }
+  function sit(c) {
+    var s = c.seat;
+    c.st = 'seated'; c.x = s.x; c.y = s.y; c.order = pickOrder(); c.pat = c.patMax = CFG.patience; c.sat = T;
+    c.up = s.y < s.t.cy; c.bx = s.x + s.side * 4; c.by = c.up ? s.y - 36 : s.y + 26;
+    sfx('order');
+  }
+  function leave(c, angry) {
+    var s = c.seat;
+    c.path = [];
+    if (s) { s.occ = null; var ax = s.x + s.side * 18; c.path.push({ x: ax, y: s.y }, { x: ax, y: 262 }); }
+    c.path.push({ x: 180 + rnd(-8, 8), y: 194 }, { x: 180, y: 150 }, { x: 180 + rnd(-80, 80), y: 142 });
+    c.seat = null; c.st = 'leaving'; c.angry = !!angry;
+  }
+  function gussa(c) {
+    S.lost++;
+    floatText(c.x, c.y - 42, 'Gussa!', '#ff3b30', 19);
+    burst(c.x, c.y - 24, 10, ['#ff3b30', '#ff7b54', '#444']);
+    sfx('angry'); buzz(25); S.shake = Math.max(S.shake, 3);
+    if (!S.tips.gussa) { S.tips.gussa = 1; setMsg('Too slow! Angry guests leave without paying', 3.5); }
+    leave(c, true);
+  }
+  function pay(c) {
+    var tb = c.seat.t;
+    tb.cash += c.pay; tb.bounce = T;
+    floatText(c.x, c.y - 38, '+₹' + c.pay, '#fff36b', 15);
+    sfx('cash');
+    leave(c, false);
+  }
+  function updCustomers(dt) {
+    var cs = S.customers;
+    for (var i = 0; i < cs.length; i++) {
+      var c = cs[i];
+      c.moving = false;
+      if (c.path.length) { var p = c.path[0]; if (moveTo(c, p.x, p.y, dt, c.angry ? c.speed * 1.35 : c.speed)) c.path.shift(); }
+      if (c.st === 'walkin') { if (!c.path.length) seekSeat(c); }
+      else if (c.st === 'waitgate') {
+        c.wait -= dt; seekSeat(c);
+        if (c.st === 'waitgate' && c.wait <= 0) { S.lost++; floatText(c.x, c.y - 40, 'No seat!', '#ff5a3c', 14); sfx('angry'); leave(c, true); }
+      } else if (c.st === 'toseat') { if (!c.path.length) sit(c); }
+      else if (c.st === 'seated') { c.pat -= dt; if (c.pat <= 0) gussa(c); }
+      else if (c.st === 'eating') { c.eat -= dt; if (c.eat <= 0) pay(c); }
+      else if (c.st === 'leaving') {
+        if (c.angry && Math.random() < dt * 5) steam(c.x, c.y - 32, 'rgba(90,90,90,.45)');
+        if (!c.path.length || c.y < 156) c.alpha -= dt * 1.8;
+        if (c.alpha <= 0) c.dead = true;
+      }
+    }
+    S.customers = cs.filter(function (o) { return !o.dead; });
+  }
+  function moveTo(e, tx, ty, dt, sp) {
+    var dx = tx - e.x, dy = ty - e.y, d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 2) return true;
+    var st = Math.min(d, sp * dt);
+    e.x += dx / d * st; e.y += dy / d * st; e.moving = true; e.walk += dt * 14;
+    return false;
+  }
+
+  // ---------------- serving / cash / pads ----------------
+  function takeFromPile(st, who) {
+    var cap = who === S.bh ? CFG.cap : CFG.chotuCap;
+    if (st.count <= 0 || who.stack.length >= cap) return false;
+    st.count--;
+    var d = 0.24, slot = who.stack.length;
+    who.stack.push({ type: st.id, land: T + d, dy: 0 });
+    addFlyer({ kind: 'item', type: st.id, sx: pileX(st, st.count), sy: pileY(st, st.count), to: who, slot: slot, dur: d, arc: 28 });
+    sfx('grab'); if (who === S.bh) buzz(5);
+    return true;
+  }
+  function serve(c, who) {
+    var idx = -1, i;
+    for (i = who.stack.length - 1; i >= 0; i--) if (who.stack[i].type === c.order) { idx = i; break; }
+    if (idx < 0 || c.st !== 'seated') return false;
+    var isB = who === S.bh, head = who.y - (isB ? 52 : 42) - idx * SP;
+    who.stack.splice(idx, 1);
+    for (i = idx; i < who.stack.length; i++) who.stack[i].dy -= SP;
+    addFlyer({ kind: 'item', type: c.order, sx: who.x, sy: head, tx: c.seat.x - c.seat.side * 24, ty: c.seat.y + 2, dur: 0.26, arc: 26 });
+    var price = ITEM[c.order].price, frac = c.pat / c.patMax;
+    var tip = Math.round(price * CFG.tipMax * clamp((frac - 0.25) / 0.75, 0, 1)), bonus = 0;
+    if (isB) {
+      S.combo = T - S.lastServe < CFG.comboWin ? S.combo + 1 : 1;
+      S.lastServe = T;
+      if (S.combo > S.bestCombo) S.bestCombo = S.combo;
+      if (S.combo >= 2) {
+        bonus = Math.min(6, (S.combo - 1) * 2);
+        floatText(who.x, who.y - 66 - who.stack.length * SP, 'Combo x' + S.combo + '!', '#ffd23f', 15 + Math.min(8, S.combo));
+        sfx('combo');
+        if (!S.tips.combo) { S.tips.combo = 1; setMsg('Combo! Serve back-to-back for bonus ₹', 3); }
+      }
+    }
+    c.pay = price + tip + bonus; c.st = 'eating'; c.eat = CFG.eat; c.servedAt = T;
+    S.served++;
+    sfx('serve'); buzz(12);
+    burst(c.x, c.y - 14, 8, ['#ffffff', '#ffd23f', '#7cf29c']);
+    if (S.served === 1 && !S.tips.queue) { S.tips.queue = 1; setMsg('Nice! Tip: tap up to 3 things — Bhaiya does 1·2·3', 4.5); }
+    if (isB && CFG.mateServe) { var m = mateOf(c.seat); if (m && m.occ && m.occ.st === 'seated' && hasItem(who, m.occ.order)) serve(m.occ, who); }
+    return true;
+  }
+  function collectCash(tb) {
+    var amt = tb.cash; if (amt <= 0) return;
+    tb.cash = 0;
+    var n = clamp(Math.ceil(amt / 10), 1, 8), per = Math.floor(amt / n), rem = amt - per * n;
+    for (var i = 0; i < n; i++) addFlyer({ kind: 'coin', sx: tb.cx + rnd(-10, 10), sy: tb.cy + rnd(0, 14), tx: 24, ty: 22, dur: 0.5 + i * 0.04, arc: 50, value: per + (i === 0 ? rem : 0), delay: i * 0.035 });
+    floatText(tb.cx, tb.cy - 6, '+₹' + amt, '#ffe066', 18);
+    burst(tb.cx, tb.cy, 6, ['#ffd23f', '#7cd67c']);
+    sfx('coin'); buzz(10);
+  }
+  function unlock(p) {
+    if (p.done) return;
+    p.done = true; p.paid = p.price;
+    var msg = '';
+    if (p.id === 'table2') { S.tables[1].locked = false; S.tables[1].born = T; msg = 'Table 2 open — 4 more seats!'; }
+    else if (p.id === 'dal') { var st = S.stations[2]; st.locked = false; st.born = T; st.pop = T; st.count = 1; msg = 'Dal unlocked — dal pays ₹45!'; }
+    else if (p.id === 'chotu') { S.chotu = { x: p.x, y: p.y + 14, home: { x: p.x, y: p.y + 14 }, stack: [], plan: [], walk: 0, moving: false, squash: 0, born: T, think: 0.6, idle: 0, pause: 0 }; msg = 'Chotu hired! He carries food to guests'; }
+    S.shake = 7; sfx('buy'); buzz(30);
+    burst(p.x, p.y, 34, ['#ffd23f', '#ffffff', '#ff6b35', '#06d6a0', '#f15bb5'], true);
+    floatText(p.x, p.y - 34, p.label + '!', '#ffe066', 20);
+    setMsg(msg, 3.5);
+  }
+
+  // ---------------- Bhaiya (player) ----------------
+  function custTarget(c) { return { k: 'cust', key: 'c' + c.id, ref: c, x: c.seat.x + c.seat.side * 18, y: c.seat.y }; }
+  function valid(q) {
+    if (q.k === 'cust') return q.ref.st === 'seated';
+    if (q.k === 'cash') return q.ref.cash > 0;
+    if (q.k === 'buy') return !q.ref.done;
+    if (q.k === 'pile') return !q.ref.locked;
+    return true;
+  }
+  function hitTest(x, y) {
+    var i, best = null, bd = 1e9;
+    for (i = 0; i < S.customers.length; i++) {
+      var c = S.customers[i]; if (c.st !== 'seated') continue;
+      var d = Math.min(dist(x, y, c.x, c.y - 10), dist(x, y, c.bx, c.by) - 3);
+      if (d < 21 && d < bd) { bd = d; best = c; }
+    }
+    if (best) return custTarget(best);
+    for (i = 0; i < S.tables.length; i++) {
+      var tb = S.tables[i];
+      if (!tb.locked && tb.cash > 0 && Math.abs(x - tb.cx) < 30 && y > tb.cy - 32 && y < tb.cy + 52) return { k: 'cash', key: 't' + tb.i, ref: tb, x: tb.cx, y: tb.cy + 40 };
+    }
+    for (i = 0; i < S.pads.length; i++) {
+      var p = S.pads[i];
+      if (!p.done && Math.abs(x - p.x) < p.w / 2 + 6 && Math.abs(y - p.y) < p.h / 2 + 6) return { k: 'buy', key: 'p' + p.id, ref: p, x: p.x, y: p.id === 'dal' ? 500 : p.y };
+    }
+    for (i = 0; i < S.stations.length; i++) {
+      var st = S.stations[i];
+      if (Math.abs(x - st.x) < 50 && y > 494 && y < 606) {
+        if (st.locked) { var dp = padById('dal'); return { k: 'buy', key: 'pdal', ref: dp, x: dp.x, y: 500 }; }
+        return { k: 'pile', key: 's' + st.id, ref: st, x: st.px, y: st.py };
+      }
+    }
+    return null;
+  }
+  function putBack() {
+    // escape hatch for food nobody ordered: only the SURPLUS (items no seated guest is waiting for) flies back
+    var b = S.bh, want = {}, keep = [], n = 0;
+    S.customers.forEach(function (c) { if (c.st === 'seated') want[c.order] = (want[c.order] || 0) + 1; });
+    b.stack.forEach(function (it, i) {
+      if (want[it.type] > 0) { want[it.type]--; it.dy -= (i - keep.length) * SP; keep.push(it); return; }
+      var st = stationOf(it.type), hy = b.y - 52 - i * SP;
+      if (!st.locked && st.count < CFG.pileCap) { addFlyer({ kind: 'item', type: it.type, sx: b.x, sy: hy, tx: pileX(st, st.count), ty: pileY(st, st.count), dur: 0.32, arc: 30, delay: n * 0.03 }); st.count++; }
+      else burst(b.x, hy, 3, ['#ffffff']);
+      n++;
+    });
+    if (!n) return false;
+    b.stack.length = 0; Array.prototype.push.apply(b.stack, keep);
+    b.squash = 1; b.park = null;
+    if (b.act && b.act.k === 'grab') done(); // don't re-grab what was just put back
+    floatText(b.x, b.y - 64 - keep.length * SP, 'Put back ' + n + '!', '#ffffff', 14); sfx('grab'); buzz(10);
+    return true;
+  }
+  function nearCustomer(x, y, r) {
+    // forgiving second pass: a near-miss next to a waiting guest should not cancel the whole queue
+    var best = null, bd = r;
+    S.customers.forEach(function (c) {
+      if (c.st !== 'seated') return;
+      var d = Math.min(dist(x, y, c.x, c.y - 10), dist(x, y, c.bx, c.by));
+      if (d < bd) { bd = d; best = c; }
+    });
+    return best ? custTarget(best) : null;
+  }
+  function onTap(x, y) {
+    S.idleT = 0;
+    ripple(x, y);
+    var t = hitTest(x, y), q = S.queue, b = S.bh, i;
+    // tapping Bhaiya OR the food stack / MAX badge on his head puts surplus food back
+    if (!t && b.stack.length && Math.abs(x - b.x) < 22 && y < b.y + 6 && y > b.y - 70 - b.stack.length * SP) {
+      if (putBack()) return;
+      if (b.stack.length >= CFG.cap) { floatText(b.x, b.y - 70 - b.stack.length * SP, 'Guests want all of it — serve!', '#ffe066', 13); sfx('err'); return; }
+    }
+    if (!t) t = nearCustomer(x, y, 36);
+    if (!t) {
+      S.queue = [{ k: 'ground', key: 'g', x: clamp(x, 14, 346), y: clamp(y, 182, 505), born: T }];
+      b.act = null; sfx('tap'); return;
+    }
+    t.born = T;
+    for (i = 0; i < q.length; i++) if (q[i].key === t.key) break;
+    if (i < q.length) {
+      // tapping a queued target again (or double-tapping a new one) moves it to the front
+      if (i > 0) { var m = q.splice(i, 1)[0]; m.born = T; q.unshift(m); b.act = null; floatText(m.x, m.y - 40, 'First!', '#ffffff', 13); }
+      else q[0].born = T;
+      sfx('tap'); buzz(8); return;
+    }
+    if (q.length && q[0].k === 'ground') { q.length = 0; b.act = null; }
+    if (q.length >= CFG.queueMax) q[q.length - 1] = t; else q.push(t);
+    if (q.length >= 2 && !S.tips.front) { S.tips.front = 1; setMsg('Double-tap a target to make it #1', 3.5); }
+    sfx('tap'); buzz(6);
+  }
+  function done() { S.queue.shift(); S.bh.act = null; }
+  function settle(e, dt) { for (var i = 0; i < e.stack.length; i++) e.stack[i].dy *= Math.max(0, 1 - dt * 14); }
+  function arrive(g) {
+    var b = S.bh;
+    b.squash = 1;
+    if (g.k === 'pile') { b.act = { k: 'grab', st: g.ref, t: 0, tick: 0, got: 0 }; return; }
+    if (g.k === 'buy') { b.act = { k: 'pay', p: g.ref, t: 0, acc: 0, bill: 0 }; return; }
+    if (g.k === 'cust') {
+      var c = g.ref;
+      if (c.st === 'seated') {
+        if (hasItem(b, c.order)) serve(c, b);
+        else { floatText(c.bx, c.by - 22, 'Need ' + ITEM[c.order].word + '!', '#ff5a3c', 14); c.shakeT = T; sfx('err'); buzz(15); }
+      }
+    } else if (g.k === 'cash') collectCash(g.ref);
+    done();
+  }
+  function doAct(a, dt) {
+    var b = S.bh;
+    a.t += dt;
+    if (a.k === 'grab') {
+      var st = a.st;
+      if (b.stack.length >= CFG.cap) { if (!a.got) { floatText(b.x, b.y - 70 - b.stack.length * SP, 'Stack full!', '#ff5a3c', 14); sfx('err'); setMsg('Stack full — serve guests, or tap Bhaiya to put food back', 3); } done(); return; }
+      if (st.count <= 0) {
+        if (a.got || a.t > 2.6) { if (!a.got) floatText(st.x, 492, 'Still cooking…', '#ffffff', 13); else b.park = st; done(); }
+        return;
+      }
+      a.tick -= dt;
+      if (a.tick <= 0) { a.tick = 0.06; if (takeFromPile(st, b)) a.got++; }
+    } else if (a.k === 'pay') {
+      var p = a.p, need = p.price - p.paid;
+      if (need <= 0) { unlock(p); done(); return; }
+      if (S.wallet <= 0) { floatText(p.x, p.y - p.h / 2 - 12, 'Need ₹' + need + ' more', '#ff5a3c', 15); sfx('err'); buzz(20); done(); return; }
+      a.acc += p.price / CFG.payTime * dt;
+      var n = Math.min(Math.floor(a.acc), S.wallet, need);
+      if (n > 0) { a.acc -= n; S.wallet -= n; p.paid += n; }
+      a.bill -= dt;
+      if (a.bill <= 0) { a.bill = 0.06; addFlyer({ kind: 'bill', sx: 24, sy: 22, tx: p.x + rnd(-12, 12), ty: p.y + rnd(-6, 6), dur: 0.35, arc: 40 }); sfx('bill'); }
+      if (p.paid >= p.price) { unlock(p); done(); }
+    }
+  }
+  function passBy() {
+    var b = S.bh, i;
+    if (b.stack.length) for (i = 0; i < S.customers.length; i++) {
+      var c = S.customers[i];
+      if (c.st === 'seated' && hasItem(b, c.order) && dist(b.x, b.y, c.x, c.y) < CFG.passR) serve(c, b);
+    }
+    for (i = 0; i < S.tables.length; i++) { var tb = S.tables[i]; if (tb.cash > 0 && dist(b.x, b.y, tb.cx, tb.cy + 40) < CFG.cashR) collectCash(tb); }
+  }
+  function updBh(dt) {
+    var b = S.bh, q = S.queue, i;
+    b.moving = false; b.squash = Math.max(0, b.squash - dt * 5); settle(b, dt);
+    for (i = q.length - 1; i >= 0; i--) if (!valid(q[i])) { q.splice(i, 1); if (i === 0) b.act = null; }
+    if (q.length) {
+      S.idleT = 0;
+      if (!b.act) {
+        b.park = null;
+        if (moveTo(b, q[0].x, q[0].y, dt, CFG.speed)) arrive(q[0]);
+        else if (Math.random() < dt * 12) dust(b.x, b.y);
+      }
+      if (b.act) doAct(b.act, dt);
+    } else if (!b.act) S.idleT += dt;
+    passBy();
+  }
+
+  // ---------------- Chotu (helper) ----------------
+  function planChotu(h) {
+    var queued = {};
+    S.queue.forEach(function (q) { if (q.k === 'cust') queued[q.ref.id] = 1; });
+    // most urgent first, but prefer orders Bhaiya is NOT already carrying (Chotu covers the gaps)
+    var cands = S.customers.filter(function (c) { return c.st === 'seated' && !queued[c.id]; }).sort(function (a, z) {
+      return (hasItem(S.bh, a.order) ? 100 : 0) + a.pat - (hasItem(S.bh, z.order) ? 100 : 0) - z.pat;
+    });
+    if (!cands.length) return;
+    var carried = h.stack.map(function (it) { return it.type; }), picks = [], need = {}, i, c, k;
+    for (i = 0; i < cands.length && picks.length < CFG.chotuCap; i++) { c = cands[i]; k = carried.indexOf(c.order); if (k >= 0) { carried.splice(k, 1); picks.push(c); } }
+    var room = CFG.chotuCap - h.stack.length;
+    for (i = 0; i < cands.length && picks.length < CFG.chotuCap && room > 0; i++) { c = cands[i]; if (picks.indexOf(c) < 0) { picks.push(c); need[c.order] = (need[c.order] || 0) + 1; room--; } }
+    if (!picks.length) return;
+    Object.keys(need).forEach(function (t) { var st = stationOf(t); h.plan.push({ k: 'pile', st: st, n: need[t], x: st.px + 16, y: st.py - 2, tick: 0, wait: 0 }); });
+    picks.forEach(function (o) { h.plan.push({ k: 'cust', c: o, x: o.seat.x + o.seat.side * 18, y: o.seat.y + 6 }); });
+    h.idle = 0;
+  }
+  function updChotu(h, dt) {
+    h.moving = false; h.squash = Math.max(0, h.squash - dt * 5); settle(h, dt);
+    if (h.pause > 0) { h.pause -= dt; return; }
+    if (!h.plan.length) {
+      h.think -= dt;
+      if (h.think <= 0) { h.think = 0.25; planChotu(h); }
+      if (!h.plan.length) {
+        if (h.stack.length) { h.idle += dt; if (h.idle > 5) { burst(h.x, h.y - 40, 6, ['#ffffff']); h.stack.length = 0; h.idle = 0; } }
+        moveTo(h, h.home.x, h.home.y, dt, CFG.chotuSpeed * 0.8);
+        return;
+      }
+    }
+    var s = h.plan[0];
+    if ((s.k === 'cust' && s.c.st !== 'seated') || (s.k === 'pile' && (s.n <= 0 || h.stack.length >= CFG.chotuCap))) { h.plan.shift(); return; }
+    if (!moveTo(h, s.x, s.y, dt, CFG.chotuSpeed)) return;
+    if (s.k === 'pile') {
+      s.tick -= dt; s.wait += dt;
+      if (s.st.count > 0 && s.tick <= 0) { s.tick = 0.15; if (takeFromPile(s.st, h)) s.n--; }
+      if (s.wait > 3.5) h.plan.shift();
+    } else {
+      if (hasItem(h, s.c.order) && serve(s.c, h)) h.pause = CFG.chotuPause;
+      h.plan.shift();
+    }
+  }
+
+  // ---------------- stations ----------------
+  function updStations(dt) {
+    var b = S.bh;
+    S.stations.forEach(function (st) {
+      if (st.locked) return;
+      if (st.id !== 'roti' && Math.random() < dt * 2.2) steam(st.x + (st.id === 'chai' ? 22 : rnd(-12, 12)), st.id === 'chai' ? 562 : 568);
+      if (st.id === 'roti' && Math.random() < dt * 3) part({ x: st.x + rnd(-8, 8), y: 570, vx: rnd(-10, 10), vy: rnd(-40, -20), g: 0, life: 0.6, max: 0.6, col: pick(['#ffb347', '#ff7a1a', '#ffe08a']), sz: rnd(1, 2), kind: 'dust' });
+      if (st.count >= CFG.pileCap) { st.t = 0; return; }
+      var ev = ITEM[st.id].every;
+      st.t += dt;
+      if (st.t >= ev) {
+        st.t -= ev; st.count++; st.pop = T;
+        // idle top-up only right after a grab here, and never past cap-2, so standing still can't fill MAX with one food
+        if (b.park === st && !S.queue.length && !b.act && b.stack.length < CFG.cap - 2 && dist(b.x, b.y, st.px, st.py) < 16) takeFromPile(st, b);
+        else if (st.count === 1) sfx('cook');
+      }
+    });
+  }
+
+  // ---------------- guidance ----------------
+  function cashTable() { var best = null; S.tables.forEach(function (tb) { if (tb.cash > 0 && (!best || tb.cash > best.cash)) best = tb; }); return best; }
+  function queued(key) { for (var i = 0; i < S.queue.length; i++) if (S.queue[i].key === key) return true; return false; }
+  function nextAction() {
+    var b = S.bh, i, c, st, tb, p;
+    if (S.guideForce > 0 && S.forcePad && !S.forcePad.done && !queued('p' + S.forcePad.id)) {
+      p = S.forcePad; return { x: p.x, y: p.y, txt: p.label + ' ready! Tap it — Bhaiya pays ₹' + (p.price - p.paid) };
+    }
+    tb = cashTable();
+    if (S.timeLeft < 15 && tb && !queued('t' + tb.i)) return { x: tb.cx, y: tb.cy, txt: 'Hurry! Collect the ₹ before the shift ends' };
+    var wait = S.customers.filter(function (o) { return o.st === 'seated'; }).sort(function (a, z) { return a.pat - z.pat; });
+    for (i = 0; i < wait.length; i++) { c = wait[i]; if (hasItem(b, c.order) && !queued('c' + c.id)) return { x: c.bx, y: c.by, txt: 'Tap the customer — serve the ' + ITEM[c.order].word + '!' }; }
+    if (b.stack.length < CFG.cap) {
+      for (i = 0; i < wait.length; i++) { st = stationOf(wait[i].order); if (!queued('s' + st.id) && !hasItem(b, st.id)) return { x: st.x, y: 528, txt: 'Tap ' + ITEM[st.id].label + ' to grab ' + ITEM[st.id].word + ' for the order' }; }
+    } else if (wait.length && !wait.some(function (o) { return hasItem(b, o.order); })) return { follow: true, x: b.x, y: 0, txt: 'Nobody ordered that! Tap Bhaiya to put it back' };
+    if (tb && !queued('t' + tb.i)) return { x: tb.cx, y: tb.cy, txt: 'Tap the ₹ on the table to collect cash' };
+    for (i = 0; i < S.pads.length; i++) { p = S.pads[i]; if (!p.done && S.wallet >= p.price - p.paid && !queued('p' + p.id)) return { x: p.x, y: p.y, txt: 'Tap "' + p.label + '" to buy it' }; }
+    if (b.stack.length < 2 && !queued('schai')) { st = S.stations[0]; return { x: st.x, y: 528, txt: 'Tap CHAI — Bhaiya runs over & grabs cups' }; }
+    return null;
+  }
+  function checkAfford() {
+    for (var i = 0; i < S.pads.length; i++) {
+      var p = S.pads[i];
+      if (!p.done && !S.tips['af' + p.id] && S.wallet >= p.price - p.paid) {
+        S.tips['af' + p.id] = 1; S.forcePad = p; S.guideForce = 4.5;
+        setMsg(p.label + ' is affordable — tap it to buy!', 4); sfx('ready');
+      }
+    }
+  }
+  function updGuide(dt) {
+    S.guideForce = Math.max(0, S.guideForce - dt);
+    S.hintT -= dt;
+    if (S.hintT <= 0) {
+      S.hintT = 0.25; S.na = nextAction();
+      S.hint = S.na ? S.na.txt : (S.queue.length ? 'Bhaiya is on it… queue up to 3 taps' : 'Guests are coming — pre-load chai & roti');
+    }
+    var na = S.na;
+    if (na && na.follow) { na.x = S.bh.x; na.y = S.bh.y - 74 - S.bh.stack.length * SP; } // arrow tracks Bhaiya's stack
+    S.guide = na && na.x !== null && (S.playT < CFG.guideTime || S.idleT > CFG.idleNudge || S.guideForce > 0) ? na : null;
+  }
+
+  // ---------------- main update ----------------
+  function updFx(dt) {
+    var i, ps = S.parts;
+    for (i = ps.length - 1; i >= 0; i--) {
+      var p = ps[i]; p.life -= dt;
+      if (p.life <= 0) { ps.splice(i, 1); continue; }
+      p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      if (p.kind === 'steam') p.sz += dt * 6;
+      if (p.kind === 'conf') p.rot += dt * 8;
+    }
+    if (ps.length > 260) ps.splice(0, ps.length - 260);
+    for (i = S.texts.length - 1; i >= 0; i--) if (T - S.texts[i].born > S.texts[i].max) S.texts.splice(i, 1);
+    for (i = S.ripples.length - 1; i >= 0; i--) if (T - S.ripples[i].born > 0.4) S.ripples.splice(i, 1);
+    var fs = S.flyers;
+    for (i = fs.length - 1; i >= 0; i--) {
+      var f = fs[i]; f.t += dt;
+      if (f.t >= f.dur) {
+        if (f.kind === 'coin') { S.wallet += f.value; S.earned += f.value; S.walletPop = T; sfx('coin'); }
+        else if (f.to) f.to.squash = Math.max(f.to.squash, 0.5);
+        fs.splice(i, 1);
+      }
+    }
+  }
+  function endShift() {
+    S.timeLeft = 0; S.mode = 'end'; S.endT = 0;
+    for (var i = S.flyers.length - 1; i >= 0; i--) { var f = S.flyers[i]; if (f.kind === 'coin') { S.wallet += f.value; S.earned += f.value; S.flyers.splice(i, 1); } }
+    S.leftCash = 0; S.tables.forEach(function (tb) { S.leftCash += tb.cash; });
+    S.stars = S.earned >= CFG.stars[2] ? 3 : S.earned >= CFG.stars[1] ? 2 : S.earned >= CFG.stars[0] ? 1 : 0;
+    S.queue.length = 0; S.bh.act = null; S.guide = null;
+    sfx('end'); buzz(40);
+  }
+  function update(dt) {
+    S.shake = Math.max(0, S.shake - dt * 30);
+    S.shown += (S.wallet - S.shown) * Math.min(1, dt * 9);
+    if (Math.abs(S.wallet - S.shown) < 0.5) S.shown = S.wallet;
+    S.msgT = Math.max(0, S.msgT - dt);
+    updVehicles(dt);
+    updFx(dt);
+    if (S.mode === 'end') {
+      S.endT += dt;
+      for (var i = 0; i < 3; i++) if (!S.starShown[i] && S.endT > 0.55 + i * 0.35) {
+        S.starShown[i] = true;
+        if (i < S.stars) { sfx('star'); buzz(15); burst(180 + (i - 1) * 66, 230, 14, ['#ffd23f', '#fff', '#ff9f1c'], true); }
+      }
+      return;
+    }
+    if (S.mode !== 'play') return;
+    S.playT += dt; S.timeLeft -= dt;
+    var sec = Math.ceil(S.timeLeft);
+    if (sec <= 10 && sec > 0 && sec !== S.lastTick) { S.lastTick = sec; sfx('tick'); }
+    if (S.timeLeft <= 15 && !S.tips.late) { S.tips.late = 1; setMsg('15s left — collect every ₹ on the tables!', 4); }
+    if (S.timeLeft <= 0) { endShift(); return; }
+    S.spawnT -= dt; if (S.spawnT <= 0) spawnVehicle();
+    updStations(dt);
+    updCustomers(dt);
+    updBh(dt);
+    if (S.chotu) updChotu(S.chotu, dt);
+    checkAfford();
+    updGuide(dt);
+  }
+
+  // ---------------- rendering: world ----------------
+  function plant(c, x, y) { frr(c, x - 6, y - 2, 12, 10, 3, '#b4532a'); circ(c, x - 4, y - 6, 6, '#4f8a2b'); circ(c, x + 4, y - 7, 6, '#5fa034'); circ(c, x, y - 11, 6, '#6db33f'); }
+  function drawBg() {
+    var c = bgx, r = seeded(11), i, x, y, s;
+    c.setTransform(bgc.width / W, 0, 0, bgc.height / H, 0, 0);
+    c.fillStyle = '#f0b366'; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#dc9a52'; c.fillRect(0, 0, W, 40);
+    c.lineWidth = 1.5;
+    for (i = 0; i < 30; i++) {
+      x = r() * W; y = 8 + r() * 30; c.strokeStyle = r() < 0.5 ? '#7aa33b' : '#5f8a2c';
+      c.beginPath(); c.moveTo(x - 3, y); c.lineTo(x - 1, y - 5); c.moveTo(x, y); c.lineTo(x + 1, y - 6); c.moveTo(x + 3, y); c.lineTo(x + 4, y - 4); c.stroke();
+    }
+    c.fillStyle = '#5e6269'; c.fillRect(0, 40, W, 52);
+    for (i = 0; i < 120; i++) { c.fillStyle = r() < 0.5 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.07)'; c.fillRect(r() * W, 41 + r() * 50, 2, 1.5); }
+    c.fillStyle = '#e6dfcf'; c.fillRect(0, 42, W, 2); c.fillRect(0, 88, W, 2);
+    c.fillStyle = '#f7f3e6'; for (x = 6; x < W; x += 34) c.fillRect(x, 64.5, 18, 3);
+    c.fillStyle = '#e3a45d'; c.fillRect(0, 92, W, 66);
+    c.setLineDash([6, 5]); c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.55)';
+    [64, 180, 296].forEach(function (bx) { rr(c, bx - 54, 110, 108, 40, 6); c.stroke(); });
+    c.setLineDash([]);
+    for (i = 0; i < 280; i++) { c.fillStyle = r() < 0.55 ? 'rgba(150,80,20,.10)' : 'rgba(255,240,200,.2)'; s = 1 + r() * 2.2; c.fillRect(r() * W, 174 + r() * 330, s, s); }
+    frr(c, 160, 172, 40, 334, 14, 'rgba(255,225,170,.35)');
+    [[0, 142], [218, 360]].forEach(function (sg) {
+      var w = sg[1] - sg[0];
+      c.fillStyle = 'rgba(0,0,0,.12)'; c.fillRect(sg[0], 172, w, 3);
+      c.fillStyle = '#b4532c'; c.fillRect(sg[0], 158, w, 14);
+      c.fillStyle = '#d98250'; c.fillRect(sg[0], 156, w, 3);
+      c.fillStyle = 'rgba(255,220,180,.35)'; c.fillRect(sg[0], 164.5, w, 1);
+      for (var bx = sg[0]; bx < sg[1]; bx += 12) { c.fillRect(bx, 159, 1, 5.5); c.fillRect(bx + 6, 165.5, 1, 6.5); }
+    });
+    [142, 208].forEach(function (px) { frr(c, px, 150, 10, 24, 2, '#c4653a'); frr(c, px - 1, 147, 12, 5, 2, '#fff1dc'); });
+    frr(c, 22, 158, 108, 24, 6, '#ff4fa3'); frr(c, 24, 160, 104, 20, 5, '#1d2a66');
+    label(c, 'HIGHWAY DHABA', 76, 170.5, 12, '#ffd23f');
+    plant(c, 344, 192); plant(c, 14, 476);
+    c.fillStyle = '#6f8794'; c.fillRect(0, 504, W, 4);
+    c.fillStyle = '#93a9b5'; c.fillRect(0, 508, W, 96);
+    c.strokeStyle = 'rgba(70,95,110,.3)'; c.lineWidth = 1; c.beginPath();
+    for (x = 0; x <= W; x += 18) { c.moveTo(x + 0.5, 508); c.lineTo(x + 0.5, 604); }
+    for (y = 508; y <= 604; y += 18) { c.moveTo(0, y + 0.5); c.lineTo(W, y + 0.5); }
+    c.stroke();
+    c.fillStyle = '#5a3317'; c.fillRect(0, 602, W, 38); c.fillStyle = '#7a4a24'; c.fillRect(0, 602, W, 3);
+  }
+  function drawVeh(v) {
+    var c = ctx, L = v.len, Wd = v.wid, hl = L / 2, hw = Wd / 2;
+    c.save(); c.translate(v.x, v.y); c.scale(v.dir, 1);
+    frr(c, -hl + 2, -hw + 4, L, Wd, 6, 'rgba(0,0,0,.2)');
+    if (v.type === 'bike') {
+      ell(c, -9, 0, 4, 2.5, '#222'); ell(c, 9, 0, 4, 2.5, '#222');
+      frr(c, -10, -2.5, 20, 5, 2.5, v.col); circ(c, -1, 0, 5, v.rider); circ(c, 0, 0, 3.4, '#2b1a10');
+    } else {
+      (v.type === 'car' ? [-hl + 9, hl - 11] : [-hl + 10, -hl + 24, hl - 11]).forEach(function (x) { frr(c, x - 4, -hw - 2, 8, 4, 1.5, '#222'); frr(c, x - 4, hw - 2, 8, 4, 1.5, '#222'); });
+      if (v.type === 'car') {
+        frr(c, -hl, -hw, L, Wd, 7, v.col);
+        frr(c, -hl + 12, -hw + 3, L - 24, Wd - 6, 5, 'rgba(255,255,255,.22)');
+        frr(c, hl - 15, -hw + 3, 6, Wd - 6, 2, '#2a3b4f'); frr(c, -hl + 5, -hw + 4, 4, Wd - 8, 2, '#2a3b4f');
+        circ(c, hl - 1.5, -hw + 4, 1.8, '#fff6c2'); circ(c, hl - 1.5, hw - 4, 1.8, '#fff6c2');
+      } else {
+        var cab = 18, cl = L - cab - 2, pw = (cl - 6) / 4;
+        frr(c, hl - cab, -hw + 1, cab, Wd - 2, 5, v.col);
+        frr(c, hl - 7, -hw + 4, 4, Wd - 8, 2, '#2a3b4f');
+        frr(c, -hl, -hw, cl, Wd, 4, '#ffcc33');
+        for (var i = 0; i < 4; i++) { c.fillStyle = v.panels[i]; c.fillRect(-hl + 3 + i * pw, -hw + 3, pw - 2, Wd - 6); }
+        c.fillStyle = 'rgba(255,255,255,.4)'; c.fillRect(-hl + 3, -1, cl - 6, 2);
+      }
+    }
+    c.restore();
+  }
+  function drawCharpai(c, x, y) {
+    frr(c, x - 15, y - 36, 30, 72, 5, '#6b3f1d');
+    frr(c, x - 12, y - 33, 24, 66, 3, '#e6c27a');
+    c.save(); rr(c, x - 12, y - 33, 24, 66, 3); c.clip();
+    c.strokeStyle = 'rgba(160,105,40,.5)'; c.lineWidth = 1.2; c.beginPath();
+    for (var k = -28; k < 70; k += 7) { c.moveTo(x - 12, y - 33 + k); c.lineTo(x + 12, y - 33 + k + 24); c.moveTo(x + 12, y - 33 + k); c.lineTo(x - 12, y - 33 + k + 24); }
+    c.stroke(); c.restore();
+  }
+  function drawTableSet(tb) {
+    var c = ctx, cx = tb.cx, cy = tb.cy;
+    c.save();
+    if (tb.locked) c.globalAlpha = 0.28;
+    else { var s = popS(tb.born, 0.5); c.translate(cx, cy); c.scale(s, s); c.translate(-cx, -cy); }
+    drawCharpai(c, cx - 41, cy); drawCharpai(c, cx + 41, cy);
+    ell(c, cx + 2, cy + 28, 22, 5, 'rgba(80,40,0,.18)');
+    frr(c, cx - 22, cy - 27, 44, 55, 6, '#7a4a22'); frr(c, cx - 20, cy - 27, 40, 50, 5, '#a96d38');
+    c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(cx - 18, cy - 18, 36, 2); c.fillRect(cx - 18, cy - 4, 36, 2); c.fillRect(cx - 18, cy + 10, 36, 2);
+    c.restore();
+    if (tb.locked) return;
+    S.seats.forEach(function (st) {
+      var o = st.occ;
+      if (st.t !== tb || !o || o.st !== 'eating' || T < o.servedAt + 0.26) return;
+      drawItem(c, o.order, st.x - st.side * 24, st.y + 2, 0.5 + 0.5 * clamp(o.eat / CFG.eat, 0, 1));
+    });
+    if (tb.cash > 0) {
+      var b = 1 + 0.35 * Math.max(0, 1 - (T - tb.bounce) / 0.3), n = Math.min(5, Math.ceil(tb.cash / 15));
+      circ(c, cx, cy + 8, 17 + Math.sin(T * 6) * 2, 'rgba(255,230,90,.28)');
+      c.save(); c.translate(cx, cy + 12); c.scale(b, b);
+      for (var i = 0; i < n; i++) { frr(c, -10, -i * 3.5 - 4, 20, 8, 2, '#2f8f4e'); frr(c, -7, -i * 3.5 - 2.5, 14, 5, 1.5, '#7fd68f'); }
+      c.restore();
+      label(c, '₹' + tb.cash, cx, cy - 12 - n * 1.5, 13, '#fff', { sw: 3.5 });
+    }
+  }
+  function drawCanopy(tb, a, b) {
+    var c = ctx, x0 = tb.cx - 70, x1 = tb.cx + 70, y0 = 256, y1 = 376, k, s = popS(tb.born, 0.6);
+    c.save(); c.translate(tb.cx, y0); c.scale(1, s); c.translate(-tb.cx, -y0);
+    [[x0, y0], [x1, y0], [x0, y1], [x1, y1]].forEach(function (p) { circ(c, p[0], p[1], 3, '#5a3418'); });
+    c.fillStyle = a; c.fillRect(x0, y0 - 4, x1 - x0, 4);
+    for (k = 0; k < 10; k++) { c.beginPath(); c.moveTo(x0 + k * 14, y0); c.lineTo(x0 + k * 14 + 14, y0); c.lineTo(x0 + k * 14 + 7, y0 + 8); c.closePath(); c.fillStyle = k % 2 ? a : b; c.fill(); }
+    c.strokeStyle = 'rgba(60,30,10,.5)'; c.lineWidth = 1; c.beginPath();
+    for (k = 0; k <= 16; k++) { var t = k / 16; c.lineTo(lerp(x0, x1, t), y1 + Math.sin(t * Math.PI) * 6); }
+    c.stroke();
+    var lc = ['#ffe066', '#ff6b6b', '#7ae7ff', '#a6ff7a'];
+    for (k = 1; k < 16; k++) {
+      var tt = k / 16, tw = 0.55 + 0.45 * Math.sin(T * 4 + k * 1.7);
+      c.globalAlpha = tw; circ(c, lerp(x0, x1, tt), y1 + Math.sin(tt * Math.PI) * 6 + 2, 2, lc[k % 4]);
+    }
+    c.restore();
+  }
+  function drawCooker(c, st) {
+    var x = st.x, y = 578;
+    if (st.id === 'chai') {
+      frr(c, x - 24, y - 10, 48, 24, 6, '#4a4e57'); circ(c, x, y + 2, 8, 'rgba(255,120,30,.6)');
+      ell(c, x, y - 4, 16, 12, '#b9c3cc'); ell(c, x - 4, y - 8, 8, 4.5, '#e9eef2');
+      ell(c, x, y - 14, 7, 3, '#8e99a3'); circ(c, x, y - 17, 2.2, '#5a6470');
+      c.strokeStyle = '#9aa5af'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(x + 13, y - 6); c.lineTo(x + 22, y - 14); c.stroke();
+    } else if (st.id === 'roti') {
+      var g = 0.55 + 0.35 * Math.sin(T * 13) * Math.sin(T * 5.3);
+      ell(c, x, y + 3, 30, 17, '#8d3c1c'); ell(c, x, y - 1, 30, 16, '#c0602f'); ell(c, x, y - 5, 17, 8.5, '#7a2e12');
+      ell(c, x, y - 5, 13, 6, 'rgba(255,140,30,' + g + ')'); ell(c, x, y - 5, 7, 3, 'rgba(255,230,120,' + g + ')');
+    } else {
+      frr(c, x - 26, y - 4, 52, 20, 6, '#4a4e57');
+      ell(c, x, y + 1, 25, 14, '#8f9aa5'); ell(c, x, y - 5, 24, 9, '#d3dae0'); ell(c, x, y - 5, 20, 6.5, '#f0b429');
+      circ(c, x - 6 + Math.sin(T * 3) * 3, y - 5, 1.6, '#ffd666'); circ(c, x + 7, y - 6 + Math.sin(T * 4) * 1, 1.3, '#e09a10');
+    }
+  }
+  function drawStation(st) {
+    var c = ctx, x = st.x, col = ST_COL[st.id], i, ev = ITEM[st.id].every;
+    c.save();
+    if (st.locked) c.globalAlpha = 0.35;
+    else { var s = popS(st.born, 0.5); c.translate(x, 556); c.scale(s, s); c.translate(-x, -556); }
+    drawCooker(c, st);
+    frr(c, x - 44, 512, 88, 36, 8, col[0]);
+    frr(c, x - 44, 538, 88, 14, 6, col[1]);
+    c.fillStyle = 'rgba(255,255,255,.18)'; c.fillRect(x - 40, 515, 80, 2);
+    label(c, ITEM[st.id].label, x - 6, 545.5, 10, '#fff');
+    if (!st.locked) {
+      var full = st.count >= CFG.pileCap;
+      circ(c, x + 33, 545, 5.5, 'rgba(0,0,0,.25)');
+      c.beginPath(); c.arc(x + 33, 545, 4.5, -Math.PI / 2, -Math.PI / 2 + TAU * (full ? 1 : st.t / ev)); c.strokeStyle = full ? '#7cf29c' : '#fff'; c.lineWidth = 2; c.stroke();
+      var order = [3, 4, 5, 0, 1, 2];
+      for (var k = 0; k < 6; k++) {
+        i = order[k]; if (i >= st.count) continue;
+        drawItem(c, st.id, pileX(st, i), pileY(st, i), 1.1 * (i === st.count - 1 ? popS(st.pop, 0.3) : 1));
+      }
+    }
+    c.restore();
+    if (st.locked) {
+      frr(c, x - 8, 524, 16, 13, 3, '#6b4a2a');
+      c.beginPath(); c.arc(x, 524, 5, Math.PI, 0); c.strokeStyle = '#6b4a2a'; c.lineWidth = 2.5; c.stroke();
+      circ(c, x, 530, 1.8, '#f0d7a8');
+    }
+  }
+  var GHOST_CHOTU = { x: 316, y: 440, stack: [], walk: 0, moving: false, born: -9, squash: 0 };
+  function drawPad(p) {
+    var c = ctx, aff = S.wallet > 0 && S.wallet >= p.price - p.paid, x = p.x - p.w / 2, y = p.y - p.h / 2;
+    var pul = aff ? 1 + Math.sin(T * 6) * 0.04 : 1;
+    c.save(); c.translate(p.x, p.y); c.scale(pul, pul); c.translate(-p.x, -p.y);
+    frr(c, x, y, p.w, p.h, 10, aff ? 'rgba(30,150,85,.5)' : 'rgba(80,40,10,.25)');
+    if (p.paid > 0) { c.save(); rr(c, x, y, p.w, p.h, 10); c.clip(); c.fillStyle = 'rgba(43,190,115,.75)'; var fh = p.h * p.paid / p.price; c.fillRect(x, y + p.h - fh, p.w, fh); c.restore(); }
+    if (p.id === 'chotu') { c.save(); c.globalAlpha = 0.3; drawChotu(GHOST_CHOTU); c.restore(); }
+    rr(c, x, y, p.w, p.h, 10); c.setLineDash([5, 4]); c.lineDashOffset = -T * 14; c.lineWidth = 2; c.strokeStyle = '#fff'; c.stroke(); c.setLineDash([]);
+    label(c, p.label, p.x, y + 11, 11.5, '#fff', { sw: 3 });
+    frr(c, p.x - 23, y + p.h - 21, 46, 17, 8.5, aff ? '#ffd23f' : '#f6e7cc');
+    label(c, '₹' + (p.price - p.paid), p.x, y + p.h - 12, 12.5, '#5a2d00');
+    c.restore();
+  }
+
+  // ---------------- rendering: characters ----------------
+  function drawStack(e, headY, cap) {
+    var c = ctx, n = e.stack.length;
+    for (var i = 0; i < n; i++) {
+      var it = e.stack[i];
+      if (it.land > T) continue;
+      var sway = e.moving ? Math.sin(e.walk * 0.5 + 1) * i * 0.7 : Math.sin(T * 2 + i) * 0.2 * i;
+      var lp = T - it.land < 0.18 ? backOut((T - it.land) / 0.18) : 1;
+      drawItem(c, it.type, e.x + sway, headY - i * SP + it.dy, 0.95 * lp);
+    }
+    if (cap && n >= cap) {
+      var p = 1 + Math.sin(T * 10) * 0.08;
+      c.save(); c.translate(e.x, headY - n * SP - 8); c.scale(p, p);
+      frr(c, -16, -8, 32, 16, 8, '#e63946'); label(c, 'MAX', 0, 0.5, 11, '#fff'); c.restore();
+    }
+  }
+  function drawBhaiya(b) {
+    var c = ctx, mv = b.moving, ph = b.walk, sk = '#b8794a', dk = '#24160c';
+    var bob = mv ? Math.abs(Math.sin(ph)) * 2.2 : Math.sin(T * 2.5) * 0.5, sq = b.squash || 0;
+    ell(c, b.x, b.y + 1, 13, 4.5, 'rgba(70,30,0,.22)');
+    c.save(); c.translate(b.x, b.y - bob); c.scale(1 + sq * 0.14, 1 - sq * 0.12);
+    var l = mv ? Math.sin(ph) * 2.5 : 0, a = mv ? Math.sin(ph) * 2 : 0;
+    frr(c, -7, -9 + l, 5, 9, 2, '#7a4a26'); frr(c, 2, -9 - l, 5, 9, 2, '#7a4a26');
+    frr(c, -10, -18, 20, 12, 4, '#2f6db5');
+    c.fillStyle = 'rgba(255,255,255,.28)'; c.fillRect(-10, -14, 20, 1.5); c.fillRect(-4, -18, 1.5, 12); c.fillRect(3, -18, 1.5, 12);
+    circ(c, -12, -24 + a, 4, sk); circ(c, 12, -24 - a, 4, sk);
+    frr(c, -11, -33, 22, 18, 7, '#fbf6ea');
+    c.save(); c.lineCap = 'round'; c.strokeStyle = '#d62828'; c.lineWidth = 5; c.beginPath(); c.moveTo(-8, -32); c.lineTo(9, -18); c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,.75)'; c.lineWidth = 1.2; c.setLineDash([2, 3]); c.stroke(); c.restore();
+    frr(c, 7, -21, 5, 9, 2, '#d62828');
+    circ(c, 0, -38, 9, sk);
+    c.beginPath(); c.arc(0, -39, 9, Math.PI * 1.05, Math.PI * 1.95); c.fillStyle = dk; c.fill();
+    circ(c, -3.2, -38.5, 1.2, dk); circ(c, 3.2, -38.5, 1.2, dk);
+    ell(c, -3.3, -34.2, 3.6, 1.7, dk); ell(c, 3.3, -34.2, 3.6, 1.7, dk); circ(c, -6.7, -35.3, 1.2, dk); circ(c, 6.7, -35.3, 1.2, dk);
+    circ(c, -5.8, -36.5, 1.6, 'rgba(255,120,100,.35)'); circ(c, 5.8, -36.5, 1.6, 'rgba(255,120,100,.35)');
+    c.restore();
+    drawStack(b, b.y - bob - 52, CFG.cap);
+  }
+  function drawChotu(h) {
+    var c = ctx, mv = h.moving, ph = h.walk, bob = mv ? Math.abs(Math.sin(ph)) * 2 : 0, s = popS(h.born, 0.5), sk = '#a8693c';
+    ell(c, h.x, h.y + 1, 10, 3.5, 'rgba(70,30,0,.22)');
+    c.save(); c.translate(h.x, h.y - bob); c.scale(s * (1 + h.squash * 0.12), s * (1 - h.squash * 0.1));
+    var l = mv ? Math.sin(ph) * 2 : 0;
+    frr(c, -5, -7 + l, 4, 7, 2, '#8a5a32'); frr(c, 1, -7 - l, 4, 7, 2, '#8a5a32');
+    frr(c, -7, -13, 14, 7, 3, '#3a3a5a'); frr(c, -8, -25, 16, 14, 5, '#4fb3ff');
+    circ(c, -9, -19, 3, sk); circ(c, 9, -19, 3, sk); circ(c, 0, -30, 7, sk);
+    c.beginPath(); c.arc(0, -31, 7.3, Math.PI, 0); c.fillStyle = '#ff8c1a'; c.fill(); frr(c, -1, -33, 10, 3, 1.5, '#e06d00');
+    circ(c, -2.5, -30, 1, '#24160c'); circ(c, 2.5, -30, 1, '#24160c');
+    c.beginPath(); c.arc(0, -27.5, 2, 0.1 * Math.PI, 0.9 * Math.PI); c.strokeStyle = '#24160c'; c.lineWidth = 1; c.stroke();
+    c.restore();
+    drawStack(h, h.y - bob - 42, 0);
+    if (h !== GHOST_CHOTU && T - h.born < 4) label(c, 'Chotu', h.x, h.y - 52 - h.stack.length * SP, 11, '#fff', { sw: 3 });
+  }
+  function drawCust(o) {
+    var c = ctx, seated = o.st === 'seated' || o.st === 'eating', s = popS(o.born, 0.3);
+    var bob = o.moving ? Math.abs(Math.sin(o.walk)) * 2 : o.st === 'eating' ? Math.abs(Math.sin(T * 12)) : 0;
+    c.save(); c.globalAlpha = clamp(o.alpha, 0, 1); c.translate(o.x, o.y); c.scale(s, s);
+    if (!seated) {
+      ell(c, 0, 1, 8, 3, 'rgba(70,30,0,.2)');
+      var l = o.moving ? Math.sin(o.walk) * 2 : 0;
+      frr(c, -5, -8 + l, 4, 8, 2, '#3b2f2a'); frr(c, 1, -8 - l, 4, 8, 2, '#3b2f2a');
+    }
+    var y = (seated ? 5 : 0) - bob;
+    frr(c, -7.5, -20 + y, 15, 14, 5, o.shirt);
+    circ(c, -8, -14 + y, 2.8, o.skin); circ(c, 8, -14 + y, 2.8, o.skin);
+    circ(c, 0, -25 + y, 6.2, o.angry ? '#d9534f' : o.skin);
+    if (o.turban) { ell(c, 0, -28.5 + y, 7, 4.5, o.turban); circ(c, 0, -30 + y, 1.8, 'rgba(255,255,255,.3)'); }
+    else { c.beginPath(); c.arc(0, -26 + y, 6.4, Math.PI * 1.05, Math.PI * 1.95); c.fillStyle = o.hair; c.fill(); }
+    circ(c, -2.2, -25 + y, 0.9, '#1a1a1a'); circ(c, 2.2, -25 + y, 0.9, '#1a1a1a');
+    c.restore();
+  }
+  function drawBubble(o) {
+    var c = ctx, f = clamp(o.pat / o.patMax, 0, 1), s = popS(o.sat, 0.35), d = o.up ? 1 : -1;
+    var sh = f < 0.3 ? Math.sin(T * 38) * 1.3 : 0;
+    if (T - o.shakeT < 0.4) sh += Math.sin(T * 60) * 3;
+    c.save(); c.translate(o.bx + sh, o.by); c.scale(s, s);
+    if (hasItem(S.bh, o.order)) circ(c, 0, 0, 19 + Math.sin(T * 8) * 1.5, 'rgba(90,255,150,.38)');
+    c.beginPath(); c.moveTo(-5, d * 9); c.lineTo(5, d * 9); c.lineTo(0, d * 17); c.closePath(); c.fillStyle = '#fff'; c.fill();
+    circ(c, 0, 0, 13, '#fff');
+    c.lineWidth = 3.5; c.beginPath(); c.arc(0, 0, 15.5, 0, TAU); c.strokeStyle = 'rgba(0,0,0,.15)'; c.stroke();
+    c.beginPath(); c.arc(0, 0, 15.5, -Math.PI / 2, -Math.PI / 2 + TAU * f); c.strokeStyle = f > 0.55 ? '#2bb673' : f > 0.28 ? '#ffb020' : '#ff3b30'; c.lineCap = 'round'; c.stroke();
+    drawItem(c, o.order, 0, 1, 1.15);
+    c.restore();
+  }
+  function drawWaitBubble(o) {
+    var c = ctx, f = clamp(o.wait / CFG.gateWait, 0, 1), x = o.x, y = o.y - 42;
+    circ(c, x, y, 9, 'rgba(255,255,255,.92)');
+    c.beginPath(); c.arc(x, y, 11, -Math.PI / 2, -Math.PI / 2 + TAU * f); c.strokeStyle = f > 0.4 ? '#ffb020' : '#ff3b30'; c.lineWidth = 2.5; c.stroke();
+    for (var i = 0; i < 3; i++) circ(c, x - 4 + i * 4, y, 1.4, 'rgba(60,40,20,' + (0.3 + 0.7 * Math.max(0, Math.sin(T * 6 - i))) + ')');
+  }
+
+  // ---------------- rendering: overlays / fx / hud ----------------
+  function drawPath() {
+    var q = S.queue, c = ctx; if (!q.length) return;
+    c.save(); c.setLineDash([2, 7]); c.lineDashOffset = -T * 30; c.lineCap = 'round'; c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.8)';
+    c.beginPath(); c.moveTo(S.bh.x, S.bh.y); q.forEach(function (m) { c.lineTo(m.x, m.y); }); c.stroke(); c.restore();
+  }
+  function drawMarkers() {
+    var q = S.queue, c = ctx;
+    for (var i = q.length - 1; i >= 0; i--) {
+      var m = q[i], s = popS(m.born, 0.3), col = i === 0 ? '#ff4f2e' : '#ff9f1c';
+      c.save(); c.translate(m.x, m.y);
+      c.save(); c.scale(s, s); c.beginPath(); c.ellipse(0, 0, 13, 5.5, 0, 0, TAU); c.strokeStyle = col; c.lineWidth = 2.5; c.stroke(); c.restore();
+      if (m.k !== 'ground') {
+        c.translate(0, -18 - (i === 0 ? Math.abs(Math.sin(T * 6)) * 3 : 0)); c.scale(s, s);
+        c.beginPath(); c.moveTo(-5, 6); c.lineTo(5, 6); c.lineTo(0, 13); c.closePath(); c.fillStyle = col; c.fill();
+        circ(c, 0, 0, 10, '#fff'); circ(c, 0, 0, 8, col); label(c, String(i + 1), 0, 0.5, 12, '#fff');
+      }
+      c.restore();
+    }
+  }
+  function drawFx() {
+    var c = ctx;
+    S.ripples.forEach(function (r) {
+      var k = (T - r.born) / 0.4;
+      c.beginPath(); c.arc(r.x, r.y, 4 + k * 18, 0, TAU); c.strokeStyle = 'rgba(255,255,255,' + (1 - k) * 0.9 + ')'; c.lineWidth = 2.5; c.stroke();
+    });
+    S.parts.forEach(function (p) {
+      c.globalAlpha = clamp(p.life / p.max, 0, 1);
+      if (p.kind === 'conf') { c.save(); c.translate(p.x, p.y); c.rotate(p.rot); c.fillStyle = p.col; c.fillRect(-p.sz, -p.sz * 0.5, p.sz * 2, p.sz); c.restore(); }
+      else circ(c, p.x, p.y, p.sz, p.col);
+    });
+    c.globalAlpha = 1;
+    S.flyers.forEach(function (f) {
+      if (f.t < 0) return;
+      var e = clamp(f.t / f.dur, 0, 1), tx = f.tx, ty = f.ty;
+      if (f.to) { tx = f.to.x; ty = f.to.y - (f.to === S.bh ? 52 : 42) - f.slot * SP; }
+      var ee = f.kind === 'coin' ? e * e * 0.6 + e * 0.4 : e;
+      var x = lerp(f.sx, tx, ee), y = lerp(f.sy, ty, ee) - f.arc * 4 * e * (1 - e);
+      if (f.kind === 'item') drawItem(c, f.type, x, y, 1);
+      else if (f.kind === 'coin') { c.save(); c.translate(x, y); c.scale(Math.abs(Math.cos(T * 10 + f.sx)) * 0.7 + 0.3, 1); coin(c, 0, 0, 6.5); c.restore(); }
+      else { c.save(); c.translate(x, y); c.rotate(e * 6); frr(c, -6, -3.5, 12, 7, 1.5, '#3f9e4f'); frr(c, -3.5, -1.5, 7, 3, 1, '#a5d6a7'); c.restore(); }
+    });
+    S.texts.forEach(function (t) {
+      var age = T - t.born, a = age > t.max * 0.65 ? 1 - (age - t.max * 0.65) / (t.max * 0.35) : 1;
+      c.save(); c.globalAlpha = clamp(a, 0, 1); c.translate(t.x, t.y - age * 26); var s = backOut(age / 0.25); c.scale(s, s);
+      label(c, t.s, 0, 0, t.size, t.col, { sw: 3.5 }); c.restore();
+    });
+  }
+  function drawGuide() {
+    var g = S.guide, c = ctx; if (!g) return;
+    var b = Math.abs(Math.sin(T * 5)) * 7, pr = (T * 1.5) % 1;
+    c.beginPath(); c.arc(g.x, g.y, 10 + pr * 16, 0, TAU); c.strokeStyle = 'rgba(255,225,70,' + (1 - pr) * 0.9 + ')'; c.lineWidth = 3; c.stroke();
+    c.save(); c.translate(g.x, g.y - 20 - b);
+    c.beginPath(); c.moveTo(-7, -24); c.lineTo(7, -24); c.lineTo(7, -11); c.lineTo(14, -11); c.lineTo(0, 3); c.lineTo(-14, -11); c.lineTo(-7, -11); c.closePath();
+    c.lineJoin = 'round'; c.lineWidth = 4; c.strokeStyle = '#6b2f00'; c.stroke(); c.fillStyle = '#ffd23f'; c.fill();
+    c.restore();
+  }
+  function button(x, y, w, h, txt) {
+    var c = ctx, p = 1 + Math.sin(T * 4) * 0.025;
+    c.save(); c.translate(x + w / 2, y + h / 2); c.scale(p, p);
+    frr(c, -w / 2, -h / 2 + 5, w, h, h / 2, '#1a7a4a'); frr(c, -w / 2, -h / 2, w, h, h / 2, '#2bb673');
+    frr(c, -w / 2 + 12, -h / 2 + 5, w - 24, h / 2 - 6, h / 4, 'rgba(255,255,255,.2)');
+    label(c, txt, 0, 2, 23, '#fff', { sw: 4, sc: '#1a6a40' });
+    c.restore();
+  }
+  function drawHUD() {
+    var c = ctx;
+    var wp = 1 + Math.max(0, 1 - (T - S.walletPop) / 0.25) * 0.2;
+    frr(c, 8, 7, 106, 30, 15, 'rgba(58,28,8,.85)');
+    c.save(); c.translate(24, 22); c.scale(wp, wp); coin(c, 0, 0, 11); c.restore();
+    label(c, '₹' + Math.round(S.shown), 40, 23, 19, '#fff', { a: 'left' });
+    if (S.mode === 'play' && S.combo >= 2 && T - S.lastServe < CFG.comboWin) {
+      var cf = 1 - (T - S.lastServe) / CFG.comboWin;
+      frr(c, 8, 41, 80, 20, 10, 'rgba(230,57,70,.92)'); label(c, 'COMBO x' + S.combo, 48, 51, 12, '#fff'); frr(c, 14, 56.5, 68 * cf, 2.5, 1.2, '#ffd23f');
+    }
+    var low = S.mode === 'play' && S.timeLeft <= 15, tp = low ? 1 + Math.max(0, Math.sin(T * 10)) * 0.08 : 1;
+    c.save(); c.translate(180, 22); c.scale(tp, tp);
+    frr(c, -32, -15, 64, 30, 15, low ? '#d62828' : 'rgba(58,28,8,.85)'); label(c, fmt(S.timeLeft), 0, 1, 18, '#fff');
+    c.restore();
+    frr(c, 236, 7, 116, 32, 12, 'rgba(58,28,8,.85)');
+    label(c, 'Earn ₹' + CFG.goal, 244, 16, 11, '#ffe9c2', { a: 'left' });
+    label(c, '₹' + S.earned, 344, 16, 11, '#ffd23f', { a: 'right' });
+    frr(c, 244, 25, 100, 7, 3.5, 'rgba(255,255,255,.18)');
+    var f = clamp(S.earned / CFG.stars[2], 0, 1);
+    if (f > 0) frr(c, 244, 25, Math.max(7, 100 * f), 7, 3.5, '#ffc531');
+    for (var i = 0; i < 3; i++) star(c, 244 + 100 * CFG.stars[i] / CFG.stars[2], 28.5, 6, S.earned >= CFG.stars[i] ? '#ffd23f' : '#8a6a4a', '#3a1c08');
+    if (S.mode === 'play') {
+      var m = S.msgT > 0, t = m ? S.msg : S.hint;
+      if (t) { frr(c, 10, 607, 340, 27, 13.5, m ? 'rgba(120,40,0,.9)' : 'rgba(40,20,5,.78)'); label(c, t, 180, 621, 13, m ? '#ffe066' : '#fff4dc', { w: 600, max: 324 }); }
+    }
+  }
+  var DEMO = { x: 96, y: 352, stack: [{ type: 'chai', land: -1, dy: 0 }, { type: 'roti', land: -1, dy: 0 }, { type: 'chai', land: -1, dy: 0 }], moving: false, walk: 0, squash: 0 };
+  function drawStart() {
+    var c = ctx, s = popS(S.bornT, 0.5);
+    c.fillStyle = 'rgba(45,20,5,.55)'; c.fillRect(0, 0, W, H);
+    c.save(); c.translate(180, 320); c.scale(s, s); c.translate(-180, -320);
+    frr(c, 24, 130, 312, 380, 24, '#7a3b10'); frr(c, 24, 124, 312, 380, 24, '#fff3df');
+    label(c, 'Dhaba Rush', 180, 166, 38, '#e8590c');
+    label(c, 'HIGHWAY IDLE TYCOON', 180, 194, 12, '#9a5b2a');
+    frr(c, 106, 207, 148, 24, 12, '#2a9d8f'); label(c, 'Loop B  ·  Tap & Go', 180, 219.5, 13, '#fff');
+    var pts = [{ x: 170, y: 300 }, { x: 236, y: 338 }, { x: 292, y: 296 }];
+    c.save(); c.setLineDash([2, 7]); c.lineDashOffset = -T * 30; c.lineCap = 'round'; c.lineWidth = 3; c.strokeStyle = 'rgba(200,110,40,.8)';
+    c.beginPath(); c.moveTo(DEMO.x, DEMO.y); pts.forEach(function (p) { c.lineTo(p.x, p.y); }); c.stroke(); c.restore();
+    drawItem(c, 'chai', 170, 280, 1.4); drawItem(c, 'roti', 236, 318, 1.4); coin(c, 292, 276, 9);
+    pts.forEach(function (p, i) { circ(c, p.x, p.y, 10, '#fff'); circ(c, p.x, p.y, 8, i ? '#ff9f1c' : '#ff4f2e'); label(c, String(i + 1), p.x, p.y + 0.5, 12, '#fff'); });
+    drawBhaiya(DEMO);
+    label(c, 'Tap a counter, a customer or the ₹ cash —', 180, 386, 14, '#5a3418', { w: 600 });
+    label(c, 'Bhaiya runs there and does it. Queue up to 3!', 180, 406, 14, '#5a3418', { w: 600 });
+    label(c, 'Earn ₹' + CFG.goal + ' in 2 minutes', 180, 430, 15, '#c0392b');
+    button(70, 446, 220, 50, 'Start shift');
+    c.restore();
+    S.btn = { x: 70, y: 446, w: 220, h: 50 };
+  }
+  function drawEnd() {
+    var c = ctx, s = backOut(S.endT / 0.45);
+    c.fillStyle = 'rgba(45,20,5,' + 0.6 * clamp(S.endT / 0.3, 0, 1) + ')'; c.fillRect(0, 0, W, H);
+    c.save(); c.translate(180, 320); c.scale(s, s); c.translate(-180, -320);
+    frr(c, 30, 136, 300, 370, 24, '#7a3b10'); frr(c, 30, 130, 300, 370, 24, '#fff3df');
+    label(c, 'Shift over!', 180, 170, 32, '#e8590c');
+    for (var i = 0; i < 3; i++) {
+      var sx = 180 + (i - 1) * 66, sy = i === 1 ? 222 : 230, r = i === 1 ? 28 : 23, tt = S.endT - (0.55 + i * 0.35);
+      star(c, sx, sy, r, '#e9d6b8', '#c9a77a');
+      if (i < S.stars && tt > 0) { c.save(); c.translate(sx, sy); var ss = backOut(tt / 0.35); c.scale(ss, ss); star(c, 0, 0, r, '#ffc531', '#b86b00'); c.restore(); }
+    }
+    var ok = S.earned >= CFG.goal;
+    label(c, '₹' + S.earned + ' earned', 180, 284, 28, '#3d1f08');
+    label(c, ok ? 'Goal ₹' + CFG.goal + ' reached — shabash!' : 'Goal: earn ₹' + CFG.goal + ' — try again!', 180, 312, 14, ok ? '#1e8a55' : '#b04a1a', { w: 600 });
+    label(c, 'Served ' + S.served + '   ·   Lost ' + S.lost, 180, 346, 16, '#5a3418');
+    label(c, S.bestCombo >= 2 ? 'Best combo  x' + S.bestCombo : 'No combos — serve back-to-back!', 180, 372, 14, '#5a3418', { w: 600 });
+    if (S.leftCash > 0) label(c, '₹' + S.leftCash + ' left uncollected on tables', 180, 396, 12.5, '#a0703c', { w: 600 });
+    if (S.endT > 1.0) button(70, 426, 220, 52, 'Play again');
+    c.restore();
+    S.btn = { x: 70, y: 426, w: 220, h: 52 };
+  }
+  function render() {
+    var c = ctx;
+    c.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    c.fillStyle = '#e9a55a'; c.fillRect(0, 0, W, H);
+    c.save();
+    if (S.shake > 0) c.translate(rnd(-1, 1) * S.shake, rnd(-1, 1) * S.shake);
+    c.drawImage(bgc, 0, 0, W, H);
+    S.vehicles.forEach(drawVeh);
+    S.tables.forEach(drawTableSet);
+    S.stations.forEach(drawStation);
+    S.pads.forEach(function (p) { if (!p.done) drawPad(p); });
+    drawPath();
+    var ents = S.customers.slice(); ents.push(S.bh); if (S.chotu) ents.push(S.chotu);
+    ents.sort(function (a, b) { return a.y - b.y; });
+    ents.forEach(function (e) { if (e === S.bh) drawBhaiya(e); else if (e === S.chotu) drawChotu(e); else drawCust(e); });
+    if (!S.tables[0].locked) drawCanopy(S.tables[0], '#1fa39a', '#ffd23f');
+    if (!S.tables[1].locked) drawCanopy(S.tables[1], '#e0457b', '#ff9f1c');
+    S.customers.forEach(function (o) { if (o.st === 'seated') drawBubble(o); else if (o.st === 'waitgate') drawWaitBubble(o); });
+    drawMarkers();
+    drawFx();
+    if (S.mode === 'play') drawGuide();
+    c.restore();
+    drawHUD();
+    if (S.mode === 'start') drawStart(); else if (S.mode === 'end') drawEnd();
+  }
+
+  // ---------------- boot / input / loop ----------------
+  function startShift() {
+    initAudio();
+    S = newState(); S.mode = 'play'; window.__dhaba.state = S;
+    sfx('start'); buzz(15);
+  }
+  function resize() {
+    var vw = window.innerWidth || W, vh = window.innerHeight || H, k = Math.min(vw / W, vh / H);
+    var dpr = Math.min(window.devicePixelRatio || 1, 3), cw = Math.floor(W * k), ch = Math.floor(H * k);
+    cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+    cv.width = Math.max(1, Math.round(cw * dpr)); cv.height = Math.max(1, Math.round(ch * dpr));
+    bgc.width = cv.width; bgc.height = cv.height;
+    drawBg();
+  }
+  cv.addEventListener('pointerdown', function (e) {
+    e.preventDefault(); initAudio();
+    if (e.pointerType === 'mouse' && e.button !== 0) return; // right/middle click is not a tap
+    var r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+    if (S.mode === 'play') {
+      // re-tapping (or double-tapping) a queued target moves it to the front - see onTap
+      onTap(x, y); return;
+    }
+    if (S.mode === 'start') { startShift(); return; } // any tap on the start card starts the shift
+    if (S.mode === 'end' && S.endT < 1.0) return;
+    var b = S.btn;
+    if (b && x > b.x - 10 && x < b.x + b.w + 10 && y > b.y - 12 && y < b.y + b.h + 12) startShift();
+  }, { passive: false });
+  window.addEventListener('pointerup', initAudio);
+  window.addEventListener('touchend', initAudio, { passive: true }); // iOS grants audio on touchend
+  window.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && S.mode !== 'play' && !(S.mode === 'end' && S.endT < 1)) { e.preventDefault(); startShift(); }
+  });
+  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); }); // iOS pinch-zoom
+  cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('visibilitychange', function () {
+    paused = document.hidden;
+    try { if (AC) quiet(paused ? AC.suspend() : AC.resume()); } catch (e) { /* ignore */ }
+  });
+  window.addEventListener('resize', resize);
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!last) last = now;
+    var dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+    if (paused) return;
+    T += dt;
+    update(dt);
+    render();
+  }
+  S = newState();
+  // debug hooks: __dhaba.step(sec) advances the sim at 60 fps; __dhaba.tap(x, y) taps in logical 360x640 coords
+  window.__dhaba = {
+    state: S, cfg: CFG, start: startShift,
+    step: function (sec) { for (var i = 0, n = Math.round(sec * 60); i < n; i++) { T += 1 / 60; update(1 / 60); } render(); return S; },
+    tap: function (x, y) { if (S.mode === 'play') onTap(x, y); else if (!(S.mode === 'end' && S.endT < 1)) startShift(); }
+  };
+  resize();
+  try {
+    if (document.fonts && document.fonts.load) {
+      Promise.all([document.fonts.load('800 16px "Baloo 2"'), document.fonts.load('600 16px "Baloo 2"')]).then(drawBg, function () {});
+    }
+  } catch (e) { /* font optional */ }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

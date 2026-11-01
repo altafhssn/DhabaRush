@@ -1,0 +1,276 @@
+{
+  "_about": "Shorts weeks 1-2 (docs/shorts/README.md). make_shorts.py reads this file. states: purchases for the rig's --prep. Each segment is one Godot run of tools/shorts/clip_rig.tscn; text = the overlay (hook / caption, [h]..[/h] = marigold, \\n = new line). A clip cut from several segments gets one music bed in the edit (music: true) and its segments run with --music=off.",
+  "states": {
+    "MID": "tandoor,galla,waiter,table,table,lassi,chai_hire,tandoor_hire,tandoor_lvl22,lassi_lvl8,waiter_up6,galla_up6,claim",
+    "LATE": "tandoor,galla,waiter,waiter,table,table,table,lassi,kadai,chai_hire,chai_hire,tandoor_hire,tandoor_hire,lassi_hire,kadai_hire,chai_lvl52,tandoor_lvl40,lassi_lvl27,kadai_lvl14,waiter_up12,galla_up12,claim",
+    "ALL4": "tandoor,galla,waiter,waiter,table,table,table,lassi,kadai,chai_hire,chai_hire,tandoor_hire,tandoor_hire,lassi_hire,kadai_hire,chai_lvl20,tandoor_lvl20,lassi_lvl20,kadai_lvl14,waiter_up12,galla_up12,claim",
+    "CHAI": "tandoor,galla,waiter,table,table,table,chai_lvl20,tandoor_lvl12,waiter_up8,galla_up8,claim",
+    "POV1": "tandoor,galla,table,table,table,chai_hire,chai_hire,tandoor_hire,tandoor_hire,chai_lvl52,tandoor_lvl40,galla_up8,claim"
+  },
+  "clips": [
+    {
+      "id": "w1_mon_highway_dhaba",
+      "slot": "Week 1 · Mon 9 Nov 2026 · 7 pm IST",
+      "lang": "en",
+      "format": "\"I built a highway dhaba\" (promo cut)",
+      "music": true,
+      "cover": {
+        "segment": 6,
+        "frame": 40
+      },
+      "segments": [
+        {
+          "state": "LATE",
+          "args": "--show-cash=9800 --clip=zoomout --arrivals=19 --warm=40 --warm-speed=2 --zoom-from=0.40 --zoom-to=1.12 --pull-at=1.0 --pull-s=1.6 --span=3.3",
+          "text": {
+            "hook": "I built a\n[h]highway dhaba[/h]",
+            "hook_end": 3.0
+          }
+        },
+        {
+          "state": "LATE",
+          "args": "--show-cash=9800 --clip=lorry --time=0.56 --arrivals=19 --zoom=1.0 --lead=0.5 --span=3.0",
+          "text": {
+            "caption": "Trucks pull in\n[h]hungry[/h]",
+            "cap_from": 0.0
+          }
+        },
+        {
+          "state": "POV1",
+          "args": "--show-cash=9800 --clip=waiter --arrivals=19 --warm=30 --warm-speed=2 --zoom=0.5 --start=loaded --span=3.4",
+          "text": {
+            "caption": "Every order\n[h]in one trip[/h]",
+            "cap_from": 0.0
+          }
+        },
+        {
+          "state": "MID",
+          "args": "--clip=unlock --show-cash=9800 --level=22 --span=3.2",
+          "text": {
+            "caption": "Level up for\n[h]16 dishes[/h]",
+            "cap_from": 0.0,
+            "box_y": 150,
+            "cap_to": 1.15
+          }
+        },
+        {
+          "state": "MID",
+          "extra_prep": "waiter",
+          "args": "--clip=build --show-cash=9800 --scroll=280 --tap-at=0.6 --span=4.0",
+          "text": {
+            "caption": "Build new\n[h]counters[/h]",
+            "cap_from": 0.0
+          }
+        },
+        {
+          "state": "LATE",
+          "args": "--show-cash=9800 --clip=daynight --arrivals=19 --warm=30 --warm-speed=2 --cam=4.0,7.5,1.25 --from=0.45 --to=0.72 --hold-a=0.4 --sweep=2.8 --hold-b=0.7",
+          "text": {
+            "caption": "Open [h]day[/h]\nand [h]night[/h]",
+            "cap_from": 0.0
+          }
+        },
+        {
+          "state": "LATE",
+          "args": "--show-cash=9800 --clip=busy --time=0.64 --arrivals=19 --warm=40 --warm-speed=2 --span=2.6",
+          "text": {
+            "caption": "[h]Dhaba Rush[/h]\nJoin the free test",
+            "cap_from": 0.0
+          }
+        }
+      ],
+      "upload": {
+        "title": "I built a highway dhaba in a mobile game 🚚☕",
+        "description": "Chai, rotis, lassi and kadai paneer for every truck driver on the highway. Hire waiters, build new counters, and keep the dhaba open day and night.\n\nDhaba Rush is an idle tycoon game made for India, in English and Hindi. The free test on Google Play is open now: the link is on our channel page.",
+        "hashtags": [
+          "#DhabaRush",
+          "#IdleGame",
+          "#IndianGames"
+        ],
+        "pinned_comment": "Want to play before launch? The free Android test is open: tap our channel name, then the link at the top of the channel page."
+      }
+    },
+    {
+      "id": "w1_wed_day_night",
+      "slot": "Week 1 · Wed 11 Nov 2026 · 7 pm IST",
+      "lang": "hi",
+      "format": "Day vs night",
+      "music": false,
+      "cover": {
+        "segment": 0,
+        "frame": 255
+      },
+      "segments": [
+        {
+          "state": "LATE",
+          "args": "--show-cash=9800 --clip=daynight --hud=off --arrivals=19 --warm=35 --warm-speed=2 --cam=4.0,7.5,1.25 --from=0.40 --to=0.74 --hold-a=2.5 --sweep=9.0 --hold-b=3.5",
+          "text": {
+            "hook": "एक ढाबा,\n[h]दिन और रात[/h]",
+            "hook_end": 2.6,
+            "caption": "[h]ढाबा रश[/h]\nफ़्री टेस्ट में खेलें",
+            "cap_from": 12.2,
+            "hook_en": "One dhaba,\nday and night",
+            "caption_en": "Dhaba Rush\nPlay in the free test"
+          }
+        }
+      ],
+      "upload": {
+        "title": "हाईवे ढाबा: दिन से रात तक 🌙✨",
+        "description": "शाम ढलती है, झालरें जलती हैं, ट्रकों की लाइटें चमकती हैं, और ढाबा चलता रहता है।\n\nढाबा रश: भारत के लिए बना आइडल टाइकून गेम, हिंदी और इंग्लिश में। Google Play पर फ़्री टेस्ट अभी चल रहा है: लिंक हमारे चैनल पेज पर है।",
+        "hashtags": [
+          "#DhabaRush",
+          "#ढाबा",
+          "#IdleGame"
+        ],
+        "pinned_comment": "लॉन्च से पहले खेलना है? Android का फ़्री टेस्ट खुला है: हमारे चैनल के नाम पर टैप करें, फिर चैनल पेज पर सबसे ऊपर वाला लिंक।",
+        "title_en": "Highway dhaba: from day to night",
+        "description_en": "Evening falls, the fairy lights come on, the trucks' lights shine, and the dhaba keeps going.\n\nDhaba Rush: an idle tycoon game made for India, in Hindi and English. The free test on Google Play is on now: the link is on our channel page.",
+        "pinned_comment_en": "Want to play before launch? The free Android test is open: tap our channel name, then the link at the top of the channel page."
+      }
+    },
+    {
+      "id": "w1_fri_chai_pour",
+      "slot": "Week 1 · Fri 13 Nov 2026 · 7 pm IST",
+      "lang": "en",
+      "format": "Chai pour close-up",
+      "music": false,
+      "cover": {
+        "segment": 0,
+        "frame": 150
+      },
+      "segments": [
+        {
+          "state": "CHAI",
+          "args": "--show-cash=2600 --clip=chai --hud=off --arrivals=19 --warm=30 --warm-speed=2 --cam=1.35,1.85,0.36 --span=13.0",
+          "text": {
+            "hook": "Chai for every\n[h]truck driver[/h]",
+            "hook_end": 2.8,
+            "caption": "[h]Dhaba Rush[/h]\nJoin the free test",
+            "cap_from": 10.6
+          }
+        }
+      ],
+      "upload": {
+        "title": "Cutting chai for the whole highway ☕",
+        "description": "The chai cooks never stop pouring. Level up the chai counter and coffee, green tea and kesar doodh join the menu.\n\nDhaba Rush is an idle tycoon game made for India, in English and Hindi. The free test on Google Play is open now: the link is on our channel page.",
+        "hashtags": [
+          "#DhabaRush",
+          "#Chai",
+          "#IdleGame"
+        ],
+        "pinned_comment": "Want to play before launch? The free Android test is open: tap our channel name, then the link at the top of the channel page."
+      }
+    },
+    {
+      "id": "w2_mon_level_up",
+      "slot": "Week 2 · Mon 16 Nov 2026 · 7 pm IST",
+      "lang": "hi",
+      "format": "LEVEL UP spam with the rising pitch",
+      "music": false,
+      "cover": {
+        "segment": 0,
+        "frame": 250
+      },
+      "segments": [
+        {
+          "state": "MID",
+          "args": "--clip=levelspam --show-cash=2600 --level=9 --hold=7.4 --span=12.5",
+          "text": {
+            "hook": "बस एक और\n[h]लेवल अप[/h]...",
+            "hook_end": 2.4,
+            "caption": "[h]ढाबा रश[/h]\nफ़्री टेस्ट में खेलें",
+            "cap_from": 10.6,
+            "box_y": 150,
+            "hook_en": "Just one more\nLEVEL UP...",
+            "caption_en": "Dhaba Rush\nPlay in the free test"
+          }
+        }
+      ],
+      "upload": {
+        "title": "बस एक और लेवल अप... 😅☕",
+        "description": "चाय काउंटर का लेवल बढ़ाते जाइए: लेवल 25 पर कॉफ़ी और लेवल 50 पर ग्रीन टी मेन्यू में आ जाती है।\n\nढाबा रश: भारत के लिए बना आइडल टाइकून गेम, हिंदी और इंग्लिश में। Google Play पर फ़्री टेस्ट अभी चल रहा है: लिंक हमारे चैनल पेज पर है।",
+        "hashtags": [
+          "#DhabaRush",
+          "#ढाबा",
+          "#MobileGame"
+        ],
+        "pinned_comment": "लॉन्च से पहले खेलना है? Android का फ़्री टेस्ट खुला है: हमारे चैनल के नाम पर टैप करें, फिर चैनल पेज पर सबसे ऊपर वाला लिंक।",
+        "title_en": "Just one more level up...",
+        "description_en": "Keep levelling up the chai counter: at level 25 coffee, and at level 50 green tea join the menu.\n\nDhaba Rush: an idle tycoon game made for India, in Hindi and English. The free test on Google Play is on now: the link is on our channel page.",
+        "pinned_comment_en": "Want to play before launch? The free Android test is open: tap our channel name, then the link at the top of the channel page."
+      }
+    },
+    {
+      "id": "w2_wed_every_dish",
+      "slot": "Week 2 · Wed 18 Nov 2026 · 7 pm IST",
+      "lang": "en",
+      "format": "Every dish on the menu (16 unlocks)",
+      "music": false,
+      "cover": {
+        "segment": 0,
+        "frame": -1
+      },
+      "segments": [
+        {
+          "state": "ALL4",
+          "args": "--clip=dishes --show-cash=9800 --per=1.4 --open-s=1.0 --start=0.9 --tail=1.3",
+          "text": {
+            "hook": "Every dish in my\n[h]highway dhaba[/h]",
+            "hook_end": 1.7,
+            "counter_label": "DISHES",
+            "counter_from": 1.85,
+            "box_y": 130
+          }
+        }
+      ],
+      "upload": {
+        "title": "All 16 dishes in my highway dhaba 🍛",
+        "description": "From cutting chai to Pindi chole: 4 counters, 16 dishes, each one unlocked by levelling up its counter.\n\nDhaba Rush is an idle tycoon game made for India, in English and Hindi. The free test on Google Play is open now: the link is on our channel page.",
+        "hashtags": [
+          "#DhabaRush",
+          "#IndianFood",
+          "#IdleGame"
+        ],
+        "pinned_comment": "Which dish would you unlock first? The free Android test is open: tap our channel name, then the link at the top of the channel page."
+      }
+    },
+    {
+      "id": "w2_fri_waiter_pov",
+      "slot": "Week 2 · Fri 20 Nov 2026 · 7 pm IST",
+      "lang": "hi",
+      "format": "POV: you're the waiter",
+      "music": false,
+      "cover": {
+        "segment": 0,
+        "frame": 150
+      },
+      "segments": [
+        {
+          "state": "POV1",
+          "args": "--show-cash=9800 --clip=waiter --arrivals=19 --warm=30 --warm-speed=2 --zoom=0.6 --start=loaded --span=15.0",
+          "text": {
+            "hook": "POV: आप हाईवे ढाबे के\n[h]वेटर[/h] हैं",
+            "hook_end": 2.8,
+            "caption": "[h]ढाबा रश[/h]\nफ़्री टेस्ट में खेलें",
+            "cap_from": 12.6,
+            "hook_en": "POV: you are the highway\ndhaba's waiter",
+            "caption_en": "Dhaba Rush\nPlay in the free test"
+          }
+        }
+      ],
+      "upload": {
+        "title": "POV: आप हाईवे ढाबे के वेटर हैं 🍽️",
+        "description": "हर मुसाफ़िर का पूरा ऑर्डर एक ही चक्कर में: चाय, रोटी, लस्सी, सब एक ट्रे में।\n\nढाबा रश: भारत के लिए बना आइडल टाइकून गेम, हिंदी और इंग्लिश में। Google Play पर फ़्री टेस्ट अभी चल रहा है: लिंक हमारे चैनल पेज पर है।",
+        "hashtags": [
+          "#DhabaRush",
+          "#ढाबा",
+          "#IdleGame"
+        ],
+        "pinned_comment": "लॉन्च से पहले खेलना है? Android का फ़्री टेस्ट खुला है: हमारे चैनल के नाम पर टैप करें, फिर चैनल पेज पर सबसे ऊपर वाला लिंक।",
+        "title_en": "POV: you are a highway dhaba's waiter",
+        "description_en": "Every traveller's whole order in one trip: chai, roti, lassi, all on one tray.\n\nDhaba Rush: an idle tycoon game made for India, in Hindi and English. The free test on Google Play is on now: the link is on our channel page.",
+        "pinned_comment_en": "Want to play before launch? The free Android test is open: tap our channel name, then the link at the top of the channel page."
+      }
+    }
+  ]
+}

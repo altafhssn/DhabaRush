@@ -1,0 +1,180 @@
+{
+  "_comment": "All gameplay tuning lives here. tools/sim/pacing.py reads this file; the game reads it via Game autoload.",
+  "start_money": 0,
+  "offline": {
+    "cap_hours": 2.0,
+    "rate": 0.5
+  },
+  "traffic": {
+    "base_interval": 4.5,
+    "signboard_bonus_per_level": 0.15,
+    "night_mult": 1.5,
+    "day_seconds": 150,
+    "night_seconds": 75
+  },
+  "customer": {
+    "seat_wait": 6.0,
+    "base_patience": 18.0,
+    "pump_patience_bonus": 8.0,
+    "eat_time": 2.5,
+    "tip_max": 0.3,
+    "walk_time": 4.5
+  },
+  "vehicles": {
+    "bike": {
+      "customers": [
+        1,
+        1
+      ],
+      "spend": 1.0,
+      "weight": 3
+    },
+    "car": {
+      "customers": [
+        2,
+        2
+      ],
+      "spend": 1.2,
+      "weight": 2,
+      "requires": "signboard"
+    },
+    "truck": {
+      "customers": [
+        1,
+        2
+      ],
+      "spend": 1.8,
+      "weight": 2,
+      "requires": "parking_2"
+    },
+    "auto": {
+      "customers": [
+        2,
+        3
+      ],
+      "spend": 1.1,
+      "weight": 2,
+      "requires": "charpai_3"
+    }
+  },
+  "stations": {
+    "chai": {
+      "cook_time": 2.5,
+      "price": 12,
+      "cost_base": 12,
+      "cost_growth": 1.12,
+      "max_level": 60
+    },
+    "tandoor": {
+      "cook_time": 4.0,
+      "price": 30,
+      "cost_base": 120,
+      "cost_growth": 1.12,
+      "max_level": 60,
+      "requires": "tandoor"
+    },
+    "dal": {
+      "cook_time": 6.0,
+      "price": 75,
+      "cost_base": 1500,
+      "cost_growth": 1.12,
+      "max_level": 60,
+      "requires": "dal"
+    }
+  },
+  "station_level": {
+    "price_per_level": 0.15,
+    "double_at": [
+      10,
+      25,
+      40,
+      60
+    ]
+  },
+  "upgrades": {
+    "bhaiya": {
+      "cost_base": 150,
+      "cost_growth": 1.45,
+      "max_level": 10,
+      "speed_per_level": 0.12
+    },
+    "signboard": {
+      "cost_base": 300,
+      "cost_growth": 1.4,
+      "max_level": 10,
+      "requires": "signboard"
+    }
+  },
+  "pads": [
+    {
+      "id": "charpai_2",
+      "cost": 25,
+      "seats": 2
+    },
+    {
+      "id": "signboard",
+      "cost": 50
+    },
+    {
+      "id": "tandoor",
+      "cost": 110
+    },
+    {
+      "id": "charpai_3",
+      "cost": 350,
+      "seats": 2
+    },
+    {
+      "id": "parking_2",
+      "cost": 800,
+      "parking": 1
+    },
+    {
+      "id": "pump",
+      "cost": 1500
+    },
+    {
+      "id": "dal",
+      "cost": 3000
+    },
+    {
+      "id": "charpai_4",
+      "cost": 7000,
+      "seats": 2
+    },
+    {
+      "id": "lights",
+      "cost": 20000
+    },
+    {
+      "id": "chotu",
+      "cost": 45000
+    },
+    {
+      "id": "parking_3",
+      "cost": 200000,
+      "parking": 1
+    },
+    {
+      "id": "charpai_5",
+      "cost": 500000,
+      "seats": 2
+    },
+    {
+      "id": "charpai_6",
+      "cost": 1200000,
+      "seats": 2
+    },
+    {
+      "id": "famous",
+      "cost": 3000000
+    }
+  ],
+  "start_seats": 2,
+  "start_parking": 3,
+  "rewarded": {
+    "rush_mult": 2.0,
+    "rush_seconds": 120,
+    "rush_cooldown": 300
+  }
+}

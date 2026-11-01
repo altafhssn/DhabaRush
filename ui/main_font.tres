@@ -1,0 +1,14 @@
+[gd_resource type="FontVariation" load_steps=6 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/Baloo2.ttf" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSans.ttf" id="2"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansDevanagari.ttf" id="3"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansSymbols2.ttf" id="4"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSansSymbols.ttf" id="5"]
+
+[resource]
+base_font = ExtResource("1")
+fallbacks = Array[Font]([ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5")])
+variation_opentype = {
+2003265652: 800
+}

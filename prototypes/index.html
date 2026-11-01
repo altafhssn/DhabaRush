@@ -1,0 +1,153 @@
+<title>Dhaba Rush Loop Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Hind:wght@400;500;600&display=swap">
+<style>
+/* Layout: a field-test bench — three loop cards on the left, one phone frame on the right playing the selected loop. Stacks on phones. */
+:root {
+  --ground: #f6e7cf;          /* dusty highway paper */
+  --panel: #fff8ec;
+  --ink: #3a1d08;
+  --muted: #7a5536;
+  --line: #e7cfaa;
+  --saffron: #f08a24;
+  --teal: #1f8a8a;
+  --chili: #cf3a24;
+  --frame: #2b1608;
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Hind", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #1c120b; --panel: #2a1b11; --ink: #f8e9d4; --muted: #c9a982; --line: #4a3221;
+    --saffron: #ff9d3d; --teal: #3fb3b0; --chili: #ff6a4f; --frame: #0d0805; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #1c120b; --panel: #2a1b11; --ink: #f8e9d4; --muted: #c9a982; --line: #4a3221;
+  --saffron: #ff9d3d; --teal: #3fb3b0; --chili: #ff6a4f; --frame: #0d0805; color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--ground); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 28px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: start; }
+header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 5vw, 44px); line-height: 1; margin: 0; letter-spacing: -0.5px; text-wrap: balance; }
+h1 span { color: var(--saffron); }
+.sub { color: var(--muted); margin: 0; max-width: 62ch; }
+.cards { display: grid; gap: 14px; min-width: 0; }
+.card {
+  text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%;
+  background: var(--panel); border: 2px solid var(--line); border-radius: 18px; padding: 16px 18px;
+  display: grid; gap: 8px; transition: border-color .15s, transform .15s;
+}
+.card:hover { transform: translateY(-1px); }
+.card:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.card[aria-selected="true"] { border-color: var(--saffron); box-shadow: 0 6px 0 -2px var(--saffron); }
+.card .top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tag { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: .6px; text-transform: uppercase;
+  color: #fff; background: var(--teal); border-radius: 999px; padding: 2px 10px 0; }
+.card[data-loop="a"] .tag { background: var(--saffron); }
+.card[data-loop="c"] .tag { background: var(--chili); }
+.card h2 { font-family: var(--display); font-weight: 800; font-size: 24px; line-height: 1.1; margin: 0; }
+.card p { margin: 0; }
+.how { color: var(--ink); }
+.facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; font-size: 14.5px; color: var(--muted); }
+.facts dt { font-weight: 600; color: var(--ink); }
+.facts dd { margin: 0; }
+.stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 10px; justify-items: center; }
+.phone {
+  width: 380px; max-width: calc(100vw - 32px); aspect-ratio: 9 / 16; max-height: 82vh;
+  background: var(--frame); border-radius: 34px; padding: 10px; box-shadow: 0 18px 40px -18px rgba(0,0,0,.45);
+}
+.phone iframe { width: 100%; height: 100%; border: 0; border-radius: 26px; background: #f3b664; display: block; }
+.stage a { font-family: var(--display); font-weight: 600; color: var(--teal); text-decoration: none; }
+.stage a:hover { text-decoration: underline; }
+.stage a:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 6px; }
+.note { font-size: 14px; color: var(--muted); max-width: 380px; text-align: center; margin: 0; }
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); }
+  .stage { position: static; order: -1; }
+  header { order: -2; }
+  .phone { width: 100%; max-height: 78svh; }
+}
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Dhaba Rush <span>Loop Lab</span></h1>
+    <p class="sub">Three ways the moment-to-moment play could work. Each is a 2-minute shift with the same dhaba, menu and prices. Play all three, then pick the one you'd want to play every day.</p>
+  </header>
+
+  <div class="cards" role="tablist" aria-label="Core loop options">
+    <button class="card" role="tab" id="tab-a" data-loop="a" data-src="loop_a_joystick.html" aria-selected="true">
+      <span class="top"><span class="tag">Loop A</span><h2>Run the Dhaba</h2></span>
+      <p class="how">You are Bhaiya. Drag anywhere to walk. Food piles up at the stations; walk past to stack it on your head, walk past customers to serve, sweep up the cash, and stand on a spot to buy it.</p>
+      <dl class="facts">
+        <dt>Feels like</dt><dd>Pizza Ready!, My Perfect Hotel, the Township ad</dd>
+        <dt>Good</dt><dd>Most satisfying: big stacks, sweeps, always moving</dd>
+        <dt>Cost</dt><dd>Biggest rewrite of the current build (about 3–4 weeks)</dd>
+      </dl>
+    </button>
+    <button class="card" role="tab" id="tab-b" data-loop="b" data-src="loop_b_tapmove.html" aria-selected="false">
+      <span class="top"><span class="tag">Loop B</span><h2>Tap &amp; Go</h2></span>
+      <p class="how">Same carrying and stacking, but you tap where Bhaiya should go next. Queue up to three taps and plan smart routes; he serves anyone he passes.</p>
+      <dl class="facts">
+        <dt>Feels like</dt><dd>Idle arcade with a planning twist</dd>
+        <dt>Good</dt><dd>One finger, keeps tap controls, rewards good routes</dd>
+        <dt>Cost</dt><dd>About the same as A; can feel slower than a joystick</dd>
+      </dl>
+    </button>
+    <button class="card" role="tab" id="tab-c" data-loop="c" data-src="loop_c_cookserve.html" aria-selected="false">
+      <span class="top"><span class="tag">Loop C</span><h2>Cook &amp; Serve</h2></span>
+      <p class="how">No avatar: your hands are the kitchen. Tap a station to cook, drag the food to the customer who ordered it, chain quick serves for combo tips, and tap the cash.</p>
+      <dl class="facts">
+        <dt>Feels like</dt><dd>Masala Express (10M+ in India), Cooking Fever</dd>
+        <dt>Good</dt><dd>Very tap-friendly, fast and skill-based</dd>
+        <dt>Cost</dt><dd>Smallest change from the current build (about 1–2 weeks)</dd>
+      </dl>
+    </button>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><iframe id="game" title="Loop A · Run the Dhaba" src="loop_a_joystick.html" allow="autoplay"></iframe></div>
+    <a id="full" href="loop_a_joystick.html" target="_blank" rel="noopener">Open this loop full screen ↗</a>
+    <p class="note">Sound starts when you press Start. On a phone, open full screen for the best feel.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var frame = document.getElementById('game');
+  var full = document.getElementById('full');
+  function select(tab, focus) {
+    tabs.forEach(function (t) { t.setAttribute('aria-selected', t === tab ? 'true' : 'false'); t.tabIndex = t === tab ? 0 : -1; });
+    var src = tab.getAttribute('data-src');
+    if (frame.getAttribute('src') !== src) frame.setAttribute('src', src);
+    frame.title = tab.querySelector('h2').textContent;
+    full.setAttribute('href', src);
+    try { localStorage.setItem('loop-lab-tab', tab.dataset.loop); } catch (e) {}
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); select(tabs[(i + 1) % tabs.length], true); }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); select(tabs[(i + tabs.length - 1) % tabs.length], true); }
+    });
+  });
+  var start = tabs[0];
+  try {
+    var saved = localStorage.getItem('loop-lab-tab');
+    var h = (location.hash || '').replace('#', '');
+    var want = h || saved;
+    tabs.forEach(function (t) { if (t.dataset.loop === want) start = t; });
+  } catch (e) {}
+  select(start);
+})();
+</script>

@@ -1,0 +1,15 @@
+.godot/
+/android/
+*.apk
+*.aab
+*.ipa
+export/
+.DS_Store
+*.blend1
+keystore/
+# Signing keys and their settings never go in the repository (docs/launch/release.md)
+*.jks
+*.keystore
+*.p12
+*.pem
+release.env

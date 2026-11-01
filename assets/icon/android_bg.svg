@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="432" height="432" viewBox="0 0 432 432">
+  <!-- Android adaptive icon, BACKGROUND layer: saffron sunburst (the same background as the 512 px Play icon), fully opaque. -->
+  <defs>
+    <radialGradient id="g" cx="198.3" cy="198.3" r="267.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFC867"/>
+      <stop offset="1" stop-color="#F08A2B"/>
+    </radialGradient>
+  </defs>
+  <rect width="432" height="432" fill="#F08A2B"/>
+  <rect width="432" height="432" fill="url(#g)"/>
+  <path fill="#FFF7D9" fill-opacity="0.16" d="M198.3 198.3 L716.7 198.3 L708.8 288.3 Z M198.3 198.3 L685.4 375.6 L647.2 457.5 Z M198.3 198.3 L595.4 531.5 L531.5 595.4 Z M198.3 198.3 L457.5 647.2 L375.6 685.4 Z M198.3 198.3 L288.3 708.8 L198.3 716.7 Z M198.3 198.3 L108.3 708.8 L21.0 685.4 Z M198.3 198.3 L-60.9 647.2 L-134.9 595.4 Z M198.3 198.3 L-198.8 531.5 L-250.7 457.5 Z M198.3 198.3 L-288.9 375.6 L-312.2 288.3 Z M198.3 198.3 L-320.1 198.3 L-312.2 108.3 Z M198.3 198.3 L-288.9 21.0 L-250.7 -60.9 Z M198.3 198.3 L-198.8 -134.9 L-134.9 -198.8 Z M198.3 198.3 L-60.9 -250.7 L21.0 -288.9 Z M198.3 198.3 L108.3 -312.2 L198.3 -320.1 Z M198.3 198.3 L288.3 -312.2 L375.6 -288.9 Z M198.3 198.3 L457.5 -250.7 L531.5 -198.8 Z M198.3 198.3 L595.4 -134.9 L647.2 -60.9 Z M198.3 198.3 L685.4 21.0 L708.8 108.3 Z"/>
+</svg>

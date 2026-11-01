@@ -1,0 +1,72 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Dhaba Rush"
+config/description="Dhaba Rush: Highway Idle Tycoon"
+config/version="0.3.7"
+run/main_scene="res://scenes/main3.tscn"
+config/quit_on_go_back=false
+config/features=PackedStringArray("4.7", "GL Compatibility")
+boot_splash/bg_color=Color(0.96, 0.63, 0.29, 1)
+boot_splash/image="res://assets/splash/boot_splash.png"
+config/icon="res://icon.svg"
+
+[autoload]
+
+Analytics="*res://scripts/autoload/analytics.gd"
+Ads="*res://scripts/autoload/ads.gd"
+Iap="*res://scripts/autoload/iap.gd"
+Loc="*res://scripts/autoload/loc.gd"
+Sfx="*res://scripts/autoload/sfx.gd"
+Game="*res://scripts/autoload/game.gd"
+Fx="*res://scripts/autoload/fx.gd"
+Refs="*res://scripts/autoload/refs.gd"
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=1280
+window/size/window_width_override=405
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GameAnalytics/plugin.cfg", "res://addons/GodotGooglePlayBilling/plugin.cfg", "res://addons/admob/plugin.cfg", "res://addons/dhaba_export_guard/plugin.cfg")
+
+[gui]
+
+theme/custom_font="res://ui/main_font.tres"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://i18n/hi.po")
+
+[physics]
+
+common/physics_ticks_per_second=30
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+lights_and_shadows/directional_shadow/size=1024
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=0
+anti_aliasing/quality/msaa_3d=1
+environment/defaults/default_clear_color=Color(0.62, 0.82, 0.93, 1)

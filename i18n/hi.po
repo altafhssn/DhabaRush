@@ -1,0 +1,1497 @@
+# Dhaba Rush: Highway Idle Tycoon - Hindi (हिंदी) UI translation.
+# Little Tag Art Studios. Loaded at runtime by TranslationServer (project.godot
+# internationalization/locale/translations); the Loc autoload picks the language.
+# Placeholders: %d %s %.1f and {name} must stay; [k]..[/k] / [n]..[/n] = coloured keyword
+# in Munshi-ji's lines (a [k] word must be the exact on-screen label). msgctxt "name" =
+# a person's name, "unit" = what one sale is called, "title" = a panel title.
+# Glossary and review notes: docs/launch/hindi.md.
+msgid ""
+msgstr ""
+"Project-Id-Version: Dhaba Rush 0.3.4\n"
+"Language-Team: Little Tag Art Studios\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# ======================================================================
+# Munshi-ji (scripts/v3/tutorial/script_lines.gd, dialogue_box.gd, munshi_notes.gd). [k]..[/k] = a keyword drawn teal/bold: it must be the exact Hindi on-screen label. [n]..[/n] = a new counter (green). {dish} = a dish name. Keep the tags.
+# ======================================================================
+
+#. brass name plaque (238 px at 20 px)
+msgid "MUNSHI-JI"
+msgstr "मुंशी जी"
+
+#. small hint in the dialogue box (200 px at 19 px)
+msgid "tap to continue"
+msgstr "आगे के लिए टैप करें"
+
+#. chip under the task strip; quotes = the CLAIM button's Hindi label
+msgid "Task done! Tap CLAIM"
+msgstr "काम पूरा! ‘इनाम लें’ पर टैप करें"
+
+#. first free-play hint chip
+msgid "Drag to look around · pinch to zoom"
+msgstr "खींचकर चारों ओर देखें · पिंच करके ज़ूम करें"
+
+#. l1: Munshi-ji calls the player 'Seth-ji' (boss) in Hindi
+msgid "Namaste, boss! I'm Munshi-ji, your manager. Our dhaba is open!"
+msgstr "नमस्ते सेठ जी! मैं मुंशी जी, आपका मैनेजर। अपना ढाबा खुल गया!"
+
+#. l2
+msgid "Here comes our first traveller!"
+msgstr "लो, आ गया हमारा पहला मुसाफ़िर!"
+
+#. l3: phrased so Pinky's gender never shows (verb agrees with chai)
+msgid "[k]Pinky[/k], our cook, makes his chai. [k]Raju[/k], our waiter, carries it."
+msgstr "चाय बनेगी कुक [k]पिंकी[/k] के हाथों, पहुँचाएगा वेटर [k]राजू[/k]।"
+
+#. l4: galla = the cash box
+msgid "All done! Now he pays at the [k]CASH COUNTER[/k], our galla."
+msgstr "खाना ख़त्म! अब वह [k]कैश काउंटर[/k] यानी गल्ले पर पैसे देगा।"
+
+#. l5
+msgid "First sale! Your cash is up here, top left."
+msgstr "पहली कमाई! आपका कैश यहाँ ऊपर, बाईं ओर है।"
+
+#. l6
+msgid "Let's earn more per cup. Tap the [k]CHAI COUNTER[/k]."
+msgstr "चलिए, हर कप पर ज़्यादा कमाएँ। [k]चाय काउंटर[/k] पर टैप करें।"
+
+#. l7
+msgid "Nice! Every cup now [k]sells for more[/k]."
+msgstr "बढ़िया! अब हर कप [k]ज़्यादा दाम[/k] में बिकेगा।"
+
+#. l8
+msgid "Oh no! The line at the [k]CASH COUNTER[/k] is too long."
+msgstr "अरे बाप रे! [k]कैश काउंटर[/k] पर लाइन बहुत लंबी है।"
+
+#. l9: रखें = the HIRE button
+msgid "Tap the [k]CASH COUNTER[/k] and [k]HIRE[/k] a second cashier."
+msgstr "[k]कैश काउंटर[/k] पर टैप करें और दूसरा कैशियर [k]रखें[/k]।"
+
+#. l10
+msgid "Two cashiers, half the wait! All your staff are in [k]STAFF[/k]."
+msgstr "दो कैशियर, आधा इंतज़ार! आपका सारा स्टाफ़ [k]स्टाफ़[/k] बटन में है।"
+
+#. lw1
+msgid "Food is waiting! [k]Raju[/k] can't carry it all."
+msgstr "खाना रुका पड़ा है! अकेला [k]राजू[/k] सब नहीं ले जा पा रहा।"
+
+#. lw2
+msgid "Tap [k]STAFF[/k] and [k]HIRE[/k] a second waiter."
+msgstr "[k]स्टाफ़[/k] पर टैप करें और दूसरा वेटर [k]रखें[/k]।"
+
+#. lw3
+msgid "Two waiters: food reaches the tables faster."
+msgstr "दो वेटर: टेबल पर खाना जल्दी आएगा।"
+
+#. lt1
+msgid "Every seat is taken, and travellers are leaving!"
+msgstr "सारी सीटें भरी हैं! मुसाफ़िर बिना खाए लौट रहे हैं!"
+
+#. lt2: the tag says '+ टेबल'
+msgid "Tap the new [k]TABLE[/k]: four more seats."
+msgstr "नई [k]टेबल[/k] पर टैप करें: चार सीटें और।"
+
+#. l14
+msgid "Good news: a company pays us to show its ads!"
+msgstr "ख़ुशख़बरी! एक कंपनी अपने ऐड दिखाने के हमें पैसे देगी!"
+
+#. l15: the bubble says 'ऐड देखें'
+msgid "Whenever the [k]AD[/k] bubble pops up, tap it for free cash."
+msgstr "जब भी [k]ऐड[/k] वाला बुलबुला दिखे, टैप करें और मुफ़्त कैश पाएँ।"
+
+#. l16: बनाएँ = the BUILD button
+msgid "We can afford a [n]TANDOOR[/n] now. Tap [k]BUILD[/k]."
+msgstr "अब हम [n]तंदूर[/n] लगा सकते हैं। [k]बनाएँ[/k] पर टैप करें।"
+
+#. l17
+msgid "Roti + chai = a bigger bill! Next goal: a [n]LASSI[/n] counter."
+msgstr "रोटी + चाय = बड़ा बिल! अगला लक्ष्य: [n]लस्सी[/n] काउंटर।"
+
+#. free play
+msgid "We can afford a [n]LASSI[/n] counter! Tap [k]BUILD[/k]."
+msgstr "अब हम [n]लस्सी[/n] काउंटर लगा सकते हैं! [k]बनाएँ[/k] पर टैप करें।"
+
+#. free play
+msgid "We can afford a [n]KADAI[/n] now! Tap [k]BUILD[/k]."
+msgstr "अब हम [n]कड़ाही[/n] लगा सकते हैं! [k]बनाएँ[/k] पर टैप करें।"
+
+#. free play
+msgid "Lassi needs 2 waiters. Tap [k]STAFF[/k] and [k]HIRE[/k] one."
+msgstr "लस्सी के लिए 2 वेटर चाहिए। [k]स्टाफ़[/k] पर टैप करें और एक [k]रखें[/k]।"
+
+#. free play
+msgid "Kadai needs 3 waiters. Tap [k]STAFF[/k] and [k]HIRE[/k] one."
+msgstr "कड़ाही के लिए 3 वेटर चाहिए। [k]स्टाफ़[/k] पर टैप करें और एक [k]रखें[/k]।"
+
+#. free play; phrased so neither Pinky's nor the dish's gender shows
+msgid "Pinky, our chai cook, now makes [n]{dish}[/n]. Chai prices rise!"
+msgstr "चाय कुक पिंकी के मेन्यू में अब [n]{dish}[/n] भी है। चाय के दाम बढ़ गए!"
+
+#. free play
+msgid "Balwant, our tandoor cook, now makes [n]{dish}[/n]. Tandoor prices rise!"
+msgstr "तंदूर कुक बलवंत के मेन्यू में अब [n]{dish}[/n] भी है। तंदूर के दाम बढ़ गए!"
+
+#. free play
+msgid "Gopi, our lassi maker, now makes [n]{dish}[/n]. Lassi prices rise!"
+msgstr "लस्सी वाले गोपी के मेन्यू में अब [n]{dish}[/n] भी है। लस्सी के दाम बढ़ गए!"
+
+#. free play
+msgid "Shera, our kadai cook, now makes [n]{dish}[/n]. Kadai prices rise!"
+msgstr "कड़ाही कुक शेरा के मेन्यू में अब [n]{dish}[/n] भी है। कड़ाही के दाम बढ़ गए!"
+
+#. once, after an old save moved to the new prices
+msgid "New prices! Your levels, staff and dishes are all kept."
+msgstr "नए दाम! आपके लेवल, स्टाफ़ और डिश, सब वैसे ही हैं।"
+
+# ======================================================================
+# HUD (scripts/v3/ui/hud.gd, ui_root.gd)
+# ======================================================================
+
+#. after the cash rate in the money pill (keep the leading space)
+msgid " /min"
+msgstr " /मिनट"
+
+#. button that brings the camera back to the dhaba
+msgid "HOME"
+msgstr "होम"
+
+#. floating text when Munshi-ji tops up your cash
+msgid "+%s from Munshi-ji"
+msgstr "मुंशी जी से +%s"
+
+#. toast
+msgid "Chest opened! +%s cash"
+msgstr "पेटी खुली! +%s कैश"
+
+#. toast
+msgid "Finish tasks to fill the chest (%d/%d)"
+msgstr "पेटी भरने के लिए काम पूरे करें (%d/%d)"
+
+#. floating text after a quick hire
+msgid "+1 WAITER"
+msgstr "+1 वेटर"
+
+#. label at the left of the task strip
+msgid "TASK"
+msgstr "काम"
+
+#. gold button on a finished task (~100 px at 25 px)
+msgid "CLAIM"
+msgstr "इनाम लें"
+
+#. NEXT chip headline: travellers waiting at the door for a seat
+msgid "PROBLEM · %d WAITING"
+msgstr "दिक़्क़त · %d रुके हैं"
+
+#. NEXT chip line 2 (25 px, shrinks to 20)
+msgid "Seats full · Build a table"
+msgstr "सीटें फ़ुल · टेबल बनाएँ"
+
+#. NEXT chip headline, %s = counter
+msgid "NEXT: %s"
+msgstr "अगला: %s"
+
+msgid "Hire waiter %d"
+msgstr "वेटर %d रखें"
+
+msgid "PROBLEM · FOOD WAITING"
+msgstr "दिक़्क़त · खाना रुका है"
+
+msgid "Hire a waiter"
+msgstr "एक वेटर रखें"
+
+msgid "Upgrade your waiters"
+msgstr "अपने वेटर अपग्रेड करें"
+
+msgid "PROBLEM · LONG BILL LINE"
+msgstr "दिक़्क़त · बिल की लंबी लाइन"
+
+msgid "Hire cashier %d"
+msgstr "कैशियर %d रखें"
+
+msgid "Upgrade a cashier"
+msgstr "एक कैशियर अपग्रेड करें"
+
+msgid "BUILD {name} · {cost}"
+msgstr "{name} बनाएँ · {cost}"
+
+#. saving up for the next build: 'Save 197 / 2,000'
+msgid "Save %s / %s"
+msgstr "पैसे जोड़ें %s / %s"
+
+#. NEXT chip line 2, endless goal once every counter is built (soft launch):
+#. a dish milestone or a level milestone, 'LEVEL UP KADAI · 18/25'
+msgid "LEVEL UP {name} · {lv}/{target}"
+msgstr "{name} लेवल अप · {lv}/{target}"
+
+#. price tag over the next ghost table (16 px)
+msgid "ADD TABLE"
+msgstr "टेबल जोड़ें"
+
+#. tag over the next waiter's spot
+msgid "+ WAITER"
+msgstr "+ वेटर"
+
+#. tag over the next ghost table; tutorial keyword TABLE
+msgid "+ TABLE"
+msgstr "+ टेबल"
+
+#. build pad tag, small second line
+msgid "needs waiter %d"
+msgstr "वेटर %d चाहिए"
+
+#. build pad tag, %s = counter name
+msgid "BUILD %s"
+msgstr "%s बनाएँ"
+
+#. pill over the tray rack
+msgid "WAITERS %d/%d"
+msgstr "वेटर %d/%d"
+
+#. pill over the door
+msgid "Seats full!"
+msgstr "सीटें फ़ुल!"
+
+#. countdown on the ad bubble: '12s'
+msgid "%ds"
+msgstr "%d से॰"
+
+#. pop card over a counter when a dish unlocks (15 px)
+msgid "NEW ON THE MENU"
+msgstr "मेन्यू में नया"
+
+#. 3D pop over a traveller who finds no seat (scripts/v3/world/sim.gd; Label3D auto-translates)
+msgid "No seat!"
+msgstr "सीट नहीं!"
+
+# ======================================================================
+# Settings (scripts/v3/ui/settings_popup.gd)
+# ======================================================================
+
+#. popup title
+msgid "SETTINGS"
+msgstr "सेटिंग्स"
+
+msgid "MUSIC"
+msgstr "म्यूज़िक"
+
+msgid "SOUND"
+msgstr "साउंड"
+
+msgid "VIBRATION"
+msgstr "वाइब्रेशन"
+
+#. toggle: 12,34,567 grouping and lakh / crore
+msgid "INDIAN NUMBERS"
+msgstr "लाख-करोड़ गिनती"
+
+#. bilingual on purpose: a player can always find it
+msgid "LANGUAGE / भाषा"
+msgstr "भाषा / LANGUAGE"
+
+#. toggle state
+msgid "ON"
+msgstr "चालू"
+
+#. toggle state
+msgid "OFF"
+msgstr "बंद"
+
+#. Settings row: graphics quality (button cycles AUTO / HIGH / LOW)
+msgid "GRAPHICS"
+msgstr "ग्राफ़िक्स"
+
+#. graphics quality: chosen by the phone (160 px button at 26 px)
+msgid "AUTO"
+msgstr "ऑटो"
+
+#. graphics quality: full look
+msgid "HIGH"
+msgstr "हाई"
+
+#. graphics quality: lighter, for cheap phones
+msgid "LOW"
+msgstr "लो"
+
+#. purchase button
+msgid "REMOVE ADS"
+msgstr "ऐड हटाएँ"
+
+#. after Remove Ads was bought
+msgid "No ads. Thank you!"
+msgstr "अब कोई ऐड नहीं। शुक्रिया!"
+
+msgid "SKIP TUTORIAL"
+msgstr "ट्यूटोरियल छोड़ें"
+
+msgid "TAP AGAIN TO SKIP"
+msgstr "छोड़ने के लिए फिर टैप करें"
+
+#. Settings row (consent track, F1): GameAnalytics on / off; same transliteration style as म्यूज़िक, ग्राफ़िक्स (330 px at 28 px). Also named in the consent card's last line.
+msgid "ANALYTICS"
+msgstr "एनालिटिक्स"
+
+#. small line under the ANALYTICS row label (340 px at 17 px)
+msgid "Helps us improve the game"
+msgstr "गेम बेहतर बनाने में मदद"
+
+#. small tappable line above the version in Settings (F4); %s = the random Player ID, e.g. 3F9C-A12B-77DE-0B41 (keep %s; about 560 px at 18 px)
+msgid "Player ID: %s · tap to copy"
+msgstr "प्लेयर आईडी: %s · कॉपी के लिए टैप करें"
+
+#. toast after the Player ID line was tapped (the id is now on the clipboard)
+msgid "Player ID copied."
+msgstr "प्लेयर आईडी कॉपी हो गई।"
+
+# ======================================================================
+# Ads, purchases, consent (launch SDKs: scripts/v3/ui/settings_popup.gd buttons, scripts/v3/ui/sdk_notice.gd toasts).
+# Google's own consent / privacy form and the Play / App Store payment sheets are shown by Google / Apple in the phone's language.
+# ======================================================================
+
+#. Settings button, shown only where Google's consent rules apply (EEA / UK); opens Google's own privacy form (24 px, 440 px button)
+msgid "PRIVACY OPTIONS"
+msgstr "प्राइवेसी विकल्प"
+
+#. Settings button, iPhone only (App Store rule): gets back VIP / No Ads bought earlier (24 px, 440 px button)
+msgid "RESTORE PURCHASES"
+msgstr "खरीदारी वापस लाएँ"
+
+#. the same button while the store answers
+msgid "RESTORING…"
+msgstr "वापस ला रहे हैं…"
+
+#. underlined link at the bottom of Settings (opens the privacy policy web page)
+msgid "Privacy policy"
+msgstr "प्राइवेसी पॉलिसी"
+
+#. toast: a rewarded ad was tapped while another full-screen ad is open
+msgid "Another ad is still open."
+msgstr "एक ऐड अभी खुला है।"
+
+#. toast: ads wait for the player's answer to Google's consent form
+msgid "Ads are paused until you answer the privacy question."
+msgstr "प्राइवेसी वाले सवाल का जवाब देने तक ऐड रुके हुए हैं।"
+
+#. toast: this build has no ad SDK (should not happen in a store build)
+msgid "Ads are not available on this device."
+msgstr "इस डिवाइस पर ऐड उपलब्ध नहीं हैं।"
+
+#. toast: WATCH AD / COLLECT x2 tapped while no ad is loaded (loading, no fill or offline)
+msgid "No ad available right now. Try again in a minute."
+msgstr "अभी कोई ऐड नहीं है। एक मिनट बाद फिर कोशिश करें।"
+
+#. toast: the rewarded ad was closed before its end, so no reward
+msgid "Watch the ad to the end to get the reward."
+msgstr "इनाम पाने के लिए ऐड आख़िर तक देखें।"
+
+#. toast: the ad SDK failed to show the ad
+msgid "The ad could not play. Please try again."
+msgstr "ऐड नहीं चल पाया। कृपया फिर कोशिश करें।"
+
+#. toast: slow payment (e.g. UPI, cash) still processing; the item is granted automatically later
+msgid "Payment pending. You will get it as soon as the payment goes through."
+msgstr "पेमेंट अभी बाकी है। पेमेंट पूरा होते ही आपको मिल जाएगा।"
+
+#. toast: a pending payment completed and the item was granted
+msgid "Payment received. Thank you!"
+msgstr "पेमेंट मिल गया। शुक्रिया!"
+
+#. toast: earlier purchases (VIP, No Ads) were found again (reinstall, new phone, RESTORE PURCHASES)
+msgid "Purchases restored."
+msgstr "खरीदारी वापस मिल गई।"
+
+#. toast: the player closed the store's payment sheet
+msgid "Purchase cancelled."
+msgstr "खरीदारी रद्द हो गई।"
+
+#. toast: the store reported an error (card declined ...)
+msgid "Purchase failed. Please try again."
+msgstr "खरीदारी नहीं हो पाई। कृपया फिर कोशिश करें।"
+
+#. toast: no store / billing service / network, or the store never answered
+msgid "The store is not available right now. Please try again later."
+msgstr "स्टोर अभी उपलब्ध नहीं है। कृपया थोड़ी देर बाद कोशिश करें।"
+
+#. toast: a second purchase tapped while one is running
+msgid "Please wait, a purchase is still in progress."
+msgstr "कृपया रुकें, एक खरीदारी अभी चल रही है।"
+
+#. toast: RESTORE PURCHASES got no answer from the store
+msgid "Could not reach the store. Please try again later."
+msgstr "स्टोर से जुड़ नहीं पाए। कृपया थोड़ी देर बाद कोशिश करें।"
+
+#. toast: RESTORE PURCHASES found nothing bought on this account
+msgid "Nothing to restore."
+msgstr "वापस लाने के लिए कोई खरीदारी नहीं मिली।"
+
+#. toast: PRIVACY OPTIONS could not open Google's form
+msgid "Privacy options could not open. Please try again later."
+msgstr "प्राइवेसी विकल्प नहीं खुल पाए। कृपया थोड़ी देर बाद कोशिश करें।"
+
+#. toast: the privacy policy link could not be opened (no browser)
+msgid "Could not open the privacy policy."
+msgstr "प्राइवेसी पॉलिसी नहीं खुल पाई।"
+
+#. toast: an unfinished TASK card was tapped whose task counts up by itself (serve, earn, bill, seat; scripts/v3/ui/ui_root.gd)
+msgid "This task fills up as you play."
+msgstr "यह काम खेलते-खेलते अपने-आप पूरा होगा।"
+
+#. quit question title: Android back with nothing to close (scripts/v3/ui/quit_popup.gd; 560 px at 32 px)
+msgid "LEAVE THE DHABA?"
+msgstr "ढाबा छोड़कर जाएँ?"
+
+#. quit question line after the tutorial (offline pay: from 10 min away, 2 h cap; 480 px, 3 lines at 23 px)
+msgid "Your staff keep earning while you are away (from 10 min, up to 2 h)."
+msgstr "आपके पीछे भी स्टाफ़ कमाई करता रहेगा (10 मिनट बाद से, 2 घंटे तक)।"
+
+#. quit question line during the tutorial (no offline pay yet; the game is saved)
+msgid "Your progress is saved. See you soon!"
+msgstr "आपका खेल सेव हो गया है। जल्दी मिलते हैं!"
+
+#. quit question: the main button, back to the game (230 px at 30 px)
+msgid "STAY"
+msgstr "रुकें"
+
+#. quit question: leave the app (230 px at 30 px)
+msgid "LEAVE"
+msgstr "बाहर जाएँ"
+
+# ======================================================================
+# Analytics consent card (scripts/v3/ui/consent_card.gd): shown once on first launch, before GameAnalytics starts (docs/legal/checks.md F1). Plain words; keep "GameAnalytics" in Latin (company name). Lines must match the privacy policy's Hindi summary (docs/legal/privacy-policy.html section 18).
+# ======================================================================
+
+#. consent card title (white on maroon, 528 px at 32 px)
+msgid "HELP US IMPROVE"
+msgstr "गेम बेहतर बनाने में मदद करें"
+
+#. consent card, first paragraph (bold, 388 px wide at 23 px, beside the ledger icon)
+msgid "Can we send game statistics to GameAnalytics? They show us how the dhaba is played, so we can fix problems and balance the game."
+msgstr "क्या हम गेम के आँकड़े GameAnalytics को भेज सकते हैं? इनसे हमें पता चलता है कि ढाबा कैसे खेला जा रहा है, ताकि हम गड़बड़ियाँ ठीक कर सकें और गेम का संतुलन सुधार सकें।"
+
+#. consent card, what is sent (488 px at 19 px); "advertising ID" = विज्ञापन आईडी as in the privacy policy
+msgid "Sent: what you do in the game, phone model, country, a random Player ID and, if your phone allows it, the advertising ID. Never your name, contacts or exact location."
+msgstr "क्या भेजा जाता है: आप गेम में क्या करते हैं, फ़ोन का मॉडल, देश, एक रैंडम प्लेयर आईडी और, अगर फ़ोन अनुमति दे तो, विज्ञापन आईडी। आपका नाम, कॉन्टैक्ट या सटीक लोकेशन कभी नहीं।"
+
+#. consent card, last line (488 px at 19 px); "सेटिंग्स › एनालिटिक्स" must match the Settings title and row label
+msgid "Say no and nothing is sent to GameAnalytics; the game plays the same. Change it any time in Settings › ANALYTICS."
+msgstr "मना करने पर GameAnalytics को कुछ नहीं भेजा जाएगा और गेम वैसे ही चलेगा। इसे कभी भी सेटिंग्स › एनालिटिक्स में बदल सकते हैं।"
+
+#. consent card button: decline (230 px at 26 px, same size and weight as ALLOW)
+msgid "NO THANKS"
+msgstr "नहीं, शुक्रिया"
+
+#. consent card button: agree to analytics (230 px at 26 px)
+msgid "ALLOW"
+msgstr "अनुमति दें"
+
+# ======================================================================
+# STAFF panel, staff rows, quick-buy texts (scripts/v3/ui/staff_panel.gd, staff_rows.gd)
+# ======================================================================
+
+#. panel title
+msgctxt "title"
+msgid "STAFF"
+msgstr "स्टाफ़"
+
+#. HUD button caption, tutorial keyword
+msgid "STAFF"
+msgstr "स्टाफ़"
+
+#. ribbon on the hire that helps most right now (16 px, 122 px wide)
+msgid "BEST NOW"
+msgstr "अभी बेस्ट"
+
+msgid "WAITER"
+msgstr "वेटर"
+
+msgid "CASHIER"
+msgstr "कैशियर"
+
+msgid "COOK"
+msgstr "कुक"
+
+#. STAFF tab
+msgid "WAITERS"
+msgstr "वेटर"
+
+#. STAFF tab
+msgid "CASHIERS"
+msgstr "कैशियर"
+
+#. STAFF tab
+msgid "COOKS"
+msgstr "कुक"
+
+#. COOKS tab sub-caption, one counter
+msgid "%d counter"
+msgstr "%d काउंटर"
+
+#. COOKS tab sub-caption
+msgid "%d counters"
+msgstr "%d काउंटर"
+
+#. tab sub-caption: 2 of 3 people hired
+msgid "{n} of {max}"
+msgstr "{max} में से {n}"
+
+#. status line head, %s = seconds
+msgid "FOOD WAIT %s"
+msgstr "खाने का इंतज़ार %s"
+
+#. status line
+msgid "fine"
+msgstr "ठीक है"
+
+#. status line, one line, 654 px
+msgid "slow: food waits for a waiter"
+msgstr "धीमा: खाना वेटर के इंतज़ार में"
+
+msgid "too slow: food waits for a waiter"
+msgstr "बहुत धीमा: खाना वेटर के इंतज़ार में"
+
+#. the bill line is long
+msgid "long: travellers wait to pay"
+msgstr "लंबी: मुसाफ़िर बिल भरने को रुके हैं"
+
+msgid "too long: travellers wait to pay"
+msgstr "बहुत लंबी: मुसाफ़िर बिल भरने को रुके हैं"
+
+#. status head, %d = people in line
+msgid "BILL LINE %d"
+msgstr "बिल की लाइन %d"
+
+msgid "fine: the cooks keep up"
+msgstr "ठीक है: कुक काम संभाल रहे हैं"
+
+#. %s = counter name (gender-neutral phrasing on purpose)
+msgid "slow: the %s can't keep up"
+msgstr "धीमा: %s से काम नहीं संभल रहा"
+
+msgid "kitchen"
+msgstr "रसोई"
+
+#. status head on the COOKS tab
+msgid "KITCHEN"
+msgstr "रसोई"
+
+msgid "Food reaches the tables faster."
+msgstr "टेबल पर खाना जल्दी आएगा।"
+
+#. two lines on the HIRE card
+msgid ""
+"Food waits {now} now.\n"
+"With {n} waiters: about {after}."
+msgstr ""
+"अभी खाना {now} रुकता है।\n"
+"{n} वेटर हों तो: लगभग {after}।"
+
+msgid ""
+"Serves an order every {now} now.\n"
+"With {n} waiters: every {after}."
+msgstr ""
+"अभी हर {now} में एक ऑर्डर।\n"
+"{n} वेटर हों तो: हर {after} में।"
+
+msgid "Travellers pay faster."
+msgstr "मुसाफ़िर जल्दी बिल भरेंगे।"
+
+msgid ""
+"Bills wait {now} now.\n"
+"With {n} cashiers: about {after}."
+msgstr ""
+"अभी बिल में {now} लगते हैं।\n"
+"{n} कैशियर हों तो: लगभग {after}।"
+
+msgid ""
+"Bills a traveller every {now} now.\n"
+"With {n} cashiers: every {after}."
+msgstr ""
+"अभी हर {now} में एक बिल।\n"
+"{n} कैशियर हों तो: हर {after} में।"
+
+#. line under a person just hired
+msgid "NEW · Food wait {a} → {b}"
+msgstr "नया · खाने का इंतज़ार {a} → {b}"
+
+msgid "NEW · Bill wait {a} → {b}"
+msgstr "नया · बिल का इंतज़ार {a} → {b}"
+
+msgid "NEW · An order every {a} → {b}"
+msgstr "नया · हर ऑर्डर {a} → {b}"
+
+msgid "NEW · A bill every {a} → {b}"
+msgstr "नया · हर बिल {a} → {b}"
+
+msgid "NEW"
+msgstr "नया"
+
+#. one line in a dashed box, shrinks to 15 px
+msgid "All %d waiters hired (max). Upgrade them to walk faster."
+msgstr "सभी %d वेटर रख लिए (मैक्स)। अपग्रेड करें, वे तेज़ चलेंगे।"
+
+msgid "Both cash counters are open (max 2). Upgrade the cashiers to bill faster."
+msgstr "दोनों कैश काउंटर खुले हैं (मैक्स 2)। कैशियर अपग्रेड करें, बिल जल्दी बनेंगे।"
+
+msgid "All %d cashiers hired (max). Upgrade them to bill faster."
+msgstr "सभी %d कैशियर रख लिए (मैक्स)। अपग्रेड करें, बिल जल्दी बनेंगे।"
+
+#. section caption
+msgid "COOKS AT EACH COUNTER"
+msgstr "हर काउंटर के कुक"
+
+#. section caption
+msgid "YOUR WAITERS"
+msgstr "आपके वेटर"
+
+#. section caption
+msgid "YOUR CASHIERS"
+msgstr "आपके कैशियर"
+
+#. card title: HIRE WAITER 3
+msgid "HIRE {role} {n}"
+msgstr "{role} {n} रखें"
+
+#. button: hire a new person (owner rule: HIRE = new person)
+msgid "HIRE"
+msgstr "रखें"
+
+#. button
+msgid "HIRE COOK"
+msgstr "कुक रखें"
+
+#. button: improve someone you have
+msgid "UPGRADE"
+msgstr "अपग्रेड"
+
+#. button / label at the cap
+msgid "MAX"
+msgstr "मैक्स"
+
+#. %s = cups / rotis / glasses / plates
+msgid "+1 cook: more %s at once"
+msgstr "+1 कुक: एक साथ ज़्यादा %s"
+
+msgid "Walks %d%% faster each level"
+msgstr "हर लेवल पर %d%% तेज़ चलता है"
+
+msgid "Bills {a} → {b} a minute"
+msgstr "हर मिनट {a} → {b} बिल"
+
+msgid "{counter} · cooks {n} of {max}"
+msgstr "{counter} · कुक {max} में से {n}"
+
+#. one sale of the chai counter
+msgctxt "unit"
+msgid "cup"
+msgstr "कप"
+
+msgctxt "unit"
+msgid "roti"
+msgstr "रोटी"
+
+msgctxt "unit"
+msgid "glass"
+msgstr "गिलास"
+
+msgctxt "unit"
+msgid "plate"
+msgstr "प्लेट"
+
+msgctxt "unit"
+msgid "item"
+msgstr "चीज़"
+
+msgctxt "unit"
+msgid "cups"
+msgstr "कप"
+
+msgctxt "unit"
+msgid "rotis"
+msgstr "रोटियाँ"
+
+msgctxt "unit"
+msgid "glasses"
+msgstr "गिलास"
+
+msgctxt "unit"
+msgid "plates"
+msgstr "प्लेटें"
+
+msgctxt "unit"
+msgid "items"
+msgstr "चीज़ें"
+
+#. quick card title
+msgid "TABLE %d"
+msgstr "टेबल %d"
+
+#. quick card line (316 px, 18 to 16 px)
+msgid "+%d seats: more travellers sit down."
+msgstr "+%d सीटें: ज़्यादा मुसाफ़िर बैठेंगे।"
+
+#. link to the BUILD panel
+msgid "BUILD ›"
+msgstr "बनाएँ ›"
+
+#. quick card title
+msgid "HIRE WAITER %d"
+msgstr "वेटर %d रखें"
+
+#. quick card line
+msgid "Food waits {now} → about {after}."
+msgstr "खाने का इंतज़ार {now} → लगभग {after}।"
+
+# ======================================================================
+# Counter sheet (scripts/v3/ui/station_sheet.gd)
+# ======================================================================
+
+#. card caption; tutorial keyword
+msgid "LEVEL UP"
+msgstr "लेवल अप"
+
+#. card caption
+msgid "SPEED"
+msgstr "स्पीड"
+
+#. banner button
+msgid "HIRE WAITER ›"
+msgstr "वेटर रखें ›"
+
+#. 'Sells for [note] 17.70 a cup'
+msgid "Sells for"
+msgstr "दाम"
+
+#. 'Avg [note] 21.40 a plate'
+msgid "Avg"
+msgstr "औसत"
+
+#. %s = cup / roti / glass / plate
+msgid "a %s"
+msgstr "प्रति %s"
+
+#. info card title
+msgid "HOW THIS COUNTER EARNS"
+msgstr "यह काउंटर कैसे कमाता है"
+
+#. after 'LEVEL UP:' (gender-neutral on purpose)
+msgid "every %s sells for more."
+msgstr "हर %s का दाम बढ़ता है।"
+
+#. after 'COOKS:'
+msgid "one more cook, more %s at once."
+msgstr "एक और कुक, एक साथ ज़्यादा %s।"
+
+#. after 'SPEED:' (gender-neutral on purpose)
+msgid "each %s is made faster."
+msgstr "हर %s बनाने में कम समय।"
+
+#. after 'Lv 25 · 50 · 100:'
+msgid "price ×%s and a new dish."
+msgstr "दाम ×%s और एक नई डिश।"
+
+#. info card section
+msgid "NUMBERS"
+msgstr "आँकड़े"
+
+msgid "Max income (cooks only)"
+msgstr "मैक्स कमाई (सिर्फ़ कुक)"
+
+msgid "Cook time"
+msgstr "बनाने का समय"
+
+msgid "Cooks"
+msgstr "कुक"
+
+msgid "Price"
+msgstr "दाम"
+
+#. '1.95 s a cup', '17.70 a cup'
+msgid "{v} a {unit}"
+msgstr "{v} प्रति {unit}"
+
+#. info card section
+msgid "MENU"
+msgstr "मेन्यू"
+
+msgid "Tap anywhere to close"
+msgstr "बंद करने के लिए कहीं भी टैप करें"
+
+#. locked menu chip: 'at Lv 25'
+msgid "at {lv}"
+msgstr "{lv} पर"
+
+#. level bar during the tutorial: 'GOAL Lv 10'
+msgid "GOAL %s"
+msgstr "लक्ष्य %s"
+
+#. LEVEL UP gain
+msgid "+{v} a {unit}"
+msgstr "+{v} प्रति {unit}"
+
+msgid "{n}/{max} cooks"
+msgstr "{n}/{max} कुक"
+
+msgid "+1 cook"
+msgstr "+1 कुक"
+
+#. banner line, one line ~330 px
+msgid "More cooks or speed won't help yet."
+msgstr "अभी ज़्यादा कुक या स्पीड से फ़ायदा नहीं।"
+
+#. banner title
+msgid "Waiters can't keep up."
+msgstr "वेटर काम नहीं संभाल पा रहे।"
+
+msgid "UPGRADE WAITERS ›"
+msgstr "वेटर अपग्रेड करें ›"
+
+msgid "Cashiers can't keep up."
+msgstr "कैशियर काम नहीं संभाल पा रहे।"
+
+msgid "HIRE CASHIER ›"
+msgstr "कैशियर रखें ›"
+
+msgid "UPGRADE CASHIERS ›"
+msgstr "कैशियर अपग्रेड करें ›"
+
+msgid "All seats are full."
+msgstr "सारी सीटें भरी हैं।"
+
+msgid "BUILD TABLE ›"
+msgstr "टेबल बनाएँ ›"
+
+msgid "Every table is built. LEVEL UP pays more."
+msgstr "सारी टेबल बन चुकीं। लेवल अप से ज़्यादा कमाई।"
+
+msgid "Every traveller is served."
+msgstr "हर मुसाफ़िर को खाना मिल रहा है।"
+
+msgid "LEVEL UP: each one pays more."
+msgstr "लेवल अप: हर कोई ज़्यादा देगा।"
+
+#. %s = counter name
+msgid "The %s can't keep up."
+msgstr "%s से काम नहीं संभल रहा।"
+
+#. %s = CHAI / TANDOOR / LASSI / KADAI
+msgid "UPGRADE %s ›"
+msgstr "%s अपग्रेड करें ›"
+
+# ======================================================================
+# BUILD / STATS panel (scripts/v3/ui/daftar.gd)
+# ======================================================================
+
+#. panel title in Hindi (English shows BUILD + small 'daftar')
+msgctxt "title"
+msgid "daftar"
+msgstr "दफ़्तर"
+
+#. panel title in Hindi on the STATS tab
+msgctxt "title"
+msgid "hisaab"
+msgstr "हिसाब"
+
+#. HUD button caption, BUILD tab, BUILD buttons; tutorial keyword
+msgid "BUILD"
+msgstr "बनाएँ"
+
+#. tab caption / HUD caption (stats = accounts)
+msgid "STATS"
+msgstr "हिसाब"
+
+#. intro card, 3 lines max at 19 px
+msgid "Build new counters and tables. Each counter adds a dish to every order."
+msgstr "नए काउंटर और टेबल बनाएँ। हर नया काउंटर हर ऑर्डर में एक डिश जोड़ता है।"
+
+msgid "How the dhaba is doing right now."
+msgstr "ढाबा अभी कैसा चल रहा है।"
+
+#. small button on a row waiting for waiters
+msgid "STAFF ›"
+msgstr "स्टाफ़ ›"
+
+#. locked row
+msgid "SOON"
+msgstr "जल्द आएगा"
+
+#. start of the MENU line under a counter
+msgid "MENU:"
+msgstr "मेन्यू:"
+
+#. red line, 360 px at 20 px
+msgid "Needs {n} waiters (you have {have})"
+msgstr "{n} वेटर चाहिए (अभी {have} हैं)"
+
+msgid "TABLES"
+msgstr "टेबल"
+
+msgid "More seats: fewer travellers leave."
+msgstr "ज़्यादा सीटें: कम मुसाफ़िर लौटेंगे।"
+
+msgid "All {m} tables built · {s} seats"
+msgstr "सभी {m} टेबल बन गईं · {s} सीटें"
+
+msgid "{n} of {m} built · {per} seats each"
+msgstr "{m} में से {n} बनीं · हर एक में {per} सीटें"
+
+#. lock reason, %s = counter name
+msgid "AFTER %s"
+msgstr "%s के बाद"
+
+#. lock reason
+msgid "NEEDS %d WAITERS"
+msgstr "%d वेटर चाहिए"
+
+#. STATS row
+msgid "EARNING PER TRAVELLER"
+msgstr "हर मुसाफ़िर से कमाई"
+
+#. STATS row
+msgid "TRAVELLERS INSIDE"
+msgstr "अंदर मुसाफ़िर"
+
+#. STATS row
+msgid "SERVING CAPACITY"
+msgstr "परोसने की क्षमता"
+
+#. STATS row
+msgid "TRUCK PARKING"
+msgstr "ट्रक पार्किंग"
+
+#. STATS row
+msgid "SEATS IN USE"
+msgstr "भरी सीटें"
+
+#. STATS row: share of time every seat was taken
+msgid "SEATS FULL"
+msgstr "सीटें फ़ुल"
+
+#. STATS row
+msgid "AVG FOOD WAIT"
+msgstr "खाने का औसत इंतज़ार"
+
+#. STATS row: most served dish
+msgid "TOP DISH"
+msgstr "टॉप डिश"
+
+#. STATS row
+msgid "AVG CASHIER LINE"
+msgstr "बिल की औसत लाइन"
+
+#. STATS row
+msgid "AVG CASHIER WAIT"
+msgstr "बिल का औसत इंतज़ार"
+
+#. STATS row: travellers who left without eating
+msgid "TRAVELLERS LOST"
+msgstr "लौटे मुसाफ़िर"
+
+#. station card column
+msgid "PRICE"
+msgstr "दाम"
+
+#. station card column
+msgid "MAX INCOME"
+msgstr "मैक्स कमाई"
+
+#. station card column (per minute)
+msgid "MAX SERVED"
+msgstr "मैक्स परोसा"
+
+# ======================================================================
+# Popups: offline earnings, VIP offer (scripts/v3/ui/offline_popup.gd, vip_popup.gd)
+# ======================================================================
+
+#. offline popup title
+msgid "WELCOME BACK!"
+msgstr "फिर से स्वागत है!"
+
+#. offline popup, 3 lines at 21 px
+msgid "Your staff kept the dhaba open while you were away (up to 2 h)."
+msgstr "आपके पीछे स्टाफ़ ने ढाबा चालू रखा (2 घंटे तक)।"
+
+#. %s = '1h 05m' / '12 min'
+msgid "You were away for %s."
+msgstr "आप %s बाहर थे।"
+
+#. hours and minutes away
+msgid "%dh %02dm"
+msgstr "%d घं %02d मि"
+
+#. minutes away
+msgid "%d min"
+msgstr "%d मिनट"
+
+#. main button: take the offline cash
+msgid "COLLECT"
+msgstr "ले लें"
+
+#. button with a play icon: watch an ad for double
+msgid "COLLECT x2"
+msgstr "x2 ले लें"
+
+#. VIP / FREE CASH popup caption
+msgid "Watch one short ad, get +%s now."
+msgstr "एक छोटा ऐड देखें, अभी +%s पाएँ।"
+
+#. popup title (ad reward only)
+msgid "FREE CASH"
+msgstr "मुफ़्त कैश"
+
+#. popup title (VIP kept in Latin letters, as Indian apps write it)
+msgid "VIP OFFER"
+msgstr "VIP ऑफ़र"
+
+#. pill on the VIP offer
+msgid "FOREVER"
+msgstr "हमेशा के लिए"
+
+#. VIP offer headline (44 px, one line if it fits)
+msgid "×2 ALL INCOME"
+msgstr "×2 सारी कमाई"
+
+#. the same on two lines
+msgid ""
+"×2\n"
+"ALL INCOME"
+msgstr ""
+"×2\n"
+"सारी कमाई"
+
+#. VIP purchase button
+msgid "UNLOCK"
+msgstr "अनलॉक"
+
+#. %s = store price
+msgid "UNLOCK · %s"
+msgstr "अनलॉक · %s"
+
+#. VIP already bought
+msgid "ACTIVE"
+msgstr "चालू है"
+
+#. button with a play icon
+msgid "WATCH AD"
+msgstr "ऐड देखें"
+
+# ======================================================================
+# Game data: counters, dishes, people, task cards (data/economy_v3.json, scripts/autoload/game.gd)
+# ======================================================================
+
+#. counter name
+msgid "CHAI COUNTER"
+msgstr "चाय काउंटर"
+
+#. counter name
+msgid "TANDOOR"
+msgstr "तंदूर"
+
+#. counter name and dish
+msgid "LASSI"
+msgstr "लस्सी"
+
+#. counter name
+msgid "KADAI"
+msgstr "कड़ाही"
+
+#. dish; also the short counter name
+msgid "CHAI"
+msgstr "चाय"
+
+#. counter noun inside task texts
+msgid "chai counter"
+msgstr "चाय काउंटर"
+
+#. counter noun inside task texts
+msgid "tandoor"
+msgstr "तंदूर"
+
+#. counter noun inside task texts
+msgid "lassi counter"
+msgstr "लस्सी काउंटर"
+
+#. counter noun inside task texts
+msgid "kadai"
+msgstr "कड़ाही"
+
+#. BUILD row, 2 lines
+msgid "No trucker drives past a kettle on the boil. The heart of every dhaba."
+msgstr "उबलती केतली देखकर कोई ट्रक वाला आगे नहीं जाता। हर ढाबे की जान।"
+
+#. BUILD row
+msgid "Hot rotis off the clay walls for every hungry driver."
+msgstr "तंदूर से उतरी गरम रोटियाँ, हर भूखे ड्राइवर के लिए।"
+
+#. BUILD row
+msgid "Thick, chilled lassi from a clay pot, with a layer of cream on top."
+msgstr "मटके में मथी गाढ़ी, ठंडी लस्सी, ऊपर मलाई की परत।"
+
+#. BUILD row
+msgid "A big iron kadai in the back kitchen. Egg bhurji first, then dal, paneer and chole."
+msgstr "पीछे की रसोई में एक बड़ी कड़ाही। पहले अंडा भुर्जी, फिर दाल, पनीर और छोले।"
+
+#. dish
+msgid "COFFEE"
+msgstr "कॉफ़ी"
+
+#. dish
+msgid "GREEN TEA"
+msgstr "ग्रीन टी"
+
+#. dish
+msgid "KESAR DOODH"
+msgstr "केसर दूध"
+
+#. dish
+msgid "ROTI"
+msgstr "रोटी"
+
+#. dish
+msgid "NAAN"
+msgstr "नान"
+
+#. dish
+msgid "KEEMA PARATHA"
+msgstr "कीमा पराठा"
+
+#. dish
+msgid "AMRITSARI KULCHA"
+msgstr "अमृतसरी कुलचा"
+
+#. dish
+msgid "CHAAS"
+msgstr "छाछ"
+
+#. dish
+msgid "MANGO LASSI"
+msgstr "मैंगो लस्सी"
+
+#. dish
+msgid "PATIALA LASSI"
+msgstr "पटियाला लस्सी"
+
+#. dish
+msgid "EGG BHURJI"
+msgstr "अंडा भुर्जी"
+
+#. dish
+msgid "DAL MAKHANI"
+msgstr "दाल मखनी"
+
+#. dish
+msgid "KADAI PANEER"
+msgstr "कड़ाही पनीर"
+
+#. dish
+msgid "PINDI CHOLE"
+msgstr "पिंडी छोले"
+
+#. first dish's card name (truckers' strong chai)
+msgid "Diesel Chai"
+msgstr "डीज़ल चाय"
+
+#. first dish's card name (slightly burnt roti, a joke)
+msgid "Jali Roti"
+msgstr "जली रोटी"
+
+#. first dish's card name
+msgid "Meethi Lassi"
+msgstr "मीठी लस्सी"
+
+#. first dish's card name
+msgid "Anda Bhurji"
+msgstr "अंडा भुर्जी"
+
+#. dish joke, 2 lines at 18 px
+msgid "Thick, dark and strong enough to jump-start a truck."
+msgstr "गाढ़ी, कड़क और इतनी तेज़ कि ट्रक भी स्टार्ट हो जाए।"
+
+#. dish joke
+msgid "Filter coffee in a steel tumbler, poured from a height like all good decisions."
+msgstr "स्टील के गिलास में फ़िल्टर कॉफ़ी, ऊँचाई से डाली हुई, जैसे हर अच्छा फ़ैसला।"
+
+#. dish joke
+msgid "Leaves, hot water and a slice of lemon. The drivers call it diet chai."
+msgstr "पत्ती, गरम पानी और नींबू की फाँक। ड्राइवर इसे डाइट चाय कहते हैं।"
+
+#. dish joke
+msgid "Hot saffron milk in a clay cup, pistachios on top. The nap comes free."
+msgstr "कुल्हड़ में गरम केसर दूध, ऊपर पिस्ता। नींद मुफ़्त मिलेगी।"
+
+#. dish joke
+msgid "Slightly charred on one side. The drivers call it smoky flavour."
+msgstr "एक तरफ़ से थोड़ी जली हुई। ड्राइवर इसे स्मोकी फ़्लेवर कहते हैं।"
+
+#. dish joke
+msgid "Puffed and blistered, pressed onto the hot clay by hand. Butter optional, never refused."
+msgstr "फूला हुआ, हाथ से गरम तंदूर में लगाया हुआ। मक्खन ज़रूरी नहीं, पर कोई मना नहीं करता।"
+
+#. dish joke
+msgid "A paratha with a secret inside. The secret is keema."
+msgstr "अंदर एक राज़ छुपाए पराठा। राज़ है कीमा।"
+
+#. dish joke
+msgid "Stuffed and crisp, Amritsar style. Worth parking a 22-wheeler for."
+msgstr "भरवाँ और करारा, अमृतसरी अंदाज़। इसके लिए 22 पहियों वाला ट्रक भी रुक जाए।"
+
+#. dish joke
+msgid "Sweet, cold and thick enough to stand a spoon in. Mostly."
+msgstr "मीठी, ठंडी और इतनी गाढ़ी कि चम्मच खड़ा हो जाए। ज़्यादातर।"
+
+#. dish joke
+msgid "Salted buttermilk with roasted cumin. The cure for every highway lunch."
+msgstr "भुने जीरे वाली नमकीन छाछ। हर हाईवे लंच का इलाज।"
+
+#. dish joke (Gopi = the lassi cook, male)
+msgid "Alphonso season in a glass. Gopi guards the crate personally."
+msgstr "गिलास में हापुस आम का मौसम। आम की पेटी की रखवाली गोपी ख़ुद करता है।"
+
+#. dish joke
+msgid "One glass, two hands, then a short nap in the cab."
+msgstr "एक गिलास, दोनों हाथ, फिर केबिन में छोटी-सी झपकी।"
+
+#. dish joke
+msgid "Two eggs, one kadai, zero patience. Done before the horn stops."
+msgstr "दो अंडे, एक कड़ाही, ज़ीरो सब्र। हॉर्न रुकने से पहले तैयार।"
+
+#. dish joke
+msgid "Simmered since dawn, finished with butter. The ladle has seen things."
+msgstr "सुबह से धीमी आँच पर, ऊपर से मक्खन। इस करछी ने बहुत कुछ देखा है।"
+
+#. dish joke
+msgid "Paneer, capsicum and a fistful of crushed spices. Shera's pride."
+msgstr "पनीर, शिमला मिर्च और मुट्ठी भर कुटे मसाले। शेरा की शान।"
+
+#. dish joke
+msgid "Dark Pindi chole with a squeeze of lime. Trucks slow down for the smell."
+msgstr "नींबू निचोड़े गहरे पिंडी छोले। ख़ुशबू से ट्रक धीमे हो जाते हैं।"
+
+#. chai cook
+msgctxt "name"
+msgid "Pinky"
+msgstr "पिंकी"
+
+#. chai cook
+msgctxt "name"
+msgid "Rinku"
+msgstr "रिंकू"
+
+#. chai cook
+msgctxt "name"
+msgid "Sonu"
+msgstr "सोनू"
+
+#. tandoor cook
+msgctxt "name"
+msgid "Balwant"
+msgstr "बलवंत"
+
+#. tandoor cook
+msgctxt "name"
+msgid "Gurmeet"
+msgstr "गुरमीत"
+
+#. tandoor cook
+msgctxt "name"
+msgid "Jassi"
+msgstr "जस्सी"
+
+#. lassi cook
+msgctxt "name"
+msgid "Gopi"
+msgstr "गोपी"
+
+#. lassi cook
+msgctxt "name"
+msgid "Neetu"
+msgstr "नीतू"
+
+#. lassi cook
+msgctxt "name"
+msgid "Bittu"
+msgstr "बिट्टू"
+
+#. kadai cook
+msgctxt "name"
+msgid "Shera"
+msgstr "शेरा"
+
+#. kadai cook
+msgctxt "name"
+msgid "Kamla"
+msgstr "कमला"
+
+#. kadai cook
+msgctxt "name"
+msgid "Kallu"
+msgstr "कल्लू"
+
+#. cashier
+msgctxt "name"
+msgid "Munna"
+msgstr "मुन्ना"
+
+#. cashier
+msgctxt "name"
+msgid "Bablu"
+msgstr "बबलू"
+
+#. waiter
+msgctxt "name"
+msgid "Raju"
+msgstr "राजू"
+
+#. waiter
+msgctxt "name"
+msgid "Shambhu"
+msgstr "शंभू"
+
+#. waiter
+msgctxt "name"
+msgid "Lakhan"
+msgstr "लखन"
+
+#. spare waiter name
+msgctxt "name"
+msgid "Golu"
+msgstr "गोलू"
+
+#. task card, 2 lines max
+msgid "Upgrade the {station} to level {n}"
+msgstr "{station} को लेवल {n} तक अपग्रेड करें"
+
+#. task card
+msgid "Serve {n} travellers at the {station}"
+msgstr "{station} पर {n} मुसाफ़िरों को परोसें"
+
+#. task card
+msgid "Earn {money} for the dhaba"
+msgstr "ढाबे के लिए {money} कमाएँ"
+
+#. task card
+msgid "Bill {n} travellers at the cash counter"
+msgstr "कैश काउंटर पर {n} मुसाफ़िरों का बिल बनाएँ"
+
+#. task card
+msgid "Upgrade Cashier {g} to level {n}"
+msgstr "कैशियर {g} को लेवल {n} तक अपग्रेड करें"
+
+#. task card
+msgid "Hire cook {n} at the {station}"
+msgstr "{station} पर कुक {n} रखें"
+
+#. task card
+msgid "Upgrade the {station} SPEED {n} times"
+msgstr "{station} की स्पीड {n} बार अपग्रेड करें"
+
+#. task card
+msgid "Build the {station}"
+msgstr "{station} बनाएँ"
+
+#. task card
+msgid "Seat {n} travellers"
+msgstr "{n} मुसाफ़िरों को बिठाएँ"
+
+#. task card
+msgid "Build table {n}"
+msgstr "टेबल {n} बनाएँ"
+
+#. task card
+msgid "Hire waiter {n}"
+msgstr "वेटर {n} रखें"
+
+#. task card
+msgid "Upgrade Waiter {w} to level {n}"
+msgstr "वेटर {w} को लेवल {n} तक अपग्रेड करें"
+
+#. task card
+msgid "Serve {n} x {dish}"
+msgstr "{n} x {dish} परोसें"
+
+#. task card
+msgid "Hire waiter {n} (tap STAFF)"
+msgstr "वेटर {n} रखें (स्टाफ़ पर टैप करें)"
+
+#. task card
+msgid "Build the lassi counter (needs 2 waiters)"
+msgstr "लस्सी काउंटर बनाएँ (2 वेटर चाहिए)"
+
+#. task card
+msgid "Build the tandoor"
+msgstr "तंदूर बनाएँ"
+
+#. task card
+msgid "Build the lassi counter"
+msgstr "लस्सी काउंटर बनाएँ"
+
+#. task card
+msgid "Build the kadai"
+msgstr "कड़ाही बनाएँ"
+
+#. task card
+msgid "Pour {n} cups of chai for travellers"
+msgstr "मुसाफ़िरों को {n} कप चाय पिलाएँ"
+
+#. task card
+msgid "Bake {n} rotis in the tandoor"
+msgstr "तंदूर में {n} रोटियाँ सेंकें"
+
+#. task card
+msgid "Make {n} glasses of lassi"
+msgstr "{n} गिलास लस्सी बनाएँ"
+
+#. task card
+msgid "Cook {n} plates in the kadai"
+msgstr "कड़ाही में {n} प्लेट पकाएँ"
+
+#. task card
+msgid "Pour {n} cups of coffee"
+msgstr "{n} कप कॉफ़ी डालें"
+
+#. task card
+msgid "Brew {n} cups of green tea"
+msgstr "{n} कप ग्रीन टी बनाएँ"
+
+#. task card
+msgid "Serve {n} cups of kesar doodh"
+msgstr "{n} कुल्हड़ केसर दूध परोसें"
+
+#. task card
+msgid "Bake {n} naans in the tandoor"
+msgstr "तंदूर में {n} नान सेंकें"
+
+#. task card
+msgid "Bake {n} keema parathas"
+msgstr "{n} कीमा पराठे सेंकें"
+
+#. task card
+msgid "Bake {n} Amritsari kulchas"
+msgstr "{n} अमृतसरी कुलचे सेंकें"
+
+#. task card
+msgid "Pour {n} glasses of chaas"
+msgstr "{n} गिलास छाछ डालें"
+
+#. task card
+msgid "Blend {n} mango lassis"
+msgstr "{n} गिलास मैंगो लस्सी बनाएँ"
+
+#. task card
+msgid "Serve {n} glasses of Patiala lassi"
+msgstr "{n} गिलास पटियाला लस्सी परोसें"
+
+#. task card
+msgid "Serve {n} bowls of dal makhani"
+msgstr "{n} कटोरी दाल मखनी परोसें"
+
+#. task card
+msgid "Cook {n} plates of kadai paneer"
+msgstr "{n} प्लेट कड़ाही पनीर बनाएँ"
+
+#. task card
+msgid "Serve {n} bowls of Pindi chole"
+msgstr "{n} कटोरी पिंडी छोले परोसें"
