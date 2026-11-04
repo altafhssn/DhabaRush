@@ -106,6 +106,10 @@ extends CanvasLayer
 ##  - C7.4: open_vip() takes the popup variant ("free" | "starter" | "vip")
 ##    from Game.offer_variant() and marks it shown.
 ##
+## Story (4 Nov): popup "phone" (PhonePopup, Simran's chat), opened by the
+## HUD's PHONE (open_phone(); it reads every message); an outside tap or the
+## X closes it, then PHONE's unread badge refreshes.
+##
 ## Core and feel (W2-ROOT, build plan section 1 / 2.3):
 ##  - One fix router, do_fix(fix): the Game.bottleneck_fix() dict (also a
 ##    readout row's fix) opens the card that fixes it: hire waiter -> the
@@ -235,6 +239,7 @@ var quick_buy: QuickBuy
 var rack_tag_unlocked: bool = false
 var offline_popup: OfflinePopup
 var settings_popup: SettingsPopup
+var phone_popup: PhonePopup
 var menu_pop: MenuPop
 ## "LEAVE THE DHABA?" (handle_back with nothing to close; layer LAYER_QUIT;
 ## scripts/v3/ui/quit_popup.gd).
@@ -467,6 +472,11 @@ func _ready() -> void:
 	settings_popup.name = "SettingsPopup"
 	_popup_root.add_child(settings_popup)
 	settings_popup.close_pressed.connect(_on_popup_x)
+
+	phone_popup = PhonePopup.new()
+	phone_popup.name = "PhonePopup"
+	_popup_root.add_child(phone_popup)
+	phone_popup.close_pressed.connect(_on_popup_x)
 
 	# C5.2 / C6.1 / C6.3: the promotion carry-over popup.
 	promo_popup = PromoPopupScript.new()
@@ -891,6 +901,17 @@ func offer_variant() -> String:
 	return "vip" if Game.vip_offer_visible() else "free"
 
 
+## Story: Simran's chat (reads every message).
+func open_phone() -> void:
+	if current_popup != "":
+		return
+	var unread: int = Game.phone_unread()
+	phone_popup.open()
+	_show_popup("phone")
+	hud.refresh_phone()
+	Analytics.event("phone_open", {"unread": unread, "visits": Game.story_visits()})
+
+
 func open_settings() -> void:
 	if current_popup != "":
 		return
@@ -1137,6 +1158,9 @@ func _hide_popup() -> void:
 			offline_popup.close()
 		"settings":
 			settings_popup.close()
+		"phone":
+			phone_popup.close()
+			hud.refresh_phone()
 		"promo":
 			promo_popup.close()
 	if _dim_tw != null and _dim_tw.is_valid():
@@ -1575,6 +1599,8 @@ func _on_hud_button(id: String) -> void:
 			open_daftar("hisaab")
 		"settings_button":
 			open_settings()
+		"phone_button":
+			open_phone()
 		"home_button":
 			if not _cam_call("fly_home", []):
 				_cam_call("fly_to", [Main3.home_view(), CameraRig.GAME])
@@ -1626,8 +1652,8 @@ func _on_dim_input(event: InputEvent) -> void:
 		var mb := event as InputEventMouseButton
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
 			_popup_dim.accept_event()
-			# Only settings closes on an outside tap; offers need their X.
-			if current_popup == "settings" and not lock_close:
+			# Only settings and the phone close on an outside tap; offers need their X.
+			if current_popup in ["settings", "phone"] and not lock_close:
 				_hide_popup()
 
 

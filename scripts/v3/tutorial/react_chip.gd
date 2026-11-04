@@ -2,8 +2,9 @@ extends "res://scripts/v3/tutorial/hint_chip.gd"
 ## Munshi-ji's non-blocking chip (core and feel C4.3, W3-TUT): a HintChip
 ## with his glyph, for his reactions to the player's own fixes and the
 ## free-play chip lines of ScriptLines ("chip": true: react_*, reno_tease,
-## event_start, delegation_on). A cream rounded chip with the 2D "munshi"
-## glyph (UiIcon) left of one or two lines of 20 px INK text, centred at the
+## event_start, delegation_on). A cream rounded chip with the narrator's
+## round face (NarratorFace; story, 4 Nov: Rani's art, else the 2D "munshi"
+## glyph) left of one or two lines of 20 px INK text, centred at the
 ## bottom above the HOME pill, on the hand's layer (32). It never takes
 ## input, is no launch pop-up and no dialogue (no box, no dim, no pause);
 ## shows for SHOW_S (or the given time), fading in and out in FADE s.
@@ -27,7 +28,7 @@ const FALLBACK_BOTTOM := 130.0
 
 var line_id: String = ""
 var _panel: PanelContainer
-var _icon: UiIcon
+var _icon: Control
 var _text: Label
 var _left: float = 0.0
 var _ptw: Tween
@@ -55,7 +56,7 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", int(GAP))
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_panel.add_child(row)
-	_icon = UiIcon.new("munshi", Vector2(GLYPH, GLYPH))
+	_icon = NarratorFace.make(GLYPH)
 	_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_icon)
 	_text = Label.new()
@@ -127,14 +128,12 @@ func _show(text: String, center: Vector2, secs: float) -> void:
 	var font: Font = UiKit.font_bold()
 	var w: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_TEXT_PX).x + 2.0
 	if w > MAX_W:
-		# Two lines (or more): the wrapped height from the font, so the chip
-		# is sized right on its first frame.
-		_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var h: float = font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, MAX_W, CHIP_TEXT_PX).y
-		_text.custom_minimum_size = Vector2(MAX_W, ceilf(h))
-	else:
-		_text.autowrap_mode = TextServer.AUTOWRAP_OFF
-		_text.custom_minimum_size = Vector2(w, 0.0)
+		# Two lines (or more). Story fix (4 Nov): the label wraps nothing
+		# itself; an autowrapping label measured its height at width 0 (a
+		# 2112 px chip for the first long line), so the breaks are put in here.
+		_text.text = _wrapped(text, font)
+	_text.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_text.custom_minimum_size = Vector2.ZERO
 	_text.reset_size()
 	_panel.reset_size()
 	var sz: Vector2 = _panel.get_combined_minimum_size()
@@ -152,6 +151,22 @@ func _show(text: String, center: Vector2, secs: float) -> void:
 	_ptw.tween_property(_panel, "modulate:a", 1.0, FADE)
 	_left = maxf(secs, FADE)
 	set_process(true)
+
+
+## `text` broken into lines of at most MAX_W px (whole words).
+static func _wrapped(text: String, font: Font) -> String:
+	var lines: PackedStringArray = PackedStringArray()
+	var cur: String = ""
+	for word: String in text.split(" ", false):
+		var t: String = word if cur == "" else cur + " " + word
+		if cur != "" and font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_TEXT_PX).x > MAX_W:
+			lines.append(cur)
+			cur = word
+		else:
+			cur = t
+	if cur != "":
+		lines.append(cur)
+	return "\n".join(lines)
 
 
 ## Top of the HUD's HOME pill (canvas px), visible or not.

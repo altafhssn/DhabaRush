@@ -179,6 +179,8 @@ const CHIP_READ_WORD := 0.25
 
 ## main3 --no-notes / --tap-check / --capture (other than "menu") clear it.
 static var enabled: bool = true
+## Story (4 Nov): the live instance, so FatherVisits can wait for a chip.
+static var current: MunshiNotes = null
 ## C4.3, per session (a promotion's scene reload keeps them): reactions
 ## shown, the session clock at the last one, the generic line's turn, and
 ## the session clock (game seconds, while MunshiNotes runs).
@@ -228,6 +230,7 @@ var _alive_t: float = 0.0
 
 
 func _ready() -> void:
+	current = self
 	Game.cash_changed.connect(_on_cash_changed)
 	Game.menu_unlocked.connect(_on_menu_unlocked)
 	Game.waiter_hired.connect(_on_waiter_hired)
@@ -315,6 +318,9 @@ func _on_menu_unlocked(station_id: String, dish_id: String) -> void:
 
 func _is_calm() -> bool:
 	if not enabled or not Game.is_tutorial_done():
+		return false
+	# Story (4 Nov): one voice at a time while the father visits.
+	if FatherVisits.busy:
 		return false
 	var d: Node = Refs.director
 	if d != null and is_instance_valid(d) and d.has_method("is_active") and bool(d.call("is_active")):
@@ -772,6 +778,17 @@ func _chip_free() -> bool:
 	return _is_calm()
 
 
+## Story (4 Nov): FatherVisits' arrival lines, as a chip (never over the car).
+func say_chip(id: String, secs: float) -> void:
+	_show_chip(id, secs)
+	print("[munshi] chip %s at %.1f" % [id, Refs.clock])
+
+
+## Story (4 Nov): a chip or a line of Rani's is on its way or up.
+func voice_busy() -> bool:
+	return _busy or _chip_on() or _react_pending != ""
+
+
 func _chip_on() -> bool:
 	return _react_chip != null and _react_chip.is_showing()
 
@@ -792,7 +809,8 @@ static func chip_secs(id: String) -> float:
 
 # ================================================================ chip lines (core and feel)
 ## One per check, only when no chip shows: delegation_on (C6.5), event_start
-## (C6.4, once per weekend), reno_tease (C5.2). True when one showed.
+## (C6.4, once per weekend), the story's phone_first / tea_stall (4 Nov),
+## reno_tease (C5.2). True when one showed.
 func _chip_lines() -> bool:
 	if not _chip_free():
 		return false
@@ -806,6 +824,13 @@ func _chip_lines() -> bool:
 		if wk != "" and not Game.note_seen("event_start_" + wk):
 			_forget_notes("event_start_")
 			return _chip_note("event_start_" + wk, "event_start")
+	# Story (4 Nov): Rani points at Simran's first message once PHONE shows,
+	# and answers it once the player has read it (the phone closed: calm).
+	if not Game.note_seen("phone_first") and Game.phone_unread() > 0 and Game.hud_revealed("phone"):
+		return _chip_note("phone_first", "phone_first")
+	if not Game.note_seen("tea_stall") and Game.hud_revealed("phone") and Game.phone_unread() == 0:
+		Game.mark_note("phone_first")   # read before the pointer showed: skip it
+		return _chip_note("tea_stall", "tea_stall")
 	if not Game.note_seen("reno_tease"):
 		if Game.renovations() > 0 or bool(Game.renovation_state().get("unlocked", false)):
 			Game.mark_note("reno_tease")   # the real thing is here: no tease

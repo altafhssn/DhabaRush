@@ -74,7 +74,7 @@ const MUNSHI_SEG := Vector2(96, 58)
 const MUNSHI_BAR_H := 18.0
 const MUNSHI_OFF := Color(0.6, 0.57, 0.53)
 ## C6.5 msgids (plan 5.3).
-const MUNSHI_TITLE := "MUNSHI-JI"
+const MUNSHI_TITLE := "RANI"
 const MUNSHI_LINE := "Claims finished task cards for you"
 const MUNSHI_PROGRESS := "{n}/{total} claims"
 
@@ -378,14 +378,13 @@ func _munshi_mode() -> String:
 	return "unlocked" if bool(st.get("unlocked", false)) else "locked"
 
 
-## The Munshi-ji row: glyph, "MUNSHI-JI", "Claims finished task cards for
+## The Munshi-ji row (story, 4 Nov: Rani's face and "RANI"): glyph, "MUNSHI-JI", "Claims finished task cards for
 ## you", then a progress bar with "12/20 claims" (locked) or the ON / OFF
 ## switch (unlocked).
 func _make_munshi(y: float) -> void:
 	var card: Panel = _row_card(y, MUNSHI_H)
 	card.name = "Munshi"
-	var ic := UiIcon.new("munshi", Vector2(MUNSHI_ICON, MUNSHI_ICON), Color.WHITE, UiKit.MARIGOLD_PALE)
-	ic.pad = 0.08
+	var ic: Control = NarratorFace.make(MUNSHI_ICON)
 	ic.position = Vector2(16, (MUNSHI_H - MUNSHI_ICON) * 0.5 - 2.0)
 	card.add_child(ic)
 	var right_x: float = 690.0 - MUNSHI_RIGHT_W - 18.0

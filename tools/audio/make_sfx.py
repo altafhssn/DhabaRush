@@ -594,6 +594,20 @@ def sfx_defs():
                                                  (wood(247, 0.14, r, 0.035, 0.05, 0.45), 0.12, 0.85),
                                                  (bell(note(81), 0.28, 0.09, r), 0.22, 0.3)]), r, 0.5, 0.14), -3.0)
 
+    # Story (4 Nov): Simran's message: two short phone-vibration buzzes (a
+    # 180 Hz hum shaken at 32 Hz) and a soft two-note ting (D6 -> A6).
+    def phone_buzz(r):
+        def buzz(dur):
+            t = t_axis(dur)
+            hum = np.sin(TAU * 180.0 * t) + 0.35 * np.sin(TAU * 360.0 * t)
+            shake = 0.6 + 0.4 * np.sin(TAU * 32.0 * t)
+            return end_fade(hum * shake * env(len(t), 0.008, None), 0.02)
+        return room(mix(0.75, [(buzz(0.14), 0.0, 0.5), (buzz(0.14), 0.2, 0.5),
+                               (bell(note(86), 0.3, 0.1, r), 0.4, 0.7),
+                               (bell(note(93), 0.35, 0.12, r), 0.5, 0.8)]), r, 0.4, 0.12)
+
+    d["phone_buzz"] = (phone_buzz, -3.0)
+
     def menu_unlock(r):
         parts = [(bell(note(m), 0.6, 0.14, r), i * 0.09, 0.8 if i < 2 else 1.0) for i, m in enumerate((86, 90, 93))]
         parts += [(swoosh(0.25, 0.1, 0.6, 0.0, r), 0.0, 0.3)]

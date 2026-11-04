@@ -74,7 +74,7 @@ WORLD_ASSETS = {"ground", "compound", "scenery", "wall_wire", "wall_bulbs"}
 # Triangle budgets per asset family (checked and reported after the build).
 BUDGETS = {"compound": 3000, "scenery": 6000, "ground": 800, "road": 400,
            "wall_wire": 600, "wall_bulbs": 700}
-VEHICLES = {"bike", "car", "car_red", "car_blue", "car_taxi", "auto", "truck", "truck_green", "bus"}
+VEHICLES = {"bike", "car", "car_red", "car_blue", "car_taxi", "auto", "truck", "truck_green", "bus", "car_ambassador"}
 CANOPIES = {"canopy_red", "canopy_teal", "canopy_yellow", "canopy_blue", "canopy_pink"}
 
 
@@ -690,6 +690,7 @@ def build_vehicles(mat):
     out.append(car("car_red", RED, WHITE))
     out.append(car("car_blue", BLUE, WHITE))
     out.append(car("car_taxi", HAIR, YELLOW, roof=YELLOW))         # kaali-peeli taxi
+    out.append(ambassador_geo(Asset("car_ambassador")).finish(mat, 35))
 
     au = Asset("auto")                                           # auto-rickshaw, faces +X
     au.wheel(0.2, 0.12, (0.62, 0, 0.2))
@@ -710,6 +711,36 @@ def build_vehicles(mat):
     out.append(truck_geo(Asset("truck_green"), cab=BLUE, body=GREEN, trim=PAINT_YELLOW, crown=RED).finish(mat))
     out.append(bus_geo(Asset("bus")).finish(mat))
     return out
+
+
+def ambassador_geo(c):
+    """Story (4 Nov): Simran's father's white Hindustan Ambassador, faces +X like the other
+    cars and fits their size (2.5 x 1.2 m): a rounded body with a domed bonnet and boot, a
+    curved roof over a glass cabin, chrome grille, bumpers and side strip, round headlamps."""
+    for x in (-0.78, 0.78):
+        for y in (-0.55, 0.55):
+            c.wheel(0.25, 0.17, (x, y * 0.96, 0.25))
+    c.rbox((2.46, 1.16, 0.46), (0, 0, 0.47), WHITE, bevel=0.14, seg=2)                 # body
+    c.rbox((0.62, 1.08, 0.16), (0.88, 0, 0.72), WHITE, bevel=0.07, seg=2)             # bonnet dome
+    c.rbox((0.52, 1.08, 0.16), (-0.94, 0, 0.72), WHITE, bevel=0.07, seg=2)            # boot dome
+    c.rbox((1.2, 1.0, 0.36), (-0.12, 0, 0.87), SLATE, bevel=0.12, seg=2)              # tinted cabin
+    c.rbox((1.04, 1.04, 0.1), (-0.14, 0, 1.06), WHITE, bevel=0.05, seg=2)             # curved roof
+    for x in (-0.66, -0.12, 0.42):                                                     # pillars
+        c.rbox((0.07, 1.02, 0.32), (x, 0, 0.87), WHITE, bevel=0.025)
+    c.rbox((0.06, 0.62, 0.2), (1.24, 0, 0.5), STEEL, bevel=0.02)                      # grille
+    for y in (-0.08, 0.0, 0.08):
+        c.box((0.065, 0.02, 0.17), (1.245, y, 0.5), DARK_STEEL)
+    for y in (-0.42, 0.42):                                                            # round lamps
+        c.wheel(0.085, 0.05, (1.22, y, 0.56), color=STEEL, seg=10, axis="x")
+        c.ball(0.065, (1.25, y, 0.56), BULB, seg=8, rings=4)
+        c.box((0.04, 0.16, 0.08), (-1.235, y, 0.55), RED)                              # tail lamps
+    for x in (1.28, -1.28):                                                            # bumpers
+        c.rbox((0.08, 1.2, 0.09), (x, 0, 0.32), STEEL, bevel=0.03)
+    for y in (-0.585, 0.585):                                                          # side strips
+        c.box((2.0, 0.02, 0.035), (0, y, 0.58), STEEL)
+    c.decal((1.33, 0, 0.42), 0.3, 0.08, "+x", LINE)                                    # number plates
+    c.decal((-1.33, 0, 0.42), 0.3, 0.08, "-x", LINE)
+    return c
 
 
 # ------------------------------------------------------------------ dhaba props
@@ -1881,6 +1912,8 @@ V3_BUDGETS.update({n: 1800 for n in ("trav_elder", "trav_sardar", "trav_farmer",
 V3_BUDGETS.update({n: 550 for n in ("pass_missi_roti", "pass_lahsun_roti", "pass_baati", "pass_rabri",
                                     "pass_dal_baati", "pass_gatte", "pass_ker_sangri", "pass_laal_maas",
                                     "pass_shikanji")})
+# Story (4 Nov): the father is a hero character seen up close on his visits (pagdi, shawl, cane).
+V3_BUDGETS.update({"story_father": 2600, "story_simran": 2000})
 V3_CHAR_BUDGET, V3_BUST_BUDGET = 1800, 3000
 
 

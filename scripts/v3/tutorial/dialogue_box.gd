@@ -208,7 +208,7 @@ func _ready() -> void:
 	_tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_group.add_child(_tag)
 	var lbl := Label.new()
-	lbl.text = "MUNSHI-JI"
+	lbl.text = "RANI"
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE

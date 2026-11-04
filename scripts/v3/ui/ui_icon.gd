@@ -356,6 +356,7 @@ static func paint(ci: CanvasItem, n: String, r: Rect2, tint: Color = Color.WHITE
 		"munshi": _munshi(ci, o, s)
 		"tamgha": _tamgha(ci, o, s)
 		"hisaab": _hisaab(ci, o, s)
+		"phone": _phone(ci, o, s)
 		"hammer": _hammer(ci, o, s)
 		"kettle": _kettle(ci, o, s)
 		"kulhad": _kulhad(ci, o, s)
@@ -630,6 +631,22 @@ static func _hisaab(ci: CanvasItem, o: Vector2, s: float) -> void:
 	fill(ci, _pts(o, s, [0.32, 0.6, 0.42, 0.6, 0.42, 0.82, 0.32, 0.82]), UiKit.TEAL)
 	fill(ci, _pts(o, s, [0.48, 0.46, 0.58, 0.46, 0.58, 0.82, 0.48, 0.82]), UiKit.SAFFRON)
 	fill(ci, _pts(o, s, [0.64, 0.28, 0.74, 0.28, 0.74, 0.82, 0.64, 0.82]), UiKit.MAROON)
+
+
+## Story (4 Nov): Simran's phone, a dark handset with a pink heart on its
+## teal screen.
+static func _phone(ci: CanvasItem, o: Vector2, s: float) -> void:
+	var body := Rect2(_p(o, s, 0.25, 0.06), Vector2(s * 0.5, s * 0.88))
+	fill(ci, rrect_pts(body, s * 0.09), Color(0.2, 0.13, 0.16))
+	var screen := Rect2(_p(o, s, 0.3, 0.17), Vector2(s * 0.4, s * 0.62))
+	fill(ci, rrect_pts(screen, s * 0.04), UiKit.TEAL_LIGHT)
+	ci.draw_line(_p(o, s, 0.43, 0.115), _p(o, s, 0.57, 0.115), Color(0.45, 0.38, 0.4), maxf(1.0, s * 0.025), true)
+	ci.draw_circle(_p(o, s, 0.5, 0.86), s * 0.035, Color(0.45, 0.38, 0.4))
+	# the heart
+	var pink := Color(0.93, 0.3, 0.45)
+	ci.draw_circle(_p(o, s, 0.435, 0.43), s * 0.07, pink)
+	ci.draw_circle(_p(o, s, 0.565, 0.43), s * 0.07, pink)
+	fill(ci, _pts(o, s, [0.37, 0.46, 0.63, 0.46, 0.5, 0.62]), pink)
 
 
 ## Build: a mason's hammer crossed with a trowel (karni).

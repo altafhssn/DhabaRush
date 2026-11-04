@@ -76,7 +76,7 @@ const DEFAULTS := {
 const LINES := {
 	# ---- intro overview (t 0) — namaste entrance, then the head-wobble idle
 	"l1": {
-		"text": "Namaste, boss! I'm Munshi-ji, your manager. Our dhaba is open!",
+		"text": "Namaste, Bhaiya! I'm Rani, I keep the books. Our dhaba is open!",
 		"pose": "namaste", "enter": "bottom", "then_pose": "idle", "then_delay": 1.6,
 	},
 	# ---- first traveller climbs down from the parked lorry (crouch-spring into the cheer)
@@ -227,8 +227,21 @@ const LINES := {
 	"react_cashiers": {"text": "The galla is quick now. Badhiya!", "pose": "cheer", "chip": true},
 	"react_kitchen": {"text": "The kitchen keeps up now. First class!", "pose": "cheer", "chip": true},
 	"react_road": {"text": "More lorries stopping. Best hotel on the highway!", "pose": "cheer", "chip": true},
-	"react_any_1": {"text": "Ekdum sahi, boss! Good fix.", "pose": "cheer", "chip": true},
-	"react_any_2": {"text": "Our hotel runs like the Rajdhani now, boss!", "pose": "cheer", "chip": true},
+	"react_any_1": {"text": "Ekdum sahi, Bhaiya! Good fix.", "pose": "cheer", "chip": true},
+	"react_any_2": {"text": "Our hotel runs like the Rajdhani now, Bhaiya!", "pose": "cheer", "chip": true},
+	# ---- Story (4 Nov): Simran's first message is on the PHONE (chip), then
+	#      Rani's answer once it was read (chip)
+	"phone_first": {"text": "Bhaiya, your [k]PHONE[/k]! It's Simran.", "pose": "point", "chip": true},
+	"tea_stall": {"text": "A tea stall? Bhaiya, we'll show him.", "pose": "cheer", "chip": true},
+	# ---- Story (4 Nov): the father's three visits (FatherVisits): Rani's arrival
+	#      line as his Ambassador drives in (a chip: the box would hide the car),
+	#      and her read once he has gone (dialogue)
+	"visit1_arrive": {"text": "Bhaiya! That white Ambassador... it's Simran's papa!", "pose": "worried", "chip": true},
+	"visit1_read": {"text": "He didn't even get out, Bhaiya. But he came. That's something.", "pose": "ledger", "enter": "right"},
+	"visit2_arrive": {"text": "He's back! And this time he's getting out of the car...", "pose": "worried", "chip": true},
+	"visit2_read": {"text": "He walked out without paying! The nerve, Bhaiya!", "pose": "worried", "enter": "bottom"},
+	"visit3_arrive": {"text": "Bhaiya, look who's with him!", "pose": "point", "chip": true},
+	"visit3_read": {"text": "Bhaiya. He came all this way, and he BROUGHT her!", "pose": "cheer", "enter": "bottom"},
 	# ---- C5.2: about 90 s after the tutorial, once (chip)
 	"reno_tease": {"text": "One day this becomes a [n]FAMILY DHABA[/n]. See [k]BUILD[/k].", "pose": "point", "chip": true},
 	# ---- C6.1: every counter at L100 (all 16 dishes); the camera flies to
@@ -244,17 +257,17 @@ const LINES := {
 	},
 	# ---- C6.3: the next highway unlocked; after the move's reveal
 	"move_ready": {
-		"text": "A new highway is calling, boss! See [k]BUILD[/k].",
+		"text": "A new highway is calling, Bhaiya! See [k]BUILD[/k].",
 		"pose": "point", "enter": "right", "chain": ["cheer"], "dim": true, "box_side": "left",
 	},
 	"move_done": {
-		"text": "Welcome to NH 48, boss! New road, Rajasthani dishes.",
+		"text": "Welcome to NH 48, Bhaiya! New road, Rajasthani dishes.",
 		"pose": "namaste", "enter": "bottom", "then_pose": "cheer", "then_delay": 1.2, "dim": true,
 	},
 	# ---- C6.4: once per weekend, as the BARAAT button appears (chip)
 	"event_start": {"text": "A baraat is coming this weekend! Tap [k]BARAAT[/k].", "pose": "cheer", "chip": true},
 	# ---- C6.5: Munshi-ji's delegation unlocks (20 task claims; chip)
-	"delegation_on": {"text": "Boss, I'll claim finished task cards for you from now on.", "pose": "ledger", "chip": true},
+	"delegation_on": {"text": "Bhaiya, I'll claim finished task cards for you from now on.", "pose": "ledger", "chip": true},
 }
 
 

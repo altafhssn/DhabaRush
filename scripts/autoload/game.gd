@@ -265,6 +265,8 @@ signal special_changed(dish_id: String)
 signal event_changed()
 signal delegation_changed(key: String)
 signal task_auto_claimed(slot: int, reward: float)
+## Story (4 Nov): a message from Simran arrived on the phone (module "story").
+signal phone_message(id: String)
 
 ## D5: features that are not shipped yet stay hidden (Sikke are still granted into the save).
 const FEATURES := {"managers": false, "medals": false, "shop": false, "sikke": false}
@@ -336,7 +338,8 @@ const HUD_FULL := 6      # HISAAB, DUKAAN, build hammer, settings
 ## Round 2 step 2: per-element HUD reveal notes (saved in `notes`).
 ## Core and feel C2.6: "hud_meter" (the four-row bottleneck readout) is
 ## revealed when the tutorial is done (the Director may reveal it earlier).
-const HUD_ELEMENTS := ["hud_staff", "hud_build", "hud_tasks", "hud_chest", "hud_stats", "hud_gear", "hud_meter"]
+const HUD_ELEMENTS := ["hud_staff", "hud_build", "hud_tasks", "hud_chest", "hud_stats", "hud_gear", "hud_meter",
+		"hud_phone"]
 ## Other names a caller may use for them (the HUD's own ids, short words).
 const HUD_ELEMENT_ALIAS := {
 	"meter": "hud_meter",
@@ -346,6 +349,7 @@ const HUD_ELEMENT_ALIAS := {
 	"chest": "hud_chest",
 	"stats": "hud_stats", "stats_button": "hud_stats",
 	"gear": "hud_gear", "settings": "hud_gear", "settings_button": "hud_gear",
+	"phone": "hud_phone", "phone_button": "hud_phone",
 }
 ## A save that carries this note was written with per-element reveals (0.3.4+).
 const REVEAL_NOTES_V := "hud_v2"
@@ -417,6 +421,7 @@ const SYSTEM_PATHS := {
 	"event": "res://scripts/v3/core/baraat_event.gd",
 	"delegation": "res://scripts/v3/core/delegation.gd",
 	"offers": "res://scripts/v3/core/offers.gd",
+	"story": "res://scripts/v3/core/story.gd",
 }
 ## C2.1: drive-pasts remembered for passed_last_min() (riders per vehicle).
 const PASS_RING := 64
@@ -3448,7 +3453,8 @@ func hud_revealed_list() -> Array:
 ## Game's own reveal rules (the Director reveals STAFF and BUILD at its
 ## beats, and may reveal the task strip earlier): free play -> STAFF, BUILD,
 ## the gear; a finished (or claimed) task in free play -> the task strip; the
-## 3rd claim -> the chest; the kadai built -> STATS.
+## 3rd claim -> the chest; the kadai built -> STATS; Simran's first message
+## -> PHONE.
 func _check_reveals() -> void:
 	if is_tutorial_done():
 		reveal_hud("hud_staff")
@@ -3463,6 +3469,9 @@ func _check_reveals() -> void:
 		reveal_hud("hud_chest")
 	if is_built(REVEAL_STATS_STATION):
 		reveal_hud("hud_stats")
+	# Story (4 Nov): PHONE with Simran's first message.
+	if bool(_sys_call("story", "has", ["day1"], false)):
+		reveal_hud("hud_phone")
 	var all: bool = true
 	for k in HUD_ELEMENTS:
 		if not notes.has(str(k)):
@@ -5025,13 +5034,13 @@ func buy_signboard() -> bool:
 ## Carry-over lists (English msgids, build plan 5.1; the UI translates them
 ## and fills {mult} with the "mult_after" value).
 const RENO_KEEPS := ["Every dish on the menu", "PRICES ×{mult} FOREVER", "Raju, Pinky and the team come with you",
-		"Your cash", "Your signboard", "VIP and No Ads", "Tasks and the chest", "Munshi-ji's help"]
+		"Your cash", "Your signboard", "VIP and No Ads", "Tasks and the chest", "Rani's help"]
 const RENO_RESETS := ["Counter levels go back to 1", "You start with 1 waiter, 1 cashier and 1 cook per counter",
 		"Tables go back to 3: 2 in the dhaba, 1 in the new hall"]
 const RENO_ADDS := ["AC family hall: 3 more tables", "A 4th waiter", "Signboard up to level 6"]
 const RENO_HONEST := "Takings start lower and pass today's within about 10 minutes."
 const MOVE_KEEPS := ["PRICES ×{mult} FOREVER", "Raju, Pinky and the team come with you", "Your cash",
-		"The AC family hall", "VIP and No Ads", "Tasks and the chest", "Munshi-ji's help"]
+		"The AC family hall", "VIP and No Ads", "Tasks and the chest", "Rani's help"]
 const MOVE_RESETS := ["A Rajasthani menu: 16 dishes to unlock", "Tandoor, lassi and kadai to build again",
 		"You start with 1 waiter, 1 cashier and 1 cook per counter", "Counter levels go back to 1",
 		"Tables go back to 3", "The signboard starts again"]
@@ -5611,6 +5620,40 @@ func delegate_on(key: String) -> bool:
 
 func delegate_set(key: String, on: bool) -> void:
 	_sys_call("delegation", "set_on", [key, on])
+
+
+# ---------------------------------------------------------------- story (4 Nov) -> module "story"
+## Simran's messages so far, oldest first: [{id, text, unix, read}].
+func phone_inbox() -> Array:
+	return _sys_arr("story", "inbox", [], [])
+
+
+func phone_unread() -> int:
+	return int(_sys_call("story", "unread", [], 0))
+
+
+## The PHONE popup opened: every message so far is read.
+func phone_read_all() -> void:
+	_sys_call("story", "read_all", [])
+
+
+## The father's visits so far (0..3).
+func story_visits() -> int:
+	return int(_sys_call("story", "visits", [], 0))
+
+
+func story_visit_done(n: int) -> void:
+	_sys_call("story", "visit_done", [n])
+
+
+## Visit n's moment passed (FatherVisits): counted without its payoff.
+func story_skip_visit(n: int) -> void:
+	_sys_call("story", "skip_visit", [n])
+
+
+## Debug (--phone=<id>): a message now.
+func debug_phone(id: String) -> bool:
+	return OS.is_debug_build() and bool(_sys_call("story", "debug_send", [id], false))
 
 
 # ---------------------------------------------------------------- offers (C7.2, C7.4) -> module "offers"

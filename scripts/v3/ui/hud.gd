@@ -60,6 +60,12 @@ extends CanvasLayer
 ##    (gate "home_hall"); the next tap flies home as usual.
 ##  - Game.task_auto_claimed (Munshi-ji's delegation): the CLAIM burst and
 ##    the toast "Munshi-ji claimed it for you".
+## Story (4 Nov): PHONE (phone_button) under STATS at the right edge (in
+##  STATS's place while STATS is hidden), revealed with Simran's first
+##  message (Game "hud_phone"). A red count badge shows her unread messages
+##  (Game.phone_unread()); a new message (Game.phone_message) buzzes it: a
+##  short wiggle and the "phone_buzz" sound. A tap opens the PHONE popup
+##  (UiRoot.open_phone(), button id "phone_button").
 ##  - Debug prints: "[hud] meter revealed at <t>", "[hud] rate <before> ->
 ##    <after> in <s> s (<what>)" for the first rise of the "/min" within
 ##    RATE_RISE_S after a hire, table or signboard (also the rate_rose
@@ -71,10 +77,11 @@ signal rate_rose(before: float, after: float, secs: float, what: String)
 
 const EXTRAS := ["task_bar", "manager_button", "medal_button", "stats_button",
 		"shop_button", "staff_button", "build_button", "settings_button", "home_button",
-		"bottleneck_meter", "event_button"]
+		"bottleneck_meter", "event_button", "phone_button"]
 ## Round 2 step 2: HUD control -> reveal element (revealed()).
 const REVEAL_EL := {"task_bar": "tasks", "staff_button": "staff", "build_button": "build",
-		"stats_button": "stats", "settings_button": "gear", "bottleneck_meter": "meter"}
+		"stats_button": "stats", "settings_button": "gear", "bottleneck_meter": "meter",
+		"phone_button": "phone"}
 ## Core and feel C2.6: the meter sits this far under the task strip.
 const METER_GAP := 16.0
 ## C6.4: the BARAAT button sits this far under the meter.
@@ -103,6 +110,11 @@ const HOME_POLL := 0.25
 ## HOME now shows as soon as the home point leaves the screen.
 const HOME_MARGIN := 0.0
 const CAPTION_PX := 21
+## Story: PHONE sits this far under STATS's caption; its wiggle on a new
+## message (degrees, seconds).
+const PHONE_GAP := 18.0
+const BUZZ_DEG := 12.0
+const BUZZ_S := 0.5
 ## The float starts GIFT_FLOAT_DY below the burst centre (re-walk: at -60 it
 ## sat inside the bill ring, RewardBurst RY 75, and was unreadable while the
 ## bills held there); it rises 60 px, clear of the bills flying up-left.
@@ -136,6 +148,10 @@ var _buttons: Dictionary = {}       # id -> UiButton
 var _build_badge: UiIcon
 var _staff_alert_badge: UiIcon
 var _staff_plus_badge: UiIcon
+## Story: PHONE's unread count badge.
+var _phone_badge: Panel
+var _phone_count: Label
+var _buzz_pending: bool = false
 var _badge_t: float = 0.0
 ## Element reveal states seen so far (id -> bool) and the poll timer.
 var _rev: Dictionary = {}
@@ -218,6 +234,9 @@ func _ready() -> void:
 	Game.cash_spent.connect(_on_cash_spent)
 	Game.event_changed.connect(_on_event_changed)
 	_show_event_auto_paid.call_deferred(false)
+	# Story: Simran's messages.
+	UiKit.gconnect("phone_message", _on_phone_message)
+	refresh_phone()
 	set_process(true)
 
 
@@ -470,6 +489,7 @@ func _build_buttons() -> void:
 	bb.add_child(_build_badge)
 	# A5: one-word captions inside the button nodes (they fade with them).
 	_caption(_buttons["stats_button"], "STATS", Rect2(-10, 70, 88, 26))
+	_build_phone_button()
 	_caption(bb, "BUILD", Rect2(0, 100, 104, 26))
 	_build_staff_button()
 	# Round 2 step 2: HOME is a pill at the bottom centre.
@@ -521,6 +541,22 @@ func _build_staff_button() -> void:
 	_staff_plus_badge.position = Vector2(-8, -8)
 	_staff_plus_badge.visible = false
 	b.add_child(_staff_plus_badge)
+
+
+## Story: PHONE, a cream square like STATS with the phone glyph, caption
+## PHONE and a red unread count at its top-left corner.
+func _build_phone_button() -> void:
+	var b: UiButton = _square("phone_button", "phone", UiKit.CREAM_BTN, Vector2(68, 68), Vector2(56, 56))
+	b.pivot_offset = b.size * 0.5
+	_caption(b, "PHONE", Rect2(-10, 70, 88, 26))
+	_phone_badge = UiKit.panel(UiKit.BADGE_RED, 15.0, 2, Color.WHITE)
+	_phone_badge.name = "Unread"
+	_phone_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(_phone_badge)
+	UiKit.place(_phone_badge, Vector2(-9, -9), Vector2(30, 30))
+	_phone_count = UiKit.label_in(_phone_badge, "1", Vector2.ZERO, Vector2(30, 28), 19, Color.WHITE,
+			HORIZONTAL_ALIGNMENT_CENTER)
+	_phone_badge.visible = false
 
 
 func _caption(b: Control, text: String, r: Rect2) -> Label:
@@ -584,6 +620,7 @@ func _layout() -> void:
 	(_buttons["medal_button"] as Control).position = Vector2(97, _side_y())
 	# STATS under the one-task strip (78 px), at the right edge.
 	(_buttons["stats_button"] as Control).position = Vector2(w - 15.0 - 68.0, _task_y + TaskBar.BAR_SIZE.y + 22.0)
+	_place_phone()
 	# Core and feel: the meter under the strip (left), BARAAT under the meter.
 	_meter.position = Vector2(12.0, _task_y + TaskBar.BAR_SIZE.y + METER_GAP)
 	_event_btn.position = Vector2(EVENT_X, _meter.position.y + BottleneckMeter.SIZE.y + EVENT_GAP)
@@ -647,6 +684,16 @@ func _apply_reveal(level: int, animate: bool) -> void:
 ## revealed, then drop below it (ref 58-79.5 s vs 80 s).
 func _side_y() -> float:
 	return (_top + 267.0) if _reveal >= 5 else _task_y
+
+
+## Story: PHONE under STATS (68 + its 26 px caption + PHONE_GAP), or in
+## STATS's place while STATS is hidden.
+func _place_phone() -> void:
+	var st: Control = _buttons["stats_button"]
+	var y: float = st.position.y
+	if _revealed("stats_button"):
+		y += 68.0 + 26.0 + PHONE_GAP
+	(_buttons["phone_button"] as Control).position = Vector2(st.position.x, y)
 
 
 func _place_side_buttons(animate: bool) -> void:
@@ -746,6 +793,7 @@ func _poll_reveal(_key: Variant = null) -> void:
 			if on and per_element:
 				_reveal_burst.call_deferred(id)
 	if changed:
+		_place_phone()
 		_apply_extras(true, 0.0, 0.2)
 		_refresh_badge()
 
@@ -873,6 +921,9 @@ func _process(delta: float) -> void:
 	if _badge_t >= BADGE_POLL:
 		_badge_t = 0.0
 		_refresh_staff_badge()
+		refresh_phone()
+		if _buzz_pending:
+			_buzz()
 	_rev_t += delta
 	if _rev_t >= HOME_POLL:
 		_rev_t = 0.0
@@ -1043,7 +1094,7 @@ func _on_reward_added(amount: float, source: String) -> void:
 func _play_gift(amount: float) -> void:
 	var c: Vector2 = burst_center()
 	play_reward_burst(c, amount)
-	show_float(tr("+%s from Munshi-ji") % Fmt.money(amount), c + Vector2(0, GIFT_FLOAT_DY))
+	show_float(tr("+%s from Rani") % Fmt.money(amount), c + Vector2(0, GIFT_FLOAT_DY))
 
 
 func _first_unattached() -> Dictionary:
@@ -1140,6 +1191,41 @@ func _on_hud_button(id: String, b: UiButton) -> void:
 	button_pressed.emit(id)
 
 
+# ================================================================ story: PHONE
+## The unread count on PHONE (UiRoot calls this after the popup read them).
+func refresh_phone() -> void:
+	if _phone_badge == null:
+		return
+	var n: int = int(UiKit.gcall("phone_unread", [], 0))
+	_phone_badge.visible = n > 0
+	_phone_count.text = str(n) if n < 10 else "9+"
+
+
+func _on_phone_message(_id: String = "") -> void:
+	refresh_phone()
+	# PHONE may be revealed by this very message (the reveal poll runs every
+	# HOME_POLL): the buzz waits until it shows.
+	_buzz_pending = true
+	_buzz.call_deferred()
+
+
+## The buzz: a short wiggle and the phone sound, once PHONE shows.
+func _buzz() -> void:
+	var b: Control = _buttons["phone_button"]
+	if not _buzz_pending or not b.is_visible_in_tree() or b.modulate.a < 0.5:
+		return
+	_buzz_pending = false
+	Sfx.play("phone_buzz", 0.0)
+	b.pivot_offset = b.size * 0.5
+	var tw := b.create_tween()
+	var step: float = BUZZ_S / 6.0
+	for k in 5:
+		tw.tween_property(b, "rotation", deg_to_rad(BUZZ_DEG * (1.0 if k % 2 == 0 else -1.0)), step)
+	tw.tween_property(b, "rotation", 0.0, step)
+	if OS.is_debug_build():
+		print("[hud] phone buzz (%d unread)" % int(UiKit.gcall("phone_unread", [], 0)))
+
+
 ## FLOW (2026-10-26): an unfinished TASK card was tapped; UiRoot opens the
 ## panel that does it ("task_goto_<slot>", gated like every HUD button).
 func _on_task_goto(slot: int) -> void:
@@ -1177,7 +1263,7 @@ func _on_task_auto_claimed(slot: int, reward: float) -> void:
 		UiKit.ripple(card, true)
 	Sfx.play("claim", 0.0)
 	play_reward_burst(burst_center(), reward)
-	toast(tr("Munshi-ji claimed it for you"))
+	toast(tr("Rani claimed it for you"))
 
 
 ## C6.4: the event window opened or closed, or its track moved.

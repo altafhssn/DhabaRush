@@ -37,7 +37,8 @@ extends Node3D
 ##                       staff:waiters / staff:cashiers / staff:cooks, build
 ##                       (= daftar), stats (= hisaab), tables (the ghost
 ##                       table's 2-tap card, else BUILD › TABLES),
-##                       quick:waiters, quick:tables, vip, settings; the old
+##                       quick:waiters, quick:tables, vip, settings, phone
+##                       (story: Simran's chat); the old
 ##                       names galla / waiters / seating still work (STAFF ›
 ##                       CASHIERS / STAFF › WAITERS / tables) (use with
 ##                       --skip-tutorial)
@@ -161,6 +162,9 @@ extends Node3D
 ##   --special=DISH|none|auto  the daily special: that dish (validated by
 ##                       Game), none, or the real rules (a debug run with flags
 ##                       has no special without --special or --date)
+##   --phone=ID,ID,...   story: Simran's messages now (story.gd MESSAGES ids;
+##                       debug builds)
+##   --visit=N           story: the father's visit N (1-3) at the next calm
 ##   --event=on|off|auto the weekend baraat (debug runs with flags: off
 ##                       unless --event or --date)
 ##   --event-guests=N    N baraat guests counted at once
@@ -350,6 +354,8 @@ var _signboard_n: int = -1
 var _claims_n: int = -1
 var _sessions_n: int = -1
 var _special_arg: String = ""
+## Story (4 Nov): --phone=id,id,... sends Simran's messages at start (debug).
+var _phone_arg: String = ""
 var _event_mode: String = ""
 var _event_guests: int = -1
 var _event_claim: bool = false
@@ -435,6 +441,10 @@ func _ready() -> void:
 	munshi_notes = MunshiNotes.new()
 	munshi_notes.name = "MunshiNotes"
 	add_child(munshi_notes)
+	# Story (4 Nov): Simran's father's visits.
+	var visits := FatherVisits.new()
+	visits.name = "FatherVisits"
+	add_child(visits)
 	var signs: Array = _sign_lines()
 	_sign_hi = str(signs[0])
 	_sign_en = str(signs[1])
@@ -1036,6 +1046,10 @@ func _parse_cmdline() -> void:
 			_sessions_n = maxi(0, int(arg.get_slice("=", 1)))
 		elif arg.begins_with("--special="):
 			_special_arg = arg.get_slice("=", 1)
+		elif arg.begins_with("--phone="):
+			_phone_arg = arg.get_slice("=", 1)
+		elif arg.begins_with("--visit="):
+			FatherVisits.debug_visit = clampi(int(arg.get_slice("=", 1)), 1, 3)
 		elif arg.begins_with("--event="):
 			_event_mode = arg.get_slice("=", 1)
 		elif arg.begins_with("--event-guests="):
@@ -1101,13 +1115,14 @@ func _parse_cmdline() -> void:
 			# --promo-check's later phases go on.
 			var had: bool = not _buy.is_empty() or _open_at_start != "" or _signboard_n >= 0 \
 					or _claims_n >= 0 or _sessions_n >= 0 or _special_arg != "" or _event_mode != "" \
-					or _event_guests >= 0
+					or _event_guests >= 0 or _phone_arg != ""
 			_buy = PackedStringArray()
 			_open_at_start = ""
 			_signboard_n = -1
 			_claims_n = -1
 			_sessions_n = -1
 			_special_arg = ""
+			_phone_arg = ""
 			_event_mode = ""
 			_event_guests = -1
 			if had:
@@ -1147,6 +1162,8 @@ func _debug_open(what: String) -> void:
 			ui.open_vip(100.0)
 		"settings":
 			ui.open_settings()
+		"phone":
+			ui.open_phone()
 		"waiters":
 			ui.open_waiters()
 		"seating", "tables":
@@ -1179,7 +1196,7 @@ func _debug_sequence() -> void:
 
 func _has_state_flags() -> bool:
 	return _signboard_n >= 0 or _claims_n >= 0 or _sessions_n >= 0 or _special_arg != "" \
-			or _event_mode != "" or _event_guests >= 0 or _event_claim
+			or _event_mode != "" or _event_guests >= 0 or _event_claim or _phone_arg != ""
 
 
 ## --signboard, --claims, --sessions, --special, --event, --event-guests,
@@ -1207,6 +1224,9 @@ func _apply_state_flags() -> void:
 				if _game_has("debug_set_special", "--special"):
 					var ok: bool = bool(Game.call("debug_set_special", _special_arg))
 					print("[main3] --special=%s -> %s" % [_special_arg, ok])
+	if _phone_arg != "" and _game_has("debug_phone", "--phone"):
+		for id: String in _phone_arg.split(",", false):
+			print("[main3] --phone=%s -> %s" % [id, bool(Game.call("debug_phone", id))])
 	if _event_mode != "" and _game_has("debug_event", "--event"):
 		Game.call("debug_event", _event_mode)
 	if _event_guests >= 0 and _game_has("debug_event_served", "--event-guests"):

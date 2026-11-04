@@ -44,7 +44,9 @@ const BUS_OF := {"tap": "UI", "button_thunk": "UI", "deny": "UI", "typewriter": 
 	# core-and-feel world sounds (2026-11-01): the night TV, the baraat bus, the sitting dog
 	"tv_cheer": "SFX", "baraat_band": "SFX", "dog_bark": "SFX",
 	# art audit UA2 (4 Nov): a hire and a table get their own sounds
-	"hire": "UI", "table_knock": "UI"}
+	"hire": "UI", "table_knock": "UI",
+	# story (4 Nov): a message from Simran
+	"phone_buzz": "UI"}
 
 ## Minimum seconds between two plays of the same sound (stops coin spam).
 const COOLDOWN := {"serve": 0.1, "horn": 2.5, "tap": 0.05, "angry": 0.5,
@@ -52,7 +54,7 @@ const COOLDOWN := {"serve": 0.1, "horn": 2.5, "tap": 0.05, "angry": 0.5,
 	"reward_count": 0.03, "build_done": 0.5, "marker_pop": 0.2, "claim": 0.3,
 	"churn": 1.2, "egg_crack": 1.2, "handi_bubble": 1.5, "chai_pour": 1.5, "tandoor_slap": 1.2,
 	"menu_unlock": 0.5, "kadai_sizzle": 1.2, "upgrade": 0.08, "ready": 0.3,
-	"tv_cheer": 30.0, "baraat_band": 20.0, "dog_bark": 20.0, "hire": 0.3, "table_knock": 0.3}
+	"tv_cheer": 30.0, "baraat_band": 20.0, "dog_bark": 20.0, "hire": 0.3, "table_knock": 0.3, "phone_buzz": 2.0}
 ## Feel track: "button_thunk" is skipped this soon after one of COVERS
 ## (play() / play_pitched() keys).
 const COVERS := ["upgrade", "upgrade_p"]
@@ -81,6 +83,8 @@ const VOLUME_DB := {
 	"claim": -2.7, "build_done": -0.8, "menu_unlock": -3.0, "ready": -2.9, "upgrade": -2.9,
 	# art audit UA2 (4 Nov): levels set by ear-free estimate, to be measured with tools/audio/measure.py
 	"hire": -3.0, "table_knock": -2.0,
+	# story (4 Nov): estimate, to be measured with tools/audio/measure.py
+	"phone_buzz": -4.0,
 	# hooks for other tracks (generated, not played yet)
 	"angry": -13.9,
 	# core-and-feel world sounds (measure.py LUFS-M max -17.4 / -11.5 / -17.1; targets in game
@@ -97,7 +101,7 @@ const PITCHED_DB := {"pop": -5.0, "deny": -4.9, "reward_count": -7.0, "upgrade":
 const PITCH_JITTER_MAX := {"sale_chime": 0.012, "serve": 0.025, "claim": 0.0, "build_done": 0.0,
 	"menu_unlock": 0.0, "ready": 0.01, "marker_pop": 0.015, "upgrade": 0.012, "horn": 0.03,
 	"horn_truck": 0.03, "horn_auto": 0.03, "bike": 0.03,
-	"reward_count": 0.0, "baraat_band": 0.0, "hire": 0.0, "table_knock": 0.0}
+	"reward_count": 0.0, "baraat_band": 0.0, "hire": 0.0, "table_knock": 0.0, "phone_buzz": 0.0}
 ## Variants per id: [file id, weight]. (The horns are not variants any more:
 ## Traffic picks the vehicle's own horn, see HORN_IDS.)
 const VARIANTS := {

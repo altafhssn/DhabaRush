@@ -205,6 +205,85 @@ def build_travellers(mat):
     out.append(chibi("trav_student", 0.94,
                      Look(skin=SKIN1, top=DADO, legs=DENIM, shoes=WHITE), student, hair="short").finish(mat, CHAR_SMOOTH))
     out += _build_fans_and_guests(mat)
+    out += _build_story(mat)
+    return out
+
+
+# ------------------------------------------------------------------ story (4 Nov)
+# The owner's story design: Simran's father, Chaudhary-sahab, judges the dhaba at each big
+# milestone. A village elder who is also rich and proud, so he must not read as the kadai
+# fan trav_elder (bald, khaki shawl, plain stick): he is taller and broader, in a long
+# spotless white kurta and dhoti under a maroon shawl with a gold border, a tall white
+# Haryanvi pagdi with a gold band, a thick salt-and-pepper handlebar moustache, heavy brows
+# angled down (stern at a glance), and a dark polished cane with a silver knob. The cane is
+# its own node `stick`, a child of arm_l with the shoulder pivot, like trav_elder's stick
+# (CharacterRig hides a `stick` while its owner sits).
+def _build_story(mat):
+    out = []
+
+    def father(P, L):
+        P.order.append("stick")
+        P.pivots["stick"] = Vector(P.pivots["arm_l"])
+        P.parts["stick"] = Asset(P.name + "__stick")
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.33), (0, 0, 0.11), 0.205, WHITE, r1=0.222, seg=12, caps=False)       # long kurta
+        for z in (0.555, 0.505, 0.455):                                                    # gold buttons
+            b.ball(0.013, (0.0, -0.146, z), GOLD, seg=6, rings=3)
+        pts = []                                                                           # shawl round
+        for k in range(5):                                                                 # the shoulders
+            t = math.pi * k / 4
+            pts.append((0.18 * math.cos(t), 0.12 * math.sin(t) - 0.035, 0.605 - 0.025 * math.sin(t)))
+        limb(b, pts, [0.06] * 5, MAROON, seg=6, joint_seg=6, joint_rings=4, end_ball=True)
+        for sx in (-1, 1):                                                                 # front falls
+            b.rbox((0.095, 0.03, 0.34), (sx * 0.115, -0.152, 0.44), MAROON, rot=(-4, 0, 0), bevel=0.014)
+            b.rbox((0.097, 0.032, 0.026), (sx * 0.115, -0.158, 0.285), GOLD, rot=(-4, 0, 0), bevel=0.008)
+            b.rbox((0.018, 0.032, 0.34), (sx * 0.162, -0.153, 0.44), GOLD, rot=(-4, 0, 0), bevel=0.006)
+        h.ell((0, 0.06, 0.8), (0.19, 0.15, 0.09), GRAVEL, seg=10, rings=5)                # grey at the nape
+        h.ell((0, -0.172, 0.776), (0.12, 0.04, 0.034), GRAVEL, seg=8, rings=4)            # moustache
+        for sx in (-1, 1):                                                                 # handlebar ends
+            h.ell((sx * 0.12, -0.158, 0.79), (0.045, 0.026, 0.026), GRAVEL, seg=6, rings=3)
+            h.ell((sx * 0.158, -0.14, 0.818), (0.022, 0.02, 0.024), GRAVEL, seg=6, rings=3)
+            h.rbox((0.085, 0.03, 0.03), (sx * 0.072, -0.164, 0.893), GRAVEL,              # stern brows
+                   rot=(0, sx * 14, 0), bevel=0.01)
+        _safa(h, WHITE, GOLD, tail=WHITE)                                                  # white pagdi
+        g = P["stick"]                                                                     # the cane
+        g.rod((0.276, -0.045, 0.0), (0.262, -0.025, 0.35), 0.016, HAIR, seg=6)
+        g.ball(0.03, (0.262, -0.025, 0.365), STEEL, seg=8, rings=5)
+    gf = chibi("story_father", 1.12,
+               Look(skin=SKIN2, top=WHITE, sleeve=WHITE, forearm=WHITE, legs=WHITE, hips=WHITE, shoes=TRUNK,
+                    torso=(0.4, 0.28, 0.35)), father, hair="none").finish(mat, CHAR_SMOOTH)
+    gf.parents = {"stick": "arm_l"}
+    out.append(gf)
+
+    # -- story_simran: seen once in the world, at her father's third visit (NH 48). Must not
+    #    read as Rani (mustard kurti, teal dupatta, plait) or the baraat guest: a pink kameez
+    #    to the knee with a gold hem, white salwar, a cream dupatta with a gold border over both
+    #    shoulders falling down the back, long open hair to the waist, a small maroon bindi,
+    #    gold jhumkas and a few gold bangles, gold juttis.
+    def simran(P, L):
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.34), (0, 0, 0.13), 0.18, PINK, r1=0.2, seg=12, caps=False)           # kameez skirt
+        b.tube((0, 0, 0.13), (0, 0, 0.155), 0.2, GOLD, r1=0.199, seg=12, caps=False)         # gold hem
+        b.rbox((0.1, 0.012, 0.1), (0, -0.124, 0.54), GOLD, bevel=0.008)                     # neck trim
+        pts = []                                                                           # dupatta round
+        for k in range(5):                                                                 # the shoulders
+            t = math.pi * k / 4
+            pts.append((0.16 * math.cos(t), 0.11 * math.sin(t) + 0.02, 0.6 - 0.02 * math.sin(t)))
+        limb(b, pts, [0.04] * 5, CREAM, seg=6, joint_seg=6, joint_rings=4, end_ball=True)
+        for sx in (-1, 1):                                                                 # falls behind
+            b.rbox((0.09, 0.026, 0.34), (sx * 0.1, 0.14, 0.42), CREAM, rot=(6, 0, 0), bevel=0.012)
+            b.rbox((0.092, 0.028, 0.024), (sx * 0.1, 0.152, 0.26), GOLD, rot=(6, 0, 0), bevel=0.008)
+        for sx, k in ((1, "arm_l"), (-1, "arm_r")):                                       # bangles
+            for j in range(2):
+                z = 0.36 + 0.018 * j
+                P[k].tube((sx * 0.245, -0.01, z), (sx * 0.246, -0.011, z + 0.013), 0.05, GOLD, seg=8, caps=False)
+        h.ell((0, 0.13, 0.66), (0.17, 0.08, 0.2), HAIR, seg=8, rings=5)                    # hair to the waist
+        h.ell((0, -0.178, 0.885), (0.012, 0.006, 0.012), MAROON, seg=6, rings=3)           # bindi
+        for sx in (-1, 1):
+            h.ell((sx * 0.19, -0.005, 0.755), (0.017, 0.017, 0.028), GOLD, seg=6, rings=3)  # jhumkas
+    out.append(chibi("story_simran", 0.95,
+                     Look(skin=SKIN1, top=PINK, sleeve=PINK, legs=WHITE, hips=PINK, shoes=GOLD_DARK,
+                          torso=(0.32, 0.23, 0.33)), simran, hair="long").finish(mat, CHAR_SMOOTH))
     return out
 
 
