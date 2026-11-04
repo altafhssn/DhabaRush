@@ -66,6 +66,8 @@ extends Node
 ##    to a traveller),
 ##    waiter_upgrade_cost(i) (6 x 1.2^(lvl-1)), waiter_hire_cost() (40, 120),
 ##    buy_waiter_upgrade(i), buy_waiter_hire(), signal waiter_changed().
+##    (These buyers, buy_table and the galla buyers take an optional last
+##    `source` for upgrade_bought: see UPGRADE_SOURCES.)
 ##    Every waiter getter/buyer takes an optional index; i < 0 (the default)
 ##    means waiter_pick() = the lowest-level waiter (ties: the first), so a
 ##    single no-index "UPGRADE WAITER" button still works. Per-waiter rows
@@ -158,7 +160,7 @@ extends Node
 ##    a waiter, or a long bill line; green "hire": best_hire() is affordable)
 ##    and names the tab; staff_tab() is the tab STAFF opens on;
 ##    staff_status(role) is the tab's status line; buy_staff_hire(role,
-##    station) buys through the usual buyers. The wait model (calibrated on
+##    station[, source]) buys through the usual buyers. The wait model (calibrated on
 ##    staged headless runs, 4 seeds): Sakasegawa's M/M/c queue wait x
 ##    STAFF_QUEUE_V on the live arrivals (the Sim's ramp follows the
 ##    bottleneck capacity, so the arrivals after a hire scale with the
@@ -182,6 +184,29 @@ extends Node
 ##    keeps every control it had: hud_reveal >= 6 -> all six; 5 -> the task
 ##    strip; a second cashier already hired -> STAFF (its cashier beat is
 ##    behind it). New and migrated saves carry REVEAL_NOTES_V ("hud_v2").
+##
+## CORE AND FEEL (W1-CORE, docs/core-and-feel/build-plan.md rev 2, 2026-11-01):
+##  - C2.1 the door line never gives up (seating.give_up_s 0 -> INF);
+##    report_passed_by() counts riders of vehicles that drove past a full
+##    dhaba (quiet "passed" stat; LOST reads 0); preview_table() what-if.
+##  - C3.3 spend(amount, what) emits cash_spent(amount, what).
+##  - C3.1 live_caps() (Sim.capacity_estimate() every 0.5 s); for 4 s after a
+##    hire, table, cashier or signboard purchase the live arrivals are sampled
+##    every 0.25 s and "/min" re-emits on a 0.5 % move.
+##  - C3.4 trays: waiter_tray_orders(i) = 1 + waiters.tray_levels reached;
+##    waiter_capacity_per_min() x the mean tray factor.
+##  - C3.5 / C6.2 showcase: the next menus.showcase_tickets tickets of a
+##    counter are its new dish (or the special); take_fan_due(), fan_models().
+##  - C4.4 the launch pop-up budget (session field, survives a scene reload).
+##  - C5.1 chai's price step ramps 0.07 -> price_step_late over L13 -> L40.
+##  - C5.3 the highway signboard (arrival cap + 1.5/min per level).
+##  - C6.1 / C6.3 promotions: renovate() (Family Dhaba, prices x2, the AC hall
+##    layout "family") and move_highway("nh48") (a location overlay of the
+##    economy, prices x3); one reset path (_promote_reset), then the signal
+##    promoted(kind, count) and main3 reloads the scene.
+##  - Module registry (SYSTEM_PATHS): readout, special, event, delegation and
+##    offers live in scripts/v3/core/*.gd; Game delegates to them by name with
+##    a fallback when a module file is missing, saves their state under "sys".
 
 signal cash_changed(cash: float)
 signal sikke_changed(n: int)
@@ -221,6 +246,25 @@ signal number_format_changed(indian: bool)
 signal hud_element_revealed(key: String)
 ## Round 2 step 2: staff_alert() changed kind, tab or station.
 signal staff_alert_changed(alert: Dictionary)
+## Core and feel (build plan 2.4). cash_spent: after every deduction of
+## spend() (`what`: "level:<id>", "hire:<id>", "speed:<id>", "build:<id>",
+## "galla_up:<i>", "galla_hire", "waiter_up:<i>", "waiter_hire", "table",
+## "signboard", "renovate", "move:<loc>").
+signal cash_spent(amount: float, what: String)
+## A renovation ("renovation") or a move ("move") reset the dhaba; main3
+## reloads the scene. Nothing else is emitted into the old scene.
+signal promoted(kind: String, count: int)
+signal signboard_changed(level: int)
+signal waiter_tray_changed(index: int, orders: int)
+signal showcase_started(station_id: String, dish_id: String)
+## Emitted by the offers module (scripts/v3/core/offers.gd).
+signal ad_pending_paid(amount: float)
+signal starter_paid(amount: float)
+## Emitted by the special / event / delegation modules.
+signal special_changed(dish_id: String)
+signal event_changed()
+signal delegation_changed(key: String)
+signal task_auto_claimed(slot: int, reward: float)
 
 ## D5: features that are not shipped yet stay hidden (Sikke are still granted into the save).
 const FEATURES := {"managers": false, "medals": false, "shop": false, "sikke": false}
@@ -258,6 +302,22 @@ const ECONOMY_PATH := "res://data/economy_v3.json"
 const AUTOSAVE_SECONDS := 10.0
 const SAVE_DEBOUNCE := 1.5          # purchases save shortly after the last tap
 const STATS_SAMPLE_SECONDS := 0.5
+## W4-FIX-core (C2.1 / C2.6): the arrival-room gate as a rate for the readout.
+## = Sim.DOOR_LINE_PLACES and Sim.BUS_MIN_ROOM (frozen literals, plan rule 5).
+const ROOM_DOOR_PLACES := 7
+const ROOM_SLACK := 2
+## A snapshot every ROOM_SNAP_S of sim time; the rate is measured over the
+## last ROOM_WINDOW_S (at least ROOM_MIN_WINDOW_S and ROOM_MIN_ARRIVALS
+## arrivals), from ROOM_WARMUP_S of free play in a scene on (the arrival
+## ramp's cold start would read the room too small).
+const ROOM_SNAP_S := 5.0
+const ROOM_WINDOW_S := 240.0
+const ROOM_MIN_WINDOW_S := 180.0
+const ROOM_MIN_ARRIVALS := 20
+const ROOM_WARMUP_S := 120.0
+## The measured hold time is smoothed with this time constant (buses make the
+## window's arrivals lumpy); a table changes the places at once.
+const ROOM_HOLD_TAU_S := 90.0
 const STATS_EMA_SECONDS := 20.0
 const SEATS_WINDOW_SECONDS := 60.0  # SEATS FULL / LOST look back this far
 const SEAT_SAMPLES := 120           # SEATS_WINDOW_SECONDS / STATS_SAMPLE_SECONDS
@@ -274,9 +334,12 @@ const HUD_TASKS := 5     # KAAM task bar
 const HUD_FULL := 6      # HISAAB, DUKAAN, build hammer, settings
 
 ## Round 2 step 2: per-element HUD reveal notes (saved in `notes`).
-const HUD_ELEMENTS := ["hud_staff", "hud_build", "hud_tasks", "hud_chest", "hud_stats", "hud_gear"]
+## Core and feel C2.6: "hud_meter" (the four-row bottleneck readout) is
+## revealed when the tutorial is done (the Director may reveal it earlier).
+const HUD_ELEMENTS := ["hud_staff", "hud_build", "hud_tasks", "hud_chest", "hud_stats", "hud_gear", "hud_meter"]
 ## Other names a caller may use for them (the HUD's own ids, short words).
 const HUD_ELEMENT_ALIAS := {
+	"meter": "hud_meter",
 	"staff": "hud_staff", "staff_button": "hud_staff",
 	"build": "hud_build", "build_button": "hud_build",
 	"tasks": "hud_tasks", "task_bar": "hud_tasks", "task_strip": "hud_tasks",
@@ -346,7 +409,32 @@ const STAFF_BEST_CACHE_S := 2.0
 
 const TASK_ABS_KINDS := ["level", "build", "galla_level", "hire", "processing", "tables", "waiters", "waiter_level"]
 
+## Core and feel: the game modules (build plan 2.2). Each file is optional:
+## a missing one leaves its Game delegations on their fallbacks.
+const SYSTEM_PATHS := {
+	"readout": "res://scripts/v3/core/readout.gd",
+	"special": "res://scripts/v3/core/daily_special.gd",
+	"event": "res://scripts/v3/core/baraat_event.gd",
+	"delegation": "res://scripts/v3/core/delegation.gd",
+	"offers": "res://scripts/v3/core/offers.gd",
+}
+## C2.1: drive-pasts remembered for passed_last_min() (riders per vehicle).
+const PASS_RING := 64
+## C2.1: analytics "vehicle_drove_past" at most once per this many seconds.
+const PASS_EVENT_S := 60.0
+## C3.1: after a staff, table or signboard purchase, the live arrivals are
+## sampled every FAST_RATE_STEP_S for FAST_RATE_S and "/min" re-emits on a
+## FAST_RATE_EMIT_REL move.
+const FAST_RATE_S := 4.0
+const FAST_RATE_STEP_S := 0.25
+const FAST_RATE_EMIT_REL := 0.005
+## C6.1 / C6.3: the first location (old saves and unknown ids load here).
+const LOCATION_HOME := "nh44"
+
 var eco: Dictionary = {}
+## C6.3: the economy as loaded from ECONOMY_PATH; eco = this with the current
+## location's station overlay applied (_apply_location).
+var _base_eco: Dictionary = {}
 
 var cash: float = 100.0:
 	set(value):
@@ -519,6 +607,78 @@ var _reveals_all: bool = false       # every HUD element already revealed (skip 
 var _staff_ver: int = 0              # bumped by every purchase / build / hire / VIP change
 var _staff_cache: Dictionary = {}    # key -> {"ver", "t" (Refs.clock), "val"}
 
+# ---------------------------------------------------------------- core and feel
+## C2.1: riders of vehicles that drove past a full dhaba (saved "passed_total";
+## passed_session = this launch). Never a loss: nobody walked in.
+var passed_total: int = 0
+var passed_session: int = 0
+var _pass_times: PackedFloat64Array = PackedFloat64Array()
+var _pass_riders: PackedInt32Array = PackedInt32Array()
+var _pass_i: int = 0
+var _last_pass_kind: String = ""
+var _pass_event_n: int = 0
+var _pass_event_t: float = -1.0e9
+## C3.1: the last Sim.capacity_estimate() sample ({} until sampled) and the
+## fast-sampling window after a purchase.
+var _live_caps: Dictionary = {}
+## W4-FIX-core: the room-gate estimator (_sample_room): snapshots
+## [sim clock, arrivals, places-held integral], the integral, the last sim
+## clock and Sim sampled, the free-play sim seconds sampled in this scene and
+## the measured rate (travellers / min; -1 = not measured yet).
+var _room_snaps: Array = []
+var _room_held_int: float = 0.0
+var _room_clock: float = -1.0
+var _room_sim: int = 0
+var _room_t: float = 0.0
+var _room_hold: float = -1.0
+var _room_rate: float = -1.0
+var _fast_rate_left: float = 0.0
+var _fast_rate_t: float = 0.0
+## C3.5 / C6.2: showcases (station id -> {"dish", "left"}), fans due to walk
+## in ([{station, dish, model}]) and fans introduced this launch (session).
+var _showcase: Dictionary = {}
+var _fan_due: Array = []
+var _fans_taken: Array = []
+## C4.4: pop-ups shown this launch (consent card, WELCOME BACK, the eco note).
+## Not saved and never reset by a scene reload; 0 at app start and after a
+## resume from offline.min_away_s or more away.
+var _popups_this_launch: int = 0
+## C4.4 (W1-INT): popup_suppressed {kind: eco_note} sent for this launch's
+## budget (the "New prices!" line wanted to show while another pop-up used
+## it); polled every second (_eco_note_budget_tick).
+var _eco_note_supp_sent: bool = false
+var _eco_note_poll_t: float = 0.0
+## C5.3: highway signboard level (saved "signboard").
+var _signboard: int = 0
+## C6.1 / C6.3 (saved "renovations", "location", "locations_done",
+## "dish_floor"): Family Dhaba count, the current highway, the highways left
+## behind and the dishes a counter keeps through a renovation.
+var _renovations: int = 0
+var _location: String = LOCATION_HOME
+var _locations_done: Array = []
+var _dish_floor: Dictionary = {}
+## The promotion the next scene reveals (one-shot, set before the reload).
+var _promo_reveal: String = ""
+## C7.2: UiRoot holds the wall-ad bubble while the FREE / VIP popup is open.
+var _ad_hold: bool = false
+## W4-FIX-core (C7.6 data): ad_bubble_tapped was sent for the bubble on screen.
+var _ad_tap_sent: bool = false
+## C7.2 / C7.4: the owed rewarded-ad pay is checked once per launch, when the
+## game UI exists; the pending starter pack is polled after the tutorial.
+var _owed_checked: bool = false
+var _starter_poll_t: float = 0.0
+## Module registry: key -> module object; modules that tick; the "sys" save
+## block as loaded (kept for modules missing from this build).
+var _systems: Dictionary = {}
+var _sys_tickers: Array = []
+var _sys_saved: Dictionary = {}
+## Debug (--date=YYYY-MM-DD): unix time of local noon on that date, and the
+## ticks when it was pinned (-1 = the real clock). --away=SEC: the load
+## treats the save as SEC away (-1 = off).
+var _date_pin: int = -1
+var _date_pin_ticks: int = 0
+var _debug_away: float = -1.0
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -527,6 +687,11 @@ func _ready() -> void:
 		eco = parsed
 	if eco.is_empty():
 		push_error("Game: %s missing or invalid" % ECONOMY_PATH)
+	_base_eco = eco
+	_popups_this_launch = 0
+	_parse_debug_args()
+	# Module registry (build plan 2.2): before the state reset and the load.
+	_load_systems()
 	_reset_state()
 	var had_save: bool = load_game()
 	# D6: the format first, then the task texts the load built with the default.
@@ -543,6 +708,9 @@ func _ready() -> void:
 		sig.connect(_staff_touch.unbind(1))
 	for sig2: Signal in [waiter_changed, seating_changed]:
 		sig2.connect(_staff_touch)
+	# C3.1: a staff (waiter, cashier; cooks in buy_hire), table or cashier purchase samples the arrivals faster.
+	for sig3: Signal in [waiter_hired, table_added, galla_changed]:
+		sig3.connect(_start_fast_rate.unbind(1))
 	_ad_auto_was = _ad_auto_on()
 	if _ad_auto_was and _ad_next_in <= 0.0:
 		_ad_next_in = float(_adef().get("first_delay_s", 90.0))
@@ -550,6 +718,10 @@ func _ready() -> void:
 	if had_save:
 		_grant_offline(_load_away)
 		_ad_wait_after_return()
+	# Module registry: once, after the load (the special picks here).
+	for o in _systems.values():
+		if (o as Object).has_method("on_launch"):
+			(o as Object).call("on_launch")
 	# Deferred, and read when it fires: a debug wipe (main3 --fresh) between
 	# here and the next frame must not be overwritten by the loaded save's rate.
 	_emit_rate_now.call_deferred()
@@ -575,6 +747,14 @@ func _process(delta: float) -> void:
 	if _stat_t >= STATS_SAMPLE_SECONDS:
 		_sample_stats(_stat_t)
 		_stat_t = 0.0
+	elif _fast_rate_left > 0.0:
+		# C3.1: the fast window after a purchase (between the 0.5 s samples).
+		_fast_rate_t += delta
+		if _fast_rate_t >= FAST_RATE_STEP_S:
+			_fast_rate_t = 0.0
+			_sample_live_rate(_sim_node())
+	if _fast_rate_left > 0.0:
+		_fast_rate_left -= delta
 	if is_tutorial_done():
 		if _foreground:
 			free_play_s += delta
@@ -582,6 +762,10 @@ func _process(delta: float) -> void:
 		if _funnel_t >= FUNNEL_SECONDS:
 			_funnel_t = 0.0
 			_check_funnel()
+	for o in _sys_tickers:
+		(o as Object).call("tick", delta)
+	_pay_owed(delta)
+	_eco_note_budget_tick(delta)
 
 
 func _notification(what: int) -> void:
@@ -593,15 +777,44 @@ func _notification(what: int) -> void:
 		NOTIFICATION_APPLICATION_RESUMED:
 			_foreground = true
 			if _paused_at > 0.0:
-				_grant_offline(Time.get_unix_time_from_system() - _paused_at)
+				var away: float = Time.get_unix_time_from_system() - _paused_at
+				# C4.4: a real return (offline.min_away_s or more) gets a fresh
+				# launch pop-up budget, so WELCOME BACK can show again.
+				if away >= float(_odef().get("min_away_s", 600.0)):
+					_popups_this_launch = 0
+					_eco_note_supp_sent = false
+				_grant_offline(away)
 				_paused_at = 0.0
 				_ad_wait_after_return()
+				for o in _systems.values():
+					if (o as Object).has_method("on_resume"):
+						(o as Object).call("on_resume", away)
 		NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_GO_BACK_REQUEST, NOTIFICATION_EXIT_TREE:
 			save_game()
 
 
 # ================================================================ state reset
 func _reset_state() -> void:
+	# C6.3: a fresh game starts on the first highway with the base economy.
+	_location = LOCATION_HOME
+	_locations_done = []
+	_apply_location(_location)
+	_renovations = 0
+	_dish_floor = {}
+	_signboard = 0
+	_promo_reveal = ""
+	passed_total = 0
+	passed_session = 0
+	_reset_pass_ring()
+	_last_pass_kind = ""
+	_pass_event_n = 0
+	_live_caps = {}
+	_room_reset()
+	_fast_rate_left = 0.0
+	_showcase = {}
+	_fan_due = []
+	_fans_taken = []
+	_ad_hold = false
 	var start: Dictionary = _dict(eco, "start")
 	cash = float(start.get("cash", 100.0))
 	sikke = int(start.get("sikke", 30))
@@ -657,6 +870,16 @@ func _reset_state() -> void:
 	_reset_seat_stats()
 	counters = {}
 	_reset_rate_samples()
+	# Module registry: every module back to its defaults ("offers" keeps its
+	# purchase flags); the loaded "sys" block is dropped (a missing offers
+	# module's block is kept: it holds purchases).
+	var keep_sys: Dictionary = {}
+	if not _systems.has("offers") and _sys_saved.get("offers", null) is Dictionary:
+		keep_sys["offers"] = _sys_saved["offers"]
+	_sys_saved = keep_sys
+	for o in _systems.values():
+		if (o as Object).has_method("reset"):
+			(o as Object).call("reset")
 
 
 func _reset_seat_stats() -> void:
@@ -808,6 +1031,8 @@ func dishes_unlocked(id: String) -> int:
 	for v in m:
 		if v is Dictionary and int((v as Dictionary).get("from_level", 1)) <= lvl:
 			n += 1
+	# C6.1: a renovation keeps every dish the counter had (the dish floor).
+	n = maxi(n, mini(int(_dish_floor.get(id, 0)), m.size()))
 	return maxi(1, n)
 
 
@@ -880,9 +1105,33 @@ func dish_eff(id: String, dish: String) -> Vector2:
 
 
 ## What a plate of `dish` sells for (reference units; station price x the
-## effective price factor).
+## effective price factor x the daily special's multiplier, C6.2).
 func dish_price(id: String, dish: String) -> float:
-	return snappedf(price(id) * dish_eff(id, dish).x, 0.01)
+	return snappedf(price(id) * dish_eff(id, dish).x * special_mult(_full_dish_id(id, dish)), 0.01)
+
+
+## "chai" + "coffee" or "chai.coffee" -> "chai.coffee".
+static func _full_dish_id(id: String, dish: String) -> String:
+	return dish if dish.contains(".") else id + "." + dish
+
+
+## C6.2: the station's mean ticket price including the special's revenue
+## share: price(id) x (1 + (m - 1) x w_k x dish_eff(id, special).x) for the
+## counter that holds today's special (w_k its mix weight), else price(id).
+func price_mean(id: String) -> float:
+	var p: float = price(id)
+	var sp: String = special_dish()
+	if sp == "" or sp.get_slice(".", 0) != id:
+		return p
+	var k: int = dish_index(id, sp)
+	var n: int = dishes_unlocked(id)
+	if k < 0 or k >= n:
+		return p
+	var m: float = special_mult(sp)
+	if m == 1.0:
+		return p
+	var w: PackedFloat64Array = _weights_for(n)
+	return p * (1.0 + (m - 1.0) * w[k] * dish_eff(id, sp).x)
 
 
 ## Seconds one cook brews `dish` (processing time x the effective cook factor).
@@ -904,6 +1153,21 @@ func roll_dish(id: String, rng: RandomNumberGenerator) -> String:
 		var forced: String = id + "." + str(debug_force_dish[id])
 		if dish_unlocked(id, forced):
 			return forced
+	# C3.5 / C6.2: a showcase serves its dish on the counter's next tickets
+	# (no draw from rng: never in the tutorial).
+	var sc: Variant = _showcase.get(id, null)
+	if sc is Dictionary:
+		var scd: Dictionary = sc
+		var sdish: String = str(scd.get("dish", ""))
+		var left: int = int(scd.get("left", 0))
+		if left > 0 and dish_unlocked(id, sdish):
+			left -= 1
+			scd["left"] = left
+			if left <= 0:
+				_showcase.erase(id)
+			print("[game] showcase %s left %d" % [sdish, left])
+			return sdish
+		_showcase.erase(id)
 	var n: int = dishes_unlocked(id)
 	if n <= 1:
 		return dish_at(id, 0) if not menu(id).is_empty() else id + "." + id
@@ -918,7 +1182,28 @@ func roll_dish(id: String, rng: RandomNumberGenerator) -> String:
 
 
 func dish_name(id: String, dish: String) -> String:
-	return str(menu_entry(id, dish).get("name", dish_key(dish).to_upper()))
+	return str(_menu_entry_any(id, dish).get("name", dish_key(dish).to_upper()))
+
+
+## W4-FIX-core (C6.3): menu_entry() on the current highway's menu, else the
+## same key on any highway's menu of that counter (a dish left behind by a
+## move keeps its own name and serve text on a finished card), else {}.
+## Display only: dish_from_level, product and prices keep menu_entry().
+func _menu_entry_any(id: String, dish: String) -> Dictionary:
+	var e: Dictionary = menu_entry(id, dish)
+	if not e.is_empty():
+		return e
+	var key: String = dish_key(dish)
+	var menus: Array = [_arr(_dict(_dict(_base_eco, "stations"), id), "menu")]
+	var locs: Dictionary = _dict(_base_eco, "locations")
+	for lid in locs.keys():
+		if locs[lid] is Dictionary:
+			menus.append(_arr(_dict(_dict(locs[lid] as Dictionary, "stations"), id), "menu"))
+	for m in menus:
+		for v in (m as Array):
+			if v is Dictionary and str((v as Dictionary).get("key", "")) == key:
+				return v
+	return {}
 
 
 func dish_name_hi(id: String, dish: String) -> String:
@@ -963,7 +1248,7 @@ func dish_prop(id: String, k: int) -> String:
 ## KAAM "served_dish" text template ("Pour {n} tumblers of coffee"; "" = use
 ## tasks.texts.served_dish).
 func dish_serve_text(id: String, dish: String) -> String:
-	return str(menu_entry(id, dish).get("serve_text", ""))
+	return str(_menu_entry_any(id, dish).get("serve_text", ""))
 
 
 ## Dishes shown as unlocked so far (default 1: dish 1 is never "unlocked").
@@ -990,15 +1275,22 @@ func _check_menu_unlocks(id: String) -> void:
 		var dish: String = dish_at(id, k)
 		print("[menu] %s L%d: %s unlocked" % [id, station_level(id), dish])
 		Analytics.event("menu_unlocked", {"station": id, "dish": dish, "level": station_level(id), "min_since_tutorial": free_play_min()})
+		# C3.5: the counter's next tickets are the new dish, and its fan is due.
+		start_showcase(id, dish, int(_dict(eco, "menus").get("showcase_tickets", 8)))
+		_mark_fan_due(id, dish)
 		menu_unlocked.emit(id, dish)
 		request_save()
 
 
 ## HISAAB "TOP DISH": EN name of the most served dish ("--" before the first serve).
+## W4-FIX-core (C6.3): only dishes on the current highway's menu count, so
+## after a move it names an NH 48 dish ("--" until the first one is served).
 func top_dish() -> String:
 	var best: String = ""
 	var best_n: int = 0
 	for k in dish_counts.keys():
+		if dish_index(str(k).get_slice(".", 0), str(k)) < 0:
+			continue
 		var n: int = int(dish_counts[k])
 		if n > best_n:
 			best_n = n
@@ -1045,14 +1337,30 @@ func price(id: String) -> float:
 func _price_at(id: String, lvl: int) -> float:
 	var d: Dictionary = station_def(id)
 	var step: float = float(d.get("price_step", 0.07))
-	var p: float = float(d.get("price_base", 1.0)) + step * float(lvl - 1)
-	if d.has("price_step_late"):
+	var base: float = float(d.get("price_base", 1.0))
+	var p: float = base + step * float(lvl - 1)
+	if d.has("price_step_ramp_to"):
+		# Core and feel C5.1: the step falls linearly from price_step (at
+		# price_step_ramp_from) to price_step_late (at price_step_ramp_to),
+		# closed form: L <= f0 exact; f0 < L <= f1 minus the ramp's
+		# triangle; above f1 the value at f1 + price_step_late per level.
+		var f0: int = int(d.get("price_step_ramp_from", _first_milestone()))
+		var f1: int = maxi(f0 + 1, int(d["price_step_ramp_to"]))
+		var late: float = float(d.get("price_step_late", step))
+		var dk: float = (step - late) / float(f1 - f0)
+		if lvl > f0:
+			var n: int = mini(lvl, f1) - f0
+			p = base + step * float(mini(lvl, f1) - 1) - dk * float(n * (n + 1)) * 0.5
+			if lvl > f1:
+				p += late * float(lvl - f1)
+	elif d.has("price_step_late"):
 		# Round 2: the step changes at the first milestone (chai keeps the
 		# tutorial's 0.07 up to L25, then price_step_late).
 		var f: int = _first_milestone()
 		p = float(d.get("price_base", 1.0)) + step * float(mini(lvl, f) - 1) \
 				+ float(d["price_step_late"]) * float(maxi(0, lvl - f))
-	return snappedf(p * _milestone_mult(lvl), 0.01)
+	# C6.1 / C6.3: the renovation and highway multipliers live in the price.
+	return snappedf(p * _milestone_mult(lvl) * fame_mult(), 0.01)
 
 
 func _first_milestone() -> int:
@@ -1094,7 +1402,7 @@ func station_capacity_per_min(id: String) -> float:
 func station_income_per_min(id: String) -> float:
 	if not is_built(id):
 		return 0.0
-	return price(id) * station_capacity_per_min(id) * income_mult() * order_share(id)
+	return price_mean(id) * station_capacity_per_min(id) * income_mult() * order_share(id)
 
 
 ## Level Up preview pill (+2.10 at 2.0 s, +2.15 at 1.95 s for chai), x the
@@ -1192,7 +1500,7 @@ func buy_level(id: String) -> bool:
 	if not is_built(id) or level_maxed(id):
 		return false
 	var cost: float = level_cost(id)
-	if not spend(cost):
+	if not spend(cost, "level:" + id):
 		return false
 	var s: Dictionary = _state(id)
 	s["level"] = int(s.get("level", 1)) + 1
@@ -1204,10 +1512,13 @@ func buy_hire(id: String) -> bool:
 	if not is_built(id) or hire_maxed(id):
 		return false
 	var cost: float = hire_cost(id)
-	if not spend(cost):
+	if not spend(cost, "hire:" + id):
 		return false
 	var s: Dictionary = _state(id)
 	s["employees"] = int(s.get("employees", 1)) + 1
+	# C3.1: a cook hire samples the arrivals faster too (the Sim opens its
+	# fast ease on the same purchase in _on_station_changed).
+	_start_fast_rate()
 	_after_purchase(id, "hire", cost, int(s["employees"]))
 	_staff_hired("cooks")
 	return true
@@ -1217,7 +1528,7 @@ func buy_processing(id: String) -> bool:
 	if not is_built(id) or proc_maxed(id):
 		return false
 	var cost: float = proc_cost(id)
-	if not spend(cost):
+	if not spend(cost, "speed:" + id):
 		return false
 	var s: Dictionary = _state(id)
 	s["proc"] = int(s.get("proc", 0)) + 1
@@ -1320,9 +1631,18 @@ func build_affordable(id: String) -> bool:
 
 
 ## Drives the red "!" badge on the build button and the BUILD tab (J17).
+## Core and feel: also the signboard while it is offered (C5.3), and the
+## renovation or the next highway once unlocked and affordable (C6.1, C6.3).
 func any_building_affordable() -> bool:
 	for id: String in station_ids():
 		if build_affordable(id):
+			return true
+	if bool(signboard_offer().get("offer", false)):
+		return true
+	if bool(renovation_state().get("affordable", false)):
+		return true
+	for lid in location_ids():
+		if bool(location_state(str(lid)).get("affordable", false)):
 			return true
 	return false
 
@@ -1331,7 +1651,7 @@ func build(id: String) -> bool:
 	if not can_build(id):
 		return false
 	var cost: float = build_cost(id)
-	if not spend(cost):
+	if not spend(cost, "build:" + id):
 		return false
 	var s: Dictionary = _state(id)
 	s["built"] = true
@@ -1661,14 +1981,28 @@ func galla_hire_cost() -> float:
 	return float(costs[costs.size() - 1]) * pow(10.0, float(k - costs.size() + 1))
 
 
-func buy_galla_upgrade(i: int) -> bool:
+## Core and feel 2.8 (C3.1): where a staff or table purchase was made, sent
+## as upgrade_bought's `source` (a custom field, map_money §4): "world_card"
+## (the 2-tap card in the world), "staff" (the STAFF panel) or "chip" (the
+## card opened by the NEXT chip). The buyers below take it as an optional
+## last argument; "" or any other value sends no source (old callers).
+const UPGRADE_SOURCES := ["world_card", "staff", "chip"]
+
+
+func _upgrade_bought(params: Dictionary, source: String) -> void:
+	if source in UPGRADE_SOURCES:
+		params["source"] = source
+	Analytics.event("upgrade_bought", params)
+
+
+func buy_galla_upgrade(i: int, source: String = "") -> bool:
 	if i < 0 or i >= gallas.size() or galla_level_maxed(i):
 		return false
 	var cost: float = galla_upgrade_cost(i)
-	if not spend(cost):
+	if not spend(cost, "galla_up:%d" % i):
 		return false
 	gallas[i] = gallas[i] + 1
-	Analytics.event("upgrade_bought", {"id": "galla_%d" % i, "kind": "galla", "value": gallas[i], "cost": cost})
+	_upgrade_bought({"id": "galla_%d" % i, "kind": "galla", "value": gallas[i], "cost": cost}, source)
 	_refresh_abs_tasks()
 	_check_tasks()
 	galla_changed.emit(i)
@@ -1677,15 +2011,15 @@ func buy_galla_upgrade(i: int) -> bool:
 	return true
 
 
-func buy_galla_hire() -> bool:
+func buy_galla_hire(source: String = "") -> bool:
 	if not can_hire_galla():
 		return false
 	var cost: float = galla_hire_cost()
-	if not spend(cost):
+	if not spend(cost, "galla_hire"):
 		return false
 	gallas.append(1)
 	var idx: int = gallas.size() - 1
-	Analytics.event("upgrade_bought", {"id": "galla_%d" % idx, "kind": "galla_hire", "value": gallas.size(), "cost": cost})
+	_upgrade_bought({"id": "galla_%d" % idx, "kind": "galla_hire", "value": gallas.size(), "cost": cost}, source)
 	_refresh_abs_tasks()
 	_check_tasks()
 	galla_changed.emit(idx)
@@ -1710,7 +2044,10 @@ func waiter_count() -> int:
 	return waiters.size()
 
 
+## 3 roadside; waiters.max_family (4) in the family layout (C6.1).
 func waiter_max() -> int:
+	if layout_variant() == "family":
+		return maxi(waiters_start(), int(_wdef().get("max_family", _wdef().get("max", 3))))
 	return maxi(waiters_start(), int(_wdef().get("max", 3)))
 
 
@@ -1831,33 +2168,37 @@ func waiter_hire_cost() -> float:
 	return snappedf(float(costs[costs.size() - 1]) * pow(float(_wdef().get("hire_cost_growth", 3.0)), float(k - costs.size() + 1)) * dial, 0.01)
 
 
-func buy_waiter_upgrade(i: int = -1) -> bool:
+func buy_waiter_upgrade(i: int = -1, source: String = "") -> bool:
 	var k: int = _wi(i)
 	if k < 0 or k >= waiters.size() or waiter_level_maxed(k):
 		return false
 	var cost: float = waiter_upgrade_cost(k)
-	if not spend(cost):
+	if not spend(cost, "waiter_up:%d" % k):
 		return false
+	var tray_was: int = waiter_tray_orders(k)
 	waiters[k] = waiters[k] + 1
-	Analytics.event("upgrade_bought", {"id": "waiter_%d" % k, "kind": "waiter", "value": waiters[k], "cost": cost})
+	_upgrade_bought({"id": "waiter_%d" % k, "kind": "waiter", "value": waiters[k], "cost": cost}, source)
 	_refresh_abs_tasks()
 	_check_tasks()
 	waiter_upgraded.emit(k)
 	waiter_changed.emit()
+	var tray_now: int = waiter_tray_orders(k)
+	if tray_now != tray_was:
+		waiter_tray_changed.emit(k, tray_now)
 	rate_changed.emit(rate_per_min())
 	request_save()
 	return true
 
 
-func buy_waiter_hire() -> bool:
+func buy_waiter_hire(source: String = "") -> bool:
 	if not can_hire_waiter():
 		return false
 	var cost: float = waiter_hire_cost()
-	if not spend(cost):
+	if not spend(cost, "waiter_hire"):
 		return false
 	waiters.append(1)
 	var idx: int = waiters.size() - 1
-	Analytics.event("upgrade_bought", {"id": "waiter_%d" % idx, "kind": "waiter_hire", "value": waiters.size(), "cost": cost})
+	_upgrade_bought({"id": "waiter_%d" % idx, "kind": "waiter_hire", "value": waiters.size(), "cost": cost}, source)
 	_refresh_abs_tasks()
 	_check_tasks()
 	waiter_hired.emit(idx)
@@ -1878,9 +2219,41 @@ func waiter_order_trip_mult() -> float:
 
 
 ## Estimated travellers/min the waiters can serve (one trip per traveller,
-## the whole order on the tray). Used for offline/real income.
+## the whole order on the tray). Used for offline/real income. Core and feel
+## C3.4: x the mean tray factor over the waiters (1 + waiters.tray_batch_est
+## x (orders a trip - 1); 1.0 below the first tray level).
 func waiter_capacity_per_min() -> float:
-	return waiter_total_rate() / waiter_order_trip_mult()
+	return waiter_total_rate() / waiter_order_trip_mult() * _tray_factor_mean()
+
+
+func _tray_factor_mean() -> float:
+	if waiters.is_empty():
+		return 1.0
+	var be: float = maxf(0.0, float(_wdef().get("tray_batch_est", 0.45)))
+	var t: float = 0.0
+	for i in waiters.size():
+		t += 1.0 + be * float(waiter_tray_orders(i) - 1)
+	return t / float(waiters.size())
+
+
+## C3.4: orders waiter i carries in one trip: 1 + the waiters.tray_levels
+## (15, 30) his level has reached. i < 0 = waiter_pick().
+func waiter_tray_orders(i: int) -> int:
+	var lvl: int = waiter_level(i)
+	var n: int = 1
+	for v in _arr(_wdef(), "tray_levels"):
+		if lvl >= int(v):
+			n += 1
+	return n
+
+
+## C3.4: the next tray level of waiter i (0 when none is left).
+func tray_next_level(i: int) -> int:
+	var lvl: int = waiter_level(i)
+	for v in _arr(_wdef(), "tray_levels"):
+		if int(v) > lvl:
+			return int(v)
+	return 0
 
 
 # ================================================================ seating
@@ -1897,8 +2270,20 @@ func table_count() -> int:
 	return table_sets
 
 
+## 5 roadside; seating.tables_max_family (8) in the family layout (C6.1).
 func table_max() -> int:
+	if layout_variant() == "family":
+		return maxi(_tables_start_now(), int(_sdef().get("tables_max_family", _sdef().get("tables_max", 5))))
 	return maxi(tables_start(), int(_sdef().get("tables_max", 5)))
+
+
+## The tables a dhaba of this layout starts with: tables_start (2) roadside,
+## seating.tables_start_family (3) in the family layout (table costs count
+## from here, and a load never clamps below it).
+func _tables_start_now() -> int:
+	if layout_variant() == "family":
+		return maxi(1, int(_sdef().get("tables_start_family", tables_start())))
+	return tables_start()
 
 
 func seats_per_table() -> int:
@@ -1929,7 +2314,7 @@ func table_cost_at(index: int) -> float:
 	var sd: Dictionary = _sdef()
 	var costs: Array = _arr(sd, "table_costs")
 	var growth: float = float(sd.get("table_cost_growth", 2.4))
-	var k: int = maxi(0, index - tables_start())
+	var k: int = maxi(0, index - _tables_start_now())
 	var dial: float = difficulty_cost_mult() if k >= int(_ddef().get("exempt_tables", 1)) else 1.0
 	if costs.is_empty():
 		return snappedf(30.0 * pow(growth, float(k)) * dial, 0.01)
@@ -1948,15 +2333,15 @@ func table_affordable() -> bool:
 
 
 ## Adds the next table set (index table_count() before the call).
-func buy_table() -> bool:
+func buy_table(source: String = "") -> bool:
 	if not can_buy_table():
 		return false
 	var cost: float = table_cost()
-	if not spend(cost):
+	if not spend(cost, "table"):
 		return false
 	var idx: int = table_sets
 	table_sets += 1
-	Analytics.event("upgrade_bought", {"id": "table_%d" % idx, "kind": "table", "value": table_sets, "cost": cost})
+	_upgrade_bought({"id": "table_%d" % idx, "kind": "table", "value": table_sets, "cost": cost}, source)
 	_refresh_abs_tasks()
 	_check_tasks()
 	table_added.emit(idx)
@@ -1971,9 +2356,12 @@ func eat_time() -> float:
 	return float(_sdef().get("eat_s", 3.0))
 
 
-## Seconds a traveller waits at the door for a seat before giving up (8.0).
+## Seconds a traveller waits at the door for a seat before giving up. Core
+## and feel C2.1: seating.give_up_s 0 (or less) = never (INF); the door line
+## waits for a seat.
 func seat_give_up_time() -> float:
-	return float(_sdef().get("give_up_s", 8.0))
+	var g: float = float(_sdef().get("give_up_s", 8.0))
+	return INF if g <= 0.0 else g
 
 
 ## Longest "waiting for a seat" line just inside the door.
@@ -2052,12 +2440,16 @@ func can_afford(amount: float) -> bool:
 	return cash + 0.0001 >= amount
 
 
-func spend(amount: float) -> bool:
+## The one choke point of every cash purchase. Core and feel C3.3: emits
+## cash_spent(amount, what) after the deduction (`what` per build plan 2.4;
+## nothing is emitted for a free purchase).
+func spend(amount: float, what: String = "") -> bool:
 	if amount <= 0.0:
 		return true
 	if not can_afford(amount):
 		return false
 	cash = maxf(0.0, cash - amount)
+	cash_spent.emit(amount, what)
 	return true
 
 
@@ -2127,13 +2519,26 @@ func capacity_per_min() -> float:
 ## real_income_per_min()'s formula, but the arrival term is the Sim's live
 ## arrival ramp when RATE_LIVE_ARRIVALS and a sample exists (the config
 ## travellers_per_min() caps it): the ramp is what actually walks in.
+## Core and feel C5.3: the arrival cap is travellers_per_min() +
+## signboard_bonus_tpm() (18 at level 0, as before).
 func takings_estimate_per_min() -> float:
-	var arr: float = travellers_per_min()
+	return _takings_thr() * earning_per_traveller()
+
+
+## takings_estimate_per_min()'s throughput (travellers / min).
+func _takings_thr() -> float:
+	var arr: float = arrivals_cap_per_min()
 	if RATE_LIVE_ARRIVALS and _live_arrivals > 0.0:
 		arr = minf(arr, _live_arrivals)
 	var thr: float = minf(arr, minf(serving_capacity_per_min(), galla_total_rate()))
-	thr = minf(thr, minf(waiter_capacity_per_min(), seating_capacity_per_min()))
-	return thr * earning_per_traveller()
+	return minf(thr, minf(waiter_capacity_per_min(), seating_capacity_per_min()))
+
+
+## Game's arrival stage (travellers / min): the config's travellers_per_min()
+## plus the signboard (C5.3). The Sim's own ramp cap is ramp_max_tpm + the
+## same bonus.
+func arrivals_cap_per_min() -> float:
+	return travellers_per_min() + signboard_bonus_tpm()
 
 
 ## Sales (add_sale only, never rewards or top-ups) over the last 60 unpaused
@@ -2244,7 +2649,7 @@ func station_limit(id: String) -> String:
 
 func _stage_rates() -> Dictionary:
 	return {
-		"arrivals": travellers_per_min(),
+		"arrivals": arrivals_cap_per_min(),
 		"kitchen": serving_capacity_per_min(),
 		"gallas": galla_total_rate(),
 		"waiters": waiter_capacity_per_min(),
@@ -2267,11 +2672,12 @@ func _bottleneck_of(rates: Dictionary) -> String:
 
 ## What one traveller pays on average (VIP applied): Σ order share x price
 ## over the built stations (= every built price while each menu group has one).
+## Core and feel C6.2: price_mean() (today's special included).
 func earning_per_traveller() -> float:
 	var t: float = 0.0
 	for id: String in station_ids():
 		if is_built(id):
-			t += order_share(id) * price(id)
+			t += order_share(id) * price_mean(id)
 	return t * income_mult()
 
 
@@ -2293,7 +2699,7 @@ func serving_capacity_per_min() -> float:
 ## Realistic takings/min: arrivals limited by stations, waiters, seats and
 ## gallas (estimates; feeds offline earnings).
 func real_income_per_min() -> float:
-	var thr: float = minf(travellers_per_min(), minf(serving_capacity_per_min(), galla_total_rate()))
+	var thr: float = minf(arrivals_cap_per_min(), minf(serving_capacity_per_min(), galla_total_rate()))
 	thr = minf(thr, minf(waiter_capacity_per_min(), seating_capacity_per_min()))
 	return thr * earning_per_traveller()
 
@@ -2402,12 +2808,12 @@ func staff_max(role: String, station: String = "") -> int:
 ## Buys one hire of `role` through the usual path (buy_waiter_hire,
 ## buy_galla_hire, buy_hire(station)): same analytics, tasks and signals.
 ## For the 2-tap hire card; the STAFF panel may call the old buyers directly.
-func buy_staff_hire(role: String, station: String = "") -> bool:
+func buy_staff_hire(role: String, station: String = "", source: String = "") -> bool:
 	match staff_role(role):
 		"waiters":
-			return buy_waiter_hire()
+			return buy_waiter_hire(source)
 		"cashiers":
-			return buy_galla_hire()
+			return buy_galla_hire(source)
 		"cooks":
 			var st: String = staff_cook_station(station)
 			return st != "" and buy_hire(st)
@@ -2839,6 +3245,11 @@ func _staff_what_if(role: String, station: String, fn: Callable) -> Variant:
 			s["employees"] = was + 1
 			out = fn.call()
 			s["employees"] = was
+		"tables":
+			# Core and feel C2.1: one more table set (preview_table()).
+			table_sets += 1
+			out = fn.call()
+			table_sets -= 1
 		_:
 			out = fn.call()
 	return out
@@ -3043,6 +3454,9 @@ func _check_reveals() -> void:
 		reveal_hud("hud_staff")
 		reveal_hud("hud_build")
 		reveal_hud("hud_gear")
+		# Core and feel C2.6: the bottleneck readout (the Director may reveal
+		# it earlier, at the waiter beat).
+		reveal_hud("hud_meter")
 		if claims_total > 0 or any_task_done():
 			reveal_hud("hud_tasks")
 	if claims_total >= REVEAL_CHEST_CLAIMS:
@@ -3298,7 +3712,8 @@ func _task_text(t: Dictionary) -> String:
 	# templates are the msgids. relocalize() re-texts every card.
 	var hindi: bool = TranslationServer.get_locale().begins_with("hi")
 	var s: String = tr(tmpl).replace("{n}", Fmt.count(int(roundf(target))))
-	s = s.replace("{money}", Fmt.rupee(target))
+	# C7.5 / plan 5: {money} is Fmt.money (no ₹; no real-money reading).
+	s = s.replace("{money}", Fmt.money(target))
 	s = s.replace("{station}", tr(station_noun(st)))
 	if dish != "":
 		s = s.replace("{dish}", tr(dish_name(st, dish)) if hindi else dish_title(st, dish))
@@ -3478,7 +3893,13 @@ func _gen_task(kind: String, g: Dictionary) -> Dictionary:
 			if wk < 0:
 				return {}
 			d["waiter"] = wk
-			d["target"] = float(mini(waiter_max_level(), waiters[wk] + int(g.get("waiter_level_step", 5))))
+			var wstep: int = maxi(1, int(g.get("waiter_level_step", 5)))
+			var wtgt: int = mini(waiter_max_level(), waiters[wk] + wstep)
+			# Core and feel C3.4: aim at the next tray level when it is near.
+			var tn: int = tray_next_level(wk)
+			if tn > waiters[wk] and tn - waiters[wk] <= 2 * wstep:
+				wtgt = mini(waiter_max_level(), tn)
+			d["target"] = float(wtgt)
 		_:
 			return {}
 	return _new_task("gen_%d" % _task_gen, d)
@@ -3582,6 +4003,7 @@ func show_ad_bubble(reward: float = -1.0, lifetime: float = -1.0, loop: bool = f
 	_ad_session_count += 1
 	var was: bool = _ad_visible
 	_ad_visible = true
+	_ad_tap_sent = false
 	Analytics.event("ad_bubble_shown", {"reward": _ad_reward})
 	if not was:
 		ad_bubble_changed.emit(true)
@@ -3617,13 +4039,13 @@ func ad_bubble_fill() -> float:
 	return clampf(_ad_left / _ad_life, 0.0, 1.0)
 
 
-## Player tapped the bubble: hides it and returns the offered reward (pass it
-## to the VIP popup's FREE button, which grants it with add_reward).
+## FREE paid (the bubble is spent): hides it and returns the offered reward.
+## W4-FIX-core: ad_bubble_tapped is sent on the tap (set_ad_hold), not here; a
+## paid FREE is counted by rewarded_completed and reward {source: wall_ad}.
 func consume_ad_bubble() -> float:
 	var r: float = _ad_reward if _ad_visible else _compute_ad_reward()
 	hide_ad_bubble()
 	_ad_next_in = float(_adef().get("interval_s", 180.0))
-	Analytics.event("ad_bubble_tapped", {"reward": r})
 	return r
 
 
@@ -3636,13 +4058,29 @@ func _compute_ad_reward() -> float:
 
 func _update_ad_bubble(delta: float) -> void:
 	if _ad_visible:
-		_ad_left -= delta
+		# W4-FIX-core (C7.2, plan 2.1 "never hide the bubble while held"): the
+		# lifetime stops while the FREE / VIP popup is open, and resumes after X.
+		if not _ad_hold:
+			_ad_left -= delta
 		if _ad_left <= 0.0:
 			if _ad_loop:
 				_ad_left = _ad_life
 			else:
 				hide_ad_bubble()
 				_ad_next_in = float(_adef().get("interval_s", 180.0))
+		elif not _ad_loop and not _ad_hold and bool(_adef().get("hide_when_not_ready", true)) \
+				and not Ads.is_rewarded_ready("wall_ad") and not Ads.is_busy():
+			# Core and feel C7.2: no ad to show (unloaded, expired, consent
+			# lost, offline): the bubble goes, its session slot is given back
+			# and it comes back retry_s later if an ad is ready. The
+			# tutorial's looping bubble and a held bubble (the FREE / VIP
+			# popup is open) are exempt.
+			var why: String = Ads.rewarded_block_reason()
+			hide_ad_bubble()
+			_ad_next_in = float(_adef().get("retry_s", 15.0))
+			_ad_session_count = maxi(0, _ad_session_count - 1)
+			print("[game] ad bubble hidden: %s" % why)
+			Analytics.event("ad_bubble_hidden", {"why": why})
 		return
 	var auto: bool = _ad_auto_on()
 	if auto != _ad_auto_was:
@@ -3655,9 +4093,22 @@ func _update_ad_bubble(delta: float) -> void:
 	if _ad_next_in > 0.0:
 		return
 	if _ad_session_count >= int(_adef().get("max_per_session", 15)) or not Ads.is_rewarded_ready("wall_ad"):
-		_ad_next_in = 15.0
+		_ad_next_in = float(_adef().get("retry_s", 15.0))
 		return
 	show_ad_bubble()
+
+
+## C7.2: UiRoot holds the bubble while the FREE / VIP popup is open (it is
+## never hidden under an open popup, and its lifetime stops).
+## W4-FIX-core (C7.6 data): the popup opens over a visible bubble only from a
+## bubble tap (UiRoot._on_bubble_tapped -> open_vip), so the hold sends
+## ad_bubble_tapped, once per shown bubble: ad_bubble:shown -> ad_bubble:tapped
+## is then the tap rate (analytics.md), whether or not FREE pays.
+func set_ad_hold(on: bool) -> void:
+	_ad_hold = on
+	if on and _ad_visible and not _ad_tap_sent:
+		_ad_tap_sent = true
+		Analytics.event("ad_bubble_tapped", {"reward": _ad_reward})
 
 
 # ================================================================ HISAAB stats
@@ -3691,6 +4142,106 @@ func report_traveller_lost() -> void:
 	Analytics.event("traveller_lost", {"session": lost_session, "seats": seats_total()})
 	traveller_lost.emit(lost_session)
 	request_save()
+
+
+## Core and feel C2.1: a vehicle drove past without stopping because the
+## dhaba had no room (`riders` travellers that never walked in; kind "lorry",
+## "car", "auto", "bus" or "baraat"). A quiet stat: passed_total (saved),
+## passed_session, passed_last_min(); analytics "vehicle_drove_past" at most
+## once a minute; no signal, no save of its own.
+func report_passed_by(riders: int, kind: String = "") -> void:
+	var n: int = maxi(0, riders)
+	passed_total += n
+	passed_session += n
+	_last_pass_kind = kind
+	if _pass_times.size() != PASS_RING:
+		_reset_pass_ring()
+	_pass_times[_pass_i] = _stats_clock
+	_pass_riders[_pass_i] = n
+	_pass_i = (_pass_i + 1) % PASS_RING
+	_pass_event_n += n
+	if _stats_clock - _pass_event_t >= PASS_EVENT_S:
+		Analytics.event("vehicle_drove_past", {"n": _pass_event_n})
+		_pass_event_n = 0
+		_pass_event_t = _stats_clock
+
+
+## Riders of the vehicles that drove past in the last minute of unpaused play.
+func passed_last_min() -> int:
+	var n: int = 0
+	for i in _pass_times.size():
+		if _stats_clock - _pass_times[i] <= SEATS_WINDOW_SECONDS:
+			n += _pass_riders[i]
+	return n
+
+
+## The kind of the last vehicle that drove past ("" = none this launch).
+func last_pass_kind() -> String:
+	return _last_pass_kind
+
+
+func _reset_pass_ring() -> void:
+	_pass_times.resize(PASS_RING)
+	_pass_times.fill(-1.0e9)
+	_pass_riders.resize(PASS_RING)
+	_pass_riders.fill(0)
+	_pass_i = 0
+	_pass_event_t = -1.0e9
+
+
+## Core and feel C2.1: what one more table set would do (pure, nothing is
+## bought): {seats_before, seats_after, gain_per_min (takings / min, VIP
+## applied like the HUD), stage_before, stage_after, cost, maxed}. Cached like
+## preview_hire (any purchase drops it).
+func preview_table() -> Dictionary:
+	var hit: Variant = _staff_cached("ptab", STAFF_CACHE_S)
+	var out: Dictionary = (hit as Dictionary) if hit is Dictionary else _staff_store("ptab", _preview_table_now())
+	return out.duplicate()
+
+
+func _preview_table_now() -> Dictionary:
+	var can: bool = can_buy_table()
+	var rates_b: Dictionary = _stage_rates()
+	var rates_a: Variant = _staff_what_if("tables", "", _stage_rates) if can else rates_b
+	var ra: Dictionary = rates_a if rates_a is Dictionary else rates_b
+	var thr_b: float = _min_rate(rates_b)
+	var thr_a: float = _min_rate(ra)
+	var k: float = maxf(1.0, thr_a / thr_b) if thr_b > 0.0 else 1.0
+	var inc_b: float = takings_estimate_per_min()
+	var gain: float = inc_b * (k - 1.0)
+	if can:
+		# W4-FIX-core (C2.1): while the arrival-room gate limits SEATS (the
+		# readout's live rates), one more table adds its seats to the room.
+		var lr: Dictionary = _sys_dict("readout", "live_rates", [], {})
+		if str(lr.get("src", "")) == "live" and float(lr.get("room", INF)) < INF and lr.get("rates", null) is Dictionary:
+			gain = _room_table_gain(lr, inc_b)
+	return {
+		"seats_before": seats_total(),
+		"seats_after": seats_total() + (seats_per_table() if can else 0),
+		"gain_per_min": gain,
+		"stage_before": _bottleneck_of(rates_b),
+		"stage_after": _bottleneck_of(ra),
+		"cost": table_cost() if can else 0.0,
+		"maxed": not can,
+	}
+
+
+## W4-FIX-core: one more table while the room gate limits SEATS: the seats'
+## own rate grows with the seats, the room's with its places (seats +
+## ROOM_DOOR_PLACES - ROOM_SLACK); the takings grow with the throughput.
+func _room_table_gain(lr: Dictionary, inc_b: float) -> float:
+	var r: Dictionary = lr["rates"]
+	var s_now: float = float(maxi(1, seats_total()))
+	var per: float = float(seats_per_table())
+	var places: float = float(maxi(1, seats_total() + ROOM_DOOR_PLACES - ROOM_SLACK))
+	var seats_a: float = minf(float(lr.get("seats_cap", 0.0)) * (s_now + per) / s_now, float(lr["room"]) * (places + per) / places)
+	var others: float = minf(minf(float(r.get("cooks", 0.0)), float(r.get("waiters", 0.0))), float(r.get("cashiers", 0.0)))
+	var road: float = float(r.get("road", 0.0))
+	var thr_b: float = minf(minf(float(r.get("seats", 0.0)), others), road)
+	var thr_a: float = minf(minf(seats_a, others), road)
+	if thr_b <= 0.0:
+		return 0.0
+	return inc_b * maxf(0.0, thr_a / thr_b - 1.0)
 
 
 ## Convenience for the Sim: same as task_event("seated").
@@ -3746,16 +4297,19 @@ func _food_wait_estimate() -> float:
 ## Keys: earning_per_traveller (money), travellers_inside (int),
 ## serving_capacity (per min), parking_usage (0..1, TRUCK PARKING = bays in
 ## use / bays), avg_galla_line (dec1), avg_galla_wait (s), avg_food_wait (s,
-## AVG FOOD WAIT), lost (int this session, LOST; tone from lost_last_min),
+## AVG FOOD WAIT), lost (always 0 since core and feel C2.1, no tone),
 ## seats_full (0..1, SEATS FULL), plus info-only seats_in_use, seats_total,
-## seats_max, seats_waiting, lost_last_min, lost_total, waiters, tables.
+## seats_max, seats_waiting, lost_last_min (0), lost_total, waiters, tables,
+## passed (riders of vehicles that drove past this launch), passed_last_min.
 func stats() -> Dictionary:
 	var th: Dictionary = _dict(eco, "hisaab")
 	var parking: float = _parking if _parking >= 0.0 else _parking_estimate()
 	var wait: float = _avg_wait if _avg_wait >= 0.0 else galla_avg_service_time()
 	var food: float = _food_wait if _food_wait >= 0.0 else _food_wait_estimate()
 	var full: float = seats_full_ratio()
-	var lost_recent: int = lost_last_min()
+	# Core and feel C2.1: nobody is lost any more (the door line waits; full
+	# arrivals drive past). The keys stay and read 0, with no "lost" tone.
+	var lost_recent: int = 0
 	var tones: Dictionary = {
 		"earning_per_traveller": "gain",
 		"travellers_inside": "ok",
@@ -3764,7 +4318,6 @@ func stats() -> Dictionary:
 		"avg_galla_line": _tone(_avg_line, float(th.get("line_warn", 2.0)), float(th.get("line_bad", 4.0))),
 		"avg_galla_wait": _tone(wait, float(th.get("wait_warn", 6.0)), float(th.get("wait_bad", 10.0))),
 		"avg_food_wait": _tone(food, float(th.get("food_wait_warn", 8.0)), float(th.get("food_wait_bad", 15.0))),
-		"lost": _tone(float(lost_recent), float(th.get("lost_warn", 1.0)), float(th.get("lost_bad", 3.0))),
 		"seats_full": _tone(full, float(th.get("seats_full_warn", 0.25)), float(th.get("seats_full_bad", 0.5))),
 		"seats_in_use": "ok",
 	}
@@ -3779,9 +4332,11 @@ func stats() -> Dictionary:
 		"avg_galla_line": _avg_line,
 		"avg_galla_wait": wait,
 		"avg_food_wait": food,
-		"lost": lost_session,
+		"lost": 0,
 		"lost_last_min": lost_recent,
 		"lost_total": lost_total,
+		"passed": passed_session,
+		"passed_last_min": passed_last_min(),
 		"seats_full": full,
 		"seats_in_use": seats_in_use(),
 		"seats_total": seats_total(),
@@ -3861,6 +4416,17 @@ func _sim_node() -> Node:
 
 func _sample_stats(dt: float) -> void:
 	var sim: Node = _sim_node()
+	# Core and feel C3.1: the Sim's own capacity model, for the readout.
+	if sim != null and sim.has_method("capacity_estimate"):
+		var cv: Variant = sim.call("capacity_estimate")
+		if cv is Dictionary:
+			_live_caps = cv
+			# W4-FIX-core: the room gate's rate rides along ("room").
+			_sample_room(sim)
+			if _room_rate > 0.0:
+				_live_caps["room"] = _room_rate
+	else:
+		_live_caps = {}
 	_sample_live_rate(sim)
 	if sim != null and _stats_clock - _seat_push_t > SEAT_PUSH_FRESH:
 		_poll_sim_seats(sim)
@@ -3922,8 +4488,95 @@ func _sample_live_rate(sim: Node) -> void:
 			live = float(at)
 	_live_arrivals = live
 	var r: float = rate_per_min()
-	if _rate_emitted < 0.0 or absf(r - _rate_emitted) > RATE_EMIT_REL * maxf(absf(_rate_emitted), 0.01):
+	# C3.1: in the fast window after a purchase any 0.5 % move re-emits.
+	var rel: float = FAST_RATE_EMIT_REL if _fast_rate_left > 0.0 else RATE_EMIT_REL
+	if _rate_emitted < 0.0 or absf(r - _rate_emitted) > rel * maxf(absf(_rate_emitted), 0.01):
 		rate_changed.emit(r)
+
+
+## C3.1: the last Sim.capacity_estimate() sample (every 0.5 s): {"seats",
+## "waiters", "stations", "gallas", "min", "target", ...}; {} until sampled.
+## W4-FIX-core: plus "room" (room_rate_now()) once it is measured.
+func live_caps() -> Dictionary:
+	return _live_caps.duplicate()
+
+
+## W4-FIX-core (C2.1 / C2.6): travellers a minute the arrival-room gate lets
+## in (INF until measured). The Sim calls a vehicle only when arrival_room()
+## covers its riders, so the dhaba takes in at most about
+## (seats + ROOM_DOOR_PLACES - ROOM_SLACK) / T a minute, where T is how long
+## a traveller holds a place: from his vehicle being called until his seat
+## is about to free (Sim._seats_freeing), the door line left out (its wait
+## comes from full seats, not from the room). The readout takes it into its
+## SEATS row; it never changes the Sim, the ramp or the tutorial.
+func room_rate_now() -> float:
+	return _room_rate if _room_rate > 0.0 else INF
+
+
+## W4-FIX-core: T by Little's law over the last ROOM_WINDOW_S of free play:
+## mean places held (seats in use - seats freeing + arrivals incoming =
+## places - arrival_room() - door line) / arrivals a second. Every Sim method
+## and property it reads is public (W1-WORLDA's room API, main3's [window]).
+func _sample_room(sim: Node) -> void:
+	if not is_tutorial_done() or not sim.has_method("arrival_room") or not sim.has_method("door_waiting_count") \
+			or not sim.has_method("seats_total"):
+		return
+	var clk_v: Variant = sim.get("sim_clock")
+	var al: Variant = sim.get("arrivals_lorry")
+	var ab: Variant = sim.get("arrivals_bus")
+	if clk_v == null or al == null or ab == null:
+		return
+	var clk: float = float(clk_v)
+	if sim.get_instance_id() != _room_sim or _room_clock < 0.0 or clk < _room_clock or clk - _room_clock > 5.0:
+		# A new scene (or a hitch): start again.
+		_room_reset()
+		_room_sim = sim.get_instance_id()
+		_room_clock = clk
+		return
+	var d: float = clk - _room_clock
+	_room_clock = clk
+	if d <= 0.0:
+		return
+	_room_t += d
+	if _room_t < ROOM_WARMUP_S:
+		return
+	var places: int = int(sim.call("seats_total")) + ROOM_DOOR_PLACES
+	var held: float = clampf(float(places - int(sim.call("arrival_room")) - int(sim.call("door_waiting_count"))), 0.0, float(places))
+	_room_held_int += held * d
+	var arr: int = int(al) + int(ab)
+	if _room_snaps.is_empty() or clk - float((_room_snaps[_room_snaps.size() - 1] as Array)[0]) >= ROOM_SNAP_S:
+		_room_snaps.append([clk, arr, _room_held_int])
+		while _room_snaps.size() > 2 and clk - float((_room_snaps[1] as Array)[0]) >= ROOM_WINDOW_S:
+			_room_snaps.pop_front()
+	var o: Array = _room_snaps[0]
+	var span: float = clk - float(o[0])
+	var n_arr: int = arr - int(o[1])
+	if span < ROOM_MIN_WINDOW_S or n_arr < ROOM_MIN_ARRIVALS:
+		return
+	var lam: float = float(n_arr) / span
+	var t_hold: float = maxf(1.0, (_room_held_int - float(o[2])) / span / lam)
+	var was: bool = _room_hold > 0.0
+	_room_hold = t_hold if not was else lerpf(_room_hold, t_hold, 1.0 - exp(-d / ROOM_HOLD_TAU_S))
+	_room_rate = float(maxi(1, places - ROOM_SLACK)) * 60.0 / _room_hold
+	if not was and OS.is_debug_build():
+		print("[game] room gate measured: %.1f/min (hold %.1f s over %.0f s, %d arrivals, %d places)" % [_room_rate, t_hold, span, n_arr, places])
+
+
+func _room_reset() -> void:
+	_room_snaps.clear()
+	_room_held_int = 0.0
+	_room_clock = -1.0
+	_room_sim = 0
+	_room_t = 0.0
+	_room_hold = -1.0
+	_room_rate = -1.0
+
+
+## C3.1: for FAST_RATE_S after a hire, a table, a cashier or a signboard the
+## live arrivals are sampled every FAST_RATE_STEP_S.
+func _start_fast_rate() -> void:
+	_fast_rate_left = FAST_RATE_S
+	_fast_rate_t = 0.0
 
 
 ## Reads seat occupancy from the Sim when it does not push report_seats().
@@ -4024,8 +4677,10 @@ func _grant_offline(away: float) -> void:
 
 
 ## Credits pending offline earnings. mult: 1.0, or 2.0 after the rewarded ad
-## (true/false is accepted too: true = the ad multiplier).
-func claim_offline(mult: Variant = 1.0) -> float:
+## (true/false is accepted too: true = the ad multiplier). save_now false
+## (W4-FIX-core: _promote_reset) credits without saving, so a promotion never
+## writes a half-reset save; the caller saves once the reset is done.
+func claim_offline(mult: Variant = 1.0, save_now: bool = true) -> float:
 	if pending_offline <= 0.0:
 		return 0.0
 	var m: float = 1.0
@@ -4039,7 +4694,8 @@ func claim_offline(mult: Variant = 1.0) -> float:
 	offline_seconds = 0.0
 	add_reward(amt, "offline")
 	Analytics.event("offline_claim", {"amount": amt, "hours": secs / 3600.0, "mult": m})
-	save_game()
+	if save_now:
+		save_game()
 	return amt
 
 
@@ -4053,14 +4709,23 @@ func feature_on(feature: String) -> bool:
 ## once the tutorial is done). The free-cash ad offer is always available.
 ## Round 2 (decision 2): at most once per session - false again once
 ## mark_vip_offer_shown() was called this session.
+## Core and feel C7.4: with the offers module, offer_variant() == "vip"
+## (no offer after any purchase; the starter pack first).
 func vip_offer_visible() -> bool:
+	if _systems.has("offers"):
+		return offer_variant() == "vip"
+	return _vip_offer_rule()
+
+
+## The 0.3.7 rule (no offers module): session 2+, tutorial done, once a session.
+func _vip_offer_rule() -> bool:
 	return sessions >= 2 and is_tutorial_done() and not _vip_offer_shown
 
 
 ## Round 2: UiRoot calls this when it opens the VIP variant (not FREE CASH);
 ## the rest of the session's bubble taps open FREE CASH.
 func mark_vip_offer_shown() -> void:
-	_vip_offer_shown = true
+	mark_offer_shown("vip")
 
 
 ## Named use count (coach hands: "coach_<kind>"); 0 when never bumped.
@@ -4133,6 +4798,1016 @@ func _retext_tasks() -> void:
 			(t as Dictionary)["text"] = _task_text(t)
 
 
+# ================================================================ core and feel: showcase and fans (C3.5, C6.2)
+## The next `tickets` tickets of `station_id` are `dish_id` (full or short id;
+## an unlocked dish of a built counter): roll_dish() serves it and prints
+## "[game] showcase <dish> left <n>". Signal showcase_started. Not saved.
+func start_showcase(station_id: String, dish_id: String, tickets: int) -> void:
+	var dish: String = _full_dish_id(station_id, dish_id)
+	if tickets <= 0 or not is_built(station_id) or not dish_unlocked(station_id, dish):
+		return
+	_showcase[station_id] = {"dish": dish, "left": tickets}
+	showcase_started.emit(station_id, dish)
+
+
+## Showcase tickets still to come at the counter (0 = none).
+func showcase_left(station_id: String) -> int:
+	var sc: Variant = _showcase.get(station_id, null)
+	return int((sc as Dictionary).get("left", 0)) if sc is Dictionary else 0
+
+
+## The counter's showcase dish ("" = none).
+func showcase_dish(station_id: String) -> String:
+	var sc: Variant = _showcase.get(station_id, null)
+	if sc is Dictionary and int((sc as Dictionary).get("left", 0)) > 0:
+		return str((sc as Dictionary).get("dish", ""))
+	return ""
+
+
+## C3.5: a live dish unlock makes the counter's fan (stations.<id>.fan) due.
+func _mark_fan_due(station_id: String, dish_id: String) -> void:
+	var model: String = str(station_def(station_id).get("fan", ""))
+	if model == "":
+		return
+	for i in range(_fan_due.size() - 1, -1, -1):
+		if str((_fan_due[i] as Dictionary).get("station", "")) == station_id:
+			_fan_due.remove_at(i)
+	_fan_due.append({"station": station_id, "dish": dish_id, "model": model})
+
+
+## C3.5: the next fan to walk in, once: {station, dish, model}; {} = none.
+func take_fan_due() -> Dictionary:
+	if _fan_due.is_empty():
+		return {}
+	var f: Dictionary = _fan_due.pop_front()
+	var m: String = str(f.get("model", ""))
+	if m != "" and not _fans_taken.has(m):
+		_fans_taken.append(m)
+	return f
+
+
+## C3.5: model ids of the fans already introduced (they join the crowd at
+## menus.fan_share): the fans who walked in this launch, and the fan of every
+## built counter with a second dish on the menu (introduced at that unlock)
+## unless that fan is still due. Empty in the tutorial.
+func fan_models() -> Array:
+	if not is_tutorial_done():
+		return []
+	var out: Array = _fans_taken.duplicate()
+	var due: Array = []
+	for f in _fan_due:
+		due.append(str((f as Dictionary).get("station", "")))
+	for id: String in built_station_ids():
+		var m: String = str(station_def(id).get("fan", ""))
+		if m != "" and not out.has(m) and not due.has(id) and dishes_unlocked(id) > 1:
+			out.append(m)
+	return out
+
+
+# ================================================================ core and feel: launch pop-up budget (C4.4)
+## Pop-ups (consent card, WELCOME BACK, Munshi-ji's "New prices!") shown this
+## launch. UiRoot.can_interrupt() allows one while this is 0.
+func popup_budget_used() -> int:
+	return _popups_this_launch
+
+
+## kinds "consent" | "offline" | "eco_note".
+func note_popup(kind: String) -> void:
+	_popups_this_launch += 1
+	print("[game] launch popup %s" % kind)
+
+
+# ================================================================ core and feel: highway signboard (C5.3)
+func _sbdef() -> Dictionary:
+	return _dict(eco, "signboard")
+
+
+func signboard_level() -> int:
+	return _signboard
+
+
+## 4 roadside, signboard.max_levels_family (6) in the family layout.
+func signboard_max() -> int:
+	var d: Dictionary = _sbdef()
+	if d.is_empty():
+		return 0
+	if layout_variant() == "family":
+		return maxi(0, int(d.get("max_levels_family", d.get("max_levels", 4))))
+	return maxi(0, int(d.get("max_levels", 4)))
+
+
+func signboard_maxed() -> bool:
+	return _signboard >= signboard_max()
+
+
+## The signboard opens once signboard.requires (the kadai) is built.
+func signboard_unlocked() -> bool:
+	var d: Dictionary = _sbdef()
+	if d.is_empty():
+		return false
+	var req: String = str(d.get("requires", "kadai"))
+	return req == "" or is_built(req)
+
+
+## cost_base x cost_growth^level x the difficulty dial (250, 400, 640, 1024,
+## then 1638.4 and 2621.44 after the Family Dhaba).
+func signboard_cost() -> float:
+	var d: Dictionary = _sbdef()
+	return snappedf(float(d.get("cost_base", 250.0)) * pow(float(d.get("cost_growth", 1.6)), float(_signboard)) * difficulty_cost_mult(), 0.01)
+
+
+## Travellers / min the signboard adds to the arrival cap (level x
+## tpm_per_level; 0 in the tutorial).
+func signboard_bonus_tpm() -> float:
+	if not is_tutorial_done():
+		return 0.0
+	return float(_signboard) * float(_sbdef().get("tpm_per_level", 1.5))
+
+
+## The honest what-if of one more level: the HUD takings x the throughput
+## gain (0 when it would not raise the throughput, maxed or locked).
+## W4-FIX-core (C5.3): from the readout's rates (live: the Sim's caps and the
+## road at ramp_max_tpm + the signboard), the numbers the meter shows: 0
+## ("Not the bottleneck now") unless the road is the limit, else the takings
+## x (min(the slowest stage, road + tpm_per_level) / road - 1). The model
+## what-if below is only the fallback without the readout module.
+func signboard_gain_per_min() -> float:
+	if signboard_maxed() or not signboard_unlocked() or not is_tutorial_done():
+		return 0.0
+	var lr: Dictionary = _sys_dict("readout", "live_rates", [], {})
+	if lr.get("rates", null) is Dictionary:
+		if not bool(lr.get("road_capped", false)):
+			return 0.0
+		var r: Dictionary = lr["rates"]
+		var road: float = float(r.get("road", 0.0))
+		if road <= 0.0:
+			return 0.0
+		var lo: float = minf(minf(float(r.get("seats", 0.0)), float(r.get("cooks", 0.0))),
+				minf(float(r.get("waiters", 0.0)), float(r.get("cashiers", 0.0))))
+		var nxt: float = minf(lo, road + float(_sbdef().get("tpm_per_level", 1.5)))
+		return takings_estimate_per_min() * maxf(0.0, nxt / road - 1.0)
+	var thr_b: float = _min_rate(_stage_rates())
+	if thr_b <= 0.0:
+		return 0.0
+	_signboard += 1
+	var thr_a: float = _min_rate(_stage_rates())
+	_signboard -= 1
+	return takings_estimate_per_min() * maxf(0.0, thr_a / thr_b - 1.0)
+
+
+## Minutes one LEVEL UP of `id` takes to pay for itself: level_cost(id) /
+## (its price step x the current throughput x order_share(id) x
+## income_mult()); INF when it gains nothing (unbuilt, maxed, no throughput).
+func level_payback_min(id: String) -> float:
+	if not is_built(id) or level_maxed(id):
+		return INF
+	var gain: float = level_up_price_gain(id) * _takings_thr() * order_share(id) * income_mult()
+	if gain <= 0.0:
+		return INF
+	return level_cost(id) / gain
+
+
+## The offer rule (C5.3): {offer, cost, gain_per_min, payback_min,
+## best_level_payback_min, reason}. offer = the road is the limit (the readout
+## module's road_capped(), never its fix: that one calls this), the signboard
+## is unlocked, not maxed, affordable, and its payback is at most
+## max(signboard.offer_payback_min, the best LEVEL UP payback). reason: "" or
+## "locked", "maxed", "road", "payback", "cash". Cached for half a second
+## (any purchase drops it); affordability is always fresh.
+func signboard_offer() -> Dictionary:
+	var hit: Variant = _staff_cached("sbo", STAFF_CACHE_S)
+	var out: Dictionary = (hit as Dictionary) if hit is Dictionary else _staff_store("sbo", _signboard_offer_now())
+	out = out.duplicate()
+	var aff: bool = can_afford(float(out["cost"]))
+	out["offer"] = str(out["reason"]) == "" and aff
+	if str(out["reason"]) == "" and not aff:
+		out["reason"] = "cash"
+	return out
+
+
+func _signboard_offer_now() -> Dictionary:
+	var cost: float = signboard_cost()
+	var gain: float = signboard_gain_per_min()
+	var pay: float = cost / gain if gain > 0.0 else INF
+	var best: float = INF
+	for id: String in built_station_ids():
+		best = minf(best, level_payback_min(id))
+	var reason: String = ""
+	if not is_tutorial_done() or not signboard_unlocked():
+		reason = "locked"
+	elif signboard_maxed():
+		reason = "maxed"
+	elif not _sys_bool("readout", "road_capped", [], false):
+		reason = "road"
+	elif pay > maxf(float(_sbdef().get("offer_payback_min", 10.0)), best):
+		reason = "payback"
+	return {"offer": false, "cost": cost, "gain_per_min": gain, "payback_min": pay,
+			"best_level_payback_min": best, "reason": reason}
+
+
+func buy_signboard() -> bool:
+	if not is_tutorial_done() or not signboard_unlocked() or signboard_maxed():
+		return false
+	var cost: float = signboard_cost()
+	if not spend(cost, "signboard"):
+		return false
+	_signboard += 1
+	Analytics.event("upgrade_bought", {"id": "signboard", "kind": "signboard", "level": _signboard, "value": _signboard, "cost": cost})
+	_staff_touch()
+	_start_fast_rate()
+	signboard_changed.emit(_signboard)
+	rate_changed.emit(rate_per_min())
+	save_game()
+	return true
+
+
+# ================================================================ core and feel: promotions (C6.1, C6.3)
+## Carry-over lists (English msgids, build plan 5.1; the UI translates them
+## and fills {mult} with the "mult_after" value).
+const RENO_KEEPS := ["Every dish on the menu", "PRICES ×{mult} FOREVER", "Raju, Pinky and the team come with you",
+		"Your cash", "Your signboard", "VIP and No Ads", "Tasks and the chest", "Munshi-ji's help"]
+const RENO_RESETS := ["Counter levels go back to 1", "You start with 1 waiter, 1 cashier and 1 cook per counter",
+		"Tables go back to 3: 2 in the dhaba, 1 in the new hall"]
+const RENO_ADDS := ["AC family hall: 3 more tables", "A 4th waiter", "Signboard up to level 6"]
+const RENO_HONEST := "Takings start lower and pass today's within about 10 minutes."
+const MOVE_KEEPS := ["PRICES ×{mult} FOREVER", "Raju, Pinky and the team come with you", "Your cash",
+		"The AC family hall", "VIP and No Ads", "Tasks and the chest", "Munshi-ji's help"]
+const MOVE_RESETS := ["A Rajasthani menu: 16 dishes to unlock", "Tandoor, lassi and kadai to build again",
+		"You start with 1 waiter, 1 cashier and 1 cook per counter", "Counter levels go back to 1",
+		"Tables go back to 3", "The signboard starts again"]
+const MOVE_ADDS := {"nh48": ["A second dhaba on the Jaipur highway, with a Rajasthani menu."]}
+## Lock reasons (msgids of build plan 5.1) by reason code.
+const PROMO_REASON_TEXT := {
+	"dishes": "Opens when all 16 dishes are on the menu",
+	"renovate": "Opens after the Family Dhaba, with every counter at Lv 100",
+	"counters": "Opens after the Family Dhaba, with every counter at Lv 100",
+	"cash": "Save {money}",
+}
+
+
+func _rdef() -> Dictionary:
+	return _dict(eco, "renovation")
+
+
+func _locdefs() -> Dictionary:
+	return _dict(_base_eco, "locations")
+
+
+## Family Dhaba renovations done (0 or 1).
+func renovations() -> int:
+	return _renovations
+
+
+## The permanent price multiplier: renovation.mult (2.0) once renovated, x the
+## current location's mult (NH 48: 1.5).
+func fame_mult() -> float:
+	return _fame_for(_location)
+
+
+## The price multiplier at location `loc`; renovated: 1 yes, 0 no, -1 = now.
+func _fame_for(loc: String, renovated: int = -1) -> float:
+	var m: float = 1.0
+	if renovated > 0 or (renovated < 0 and _renovations > 0):
+		m *= maxf(0.01, float(_rdef().get("mult", 2.0)))
+	m *= maxf(0.01, float(location_def(loc).get("mult", 1.0)))
+	return m
+
+
+## "family" once renovated (the AC hall layout), else "roadside".
+func layout_variant() -> String:
+	return "family" if _renovations > 0 else "roadside"
+
+
+## Dishes the counter keeps through the renovation (0 = none kept).
+func dish_floor(id: String) -> int:
+	return int(_dish_floor.get(id, 0))
+
+
+## The level of the counter's last dish (100).
+func _last_dish_level(id: String) -> int:
+	var top: int = 1
+	for v in menu(id):
+		if v is Dictionary:
+			top = maxi(top, int((v as Dictionary).get("from_level", 1)))
+	return top
+
+
+## Every counter built and at the level of its last dish (all 16 dishes).
+func _all_dishes_ready() -> bool:
+	if not is_tutorial_done():
+		return false
+	for id: String in station_ids():
+		if not is_built(id) or station_level(id) < _last_dish_level(id):
+			return false
+	return true
+
+
+func _counters_at_100() -> int:
+	var n: int = 0
+	for id: String in station_ids():
+		if is_built(id) and station_level(id) >= _last_dish_level(id):
+			n += 1
+	return n
+
+
+func _dishes_on_menu() -> int:
+	var n: int = 0
+	for id: String in station_ids():
+		if is_built(id):
+			n += dishes_unlocked(id)
+	return n
+
+
+func _dishes_total() -> int:
+	var n: int = 0
+	for id: String in station_ids():
+		n += maxi(1, menu(id).size())
+	return n
+
+
+func renovation_cost() -> float:
+	return float(_rdef().get("cost", 10000.0))
+
+
+## {shown, unlocked, done, cost, affordable, dishes, dishes_total, reason,
+## reason_text, short}. Unlocked: not renovated yet, every counter built and
+## at L100 (all 16 dishes). reason: "" (ready and affordable), "dishes"
+## (locked), "cash", "done"; reason_text: its English msgid (build plan 5.1;
+## "Save {money}" with {money} = short, the cash still missing) or "".
+func renovation_state() -> Dictionary:
+	var done: bool = _renovations > 0
+	var unlocked: bool = not done and not _rdef().is_empty() and _all_dishes_ready()
+	var cost: float = renovation_cost()
+	var aff: bool = unlocked and can_afford(cost)
+	var reason: String = ""
+	if done:
+		reason = "done"
+	elif not unlocked:
+		reason = "dishes"
+	elif not aff:
+		reason = "cash"
+	return {"shown": not done and not _rdef().is_empty(), "unlocked": unlocked, "done": done, "cost": cost,
+			"affordable": aff, "dishes": _dishes_on_menu(), "dishes_total": _dishes_total(), "reason": reason,
+			"reason_text": str(PROMO_REASON_TEXT.get(reason, "")), "short": maxf(0.0, cost - cash)}
+
+
+## The carry-over popup's data (keeps / resets / adds are msgids).
+func renovation_preview() -> Dictionary:
+	return {
+		"keeps": RENO_KEEPS.duplicate(), "resets": RENO_RESETS.duplicate(), "adds": RENO_ADDS.duplicate(),
+		"honest": RENO_HONEST, "mult_before": fame_mult(), "mult_after": _fame_for(_location, 1),
+		"cost": renovation_cost(),
+		"tables_max_after": int(_sdef().get("tables_max_family", _sdef().get("tables_max", 5))),
+		"waiters_max_after": int(_wdef().get("max_family", _wdef().get("max", 3))),
+	}
+
+
+## C6.1: the Family Dhaba. Needs renovation_state().unlocked; `free` skips the
+## cost only. Keeps every dish (the dish floor), resets the dhaba
+## (_promote_reset), saves and emits promoted("renovation", n).
+func renovate(free: bool = false) -> bool:
+	var rs: Dictionary = renovation_state()
+	if not bool(rs["unlocked"]):
+		return false
+	var cost: float = float(rs["cost"])
+	if not free and not spend(cost, "renovate"):
+		return false
+	# W4-FIX-core: done, unclaimed baraat steps are paid at today's rate first
+	# (the reset would shrink them to the level-1 rate).
+	_sys_call("event", "settle", ["promotion"])
+	for id: String in station_ids():
+		_dish_floor[id] = dishes_unlocked(id)
+	_renovations += 1
+	Analytics.event("renovation_done", {"n": _renovations, "mult": fame_mult(), "min_since_tutorial": free_play_min()})
+	_promote_reset("renovation", 0.0 if free else cost)
+	return true
+
+
+## The current highway ("nh44" | "nh48").
+func location_id() -> String:
+	return _location
+
+
+## The highway ladder (economy locations.order).
+func location_ids() -> Array:
+	var out: Array = []
+	var defs: Dictionary = _locdefs()
+	for v in _arr(defs, "order"):
+		if defs.get(str(v), null) is Dictionary:
+			out.append(str(v))
+	if out.is_empty():
+		out.append(LOCATION_HOME)
+	return out
+
+
+func _location_known(id: String) -> bool:
+	return id == LOCATION_HOME or _locdefs().get(id, null) is Dictionary
+
+
+## The economy block of a location (the current one when id == "").
+func location_def(id: String = "") -> Dictionary:
+	return _dict(_locdefs(), id if id != "" else _location)
+
+
+## {unlocked, done, current, cost, affordable, reason, reason_text, short,
+## mult_after, counters_at_100}. The next highway of the ladder unlocks after
+## the Family Dhaba with every counter built and at L100. reason: "" (ready
+## and affordable), "current", "done", "order" (not the next highway),
+## "renovate", "counters", "cash", "unknown"; reason_text as in
+## renovation_state().
+func location_state(id: String) -> Dictionary:
+	var def: Dictionary = location_def(id)
+	var current: bool = id == _location
+	var done: bool = _locations_done.has(id)
+	var cost: float = float(def.get("cost", 0.0))
+	var order: Array = location_ids()
+	var reason: String = ""
+	if not _location_known(id):
+		reason = "unknown"
+	elif current:
+		reason = "current"
+	elif done:
+		reason = "done"
+	elif order.find(id) != order.find(_location) + 1:
+		reason = "order"
+	elif str(def.get("requires", "")).begins_with("renovated") and _renovations < 1:
+		reason = "renovate"
+	elif not _all_dishes_ready():
+		reason = "counters"
+	var unlocked: bool = reason == ""
+	var aff: bool = unlocked and can_afford(cost)
+	if unlocked and not aff:
+		reason = "cash"
+	return {"unlocked": unlocked, "done": done, "current": current, "cost": cost, "affordable": aff,
+			"reason": reason, "reason_text": str(PROMO_REASON_TEXT.get(reason, "")), "short": maxf(0.0, cost - cash),
+			"mult_after": _fame_for(id), "counters_at_100": _counters_at_100()}
+
+
+## The move popup's data, same shape as renovation_preview().
+func move_preview(id: String) -> Dictionary:
+	return {
+		"keeps": MOVE_KEEPS.duplicate(), "resets": MOVE_RESETS.duplicate(),
+		"adds": (MOVE_ADDS.get(id, []) as Array).duplicate(), "honest": "",
+		"mult_before": fame_mult(), "mult_after": _fame_for(id), "cost": float(location_def(id).get("cost", 0.0)),
+		"tables_max_after": table_max() if layout_variant() == "family" else int(_sdef().get("tables_max_family", 8)),
+		"waiters_max_after": waiter_max() if layout_variant() == "family" else int(_wdef().get("max_family", 4)),
+	}
+
+
+## C6.3: a one-way move to the next highway. Needs location_state(id).unlocked;
+## `free` skips the cost only. The location's menus overlay the economy,
+## dishes start again (menu_seen 1, no dish floor), the signboard resets,
+## every counter but the chai is unbuilt (_promote_reset), then the save and
+## promoted("move", n).
+func move_highway(id: String, free: bool = false) -> bool:
+	var ls: Dictionary = location_state(id)
+	if not bool(ls.get("unlocked", false)):
+		return false
+	var cost: float = float(ls["cost"])
+	if not free and not spend(cost, "move:" + id):
+		return false
+	# W4-FIX-core: done, unclaimed baraat steps are paid at today's rate first.
+	_sys_call("event", "settle", ["promotion"])
+	var old: String = _location
+	if not _locations_done.has(old):
+		_locations_done.append(old)
+	_location = id
+	_dish_floor = {}
+	if bool(_sbdef().get("reset_on_move", true)):
+		_signboard = 0
+	_apply_location(id)
+	for sid: String in station_ids():
+		menu_seen[sid] = 1
+	Analytics.event("location_move", {"to": id, "min_since_tutorial": free_play_min()})
+	_promote_reset("move", 0.0 if free else cost)
+	return true
+
+
+## {milestone, sign_en, sign_hi} of the current highway ("" = the default).
+func location_signs() -> Dictionary:
+	var d: Dictionary = location_def()
+	return {"milestone": str(d.get("milestone", "")), "sign_en": str(d.get("sign_en", "")), "sign_hi": str(d.get("sign_hi", ""))}
+
+
+## The palette texture that recolours the world ("" = the usual one).
+func palette_override() -> String:
+	return str(location_def().get("palette", ""))
+
+
+## The promotion the new scene should reveal, once ("" = none).
+func take_promo_reveal() -> String:
+	var k: String = _promo_reveal
+	_promo_reveal = ""
+	return k
+
+
+## C6.3: eco = a deep copy of the base economy with location `id`'s station
+## overlay (each listed key of a station replaced wholesale).
+func _apply_location(id: String) -> void:
+	if _base_eco.is_empty():
+		return
+	var e: Dictionary = _base_eco.duplicate(true)
+	var over: Dictionary = _dict(_dict(_dict(_base_eco, "locations"), id), "stations")
+	var sts: Dictionary = _dict(e, "stations")
+	for sid in over.keys():
+		if not (sts.get(sid, null) is Dictionary) or not (over[sid] is Dictionary):
+			continue
+		var sd: Dictionary = sts[sid]
+		var od: Dictionary = over[sid]
+		for k in od.keys():
+			var v: Variant = od[k]
+			sd[k] = (v as Dictionary).duplicate(true) if v is Dictionary else ((v as Array).duplicate(true) if v is Array else v)
+	eco = e
+
+
+## The one reset of a promotion (build plan W1-CORE 11): offline pay first;
+## every counter to level 1, 1 cook, no SPEED (a move also unbuilds every
+## counter but the start_built one); 1 cashier, 1 waiter, the family start
+## tables; the bubble, the showcase and the caches; stale task cards
+## refilled; every module's on_promoted(kind); then the save and
+## promoted(kind, count) (main3 reloads the scene: no per-system signal goes
+## into the old one).
+func _promote_reset(kind: String, paid: float) -> void:
+	if pending_offline > 0.0:
+		# W4-FIX-core: no save here (the levels are not reset yet); the one
+		# save_game() below writes the pay together with the finished reset.
+		claim_offline(1.0, false)
+	for id: String in station_ids():
+		var s: Dictionary = _state(id)
+		var def: Dictionary = station_def(id)
+		s["level"] = 1
+		s["employees"] = maxi(1, int(def.get("employees_start", 1)))
+		s["proc"] = 0
+		if kind == "move" and not bool(def.get("start_built", false)):
+			s["built"] = false
+	gallas.clear()
+	gallas.append(1)
+	waiters.clear()
+	for _i in waiters_start():
+		waiters.append(1)
+	table_sets = clampi(int(_sdef().get("tables_start_family", tables_start())), 1, table_max())
+	hide_ad_bubble()
+	_ad_next_in = float(_adef().get("first_delay_s", 90.0))
+	_showcase = {}
+	_fan_due = []
+	_staff_touch()
+	_reset_rate_samples()
+	_reset_seat_stats()
+	_reset_pass_ring()
+	_live_caps = {}
+	_room_reset()
+	_fast_rate_left = 0.0
+	_staff_alert = {"kind": "", "tab": "", "station": "", "reason": ""}
+	_alert_sym = ""
+	_alert_sym_t = 0.0
+	_alert_clear_t = 0.0
+	_alert_grace = {}
+	_line_now = -1
+	_plates_waiting = -1
+	_plate_oldest = 0.0
+	_avg_line = 0.0
+	_avg_line_set = false
+	_avg_wait = -1.0
+	_refresh_promo_tasks()
+	for o in _systems.values():
+		if (o as Object).has_method("on_promoted"):
+			(o as Object).call("on_promoted", kind)
+	_promo_reveal = kind
+	var count: int = _renovations if kind == "renovation" else _locations_done.size()
+	var kept: int = 0
+	for id: String in station_ids():
+		kept += int(_dish_floor.get(id, 0))
+	if kind == "renovation":
+		print("[promo] renovation %d: cost %.2f mult %.2f -> levels 1, waiters %d, gallas %d, tables %d, dishes kept %d, cash left %.2f" % [
+				count, paid, fame_mult(), waiters.size(), gallas.size(), table_sets, kept, cash])
+	else:
+		var firsts: PackedStringArray = PackedStringArray()
+		for id: String in station_ids():
+			var ds: Array[String] = dish_ids(id)
+			if not ds.is_empty():
+				firsts.append(ds[0])
+		print("[promo] move %d: %s mult %.2f menu %s | cost %.2f, cash left %.2f" % [count, _location, fame_mult(), ",".join(firsts), paid, cash])
+	save_game()
+	_emit_rate_now.call_deferred()
+	promoted.emit(kind, count)
+
+
+## After a promotion: absolute cards follow the reset state; an open card
+## that cannot progress now (its counter, waiter or cashier is gone, its dish
+## left the menu) gets the next card. Finished cards stay claimable.
+func _refresh_promo_tasks() -> void:
+	_refresh_abs_tasks()
+	for i in tasks.size():
+		var tv: Variant = tasks[i]
+		if not (tv is Dictionary) or (tv as Dictionary).is_empty():
+			tasks[i] = _next_task()
+			continue
+		var td: Dictionary = tv
+		if bool(td.get("done", false)):
+			continue
+		var stale: bool = not _task_ready(td) or _task_stale(td)
+		if str(td.get("kind", "")) == "served_dish":
+			var st: String = str(td.get("station", ""))
+			stale = stale or dish_index(st, str(td.get("dish", ""))) < 0
+		if stale:
+			tasks[i] = _next_task()
+	_retext_tasks()
+	_tasks_dirty = false
+
+
+# ================================================================ core and feel: module registry (build plan 2.2)
+## Loads every module file that exists (no class_name; extends RefCounted),
+## then calls setup(self) on each.
+func _load_systems() -> void:
+	_systems = {}
+	_sys_tickers = []
+	for key in SYSTEM_PATHS.keys():
+		var path: String = str(SYSTEM_PATHS[key])
+		if not ResourceLoader.exists(path):
+			continue
+		var scr: Variant = load(path)
+		if not (scr is Script) or not (scr as Script).can_instantiate():
+			push_warning("Game: module %s (%s) did not load" % [key, path])
+			continue
+		var o: Variant = (scr as Script).new()
+		if not (o is Object):
+			continue
+		_systems[str(key)] = o
+		if (o as Object).has_method("tick"):
+			_sys_tickers.append(o)
+	for key in _systems.keys():
+		var so: Object = _systems[key]
+		if so.has_method("setup"):
+			so.call("setup", self)
+	var names: PackedStringArray = PackedStringArray()
+	for key in _systems.keys():
+		names.append(str(key))
+	print("[game] modules: %s" % (", ".join(names) if not names.is_empty() else "none"))
+
+
+## The module object for `key` (null when its file is missing).
+func system(key: String) -> Object:
+	var o: Variant = _systems.get(key, null)
+	return o if o is Object else null
+
+
+## Calls `method` on module `key`; `fallback` when the module or the method
+## is missing.
+func _sys_call(key: String, method: String, args: Array = [], fallback: Variant = null) -> Variant:
+	var o: Variant = _systems.get(key, null)
+	if o is Object and (o as Object).has_method(method):
+		return (o as Object).callv(method, args)
+	return fallback
+
+
+func _sys_dict(key: String, method: String, args: Array, fallback: Dictionary) -> Dictionary:
+	var v: Variant = _sys_call(key, method, args, null)
+	return v if v is Dictionary else fallback.duplicate(true)
+
+
+func _sys_arr(key: String, method: String, args: Array, fallback: Array) -> Array:
+	var v: Variant = _sys_call(key, method, args, null)
+	return v if v is Array else fallback.duplicate(true)
+
+
+func _sys_bool(key: String, method: String, args: Array, fallback: bool) -> bool:
+	var v: Variant = _sys_call(key, method, args, null)
+	return bool(v) if v is bool else fallback
+
+
+func _sys_float(key: String, method: String, args: Array, fallback: float) -> float:
+	var v: Variant = _sys_call(key, method, args, null)
+	return float(v) if (v is float or v is int) else fallback
+
+
+func _sys_str(key: String, method: String, args: Array, fallback: String) -> String:
+	var v: Variant = _sys_call(key, method, args, null)
+	return str(v) if (v is String or v is StringName) else fallback
+
+
+## The "sys" save block: every module's save_dict(), plus the loaded blocks
+## of modules missing from this build (kept as they were).
+func _sys_save_dict() -> Dictionary:
+	var out: Dictionary = _sys_saved.duplicate(true)
+	for key in _systems.keys():
+		var o: Object = _systems[key]
+		if not o.has_method("save_dict"):
+			continue
+		var v: Variant = o.call("save_dict")
+		if v is Dictionary and not (v as Dictionary).is_empty():
+			out[key] = (v as Dictionary).duplicate(true)
+		else:
+			out.erase(key)
+	return out
+
+
+# ---------------------------------------------------------------- readout (C2.4-C2.7) -> module "readout"
+func bottleneck_state() -> Dictionary:
+	return _sys_dict("readout", "bottleneck_state", [], {})
+
+
+func bottleneck_rows() -> Array:
+	return _sys_arr("readout", "bottleneck_rows", [], [])
+
+
+func bottleneck_fix() -> Dictionary:
+	return _sys_dict("readout", "bottleneck_fix", [], {"kind": "none"})
+
+
+func road_line() -> Dictionary:
+	return _sys_dict("readout", "road_line", [], {})
+
+
+func waiter_need() -> Dictionary:
+	return _sys_dict("readout", "waiter_need", [], {})
+
+
+func station_help(id: String, kind: String) -> Dictionary:
+	return _sys_dict("readout", "station_help", [id, kind], {"helps": true, "ribbon": ""})
+
+
+# ---------------------------------------------------------------- daily special (C6.2) -> module "special"
+func special_dish() -> String:
+	return _sys_str("special", "dish", [], "")
+
+
+func special_mult(dish_id: String) -> float:
+	if not _systems.has("special"):
+		return 1.0
+	return _sys_float("special", "mult", [dish_id], 1.0)
+
+
+func special_state() -> Dictionary:
+	return _sys_dict("special", "state", [], {})
+
+
+## The return announcement showed: the module marks it, and the special's
+## counter serves it on its next special.showcase_tickets tickets.
+func mark_special_announced() -> void:
+	_sys_call("special", "mark_announced", [])
+	var dish: String = special_dish()
+	if dish != "":
+		start_showcase(dish.get_slice(".", 0), dish, int(_dict(eco, "special").get("showcase_tickets", 8)))
+
+
+## Debug (--special=<dish>): only an unlocked dish of a built counter.
+func debug_set_special(dish_id: String) -> bool:
+	if not OS.is_debug_build():
+		return false
+	var sid: String = dish_id.get_slice(".", 0)
+	if not dish_id.contains(".") or not is_built(sid) or dish_index(sid, dish_id) < 0 or not dish_unlocked(sid, dish_id):
+		print("[special] debug dish %s not on the menu: ignored" % dish_id)
+		return false
+	return _sys_bool("special", "debug_set", [dish_id], false)
+
+
+# ---------------------------------------------------------------- weekend baraat (C6.4) -> module "event"
+func event_active() -> bool:
+	return _sys_bool("event", "active", [], false)
+
+
+func event_state() -> Dictionary:
+	return _sys_dict("event", "state", [], {})
+
+
+func event_guest_served() -> void:
+	_sys_call("event", "guest_served", [])
+
+
+func claim_event_step(i: int) -> float:
+	return _sys_float("event", "claim_step", [i], 0.0)
+
+
+func shaadi_gate_owned() -> bool:
+	return _sys_bool("event", "gate_owned", [], false)
+
+
+## W4-FIX-core: the baraat cash paid without a CLAIM (window close, a
+## promotion) since the last call, then 0. The HUD shows it in a toast.
+func take_event_auto_paid() -> float:
+	return _sys_float("event", "take_auto_paid", [], 0.0)
+
+
+## Debug (--event=on|off|auto).
+func debug_event(mode: String) -> void:
+	if OS.is_debug_build():
+		_sys_call("event", "debug_on", [mode])
+
+
+## Debug (--event-guests=N).
+func debug_event_served(n: int) -> void:
+	if OS.is_debug_build():
+		_sys_call("event", "debug_served", [n])
+
+
+# ---------------------------------------------------------------- delegation (C6.5) -> module "delegation"
+func delegation_state(key: String = "munshi_claims") -> Dictionary:
+	return _sys_dict("delegation", "state", [key], {})
+
+
+func delegate_on(key: String) -> bool:
+	return _sys_bool("delegation", "is_on", [key], false)
+
+
+func delegate_set(key: String, on: bool) -> void:
+	_sys_call("delegation", "set_on", [key, on])
+
+
+# ---------------------------------------------------------------- offers (C7.2, C7.4) -> module "offers"
+## A rewarded ad is about to show: what it pays if the app dies under it.
+func set_ad_pending(placement: String, amount: float) -> void:
+	_sys_call("offers", "set_pending", [placement, amount])
+
+
+func clear_ad_pending() -> void:
+	_sys_call("offers", "clear_pending", [])
+
+
+func ad_pending() -> Dictionary:
+	return _sys_dict("offers", "pending", [], {})
+
+
+## Iap._grant calls this first for every product (restores and old buyers too).
+func note_purchase(product_id: String) -> void:
+	_sys_call("offers", "note_purchase", [product_id])
+
+
+## Any purchase ever (VIP, Remove Ads, the starter pack).
+func has_any_purchase() -> bool:
+	if _systems.has("offers"):
+		return _sys_bool("offers", "has_any", [], vip or remove_ads)
+	return vip or remove_ads
+
+
+## The starter pack's cash (reference units; frozen when first shown).
+func starter_amount() -> float:
+	return _sys_float("offers", "starter_amount", [], float(_dict(_dict(eco, "offers"), "starter").get("amount", 1500.0)))
+
+
+## Marks the starter grant pending (paid once, after the tutorial); 0 when
+## it was granted before.
+func grant_starter() -> float:
+	return _sys_float("offers", "grant_starter", [], 0.0)
+
+
+## The bubble's offer: "free" | "starter" | "vip" (without the module: "vip"
+## by the 0.3.7 rule, else "free").
+func offer_variant() -> String:
+	var fb: String = "vip" if _vip_offer_rule() else "free"
+	if not _systems.has("offers"):
+		return fb
+	return _sys_str("offers", "variant", [], fb)
+
+
+func mark_offer_shown(variant: String) -> void:
+	if variant == "vip":
+		_vip_offer_shown = true
+	_sys_call("offers", "mark_shown", [variant])
+
+
+## C7.2 / C7.4: the owed rewarded-ad pay once per launch on the first frame
+## the game UI exists; the pending starter pack once the tutorial is done
+## and nothing is open (polled every second).
+func _pay_owed(delta: float) -> void:
+	if not _systems.has("offers"):
+		return
+	var ui: Node = _ui_node()
+	if ui == null:
+		return
+	if not _owed_checked:
+		_owed_checked = true
+		_sys_call("offers", "pay_pending", [])
+	if not is_tutorial_done():
+		return
+	_starter_poll_t -= delta
+	if _starter_poll_t > 0.0:
+		return
+	_starter_poll_t = 1.0
+	if ui.has_method("is_any_open") and bool(ui.call("is_any_open")):
+		return
+	_sys_call("offers", "pay_starter_pending", [])
+
+
+## Refs.ui when it is in the tree and ready (null otherwise).
+func _ui_node() -> Node:
+	var refs: Node = get_node_or_null("/root/Refs")
+	if refs == null:
+		return null
+	var u: Variant = refs.get("ui")
+	if is_instance_valid(u) and u is Node and (u as Node).is_inside_tree() and (u as Node).is_node_ready():
+		return u
+	return null
+
+
+# ================================================================ core and feel: time and debug
+## Unix time for the special and the event. Debug --date=YYYY-MM-DD pins the
+## day: local noon of that date plus the real seconds since the launch.
+func now_unix() -> int:
+	if _date_pin >= 0:
+		return _date_pin + int(float(Time.get_ticks_msec() - _date_pin_ticks) / 1000.0)
+	return int(Time.get_unix_time_from_system())
+
+
+## Debug builds: --date=YYYY-MM-DD and --away=SEC (build plan 2.7).
+func _parse_debug_args() -> void:
+	_date_pin = -1
+	_debug_away = -1.0
+	if not OS.is_debug_build():
+		return
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--date="):
+			var ds: String = a.substr(7)
+			var p: PackedStringArray = ds.split("-")
+			if p.size() == 3 and p[0].is_valid_int() and p[1].is_valid_int() and p[2].is_valid_int():
+				var dt: Dictionary = {"year": int(p[0]), "month": int(p[1]), "day": int(p[2]), "hour": 12, "minute": 0, "second": 0}
+				var bias_min: int = int(Time.get_time_zone_from_system().get("bias", 0))
+				_date_pin = Time.get_unix_time_from_datetime_dict(dt) - bias_min * 60
+				_date_pin_ticks = Time.get_ticks_msec()
+				print("[game] date pinned %s" % ds)
+			else:
+				print("[game] --date=%s ignored (want YYYY-MM-DD)" % ds)
+		elif a.begins_with("--away="):
+			var s: String = a.substr(7)
+			if s.is_valid_float():
+				_debug_away = maxf(0.0, s.to_float())
+
+
+## Debug (--reno-ready): every counter built and at the level of its last
+## dish (L100), cash untouched; the menus open silently (no NEW pops).
+func debug_reno_ready() -> void:
+	if not OS.is_debug_build():
+		return
+	var built_now: Array[String] = []
+	for id: String in station_ids():
+		var s: Dictionary = _state(id)
+		if not bool(s.get("built", false)):
+			built_now.append(id)
+		s["built"] = true
+		s["level"] = clampi(maxi(int(s.get("level", 1)), _last_dish_level(id)), 1, int(station_def(id).get("max_level", 300)))
+	if is_tutorial_done():
+		_init_menu_seen()
+	_staff_touch()
+	_refresh_abs_tasks()
+	_check_tasks()
+	_check_reveals()
+	for id: String in built_now:
+		building_built.emit(id)
+	for id: String in station_ids():
+		station_changed.emit(id)
+	rate_changed.emit(rate_per_min())
+	request_save()
+
+
+## Debug (--signboard=N): the level outright (clamped), no cost.
+func debug_set_signboard(n: int) -> void:
+	if not OS.is_debug_build():
+		return
+	_signboard = clampi(n, 0, signboard_max())
+	_staff_touch()
+	_start_fast_rate()
+	signboard_changed.emit(_signboard)
+	rate_changed.emit(rate_per_min())
+	request_save()
+
+
+## Debug (--claims=N): task claims so far (the delegation unlocks at 20).
+func debug_set_claims(n: int) -> void:
+	if not OS.is_debug_build():
+		return
+	claims_total = maxi(0, n)
+	_check_reveals()
+	tasks_changed.emit()
+	request_save()
+
+
+## Debug (--sessions=N): the launch count (the offers read it).
+func debug_set_sessions(n: int) -> void:
+	if not OS.is_debug_build():
+		return
+	sessions = maxi(0, n)
+	request_save()
+
+
+## Debug (--buy=waiter_lvl<N>): every waiter to `level` (clamped), no cost;
+## waiter_tray_changed for each waiter whose tray changed.
+func debug_set_waiter_levels(level: int) -> void:
+	if not OS.is_debug_build():
+		return
+	var lv: int = clampi(level, 1, waiter_max_level())
+	for i in waiters.size():
+		var was: int = waiter_tray_orders(i)
+		waiters[i] = lv
+		var now: int = waiter_tray_orders(i)
+		waiter_upgraded.emit(i)
+		if now != was:
+			waiter_tray_changed.emit(i, now)
+	_refresh_abs_tasks()
+	_check_tasks()
+	waiter_changed.emit()
+	rate_changed.emit(rate_per_min())
+	request_save()
+
+
 # ================================================================ save / load
 func request_save() -> void:
 	if _save_soon <= 0.0:
@@ -4197,6 +5872,14 @@ func save_game() -> void:
 		"counters": counters,
 		"last_seen": Time.get_unix_time_from_system(),
 		"eco": int(eco.get("version", 3)),
+		# Core and feel (build plan 2.5): optional keys, defaults on load.
+		"renovations": _renovations,
+		"location": _location,
+		"locations_done": _locations_done.duplicate(),
+		"dish_floor": _dish_floor.duplicate(),
+		"signboard": _signboard,
+		"passed_total": passed_total,
+		"sys": _sys_save_dict(),
 	}
 	var text: String = JSON.stringify(data)
 	var tmp: String = SAVE_PATH + ".tmp"
@@ -4225,6 +5908,32 @@ func load_game() -> bool:
 	if int(d.get("v", 0)) != SAVE_VERSION:
 		push_warning("Game: unknown save version %s, starting fresh" % str(d.get("v", 0)))
 		return false
+	# Core and feel (build plan 2.5): the location first (its economy overlay
+	# changes the menus), then the promotion state that raises the caps,
+	# before the station, galla, waiter and table clamps below.
+	var defaulted: PackedStringArray = PackedStringArray()
+	for nk in ["renovations", "location", "locations_done", "dish_floor", "signboard", "passed_total", "sys"]:
+		if not d.has(nk):
+			defaulted.append(nk)
+	var loc: String = str(d.get("location", LOCATION_HOME))
+	if not _location_known(loc):
+		loc = LOCATION_HOME
+	_location = loc
+	_apply_location(_location)
+	_locations_done = []
+	var ldv: Variant = d.get("locations_done", [])
+	if ldv is Array:
+		for v in (ldv as Array):
+			if _location_known(str(v)) and not _locations_done.has(str(v)) and str(v) != _location:
+				_locations_done.append(str(v))
+	_renovations = maxi(0, int(d.get("renovations", 0)))
+	_dish_floor = {}
+	var dfv: Variant = d.get("dish_floor", {})
+	if dfv is Dictionary:
+		for k in (dfv as Dictionary).keys():
+			if not station_def(str(k)).is_empty():
+				_dish_floor[str(k)] = maxi(0, int((dfv as Dictionary)[k]))
+	passed_total = maxi(0, int(d.get("passed_total", 0)))
 	cash = maxf(0.0, float(d.get("cash", cash)))
 	sikke = int(d.get("sikke", sikke))
 	vip = bool(d.get("vip", false))
@@ -4233,6 +5942,9 @@ func load_game() -> bool:
 	var tu: Variant = d.get("tutorial", {})
 	if tu is Dictionary:
 		tutorial = tu
+	# C5.3: clamped to this layout's levels (the tutorial is loaded: the
+	# family max needs renovations, read above).
+	_signboard = clampi(int(d.get("signboard", 0)), 0, signboard_max())
 	lifetime_earned = float(d.get("lifetime", 0.0))
 	sales_total = int(d.get("sales_total", 0))
 	served_total = int(d.get("served_total", 0))
@@ -4294,7 +6006,7 @@ func load_game() -> bool:
 				waiters.append(clampi(int(v), 1, waiter_max_level()))
 		while waiters.size() < waiters_start():
 			waiters.append(1)
-	table_sets = clampi(int(d.get("tables", table_sets)), tables_start(), table_max())
+	table_sets = clampi(int(d.get("tables", table_sets)), _tables_start_now(), table_max())
 	seated_total = int(d.get("seated_total", 0))
 	lost_total = int(d.get("lost_total", 0))
 
@@ -4365,11 +6077,37 @@ func load_game() -> bool:
 		_migrate_reveals(int(d.get("hud_reveal", HUD_PILL)))
 	_check_reveals()
 
+	# Module registry: each module's state ({} for an old save).
+	_sys_saved = {}
+	var syv: Variant = d.get("sys", {})
+	if syv is Dictionary:
+		_sys_saved = (syv as Dictionary).duplicate(true)
+	for key in _systems.keys():
+		var o: Object = _systems[key]
+		if o.has_method("load_dict"):
+			var md: Variant = _sys_saved.get(key, {})
+			o.call("load_dict", (md as Dictionary) if md is Dictionary else {})
+
 	# Set last: the setter emits and requests a save.
 	hud_reveal = int(d.get("hud_reveal", HUD_PILL))
 	var last_seen: float = float(d.get("last_seen", 0.0))
 	_load_away = Time.get_unix_time_from_system() - last_seen if last_seen > 0.0 else 0.0
+	if _debug_away >= 0.0:
+		_load_away = _debug_away
+		print("[game] away %d s (forced)" % int(_debug_away))
+	_print_load_line(d, defaulted)
 	return true
+
+
+## Build plan 2.7: one line per load with the state QA checks.
+func _print_load_line(d: Dictionary, defaulted: PackedStringArray) -> void:
+	var lv: PackedStringArray = PackedStringArray()
+	for id: String in station_ids():
+		lv.append("%s:%s" % [id, str(station_level(id)) if is_built(id) else "-"])
+	var tut: String = "done" if is_tutorial_done() else "running (%s)" % str(tutorial.get("step", "intro"))
+	print("[game] loaded save: v%d eco %d | tutorial %s | renovations %d | location %s | signboard %d | levels %s | waiters %d | tables %d | gallas %d | new keys defaulted: %s" % [
+			int(d.get("v", 0)), int(d.get("eco", 3)), tut, _renovations, _location, _signboard, " ".join(lv),
+			waiters.size(), table_sets, gallas.size(), ", ".join(defaulted) if not defaulted.is_empty() else "none"])
 
 
 ## Round 2 (economy-proposal.md §8): converts a save from an older economy.
@@ -4442,7 +6180,57 @@ func _migrate_reveals(old_level: int) -> void:
 ## line has not been said yet. munshi_notes says it when calm, then calls
 ## mark_note(ECO_NOTE_SAID). Survives a quit before the line shows.
 func economy_note_pending() -> bool:
+	if not _eco_note_due():
+		return false
+	return _eco_note_may_show()
+
+
+func _eco_note_due() -> bool:
 	return note_seen(ECO_NOTE_MIGRATED) and not note_seen(ECO_NOTE_SAID)
+
+
+## W1-FIX-core (C4.4): the "New prices!" line is due (migrated, not said
+## yet), with no side effects (economy_note_pending() takes the launch
+## budget). UiRoot asks it by name: a due line outranks WELCOME BACK, which
+## then pays silently with the toast, so the line is not starved by every
+## return of 10 minutes or more.
+func economy_note_due() -> bool:
+	return _eco_note_due()
+
+
+## C4.4 (W1-INT fix): the "New prices!" line is a launch pop-up (kind
+## "eco_note", plan 2.1 note_popup kinds). munshi_notes asks
+## economy_note_pending() only when it is calm and says the line at once when
+## it is true, so the line takes the launch budget here
+## (UiRoot.note_interrupt -> note_popup). While another launch pop-up used the
+## budget, or UiRoot refuses it for another reason, it is not due now (it
+## stays pending for a later launch). Without a UiRoot: as before.
+func _eco_note_may_show() -> bool:
+	var ui: Node = _ui_node()
+	if ui == null or not ui.has_method("interrupt_block_reason"):
+		return true
+	if str(ui.call("interrupt_block_reason", "eco_note")) != "":
+		return false
+	if ui.has_method("note_interrupt"):
+		ui.call("note_interrupt", "eco_note")
+	return true
+
+
+## C4.4 (W1-INT fix): the line wanted to show this launch but another launch
+## pop-up already took the budget: popup_suppressed {kind: eco_note} once per
+## budget (as UiRoot and Analytics do for "offline" and "consent").
+func _eco_note_budget_tick(delta: float) -> void:
+	if _eco_note_supp_sent or _popups_this_launch < 1:
+		return
+	_eco_note_poll_t -= delta
+	if _eco_note_poll_t > 0.0:
+		return
+	_eco_note_poll_t = 1.0
+	if not is_tutorial_done() or not _eco_note_due():
+		return
+	_eco_note_supp_sent = true
+	print("[game] eco note suppressed: launch pop-up budget used")
+	Analytics.event("popup_suppressed", {"kind": "eco_note"})
 
 
 ## Old saves (bhurji / dal -> kadai, docs/v3-station-menus.md §6): a saved

@@ -11,6 +11,12 @@ extends RefCounted
 ## (RESTORE PURCHASES, PRIVACY OPTIONS, privacy policy link), UiRoot (every
 ## purchase result: pending, cancelled, failed, a late grant ...).
 ## The consent form itself is Google's (UMP), in the phone's language.
+## Core and feel (W1-MONEY): "No internet" when the last rewarded load failed
+## offline (C7.2), and the money that arrives without a popup (UiRoot): an
+## owed rewarded ad from the last run (C7.2), the starter pack (C7.4) and a
+## WELCOME BACK paid silently because the launch pop-up budget was used
+## (C4.4). Amounts in ad and offer contexts are "dhaba cash" (Fmt.money),
+## never ₹ (C7.5).
 
 
 ## "No rewarded ad right now" (x2 / WATCH AD tapped with nothing loaded).
@@ -26,7 +32,29 @@ static func ad_unavailable_text() -> String:
 			return UiKit.t("Ads are paused until you answer the privacy question.")
 		"none":
 			return UiKit.t("Ads are not available on this device.")
+	if ads != null and ads.has_method("rewarded_offline") and bool(ads.call("rewarded_offline")):
+		return offline_text()
 	return UiKit.t("No ad available right now. Try again in a minute.")
+
+
+## C7.2: no rewarded ad because the phone is offline.
+static func offline_text() -> String:
+	return UiKit.t("No internet: bonus videos come back when you are online.")
+
+
+## C7.2: the rewarded ad that was on screen when the app closed, paid now.
+static func owed_bonus_text(amount: float) -> String:
+	return UiKit.t("Bonus from your last video: +{money} dhaba cash").replace("{money}", Fmt.money(amount))
+
+
+## C7.4: the starter pack's dhaba cash arrived (after the tutorial).
+static func starter_paid_text(amount: float) -> String:
+	return UiKit.t("Starter Pack: +{money} dhaba cash").replace("{money}", Fmt.money(amount))
+
+
+## C4.4: WELCOME BACK refused by the launch pop-up budget, paid at once.
+static func welcome_back_text(amount: float) -> String:
+	return UiKit.t("Welcome back: +{money} dhaba cash while you were away").replace("{money}", Fmt.money(amount))
 
 
 ## Why the rewarded ad that just ended paid nothing ("" when it paid).
@@ -87,7 +115,7 @@ static func link_failed_text() -> String:
 
 
 ## Toast top (fraction of the screen height): under the popup cards' buttons
-## (FREE CASH, WELCOME BACK) and over the dimmed HUD bottom.
+## (FREE BONUS, WELCOME BACK) and over the dimmed HUD bottom.
 const TOAST_Y := 0.84
 
 

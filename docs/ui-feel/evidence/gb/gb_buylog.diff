@@ -1,0 +1,44 @@
+1c1,2
+< """d2 agency: instrument tools/sim/pacing_v3.py (read-only import) and log every purchase
+---
+> """GB copy of D2's buylog.py with --set PATH=VALUE and --realized R (eco overrides, like pacing_v3.py).
+> d2 agency: instrument tools/sim/pacing_v3.py (read-only import) and log every purchase
+15a17,19
+> ap.add_argument("--set", action="append", default=[])
+> ap.add_argument("--realized", type=float, default=None)
+> ap.add_argument("--gb-k", type=float, default=None)
+115a120,139
+> if args.gb_k is not None:
+>     K = args.gb_k
+>     _orig_cap = pv.capacity
+>     def _gb_capacity(g, built=None, plan_tandoor=False, sign_extra=0):
+>         c = _orig_cap(g, built, plan_tandoor, sign_extra)
+>         tr = g.e["traffic"]
+>         m_other = min(c["waiters"], c["seats"], c["stations"])
+>         hi = c["cap"]
+>         c["target"] = min(hi, max(tr["ramp_min_tpm"], min(K * m_other, c["gallas"])))
+>         if min(K * m_other, c["gallas"]) < hi:
+>             caps = {"waiters": K * c["waiters"], "seats": K * c["seats"], "stations": K * c["stations"], "gallas": c["gallas"]}
+>             b = min(caps, key=caps.get)
+>             if b == "stations":
+>                 sh = c["shares"]
+>                 b = "station:" + min(sh, key=lambda s2: g.capacity(s2) / max(1e-6, sh[s2]))
+>             c["bind"] = b
+>         else:
+>             c["bind"] = "max"
+>         return c
+>     pv.capacity = _gb_capacity
+116a141,146
+> for kv in args.set:
+>     path, val = kv.split("=", 1)
+>     node = eco
+>     for k in path.split(".")[:-1]:
+>         node = node[k]
+>     node[path.split(".")[-1]] = json.loads(val)
+125c155,158
+<     m = pv.part_b(eco, run, args.minutes, not args.no_ads, dict(promo=True))
+---
+>     opts = dict(promo=True)
+>     if args.realized is not None:
+>         opts["realized"] = args.realized
+>     m = pv.part_b(eco, run, args.minutes, not args.no_ads, opts)

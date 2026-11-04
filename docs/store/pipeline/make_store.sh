@@ -57,15 +57,17 @@ FLAGS[8]="--no-notes --prep=$MID --show-cash=2600 --scene=offline"
 PICK[1]="busy"; PICK[2]="unlock.png"; PICK[3]="busy"; PICK[4]="staff_waiters.png"
 PICK[5]="sheet_kadai.png"; PICK[6]="build_s280.png"; PICK[7]="note_menu_lassi.png"; PICK[8]="offline.png"
 # Captions: [h]..[/h] = marigold highlight, \n = line break (docs/store/play-listing.md §4).
+# 2026-11-02 (core and feel C9.1 / C9.3): captions 3 and 8 reworded (the player is never
+# the server; no earnings words). Keep them equal to the play-listing.md §4 table.
 typeset -A CAP_EN CAP_HI
 CAP_EN[1]='Run your own\n[h]highway dhaba[/h]';        CAP_HI[1]='अपना [h]हाईवे ढाबा[/h]\nखुद चलाएँ'
 CAP_EN[2]='Level up to unlock\n[h]new dishes[/h]';      CAP_HI[2]='लेवल बढ़ाएँ,\n[h]नए पकवान[/h] खोलें'
-CAP_EN[3]='Serve travellers\n[h]day and night[/h]';     CAP_HI[3]='मुसाफ़िरों को खिलाएँ\n[h]दिन-रात[/h]'
+CAP_EN[3]='Your dhaba, open\n[h]day and night[/h]';     CAP_HI[3]='आपका ढाबा खुला\n[h]दिन-रात[/h]'
 CAP_EN[4]='Hire [h]waiters, cooks[/h]\nand cashiers';   CAP_HI[4]='[h]वेटर, कुक[/h] और\nकैशियर रखें'
 CAP_EN[5]='[h]16 dishes[/h], from chai\nto kadai paneer'; CAP_HI[5]='[h]16 पकवान[/h], चाय से\nकड़ाही पनीर तक'
 CAP_EN[6]='Build the tandoor,\n[h]lassi and kadai[/h]';  CAP_HI[6]='तंदूर, [h]लस्सी और कड़ाही[/h]\nकाउंटर बनाएँ'
 CAP_EN[7]='[h]Munshi-ji[/h] shows\nyou what to do';      CAP_HI[7]='[h]मुंशी जी[/h] बताएँगे\nआगे क्या करना है'
-CAP_EN[8]="Your dhaba earns\n[h]while you're away[/h]";  CAP_HI[8]='आप न हों, तब भी\n[h]ढाबा कमाता है[/h]'
+CAP_EN[8]="Your staff work\n[h]while you're away[/h]";   CAP_HI[8]='आप न हों, तब भी\n[h]स्टाफ़ काम करता है[/h]'
 
 # One rig run: rig <slot> <outdir> <flags...>
 rig() {

@@ -1,0 +1,292 @@
+/* Dhaba Rush · look "Munshi-ji's khata" · shared mockup stylesheet.
+   A 360 x 640 CSS page rendered at 2x = the game's 720 x 1280 canvas.
+   1 CSS px here = 2 canvas px. Every size comment gives canvas px.
+   Ornaments are CSS / inline SVG standing in for nine-slice art to be made. */
+
+@font-face { font-family: "Baloo2L"; src: url("file:///Users/almeer/Documents/HighwayDhaba/assets/fonts/Baloo2.ttf"); font-weight: 400 800; }
+@font-face { font-family: "NotoDevaL"; src: url("file:///Users/almeer/Documents/HighwayDhaba/assets/fonts/NotoSansDevanagari.ttf"); }
+
+:root {
+  /* cloth: Munshi-ji's own bandi (world swatch JACKET #8E2436) */
+  --cloth: #8E2436; --cloth-dk: #641826; --cloth-lt: #A63A4B;
+  --thread: #F7F4EE;            /* WHITE swatch: stitch + text on cloth */
+  /* paper: the dialogue box's khata paper (dialogue_box.gd:67) */
+  --paper: #F7EDD5; --paper-2: #EBD8BB; --fold: #DBC7A2; --edge: #B89B62;
+  /* inks */
+  --ink: #2B2420;               /* HAIR swatch: words */
+  --ink-blue: #2B3A67;          /* NAVY swatch: numbers */
+  --ink-soft: #7A4E2D;          /* TRUNK swatch: secondary words */
+  --ink-red: #8A2C2C;           /* MAROON swatch: small red text */
+  --red: #C64A3A;               /* ROOF_RED swatch: red ink, large text and marks only */
+  --green: #2F6B3A;             /* DARK_GREEN swatch: gains */
+  --rule: rgba(107, 153, 199, 0.30);   /* dialogue blue rule */
+  --margin: rgba(204, 64, 56, 0.55);   /* dialogue red margin */
+  /* brass (matte) */
+  --brass: #D9B36A; --brass-hi: #F7C548; --brass-dk: #C98B1C; --brass-deep: #7A4E2D;
+  /* small accents */
+  --teal: #2E8C8C; --wax: #D9412B; --marigold: #FF8A1F; --turmeric: #E3A72F;
+  --note: #6FBF73; --note-dk: #2C6E55;
+  --shadow: 43, 36, 32;         /* HAIR as rgb for shadows */
+  --glow: 255, 138, 31;         /* MARIGOLD as rgb for "ready" glows */
+}
+/* Night: lamp-lit paper, deeper cloth, navy shadows (see style.md "Night") */
+.night {
+  --paper: #EBDDBA; --paper-2: #DCCBA6; --fold: #CDB88E;
+  --cloth: #7E1F30; --cloth-dk: #561421;
+  --shadow: 8, 10, 32;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { width: 360px; height: 640px; overflow: hidden; background: #2B2420;
+  font-family: "Baloo2L", "NotoDevaL", sans-serif; color: var(--ink);
+  -webkit-font-smoothing: antialiased; }
+.screen { position: relative; width: 360px; height: 640px; overflow: hidden;
+  background-size: 360px 640px; background-repeat: no-repeat; }
+.abs { position: absolute; }
+.dim { position: absolute; inset: 0; background: rgba(20, 12, 10, 0.55); }
+
+/* ---------------------------------------------------------------- type scale
+   Critic fix (2nd pass): 5 sizes (canvas px): 17 · 20 · 26 · 34 · 52. Floor 17 (was 6 sizes, floor 14:
+   14 px is 7 px on a 360 px phone). Fine print is 17 px caps at weight 700. Devanagari is never under 20 px. */
+.t14 { font-size: 8.5px; } .t17 { font-size: 8.5px; }  .t20 { font-size: 10px; }
+.t26 { font-size: 13px; }  .t34 { font-size: 17px; }   .t52 { font-size: 26px; }
+.num { font-family: "Baloo2L"; font-weight: 800; font-feature-settings: "tnum" 1; letter-spacing: 0; }
+.title { font-family: "Eczar", serif; font-weight: 800; letter-spacing: 0.01em; }
+.label { font-family: "Baloo2L"; font-weight: 700; letter-spacing: 0.06em; text-transform: none; }
+.body { font-family: "Baloo2L"; font-weight: 500; line-height: 1.3; }
+.hand { font-family: "Kalam", cursive; font-weight: 700; }
+.c-ink { color: var(--ink); } .c-blue { color: var(--ink-blue); } .c-soft { color: var(--ink-soft); }
+.c-green { color: var(--green); } .c-red { color: var(--ink-red); } .c-thread { color: var(--thread); }
+.lh1 { line-height: 1; } .lh11 { line-height: 1.1; }
+
+/* ---------------------------------------------------------------- materials */
+.cloth { background-color: var(--cloth);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.055) 0 0.5px, transparent 0.5px 1.5px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0 0.5px, transparent 0.5px 1.5px); }
+.cloth-dk { background-color: var(--cloth-dk); }
+.paper { background-color: var(--paper); }
+.paper2 { background-color: var(--paper-2); }
+/* a leaf pasted into the book: paper edge and a 1 px shadow (critic fix: replaces lifted app cards on sheets) */
+.leaf { border-radius: 1px; box-shadow: 0 0 0 0.6px var(--edge), 0 1.2px 0 rgba(var(--shadow), 0.28); }
+
+/* running stitch inside any box (thread white on cloth). Critic fix: 2 canvas px thread, 9 px period, so it survives at phone size */
+.stitch { position: relative; }
+.stitch::after { content: ""; position: absolute; inset: var(--si, 2.5px); pointer-events: none;
+  --st: rgba(247, 244, 238, 0.85);
+  background:
+    linear-gradient(90deg, var(--st) 0 55%, transparent 55%) top left / 4.5px 1px repeat-x,
+    linear-gradient(90deg, var(--st) 0 55%, transparent 55%) bottom left / 4.5px 1px repeat-x,
+    linear-gradient(180deg, var(--st) 0 55%, transparent 55%) top left / 1px 4.5px repeat-y,
+    linear-gradient(180deg, var(--st) 0 55%, transparent 55%) top right / 1px 4.5px repeat-y; }
+.stitch-h::after { background:
+    linear-gradient(90deg, var(--st) 0 55%, transparent 55%) top left / 4.5px 1px repeat-x,
+    linear-gradient(90deg, var(--st) 0 55%, transparent 55%) bottom left / 4.5px 1px repeat-x; }
+.stitch-v::after { background:
+    linear-gradient(180deg, var(--st) 0 55%, transparent 55%) top right / 1px 4.5px repeat-y; }
+
+/* hard + soft drop shadow that lifts a HUD piece off the warm world */
+.lift { box-shadow: 0 1.5px 0 rgba(var(--shadow), 0.55), 0 3px 7px rgba(var(--shadow), 0.40); }
+.lift-lg { box-shadow: 0 2px 0 rgba(var(--shadow), 0.55), 0 6px 16px rgba(var(--shadow), 0.45); }
+.night .lift, .night .lift-lg { box-shadow: 0 1.5px 0 rgba(var(--shadow), 0.8), 0 3px 10px rgba(var(--shadow), 0.7), 0 0 14px rgba(255, 196, 110, 0.28); }
+
+/* brass corner cap (a bent brass L on a book corner) */
+.corner { position: absolute; width: 9px; height: 9px; pointer-events: none;
+  background: linear-gradient(135deg, var(--brass-hi), var(--brass) 55%, var(--brass-dk));
+  box-shadow: inset 0 0 0 0.5px rgba(122, 78, 45, 0.9); }
+.corner.tl { top: -1px; left: -1px; clip-path: polygon(0 0, 100% 0, 100% 34%, 34% 34%, 34% 100%, 0 100%); border-radius: 2px 0 0 0; }
+.corner.tr { top: -1px; right: -1px; clip-path: polygon(0 0, 100% 0, 100% 100%, 66% 100%, 66% 34%, 0 34%); border-radius: 0 2px 0 0; }
+.corner.bl { bottom: -1px; left: -1px; clip-path: polygon(0 0, 34% 0, 34% 66%, 100% 66%, 100% 100%, 0 100%); }
+.corner.br { bottom: -1px; right: -1px; clip-path: polygon(66% 0, 100% 0, 100% 100%, 0 100%, 0 66%, 66% 66%); }
+
+/* brass screw head */
+.screw { position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--brass-hi), var(--brass-dk) 70%);
+  box-shadow: 0 0 0 0.4px rgba(122, 78, 45, 0.9); }
+.screw::after { content: ""; position: absolute; left: 0.6px; right: 0.6px; top: 1.75px; height: 0.5px; background: rgba(90, 55, 20, 0.9); transform: rotate(-35deg); }
+
+/* ---------------------------------------------------------------- HUD: cash plate
+   canvas 12-188 x 108-188 (unchanged). Paper insert in a cloth binding.     */
+.cash { position: absolute; left: 6px; top: 54px; width: 90px; height: 40px; border-radius: 4px; padding: 3px; }
+.cash .page { position: absolute; inset: 3px; border-radius: 2px; background: var(--paper); overflow: hidden; }
+.cash .row1 { position: absolute; left: 4px; top: 2.5px; display: flex; align-items: center; gap: 3px; }
+.cash .row2 { position: absolute; left: 4px; top: 21px; display: flex; align-items: baseline; gap: 2px; }
+.cash .amt { font-size: 17px; line-height: 17px; color: var(--ink-blue); }
+.cash .rate { font-size: 10px; line-height: 10px; color: var(--green); }
+.cash .per { font-size: 8.5px; color: var(--ink-soft); font-weight: 600; }
+.ic { display: inline-block; vertical-align: middle; flex: none; }
+
+/* +X/min float (RC13 #1 fix): rises at the right of the plate, whole number */
+.float { position: absolute; padding: 1px 4px; border-radius: 2px; background: var(--paper);
+  border: 0.75px solid var(--fold); color: var(--green); white-space: nowrap; transform: rotate(-3deg); }
+
+/* ---------------------------------------------------------------- HUD: NEXT chip
+   canvas 304-708 x 112-196 (unchanged). A paper chit with a cloth spine.    */
+.next { position: absolute; left: 152px; top: 56px; width: 202px; height: 42px; border-radius: 3px; overflow: visible; }
+.next .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 9px; border-radius: 3px 0 0 3px; --si: 2px; }
+.next .page { position: absolute; left: 9px; right: 0; top: 0; bottom: 0; border-radius: 0 3px 3px 0; background: var(--paper);
+  box-shadow: inset 0 0 0 0.5px var(--fold); }
+.next .stamp { position: absolute; left: 13px; top: 6px; width: 30px; height: 30px; }
+.next .l1 { position: absolute; left: 47px; top: 4px; font-size: 10px; line-height: 12px; color: var(--ink-soft); font-weight: 700; letter-spacing: 0.05em; }
+.next .l2 { position: absolute; left: 47px; top: 18px; font-size: 13px; line-height: 17px; color: var(--ink); font-weight: 800; white-space: nowrap; }
+.next .chev { position: absolute; right: 6px; top: 9px; font-size: 17px; line-height: 22px; color: var(--cloth); font-weight: 800; }
+.mline { position: absolute; top: 0; bottom: 0; width: 0.8px; background: var(--margin); }
+.mline.d { box-shadow: 1.6px 0 0 var(--margin); }
+
+/* ink stamp ring around an icon */
+.ring { border-radius: 50%; display: grid; place-items: center;
+  box-shadow: inset 0 0 0 1.2px rgba(198, 74, 58, 0.85), inset 0 0 0 2.4px var(--paper), inset 0 0 0 3px rgba(198, 74, 58, 0.55); }
+
+/* ---------------------------------------------------------------- HUD: task strip
+   canvas 12-708 x 200-288 (unchanged): cloth band, paper chit, 1/3 tab.     */
+.task { position: absolute; left: 6px; top: 100px; width: 348px; height: 44px; border-radius: 4px; --si: 2.5px; }
+.task .lab { position: absolute; left: 7px; top: 15px; font-size: 10px; line-height: 14px; color: var(--thread); font-weight: 800; letter-spacing: 0.09em; }
+.chit { position: absolute; left: 42px; top: 6px; width: 271px; height: 32px; background: var(--paper); border-radius: 1.5px;
+  box-shadow: 0 1px 0 rgba(var(--shadow), 0.35), 0 1px 3px rgba(var(--shadow), 0.3); }
+/* torn right edge of the chit */
+.chit::before { content: ""; position: absolute; right: -2px; top: 0; bottom: 0; width: 3px;
+  background: radial-gradient(circle at 0 50%, var(--paper) 1.1px, transparent 1.3px) 0 0 / 3px 3px repeat-y; }
+.pin { position: absolute; left: -3px; top: 12px; width: 7px; height: 7px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--brass-hi), var(--brass-dk) 75%); box-shadow: 0 0.5px 0 rgba(0,0,0,0.4), 0 0 0 0.4px var(--brass-deep); }
+.tab13 { position: absolute; right: 6px; top: 8px; width: 29px; height: 27px; border-radius: 2px 2px 3px 3px; background: var(--paper-2);
+  box-shadow: inset 0 0 0 0.6px var(--edge), 0 1px 0 rgba(var(--shadow), 0.35); display: grid; place-items: center; }
+.tab13 span { font-size: 10px; line-height: 10px; color: var(--ink); }
+
+/* ---------------------------------------------------------------- buttons */
+.btn { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 4px; text-align: center; }
+.btn .cap { font-weight: 800; letter-spacing: 0.04em; line-height: 1.05; white-space: nowrap; }
+.btn .cost { display: flex; align-items: center; gap: 2px; font-weight: 800; line-height: 1; }
+/* primary: matte brass plate, engraved ink, two screws */
+.brass { color: var(--ink);
+  background: linear-gradient(180deg, #F3CF73 0%, #E6C06A 38%, var(--brass) 62%, #CDA45A 100%);
+  box-shadow: inset 0 0 0 0.75px var(--brass-dk), inset 0 1px 0 rgba(255, 246, 214, 0.75), 0 2px 0 var(--brass-dk), 0 3px 0 var(--brass-deep), 0 4px 5px rgba(var(--shadow), 0.35); }
+.brass .cap, .brass .cost { text-shadow: 0 0.6px 0 rgba(255, 244, 210, 0.7); }
+.brass > .screw.l { left: 3.5px; top: calc(50% - 2px); } .brass > .screw.r { right: 3.5px; top: calc(50% - 2px); }
+.brass.pressed { transform: translateY(2.5px);
+  background: linear-gradient(180deg, #C4994A 0%, #CFA552 45%, #C29340 100%);
+  box-shadow: inset 0 0 0 0.75px var(--brass-dk), inset 0 2px 3px rgba(80, 50, 10, 0.6), 0 0.5px 0 var(--brass-deep); }
+/* ready-to-buy highlight: marigold halo, used on the one buy the guidance names */
+.ready { animation: none; box-shadow: inset 0 0 0 0.75px var(--brass-dk), inset 0 1px 0 rgba(255, 246, 214, 0.75), 0 2px 0 var(--brass-dk), 0 3px 0 var(--brass-deep), 0 0 0 2px rgba(var(--glow), 0.55), 0 0 10px 3px rgba(var(--glow), 0.55); }
+/* secondary: cloth face, thread text */
+.clothbtn { color: var(--thread); background-color: var(--cloth);
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.055) 0 0.5px, transparent 0.5px 1.5px), repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0 0.5px, transparent 0.5px 1.5px);
+  box-shadow: 0 2px 0 var(--cloth-dk), 0 3px 4px rgba(var(--shadow), 0.35); --si: 2px; }
+.clothbtn.pressed { transform: translateY(1.5px); box-shadow: 0 0.5px 0 var(--cloth-dk), inset 0 1px 2px rgba(0,0,0,0.35); }
+/* quiet: paper face, cloth-red edge (a buy that adds little now) */
+.paperbtn { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 0.9px var(--cloth), 0 1.5px 0 var(--edge), 0 2px 3px rgba(var(--shadow), 0.25); }
+/* disabled / can't pay yet: pencil outline on darker paper */
+.pencil { color: var(--ink-soft); background: var(--paper-2);
+  background-image: repeating-linear-gradient(135deg, rgba(122, 78, 45, 0.07) 0 1px, transparent 1px 3px);
+  box-shadow: inset 0 0 0 0.75px rgba(122, 78, 45, 0.55); }
+.pencil .cost { color: var(--ink-red); }
+
+/* close button: a cross-stitched cloth patch with brass rivets (58 x 58 canvas) */
+.close { position: absolute; width: 29px; height: 29px; border-radius: 4px; --si: 2px; }
+.close svg { position: absolute; inset: 0; }
+
+/* wax-seal badge (30 canvas) */
+.seal { position: absolute; width: 15px; height: 15px; }
+
+/* ---------------------------------------------------------------- HUD: meter
+   anchored at canvas (12, 300) as today; drawn at readable sizes (V8):
+   labels 20 px, rows 34 px, caption 17 px; 256 x 182 canvas.              */
+/* Critic fix: 117 x 68 CSS = canvas 12-246 x 300-436, within 8 px of today's 12-238 x 300-428 (bottleneck_meter.gd:35, SIZE 226 x 128)
+   (the 256 x 182 card moved the right edge 28 px and the bottom 54 px). Labels 20, icons 24, rows 26, caption 17. */
+.meter { position: absolute; left: 6px; top: 150px; width: 117px; height: 68px; border-radius: 2px; }
+.meter .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 2px 0 0 2px; --si: 1.4px; }
+.meter .page { position: absolute; left: 5px; right: 0; top: 0; bottom: 0; border-radius: 0 2px 2px 0; background: var(--paper); box-shadow: inset 0 0 0 0.5px var(--fold); }
+.mrow { position: absolute; left: 7px; right: 2px; height: 13px; display: flex; align-items: center; gap: 2.5px; padding: 0 1.5px; }
+.mrow .ml { flex: none; width: 49px; font-size: 10px; line-height: 10px; font-weight: 700; color: var(--ink); letter-spacing: 0.01em; white-space: nowrap; }
+.mrow .bar { position: relative; flex: 1 1 auto; min-width: 18px; height: 6px; border-radius: 1px; background: rgba(219, 199, 162, 0.55); box-shadow: inset 0 0 0 0.6px var(--edge); overflow: hidden; }
+.mrow .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--ink-blue); opacity: 0.85; }
+.mrow.limit { background: rgba(198, 74, 58, 0.18); border-radius: 1.5px; box-shadow: inset 2px 0 0 var(--red), inset 0 0 0 0.6px rgba(198, 74, 58, 0.6); }
+.mrow.limit .bar i { background: var(--red); opacity: 1; }
+.mrow .mx { flex: none; font-size: 8.5px; line-height: 10px; font-weight: 800; color: var(--ink-soft); letter-spacing: 0.02em; }
+.mrow .chev { flex: none; font-size: 13px; line-height: 10px; font-weight: 800; color: var(--ink-red); margin-right: 1px; } /* critic: ink-red, 5.1:1 on the night wash (red was 2.84:1) */
+.meter .cap { position: absolute; left: 8px; right: 3px; bottom: 1.5px; padding-top: 1.5px; border-top: 0.6px solid var(--fold); font-size: 8.5px; line-height: 10px; font-weight: 600; color: var(--ink-soft); white-space: nowrap; }
+.ruleh.blue { background: var(--rule); height: 0.75px; }
+
+/* ---------------------------------------------------------------- HUD: corner books
+   STAFF and BUILD mirrored (RC13 #7): both 104 x 100 canvas faces at y 1120. */
+.book { position: absolute; width: 52px; height: 50px; }
+.book .face { position: absolute; left: 0; top: 0; width: 52px; height: 46px; border-radius: 3px 5px 5px 3px; --si: 2px; }
+.book .lbl { position: absolute; left: 6px; right: 6px; top: 5px; height: 26px; border-radius: 2px; background: var(--paper);
+  box-shadow: inset 0 0 0 0.5px var(--fold), 0 0.75px 0 rgba(0,0,0,0.3); display: grid; place-items: center; }
+.book .face::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; border-radius: 3px 0 0 3px; background: rgba(0,0,0,0.22); box-shadow: 0.6px 0 0 rgba(247,244,238,0.25); }
+.book .cap { position: absolute; left: 3px; right: 0; top: 33px; text-align: center; font-size: 10px; line-height: 10px; font-weight: 800; color: var(--thread); letter-spacing: 0.06em; }
+.book .pages { position: absolute; left: 3px; right: 3px; top: 44px; height: 6px; border-radius: 0 0 3px 3px; background:
+  repeating-linear-gradient(180deg, var(--paper) 0 1px, var(--fold) 1px 1.6px); box-shadow: 0 1.5px 0 rgba(var(--shadow), 0.5), 0 3px 6px rgba(var(--shadow), 0.35); }
+.book .corner.tr, .book .corner.br { width: 8px; height: 8px; }
+
+/* gear: a brass cog on a cloth disc (canvas 652-708 x 1044-1100) */
+.gear { position: absolute; width: 28px; height: 28px; border-radius: 50%; }
+
+/* ---------------------------------------------------------------- world price tag */
+.wtag { position: absolute; display: flex; flex-direction: column; align-items: center; }
+.wtag .string { width: 0.75px; height: 7px; background: var(--ink-soft); }
+.wtag .body { position: relative; padding: 4px 7px 4px 7px; background: var(--paper); border-radius: 2px;
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%, 0 7px);
+  box-shadow: inset 0 0 0 0.75px var(--edge); text-align: center; }
+.wtag .hole { position: absolute; top: 2px; left: calc(50% - 2.5px); width: 5px; height: 5px; border-radius: 50%; background: radial-gradient(circle, rgba(0,0,0,0.35) 0 0.9px, var(--brass) 1px 2.2px, transparent 2.4px); }
+.wtag .tl { font-size: 8.5px; line-height: 10px; font-weight: 800; letter-spacing: 0.04em; color: var(--ink-soft); margin-top: 4px; }
+.wtag .tp { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 13px; line-height: 15px; color: var(--ink-blue); }
+.wtag .ptr { width: 8px; height: 5px; background: var(--paper); clip-path: polygon(0 0, 100% 0, 50% 100%); margin-top: -0.5px; }
+.wtag.can .body { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--brass-dk), inset 0 0 0 2.4px var(--brass-hi); }
+.wtag.can .tp { color: var(--ink); background: linear-gradient(180deg, #F3CF73, var(--brass)); border-radius: 2px; padding: 0 4px; margin-top: 1px; box-shadow: inset 0 0 0 0.6px var(--brass-dk); }
+.wtag.can .tl { color: var(--ink); }
+.wtag.can .body { filter: drop-shadow(0 0 4px rgba(var(--glow), 0.9)); }
+.wtag.cant { opacity: 0.94; }
+.wtag.cant .body { box-shadow: inset 0 0 0 0.75px rgba(122, 78, 45, 0.6); background-image: repeating-linear-gradient(135deg, rgba(122,78,45,0.06) 0 1px, transparent 1px 3px); }
+
+/* "NEW: dish" hanging tag in the world (one at a time in play) */
+.newtag { position: absolute; padding: 3px 7px 3px 9px; background: var(--paper); border-radius: 2px; box-shadow: inset 0 0 0 0.75px var(--edge), 0 1.5px 3px rgba(var(--shadow),0.4);
+  font-size: 10px; line-height: 12px; font-weight: 800; color: var(--ink); white-space: nowrap; }
+.newtag::before { content: ""; position: absolute; left: 2.5px; top: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: var(--red); }
+.newtag::after { content: ""; position: absolute; left: calc(50% - 4px); bottom: -4.5px; width: 8px; height: 5px; background: var(--paper); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+
+/* ---------------------------------------------------------------- menu card (NEW ON THE MENU) */
+.menucard { position: absolute; border-radius: 3px; background: var(--paper); }
+.menucard .band { position: absolute; left: 0; right: 0; top: 0; height: 14px; border-radius: 3px 3px 0 0; --si: 1.5px; }
+.menucard .band span { position: absolute; left: 8px; top: 2px; font-size: 8.5px; line-height: 10px; font-weight: 800; letter-spacing: 0.1em; color: var(--thread); }
+.menucard .ptr { position: absolute; bottom: -5px; width: 10px; height: 6px; background: var(--paper); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+
+/* rubber stamp */
+.stampmark { position: absolute; pointer-events: none; }
+
+/* ---------------------------------------------------------------- panels (Daftar) */
+.cover { position: absolute; left: 0; top: 0; width: 360px; height: 170px; }
+.cover .band { position: absolute; left: 0; right: 0; height: 0.75px; }
+.plate { position: absolute; border-radius: 3px;
+  background: linear-gradient(180deg, #F3CF73 0%, #E6C06A 40%, var(--brass) 70%, #CDA45A 100%);
+  box-shadow: inset 0 0 0 0.75px var(--brass-dk), inset 0 1px 0 rgba(255,246,214,0.75), 0 1.5px 0 var(--brass-deep), 0 3px 6px rgba(0,0,0,0.35); }
+.labelpaper { position: absolute; background: var(--paper); border-radius: 2px; box-shadow: inset 0 0 0 0.6px var(--fold), 0 1px 0 rgba(0,0,0,0.35), 0 2px 5px rgba(0,0,0,0.3); }
+.ltab { position: absolute; height: 33px; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.ltab.on { background: var(--paper); box-shadow: 0 -1px 0 rgba(0,0,0,0.15); }
+.ltab.off { background: var(--paper-2); box-shadow: inset 0 -2px 3px rgba(var(--shadow), 0.18); }
+.ltab span { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; color: var(--ink); }
+.ltab.off span { color: var(--ink); }
+.ledger { position: absolute; left: 0; right: 0; background: var(--paper); }
+.ledger .margin { position: absolute; top: 0; bottom: 0; width: 0.9px; background: var(--margin); }
+.ledger .margin2 { position: absolute; top: 0; bottom: 0; width: 0.5px; background: var(--margin); }
+.foldv { position: absolute; top: 0; bottom: 0; width: 0.6px; background: var(--fold); }
+.ruleh { position: absolute; left: 0; right: 0; height: 0.6px; background: var(--fold); }
+.dbl { position: absolute; height: 2.4px; border-top: 0.6px solid var(--ink-blue); border-bottom: 0.6px solid var(--ink-blue); opacity: 0.55; }
+
+/* ---------------------------------------------------------------- dialogue box */
+.dlg { position: absolute; background: var(--paper); border-radius: 3px 7px 7px 3px; }
+.dlg .rules { position: absolute; left: 0; right: 0; height: 0.75px; background: var(--rule); }
+.dlg .margin { position: absolute; top: 0; bottom: 0; width: 0.9px; background: var(--margin); }
+.dlg .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 7px; border-radius: 3px 0 0 3px; --si: 1.8px; }
+.kw-n { color: var(--ink-red); font-weight: 700; }
+.kw-k { display: inline-block; padding: 0 4px; border-radius: 2px; line-height: 1.15; font-family: "Baloo2L"; font-weight: 800; font-size: 0.86em; letter-spacing: 0.04em; color: var(--ink);
+  background: linear-gradient(180deg, #F3CF73, var(--brass)); box-shadow: inset 0 0 0 0.6px var(--brass-dk), 0 1px 0 var(--brass-deep); transform: translateY(-1px); }
+
+/* toast: carbon-copy chit with a perforated top */
+.toast { position: absolute; background: var(--paper); border-radius: 0 0 2px 2px; padding: 6px 9px 5px; color: var(--ink-blue);
+  box-shadow: 0 1.5px 0 rgba(var(--shadow), 0.4), 0 3px 8px rgba(var(--shadow), 0.35); }
+.toast::before { content: ""; position: absolute; left: 0; right: 0; top: -2px; height: 3px;
+  background: radial-gradient(circle at 50% 0, transparent 1.1px, var(--paper) 1.3px) 0 0 / 4px 3px repeat-x; }
+
+/* annotation labels on the parts sheet (not game UI) */
+.anno { position: absolute; font-family: "Baloo2L"; font-weight: 600; font-size: 7px; line-height: 8.5px; color: #F7EDD5; opacity: 0.92; }

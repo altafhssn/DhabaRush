@@ -77,6 +77,13 @@ const FIDGET_TIME := 1.0
 const FIDGET_BOUNCE := 0.05       # m: impatient bounce on the toes
 ## Glance across the road toward the dhaba (the default look is up the road).
 const FIDGET_GLANCE := Vector3(-0.55, 0.0, -1.0)
+## Core-and-feel C6.6: seated idles while he waits for his food (nothing on
+## the table yet): every SEATED_IDLE_GAP s (random) one of SEATED_IDLES for
+## SEATED_IDLE_TIME s, drawn with the global randf() (never Sim.rng, so the
+## tutorial's pacing draws do not move). Never while eating.
+const SEATED_IDLES := ["sip", "phone", "doze", "look"]
+const SEATED_IDLE_GAP := Vector2(4.0, 9.0)
+const SEATED_IDLE_TIME := Vector2(1.5, 3.0)
 
 var state: int = S.ARRIVING
 var rig: CharacterRig = null
@@ -124,6 +131,12 @@ var kerb_wait: bool = false
 ## Seconds he has been standing so (vehicles stop for someone who has waited
 ## at a kerb long enough: Traffic.XING_PED_PATIENCE).
 var kerb_wait_t: float = 0.0
+## Core-and-feel (wave 2 fills these): a fan's dish (C3.5: Sim gives him that
+## dish when he sits), a baraat guest (C6.4: his bill counts for the event),
+## and the station he is a fan of ("" = none).
+var pref_dish: String = ""
+var event_guest: bool = false
+var fan_of: String = ""
 
 var _sim: Sim = null
 var _path: PackedVector3Array = PackedVector3Array()
@@ -151,6 +164,10 @@ var _bubble_base_y: float = 1.4
 var _fidget_in: float = 2.0
 var _fidget_t: float = -1.0
 var _fidget_kind: int = 0
+## Seated idles (C6.6): s to the next one (< 0 = not armed yet) and s left of
+## the current one (0 = none).
+var _idle_in: float = -1.0
+var _idle_left: float = 0.0
 
 static var _bubble_tex: Dictionary = {}
 
@@ -565,6 +582,43 @@ func _tick_fidget(delta: float) -> void:
 			rig.play("turn90")
 
 
+## Seated and waiting for food (the rig still in "sit": nothing served yet):
+## now and then sip from the steel tumbler, check the phone, doze or look
+## about (CharacterRig poses), then sit still again. An item landing on his
+## table switches the rig to "eat", which ends any idle at once.
+func _tick_seated_idle(delta: float) -> void:
+	if rig == null:
+		return
+	var pose: String = rig.get_pose()
+	if _idle_left > 0.0:
+		if not SEATED_IDLES.has(pose):
+			_idle_left = 0.0
+			return
+		_idle_left -= delta
+		if _idle_left <= 0.0:
+			_idle_left = 0.0
+			rig.play("sit")
+			_idle_in = randf_range(SEATED_IDLE_GAP.x, SEATED_IDLE_GAP.y)
+		return
+	if pose != "sit":
+		return
+	if _idle_in < 0.0:
+		_idle_in = randf_range(SEATED_IDLE_GAP.x, SEATED_IDLE_GAP.y)
+		return
+	_idle_in -= delta
+	if _idle_in > 0.0:
+		return
+	_idle_left = randf_range(SEATED_IDLE_TIME.x, SEATED_IDLE_TIME.y)
+	rig.play(str(SEATED_IDLES[randi() % SEATED_IDLES.size()]))
+
+
+## The seated idle he is playing ("" = none; debug / tests).
+func seated_idle() -> String:
+	if _idle_left > 0.0 and rig != null and SEATED_IDLES.has(rig.get_pose()):
+		return rig.get_pose()
+	return ""
+
+
 func set_paying_state() -> void:
 	state = S.PAYING
 	if joined_at < 0.0:
@@ -697,6 +751,8 @@ func _process(delta: float) -> void:
 			_advance(speed * k * delta)
 	elif state == S.BUS_WAIT:
 		_tick_fidget(delta)
+	elif state == S.SEATED:
+		_tick_seated_idle(delta)
 
 
 func _tick_act(delta: float) -> void:

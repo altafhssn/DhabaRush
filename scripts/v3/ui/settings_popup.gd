@@ -31,6 +31,10 @@ extends Control
 ## a "Player ID: XXXX-XXXX-XXXX-XXXX · tap to copy" line above the version:
 ## Analytics.player_id(), copied to the clipboard on tap with a toast, so a
 ## player can quote it in a deletion request (privacy policy section 11).
+## Core and feel C7.4 (W1-MONEY): under REMOVE ADS (placeholder ₹149; it
+## removes every interstitial, which are off for the soft launch) a small line
+## "One-time, forever. Optional bonus videos stay."; once bought, "No forced
+## ads. Thank you!".
 
 signal close_pressed
 
@@ -52,6 +56,9 @@ const SDK_GAP := 16.0
 const LINK_H := 44.0
 const PID_H := 40.0
 const VER_H := 40.0
+## C7.4: the line under REMOVE ADS (height, gap above).
+const ADS_LINE_H := 30.0
+const ADS_LINE_GAP := 8.0
 const BOTTOM_PAD := 26.0
 
 var close_button: UiButton
@@ -63,6 +70,8 @@ var _lang_btn: UiButton
 var _gfx_btn: UiButton
 var _remove_ads: UiButton
 var _ads_done: Label
+## C7.4: "One-time, forever. Optional bonus videos stay." under REMOVE ADS.
+var _ads_line: Label
 var _busy: bool = false
 var _skip: UiButton
 var _skip_armed: bool = false
@@ -193,7 +202,11 @@ func _build() -> void:
 	_remove_ads.position = Vector2((DESIGN.x - 440.0) * 0.5, _remove_y)
 	_remove_ads.tapped.connect(_on_remove_ads)
 	_body.add_child(_remove_ads)
-	_ads_done = UiKit.label_in(_body, "No ads. Thank you!", Vector2(0, _remove_y + 10.0), Vector2(DESIGN.x, 60), 24, UiKit.GAIN)
+	_ads_done = UiKit.label_in(_body, "No forced ads. Thank you!", Vector2(0, _remove_y + 10.0), Vector2(DESIGN.x, 60), 24, UiKit.GAIN)
+	_ads_line = UiKit.label_in(_body, "One-time, forever. Optional bonus videos stay.",
+			Vector2(24, _remove_y + 84.0 + ADS_LINE_GAP), Vector2(DESIGN.x - 48.0, ADS_LINE_H), 18, UiKit.INK_SOFT,
+			HORIZONTAL_ALIGNMENT_CENTER, 0, UiKit.INK, "body")
+	_ads_line.name = "RemoveAdsLine"
 	# D2: the only way to skip the tutorial.
 	_skip = UiButton.new("SKIP TUTORIAL", UiKit.TEAL_DARK, Vector2(440, SKIP_H))
 	_skip.set_font_sizes(26)
@@ -271,6 +284,9 @@ func _add_toggle(caption: String, getter: Callable, setter: Callable, y: float) 
 ## the policy link, the Player ID, the version line) and sizes the card.
 func _stack() -> void:
 	var y: float = _remove_y + 84.0 + GAP
+	if _ads_line != null and _ads_line.visible:
+		_ads_line.position = Vector2(24, _remove_y + 84.0 + ADS_LINE_GAP)
+		y = _ads_line.position.y + ADS_LINE_H + GAP
 	var x: float = (DESIGN.x - SDK_BTN.x) * 0.5
 	if _skip.visible:
 		_skip.position = Vector2(x, y)
@@ -352,6 +368,7 @@ func _refresh() -> void:
 	var removed: bool = Game.remove_ads
 	_remove_ads.visible = not removed
 	_ads_done.visible = removed
+	_ads_line.visible = not removed
 	_skip.visible = _tutorial_running()
 	_skip_armed = false
 	_skip.set_caption("SKIP TUTORIAL")
@@ -501,7 +518,11 @@ func _on_restore() -> void:
 
 func _on_restore_finished(store_ok: bool, _restored: PackedStringArray) -> void:
 	_restoring = false
-	SdkNotice.toast(SdkNotice.restore_text(store_ok, Game.vip or Game.remove_ads))
+	var owns: bool = Game.vip or Game.remove_ads
+	var iap: Node = UiKit.autoload("Iap")
+	if iap != null and iap.has_method("is_owned"):
+		owns = owns or bool(iap.call("is_owned", "starter_pack"))
+	SdkNotice.toast(SdkNotice.restore_text(store_ok, owns))
 	if visible:
 		_refresh()
 

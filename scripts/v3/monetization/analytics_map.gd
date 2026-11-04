@@ -12,6 +12,11 @@ extends RefCounted
 ## Design ids stay low-cardinality (never amounts or free text in the id);
 ## numbers go in "value", everything else in the custom fields. No event
 ## carries personal data: the game never passes any.
+## Core and feel (build plan 2.8): rewards from the starter pack ("iap"), the
+## baraat event ("reward") and an owed rewarded ad ("ad"); progression for the
+## renovation (complete renovation:<n>), the move to a new highway (complete
+## location:<id>) and the weekend event (start event:<id>, complete
+## event:<id> at its last goal). traveller_lost stays mapped (old builds).
 
 ## GameAnalytics needs these declared before init.
 const CURRENCIES := ["cash", "sikke"]
@@ -23,12 +28,18 @@ const REWARD_TYPES := {
 	"task": "task",
 	"chest": "chest",
 	"munshi_gift": "gift",
+	"starter": "iap",
+	"event": "reward",
+	"ad_owed": "ad",
 }
 const MAX_PART := 64
 const MAX_FIELDS := 10
 ## Soft launch funnel: station levels that also send a milestone design event
 ## (10 = the tutorial's goal; 25 / 50 / 100 open a new dish; then every 50).
 const LEVEL_MILESTONES := [10, 25, 50, 100, 150, 200, 250, 300]
+## The weekend event's last goal (event.baraat.steps has 3): its event_goal
+## completes the event:<id> progression.
+const EVENT_LAST_STEP := 3
 
 
 static func map_event(name: String, params: Dictionary) -> Array:
@@ -88,6 +99,27 @@ static func map_event(name: String, params: Dictionary) -> Array:
 			out.append(design("ad_bubble:" + name.trim_prefix("ad_bubble_"), params.get("reward")))
 		"traveller_lost":
 			out.append(design("traveller:lost", params.get("seats")))
+		# ---- core and feel progression (build plan 2.8)
+		"renovation_done":
+			var n: String = str(int(params.get("n", 1)))
+			out.append(progression("complete", "renovation", n))
+			out.append(design("renovation:done:" + n, params.get("min_since_tutorial")))
+		"location_move":
+			var to: String = str(params.get("to", ""))
+			out.append(progression("complete", "location", to))
+			out.append(design("location:move:" + to, params.get("min_since_tutorial")))
+		"event_start":
+			var eid: String = str(params.get("id", ""))
+			out.append(progression("start", "event", eid))
+			out.append(design("event:start:" + eid))
+		"event_goal":
+			var gid: String = str(params.get("id", ""))
+			var step: int = int(params.get("step", 0))
+			if step >= EVENT_LAST_STEP:
+				out.append(progression("complete", "event", gid))
+			out.append(design("event:goal:%s:%d" % [gid, step]))
+		"event_reward":
+			out.append(design("event:reward:%s:%d" % [str(params.get("id", "")), int(params.get("step", 0))]))
 		"rewarded_started", "rewarded_completed", "rewarded_skipped", "rewarded_failed", "rewarded_unavailable":
 			out.append(design("ad:rewarded:%s:%s" % [name.trim_prefix("rewarded_"), str(params.get("placement", ""))]))
 		"interstitial_shown":

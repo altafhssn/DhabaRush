@@ -1,0 +1,87 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>F6 · BUILD, actionable rows first</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  body { background: #f0e6d4; }
+  .hdr { left: 0; top: 0; width: 720px; height: 336px; background: #8f1c3a url("../work/ico/hdr_strip.png") repeat-y 0 0 / 720px 105px; }
+  .tab { height: 62px; border-radius: 31px; box-shadow: 0 5px 0 #c9b49a; }
+  .rowc { left: 15px; width: 690px; background: var(--card); border-radius: 18px; box-shadow: 0 5px 0 #d5c8bb; }
+  .rt { color: var(--teal-dark); font-size: 24px; line-height: 28px; white-space: nowrap; }
+  .rl { color: var(--ink); font-size: 18px; line-height: 24px; font-weight: 600; white-space: nowrap; }
+  .rd { color: #6e5747; font-size: 16px; line-height: 21px; font-weight: 500; }
+  .circ { width: 86px; height: 86px; border-radius: 50%; }
+</style></head>
+<body><div class="cv">
+
+<!-- header (as today) -->
+<div class="a hdr"></div>
+<img class="a" src="../work/ico/zigzag.png" style="left:0;top:333px;width:720px;height:20px">
+<div class="a ol nowrap" style="left:258px;top:186px;color:#fff;font-size:44px;line-height:56px">BUILD</div>
+<div class="a nowrap" style="left:398px;top:200px;color:#fff;font-size:26px;line-height:34px;font-weight:400;font-style:italic">daftar</div>
+<!-- the explainer card now sits behind this info button -->
+<img class="a" src="../work/ico/info.png" style="left:478px;top:194px">
+<div class="a tab" style="left:60px;top:264px;width:262px;background:#fffdf8"></div>
+<img class="a" src="../work/ico/hammer_s.png" style="left:130px;top:275px">
+<div class="a" style="left:180px;top:264px;color:var(--teal-dark);font-size:24px;line-height:64px">BUILD</div>
+<div class="a badge red" style="left:54px;top:256px">!</div>
+<div class="a tab" style="left:338px;top:264px;width:262px;background:#fdeedd"></div>
+<img class="a" src="../work/ico/stats_s.png" style="left:410px;top:274px">
+<div class="a" style="left:458px;top:264px;color:var(--teal-dark);font-size:24px;line-height:64px">STATS</div>
+<img class="a" src="../work/ico/closeb.png" style="left:622px;top:266px">
+
+<!-- ROW 1: the pick, highlighted; the panel opened scrolled here -->
+<div class="a rowc" style="top:370px;height:130px;box-shadow:0 5px 0 #d5c8bb,0 0 0 4px #ffb627,0 0 16px 6px rgba(255,182,39,.55)"></div>
+<div class="a circ" style="left:32px;top:392px;background:var(--marigold-pale)"></div>
+<svg class="a" style="left:40px;top:400px" width="70" height="70" viewBox="0 0 70 70">
+  <rect x="17" y="34" width="6" height="30" fill="#7a4a1c"/><rect x="47" y="34" width="6" height="30" fill="#7a4a1c"/>
+  <rect x="6" y="10" width="58" height="32" rx="4" fill="#f2c230" stroke="#6e2c10" stroke-width="3"/>
+  <rect x="11" y="15" width="48" height="22" rx="2" fill="#c0392b"/>
+  <path d="M15,26 H55" stroke="#ffe08a" stroke-width="4"/><path d="M20,20 H50 M20,32 H44" stroke="#ffe08a" stroke-width="2"/>
+  <path d="M6,42 L35,47 L64,42" fill="none" stroke="#2e8b57" stroke-width="3"/>
+</svg>
+<img class="a" src="../work/svg/mark.svg" style="left:2px;top:364px;width:46px;height:46px">
+<div class="a rt" style="left:133px;top:384px">HIGHWAY SIGNBOARD</div>
+<div class="a rl" style="left:133px;top:414px">Lv 0 → 1 · <span style="color:var(--gain);font-weight:800;font-size:22px">+1,170/min</span></div>
+<div class="a rd" style="left:133px;top:442px;width:340px">A painted board up the highway. More lorries stop.</div>
+<div class="a btn" style="left:491px;top:398px;width:196px;height:72px;box-shadow:0 0 0 4px rgba(255,255,255,.9),0 0 0 7px rgba(242,140,41,.45)"><div class="bf"></div>
+  <div class="cap ol" style="top:8px;font-size:20px;line-height:24px">BUILD</div>
+  <div class="cap ol" style="top:32px;font-size:24px;line-height:28px"><img src="../work/ico/note.png" style="width:30px;height:21px;vertical-align:-3px"> 2,500</div></div>
+
+<!-- ROW 2: the next goal -->
+<div class="a rowc" style="top:520px;height:120px"></div>
+<div class="a circ" style="left:32px;top:537px;background:var(--teal-light)"></div>
+<svg class="a" style="left:42px;top:548px" width="66" height="64" viewBox="0 0 66 64">
+  <path d="M6,26 L33,8 L60,26" fill="#c0392b" stroke="#6e2c10" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="10" y="26" width="46" height="30" fill="#fff3d6" stroke="#6e2c10" stroke-width="3"/>
+  <rect x="28" y="38" width="10" height="18" fill="#0d7d87"/><rect x="15" y="32" width="9" height="8" fill="#8fd9db" stroke="#6e2c10" stroke-width="1.5"/>
+  <rect x="42" y="32" width="9" height="8" fill="#8fd9db" stroke="#6e2c10" stroke-width="1.5"/>
+  <rect x="20" y="14" width="26" height="6" rx="2" fill="#e8eef0" stroke="#6e2c10" stroke-width="1.5"/>
+</svg>
+<div class="a rt" style="left:133px;top:532px">FAMILY DHABA</div>
+<div class="a" style="left:133px;top:566px;width:300px;height:22px;border-radius:11px;background:var(--teal-dark);overflow:hidden">
+  <div class="a" style="left:0;top:0;width:225px;height:22px;border-radius:11px;background:var(--teal-light)"></div>
+  <div class="a" style="left:0;right:0;top:0;text-align:center;color:#fff;font-size:15px;line-height:23px" >12/16 dishes</div></div>
+<div class="a rd" style="left:133px;top:593px;width:345px;font-size:15px;line-height:19px">AC family hall, 3 more tables, a 4th waiter. Prices ×2 forever.</div>
+<div class="a btn teal" style="left:491px;top:540px;width:196px;height:72px"><div class="bf"></div>
+  <div class="cap ol" style="top:8px;font-size:20px;line-height:24px">SEE</div>
+  <div class="cap ol" style="top:32px;font-size:24px;line-height:28px"><img src="../work/ico/note.png" style="width:30px;height:21px;vertical-align:-3px"> 1,00,000</div></div>
+
+<!-- ROW 3: everything built, folded into one line -->
+<div class="a rowc" style="top:660px;height:60px"></div>
+<div class="a nowrap" style="left:34px;top:660px;height:60px;display:flex;align-items:center;gap:8px;color:var(--teal-dark);font-size:19px">
+  <span>BUILT:</span>
+  <img src="../work/ico/kettle_c.png" style="width:28px;height:28px"><span>CHAI ·</span>
+  <img src="../work/ico/roti_c.png" style="width:28px;height:28px"><span>TANDOOR ·</span>
+  <img src="../work/ico/lassi_c.png" style="width:28px;height:28px"><span>LASSI ·</span>
+  <img src="../work/ico/kadai.png" style="width:30px;height:25px"><span>KADAI · 5 TABLES</span>
+</div>
+<div class="a" style="left:664px;top:660px;color:var(--teal-dark);font-size:38px;line-height:58px">›</div>
+
+<!-- cash pill (as today) -->
+<div class="a pill"><img class="a note" src="../work/ico/note.png"><div class="a amt">1.82 L</div><img class="a trend" src="../work/ico/trend.png"><div class="a rate"><b>3,763</b> <i>/min</i></div></div>
+
+<div class="a flabel" style="top:22px"><b>F6</b> · BUILD: what you can do comes first</div>
+<div class="a looktag">Look not final</div>
+</div>
+<script src="fit.js"></script>
+</body></html>

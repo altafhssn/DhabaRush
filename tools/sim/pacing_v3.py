@@ -42,10 +42,11 @@ game (QA round 1, 2026-10-20; main3 --auto then the bot, 8 seeds each way):
 part B starts from the game's own tutorial-end cash (INGAME_TUTORIAL_END_CASH,
 not the replay's), its first wall ad comes ad_bubble.interval_s after the
 tutorial (the tutorial's bubble was tapped), travellers arrive at REALIZED
-(0.87) x the ramp target and each one's bill is priced PRICE_LAG_S after
-arriving (cooked) and paid PAY_LAG_S after arriving (galla). With the station
-menus economy (2026-10-21): with ads lassi 2:32 / kadai 8:22, without 2:32 /
-10:13 (docs/v3-station-menus.md §4.3). The HUD "/min" (and every reward sized
+(0.87 then; 0.92 since core and feel) x the ramp target and each one's
+bill is priced PRICE_LAG_S after arriving (cooked) and paid PAY_LAG_S after
+arriving (galla). With the station menus economy (2026-10-21): with ads
+lassi 2:32 / kadai 8:22, without 2:32 / 10:13 (docs/v3-station-menus.md
+§4.3). The HUD "/min" (and every reward sized
 from it) is the game.gd rate: price x capacity x the station's demand share.
 It prints a timeline (when each station becomes affordable and is built, the
 milestones with their dishes), per build arrivals / bill / income / HUD
@@ -72,14 +73,49 @@ hired, table 3 bought). After part B it prints the ROUND 2 tables: checkpoints
 offline offers on return (0.3.2 rule vs the JSON rule), the unlock list, and a
 "SUMMARY {json}" line for scripts.
 
+CORE AND FEEL (docs/core-and-feel/build-plan.md rev 2, W1-PACE): mirrors the
+build-plan prototype (proto2), every number read from the economy JSON:
+  - C5.1 chai's price step ramps down linearly from price_step (L ramp_from) to
+    price_step_late (L ramp_to) when the station has price_step_ramp_to (L1-L13
+    exact, so part A replays identically);
+  - C5.3 the highway signboard (signboard block): the ramp cap becomes
+    ramp_max_tpm + tpm_per_level x level; cost cost_base x cost_growth^level x
+    the dial; max_levels roadside, max_levels_family after the renovation; the
+    bot buys a level only while the road binds and its payback is at most
+    max(offer_payback_min, the best LEVEL UP payback), never from cash saved for
+    a promotion; the offline basis is (travellers_per_min + the bonus) capped by
+    the stages;
+  - C3.4 trays (waiters.tray_levels, tray_batch_est): waiter capacity x the mean
+    over waiters of 1 + tray_batch_est x (orders - 1); generated waiter_level
+    cards aim at the next tray level when it is within 2 x waiter_level_step;
+  - C6.1 / C6.3 promotions (--promo): the Family Dhaba (renovation block) once
+    every counter has all its dishes, then the NH 48 move (locations.nh48, the
+    menu overlay applied, every counter but the start one rebuilt), both with a
+    bot that saves for them; the family layout puts the AC hall's 3 tables
+    after the store's first two (HALL_TABLES), starts with
+    seating.tables_start_family tables, waiters.max_family waiters and
+    seating.tables_max_family tables; prices x renovation.mult (x the
+    location's mult after the move);
+  - C7.4 the starter pack (--starter MIN: offers.starter.amount granted MIN
+    minutes after the tutorial);
+  - MENU CHECK runs once per location (the base menus, then each location's
+    overlay) and every failure counts toward the exit code.
+The PROMO block (with --promo) prints the marks (renovation unlock,
+renovated, NH 48 unlock, moved, NH 48 all dishes), the signboard buys, the
+bind shares per stage and the waiter levels at each promotion; the SUMMARY
+JSON carries them under "promo".
+
 Exit status 1 when the menu check, the bill check or the rule check fails.
 
 Usage:
   python3 tools/sim/pacing_v3.py [--seeds 300] [--minutes 60] [--no-ads] [--seed 0]
                                  [--eco data/economy_v3.json] [--matrix] [--report 120]
                                  [--set PATH=VALUE] [--difficulty D]
+                                 [--promo] [--no-signboard] [--no-trays] [--realized R]
+                                 [--ad-sessions M] [--starter MIN] [--starter-amount REF]
 """
 import argparse
+import copy
 from collections import deque
 import json
 import math
@@ -202,6 +238,12 @@ class Game:
         self.reward_rate_fn = None
         self.rew = {}
         self.sales_sum = 0.0
+        # CORE AND FEEL: promotions (stage 0 roadside, 1 Family Dhaba, 2 NH 48),
+        # the price multiplier they bring (game.gd fame_mult) and the signboard level
+        self.stage = 0
+        self.mult = 1.0
+        self.sign = 0
+        self.location = "nh44"
         self.tasks = self._start_tasks()
 
     # ---- stations
@@ -222,14 +264,31 @@ class Game:
 
     def price_at(self, sid, lvl):
         d = self.sdef(sid)
+        base, step = d["price_base"], d["price_step"]
         if "price_step_late" in d:
             # ROUND 2: the step changes at the first milestone (chai keeps the
-            # tutorial's 0.07 up to L24, then price_step_late)
-            f = int(self.e["level_milestones"][0])
-            p = d["price_base"] + d["price_step"] * (min(lvl, f) - 1) + d["price_step_late"] * max(0, lvl - f)
+            # tutorial's 0.07 up to L24, then price_step_late).
+            # C5.1 (core and feel): with price_step_ramp_to the step ramps down
+            # linearly from price_step at price_step_ramp_from to price_step_late
+            # at price_step_ramp_to (closed form, as game.gd _price_at).
+            late = d["price_step_late"]
+            f0 = int(self.e["level_milestones"][0])
+            f1 = f0
+            if "price_step_ramp_to" in d:
+                f0 = int(d.get("price_step_ramp_from", f0))
+                f1 = max(f0, int(d["price_step_ramp_to"]))
+            if lvl <= f0:
+                p = base + step * (lvl - 1)
+            elif lvl <= f1:
+                n = lvl - f0
+                p = base + step * (lvl - 1) - (step - late) / max(1, f1 - f0) * n * (n + 1) / 2.0
+            else:
+                n = f1 - f0
+                p = base + step * (f1 - 1) - (step - late) / max(1, f1 - f0) * n * (n + 1) / 2.0 + late * (lvl - f1)
         else:
-            p = d["price_base"] + d["price_step"] * (lvl - 1)
-        return snap(p * self.milestone_mult(lvl))
+            p = base + step * (lvl - 1)
+        # x the promotion multiplier (renovation.mult, x the location's mult after a move)
+        return snap(p * self.milestone_mult(lvl)) * self.mult
 
     def price(self, sid):
         return self.price_at(sid, self.st[sid]["level"]) * self.menu_factor(sid)
@@ -948,6 +1007,21 @@ LAYOUT = {
     "strip_x": 1.12, "serve_z": 0.3,
     "home": (2.45, 3.55),
 }
+# C6.1 the AC family hall: = Layout3.HALL_TABLES (frozen, plan 2.3), (x, z). In the
+# family layout table indices 2 to 4 are the hall sets and the courtyard sets
+# follow (indices 5 to 7): family_tables() below.
+HALL_TABLES = [(17.25, 2.1), (17.25, 6.1), (20.15, 2.1)]
+
+
+def family_tables():
+    """Table order of the family layout: the store's first two, the hall, the rest."""
+    t = LAYOUT["tables"]
+    return list(t[:2]) + list(HALL_TABLES) + list(t[2:])
+
+
+# The bot spends at most this share of its spendable cash on one signboard level
+# (as on any other staff purchase; a bot policy, not a game rule).
+SIGN_SPEND_FRAC = 0.5
 # The game's own tutorial (main3 --fresh --auto, the seated dhaba) ends with
 # this much cash (ref units): 1.77, 3.54 or 5.31 by seed (a chai sale either
 # side), 3.54 the median over 16 seeds, against ~7.9 at the end of the
@@ -971,9 +1045,15 @@ PAY_LAG_S = 38.0
 # REALIZED x the target. The rule check (--matrix) compares targets. QA round 1
 # bot runs: arrivals ran 0.82-0.95 x the target (0.82 while the ramp eases up
 # after the first hires, ~0.92 at the 19.5 cap); with the price / pay lags
-# below, 0.87 reproduces the game's affordable times (sales lose the
+# below, 0.87 reproduced the game's affordable times (sales lose the
 # travellers who give up and the ones still inside at a level-up).
-REALIZED = 0.87
+# Core and feel (build plan 3.3): nobody gives up any more (C2.1), so W4
+# measured it in-game (G-realized: the road-cap buy set, --window=600, seeds
+# 1-4, [window] arrivals / ramp): 0.935 at gate 1, 0.924 on the wave-4 tree
+# (signboard 0: 0.908 0.949 0.928 0.913; signboard 4: 0.957 1.038 0.905 0.909,
+# the 1.038 read against a ramp damped by a backlog at the window's end).
+# Moved > 0.02, so REALIZED is 0.92 from 2 Nov 2026 (was 0.87).
+REALIZED = 0.92
 MIN_BILL_GAIN = 0.15             # a build must raise the expected bill by >= 15 % (part B check)
 MEASURED_LOOP_S = 5.5            # chai + roti, tables 0-1, base_speed_ratio 1.65 (architecture addendum)
 PICK_S, SERVE_S, STAGGER_S = 0.22, 0.34, 0.12
@@ -996,8 +1076,8 @@ def walk(a, b):
     return _est(a, b)
 
 
-def serve_stands(t):
-    tx, tz = LAYOUT["tables"][t]
+def serve_stands(t, layout=None):
+    tx, tz = (layout if layout is not None else LAYOUT["tables"])[t]
     sx, sz = LAYOUT["strip_x"], LAYOUT["serve_z"]
     return [(tx - sx, tz - sz), (tx + sx, tz - sz), (tx - sx, tz + sz), (tx + sx, tz + sz)]
 
@@ -1005,17 +1085,20 @@ def serve_stands(t):
 _TRIP_M = {}
 
 
-def raw_trip_m(ids, tables):
+def raw_trip_m(ids, tables, layout=None):
     """Expected metres a busy waiter walks for one whole order of `ids`
-    (start = a random built table's serve stand, best pass order). Cached."""
-    key = (tuple(ids), tables)
+    (start = a random built table's serve stand, best pass order). Cached.
+    `layout` = the table positions in purchase order (default: the roadside
+    LAYOUT["tables"]; the family layout passes family_tables())."""
+    lay = tuple(layout) if layout is not None else tuple(LAYOUT["tables"])
+    key = (tuple(ids), tables, lay)
     if key not in _TRIP_M:
-        _TRIP_M[key] = _raw_trip_m(list(ids), tables)
+        _TRIP_M[key] = _raw_trip_m(list(ids), tables, lay)
     return _TRIP_M[key]
 
 
-def _raw_trip_m(ids, tables):
-    stands = [s for t in range(tables) for s in serve_stands(t)]
+def _raw_trip_m(ids, tables, layout=None):
+    stands = [s for t in range(tables) for s in serve_stands(t, layout)]
     tot = 0.0
     for start in stands:
         for end in stands:
@@ -1052,7 +1135,64 @@ class SeatedGame(Game):
         self.waiters = [1] * max(1, int(eco["waiters"]["start"]))
         self.tables = int(eco["seating"]["tables_start"])
         self.seated = 0
+        # C3.4 trays and C5.3 signboard switches (--no-trays, --no-signboard)
+        self.trays_on = bool(eco["waiters"].get("tray_levels"))
+        self.sign_on = bool(eco.get("signboard"))
         super().__init__(eco)
+
+    # ---- CORE AND FEEL: layout variant, caps, trays, signboard (game.gd W1-CORE)
+    def variant(self):
+        """game.gd layout_variant(): "family" once renovated."""
+        return "family" if self.stage >= 1 else "roadside"
+
+    def waiters_max(self):
+        w = self.e["waiters"]
+        return int(w.get("max_family", w["max"])) if self.variant() == "family" else int(w["max"])
+
+    def tables_max(self):
+        s = self.e["seating"]
+        return int(s.get("tables_max_family", s["tables_max"])) if self.variant() == "family" else int(s["tables_max"])
+
+    def tables_start(self):
+        s = self.e["seating"]
+        return int(s.get("tables_start_family", s["tables_start"])) if self.variant() == "family" else int(s["tables_start"])
+
+    def layout_tables(self):
+        return family_tables() if self.variant() == "family" else LAYOUT["tables"]
+
+    def tray_orders(self, i):
+        """game.gd waiter_tray_orders(i): 1 + the tray levels waiter i has reached."""
+        if not self.trays_on:
+            return 1
+        return 1 + sum(1 for lv in self.e["waiters"].get("tray_levels", []) if self.waiters[i] >= int(lv))
+
+    def tray_factor(self):
+        """Mean over waiters of 1 + tray_batch_est x (orders - 1) (waiter capacity factor)."""
+        if not self.trays_on:
+            return 1.0
+        b = float(self.e["waiters"].get("tray_batch_est", 0.0))
+        return sum(1.0 + b * (self.tray_orders(i) - 1) for i in range(len(self.waiters))) / len(self.waiters)
+
+    def sdef_sign(self):
+        return self.e.get("signboard", {})
+
+    def sign_max(self):
+        d = self.sdef_sign()
+        if not self.sign_on or not d:
+            return 0
+        return int(d.get("max_levels_family", d.get("max_levels", 0))) if self.variant() == "family" else int(d.get("max_levels", 0))
+
+    def sign_unlocked(self):
+        req = str(self.sdef_sign().get("requires", ""))
+        return req == "" or (req in self.st and self.st[req]["built"])
+
+    def sign_cost(self):
+        d = self.sdef_sign()
+        return float(d.get("cost_base", 0.0)) * float(d.get("cost_growth", 1.0)) ** self.sign * self.dial()
+
+    def sign_bonus(self, extra=0):
+        """game.gd signboard_bonus_tpm(): level x tpm_per_level (travellers/min on the cap)."""
+        return float(self.sdef_sign().get("tpm_per_level", 0.0)) * (self.sign + extra)
 
     # ---- order rule
     def group_of(self, sid):
@@ -1129,7 +1269,7 @@ class SeatedGame(Game):
 
     def table_cost(self):
         s = self.e["seating"]
-        k = self.tables - int(s["tables_start"])
+        k = self.tables - self.tables_start()   # the family layout counts from tables_start_family
         c = s["table_costs"]
         dial = self.dial() if k >= int(self.ddef().get("exempt_tables", 1)) else 1.0
         return snap(c[k] * dial) if k < len(c) else snap(c[-1] * s["table_cost_growth"] ** (k - len(c) + 1) * dial)
@@ -1141,7 +1281,7 @@ class SeatedGame(Game):
 
     def buy(self, kind, arg=None):
         if kind == "waiter_hire":
-            if len(self.waiters) >= self.e["waiters"]["max"] or not self.spend(self.waiter_hire_cost()):
+            if len(self.waiters) >= self.waiters_max() or not self.spend(self.waiter_hire_cost()):
                 return False
             self.waiters.append(1)
         elif kind == "waiter_up":
@@ -1149,7 +1289,7 @@ class SeatedGame(Game):
                 return False
             self.waiters[arg] += 1
         elif kind == "table":
-            if self.tables >= self.e["seating"]["tables_max"] or not self.spend(self.table_cost()):
+            if self.tables >= self.tables_max() or not self.spend(self.table_cost()):
                 return False
             self.tables += 1
         else:
@@ -1180,9 +1320,9 @@ class SeatedGame(Game):
     def _ready(self, t):
         k = t["kind"]
         if k == "tables":
-            return t["target"] <= self.e["seating"]["tables_max"]
+            return t["target"] <= self.tables_max()
         if k == "waiters":
-            return t["target"] <= self.e["waiters"]["max"]
+            return t["target"] <= self.waiters_max()
         if k == "waiter_level":
             return t.get("waiter", 0) < len(self.waiters)
         return super()._ready(t)
@@ -1197,17 +1337,24 @@ class SeatedGame(Game):
         if kind == "seated":
             return self._new_task(f"gen_{self.task_gen}", {"kind": "seated", "target": min(1000, g["seated_base"] + g["seated_step"] * rnd)})
         if kind == "tables":
-            if self.tables >= self.e["seating"]["tables_max"]:
+            if self.tables >= self.tables_max():
                 return None
             return self._new_task(f"gen_{self.task_gen}", {"kind": "tables", "target": self.tables + 1})
         if kind == "waiters":
-            if len(self.waiters) >= self.e["waiters"]["max"]:
+            if len(self.waiters) >= self.waiters_max():
                 return None
             return self._new_task(f"gen_{self.task_gen}", {"kind": "waiters", "target": len(self.waiters) + 1})
         if kind == "waiter_level":
             wk = min(range(len(self.waiters)), key=lambda i: self.waiters[i])
-            return self._new_task(f"gen_{self.task_gen}", {"kind": "waiter_level", "waiter": wk,
-                                                          "target": self.waiters[wk] + g["waiter_level_step"]})
+            t = self._new_task(f"gen_{self.task_gen}", {"kind": "waiter_level", "waiter": wk,
+                                                       "target": self.waiters[wk] + g["waiter_level_step"]})
+            # C3.4: the card aims at the next tray level when it is within 2 x waiter_level_step
+            if self.trays_on:
+                lvl = self.waiters[wk]
+                nxt = [int(lv) for lv in self.e["waiters"].get("tray_levels", []) if int(lv) > lvl]
+                if nxt and nxt[0] - lvl <= 2 * g["waiter_level_step"]:
+                    t["target"] = nxt[0]
+            return t
         return super()._gen(kind, g)
 
     def _refresh_abs(self):
@@ -1216,9 +1363,12 @@ class SeatedGame(Game):
                 t["progress"] = self._abs_progress(t)
 
 
-def capacity(g, built=None, plan_tandoor=False):
+def capacity(g, built=None, plan_tandoor=False, sign_extra=0):
     """Mirror of the (menu-expansion) Sim.capacity_estimate(), steady state:
-    {seats, waiters, stations, gallas, min, target, trip, shares, bind}."""
+    {seats, waiters, stations, gallas, min, target, trip, shares, bind}.
+    Core and feel: the waiters' capacity x the tray factor (C3.4), the ramp cap
+    ramp_max_tpm + the signboard bonus (C5.3; `sign_extra` = what-if levels),
+    the trips over the table positions of the current layout (C6.1)."""
     e = g.e
     tr = e["traffic"]
     built = list(built if built is not None else g.built())
@@ -1228,14 +1378,17 @@ def capacity(g, built=None, plan_tandoor=False):
     mix = g.order_mix(built)
     k = trip_cal(e)
     speed = TRAV_SPEED * e["waiters"]["base_speed_ratio"]
+    lay = g.layout_tables() if hasattr(g, "layout_tables") else None
     trip = 0.0
     for p, seq in mix:
         n = len(seq)
-        t = raw_trip_m(seq, g.tables) / speed + n * PICK_S + SERVE_S + STAGGER_S * (n - 1)
+        t = raw_trip_m(seq, g.tables, lay) / speed + n * PICK_S + SERVE_S + STAGGER_S * (n - 1)
         trip += p * t * k
     sp = sum(g.waiter_speed_mult(i) for i in range(len(g.waiters))) / len(g.waiters)
     trip_eff = trip / sp
     w_cap = len(g.waiters) * 60.0 / max(0.5, trip_eff)
+    if hasattr(g, "tray_factor"):
+        w_cap *= g.tray_factor()
     st_k = tr.get("ramp_station_k", 0.9)
     st_cap = min(g.capacity(s) * st_k / max(1e-6, sh[s]) for s in sh)
     proc = sum(p * max(g.processing(s) for s in seq) for p, seq in mix)
@@ -1245,18 +1398,20 @@ def capacity(g, built=None, plan_tandoor=False):
     g_cap = sum(60.0 / (g.galla_service(i) + e["galla"]["restart_delay"]) for i in range(len(g.gallas)))
     caps = {"waiters": w_cap, "seats": s_cap, "stations": st_cap, "gallas": g_cap}
     m = min(caps.values())
-    target = min(tr["ramp_max_tpm"], max(tr["ramp_min_tpm"], tr["ramp_capacity_k"] * m))
-    bind = min(caps, key=caps.get) if tr["ramp_capacity_k"] * m < tr["ramp_max_tpm"] else "max"
+    hi = tr["ramp_max_tpm"] + (g.sign_bonus(sign_extra) if hasattr(g, "sign_bonus") else 0.0)
+    target = min(hi, max(tr["ramp_min_tpm"], tr["ramp_capacity_k"] * m))
+    bind = min(caps, key=caps.get) if tr["ramp_capacity_k"] * m < hi else "max"
     if bind == "stations":
         bind = "station:" + min(sh, key=lambda s: g.capacity(s) / max(1e-6, sh[s]))
-    return dict(caps, min=m, target=target, trip=trip_eff, shares=sh, bind=bind, food=food)
+    return dict(caps, min=m, target=target, trip=trip_eff, shares=sh, bind=bind, food=food, cap=hi)
 
 
 def utilisation(g, lam):
     """Busy share of each built station's cooks and of the waiters at lam travellers/min."""
     c = capacity(g)
     out = {s: lam * c["shares"][s] / g.capacity(s) for s in c["shares"]}
-    out["waiters"] = lam * c["trip"] / (60.0 * len(g.waiters))
+    tf = g.tray_factor() if hasattr(g, "tray_factor") else 1.0
+    out["waiters"] = lam * c["trip"] / (60.0 * len(g.waiters) * tf)
     return out
 
 
@@ -1295,6 +1450,8 @@ def print_round2(eco, m):
         r = c["rew"]
         rw = sum(r.values())
         lv = " ".join(f"{k[:4]}{v}" for k, v in c["levels"].items())
+        if c.get("stage", 0) > 0 or c.get("sign", 0) > 0:
+            lv = (f"s{c['stage']} " if c.get("stage", 0) > 0 else "") + lv + f" sign{c.get('sign', 0)}"
         print(f"{c['min']:5.1f} | {rupees(c['cash']):>9} | {rupees(c['real']):>9} | {rupees(c['hud']):>9} | {rupees(c['cap']):>9} |"
               f" {rupees(c['sales']):>10} | {rupees(rw):>11} | {rupees(r.get('ad', 0)):>9} {rupees(r.get('chest', 0)):>9}"
               f" {rupees(r.get('task', 0)):>9} | {rupees(c['sales'] + rw):>10} | {rupees(c['bill']):>8} | {lv} W{c['W']} T{c['T']} G{c['G']}")
@@ -1334,17 +1491,91 @@ def print_round2(eco, m):
                         "off": round(c["off_basis"] * DISPLAY_SCALE[0]),
                         "prices": {k: round(v * DISPLAY_SCALE[0], 1) for k, v in c["prices"].items()},
                         "levels": c["levels"]} for c in m.checks]}
-    print("SUMMARY " + json.dumps(summ))
+    summ["promo"] = promo_summary(m)
+    print("SUMMARY " + json.dumps(summ, ensure_ascii=False))
+
+
+PROMO_MARKS = [("unlock0", "renovation unlocks (all 16 dishes)"), ("promo0", "renovated (Family Dhaba)"),
+               ("end1", "family run: every counter L100 again"), ("unlock1", "NH 48 unlocks"),
+               ("promo1", "moved to NH 48"), ("end2", "NH 48: all 16 dishes")]
+
+
+def promo_summary(m):
+    """The "promo" key of SUMMARY: marks in seconds after the tutorial, the signboard
+    buys, the bind shares per stage, the waiter levels at each promotion."""
+    marks = {k: round(v, 1) for k, v in m.marks.items() if not isinstance(v, list) and not k.startswith("sign")}
+    tot = {st: sum(d.values()) for st, d in m.bind_t.items()}
+    return {"enabled": m.stages > 0, "stage": m.g.stage, "location": m.g.location, "marks": marks,
+            "waiter_levels": {k[2:]: v for k, v in m.marks.items() if k.startswith("wl")},
+            "sign_buys": [{"t": round(t, 1), "stage": s, "level": n, "cost": round(c, 2)} for t, s, n, c in m.sign_log],
+            "binds": {str(st): {k: round(v / max(1e-9, tot[st]), 3) for k, v in d.items()} for st, d in m.bind_t.items()},
+            "rebuilds": [{"t": round(t, 1), "stage": s, "station": sid} for t, s, sid, _c in m.rebuilds],
+            "starter": round(m.marks["starter"], 1) if "starter" in m.marks else None}
+
+
+def print_promo(m):
+    """PROMO block: the promotion marks, signboard buys, bind shares, waiter levels."""
+    g = m.g
+    print()
+    print("=" * 96)
+    e = g.e
+    reno = e.get("renovation", {})
+    locs = [x for x in m.location_order() if x != "nh44"]
+    mv = ", ".join(f"{x} {e['locations'][x].get('cost', 0):g} x{e['locations'][x].get('mult', 1.0):g}" for x in locs)
+    print(f"PROMO - renovation {reno.get('cost', 0):g} x{reno.get('mult', 1.0):g}, move {mv or '-'}; signboard "
+          f"{'off' if not g.sign_on else 'on'}; trays {'off' if not g.trays_on else e['waiters'].get('tray_levels')};"
+          f" realized {m.realized:.2f}; ads {'on' if m.ads else 'off'}"
+          + (f" in sessions of {m.ad_sessions:g} min" if m.ad_sessions > 0 else "")
+          + (f"; starter {rupees(m.starter_amount)} at {m.starter_min:g} min" if m.starter_min > 0 else ""))
+    print("=" * 96)
+    for key, label in PROMO_MARKS:
+        v = m.marks.get(key)
+        extra = ""
+        if key in ("promo0", "promo1"):
+            st = key[-1]
+            extra = f"   waiter levels {m.marks.get('wl' + st)}, signboard {m.marks.get('sign' + st)}"
+        print(f"  {label:<40} {fmt_t(v) if v is not None else '     -'}{extra}")
+    if "starter" in m.marks:
+        print(f"  {'starter granted':<40} {fmt_t(m.marks['starter'])}")
+    # Flush left, as proto2 prints it: the gate (G-pacing) reads "^PROMO marks: {...}".
+    print("PROMO marks: " + json.dumps({k: (fmt_t(v).strip() if not isinstance(v, list) else v)
+                                       for k, v in m.marks.items() if not k.startswith("sign")}))
+    print("  signboard buys (time, stage, level, cost): "
+          + (", ".join(f"({fmt_t(t).strip()}, s{s}, L{n}, {rupees(c)})" for t, s, n, c in m.sign_log) or "none"))
+    tot = {st: sum(d.values()) for st, d in m.bind_t.items()}
+    print("  binds per stage: " + "; ".join(f"s{st} " + ", ".join(f"{k} {100 * v / tot[st]:.0f}%" for k, v in sorted(d.items(), key=lambda kv: -kv[1]))
+                                          for st, d in sorted(m.bind_t.items())))
+    if m.rebuilds:
+        print("  rebuilt after the move: " + ", ".join(f"{sid} {fmt_t(t).strip()} ({rupees(c)})" for t, s, sid, c in m.rebuilds))
+    print(f"  end: stage {g.stage} ({g.location}) mult x{g.mult:.2f} signboard {g.sign} levels "
+          + " ".join(f"{s}{g.st[s]['level']}" for s in g.station_ids() if g.st[s]["built"])
+          + f" waiters {g.waiters} tables {g.tables} gallas {len(g.gallas)} real/min {rupees(m.real_per_min())}")
 REPORT = [120.0]
 
 
 class SeatedModel:
     """Expected-value free play (dt 0.5 s) on top of a SeatedGame."""
 
-    def __init__(self, g, ads=True, save_min=4.0, verbose=True, realized=REALIZED, first_ad=None):
+    def __init__(self, g, ads=True, save_min=4.0, verbose=True, realized=REALIZED, first_ad=None,
+                 stages=0, starter_min=0.0, starter_amount=None, ad_sessions=0.0):
         self.g = g
         self.ads = ads
         self.realized = realized
+        # CORE AND FEEL: promotions (--promo: stages = the renovation + every further
+        # location), the starter grant (--starter MIN), sessions of M minutes for the
+        # wall-ad cap (--ad-sessions M); marks / signboard buys / binds per stage
+        self.stages = int(stages)
+        self.starter_min = float(starter_min)
+        self.starter_amount = (float(g.e.get("offers", {}).get("starter", {}).get("amount", 0.0))
+                               if starter_amount is None else float(starter_amount))
+        self.starter_paid = False
+        self.ad_sessions = float(ad_sessions)
+        self._sess = 0
+        self.marks = {}
+        self.stage_start = {0: 0.0}
+        self.sign_log = []
+        self.bind_t = {}
+        self.rebuilds = []
         # wall ads shown this session (game.gd _ad_session_count, capped at
         # ad_bubble.max_per_session): the tutorial's scripted bubble counts as 1
         self.ads_shown = 1
@@ -1425,10 +1656,11 @@ class SeatedModel:
         self.events.append((self.t, msg))
 
     def offline_basis(self):
-        """game.gd real_income_per_min(): min(config arrivals, caps) x bill (VIP applied)."""
+        """game.gd real_income_per_min(): min(config arrivals + the signboard bonus, caps)
+        x bill (VIP applied)."""
         g = self.g
         c = capacity(g)
-        thr = min(float(g.e["traffic"]["travellers_per_min"]), c["min"])
+        thr = min(float(g.e["traffic"]["travellers_per_min"]) + g.sign_bonus(), c["min"])
         return thr * g.basket()
 
     def snapshot(self, minute):
@@ -1436,7 +1668,8 @@ class SeatedModel:
         return dict(min=minute, cash=g.cash, real=self.real_per_min(), hud=self.lam * g.basket(), cap=g.rate(),
                     sales=g.sales_sum, rew=dict(g.rew), lifetime=g.lifetime, off_basis=self.offline_basis(),
                     prices={s: g.price(s) for s in g.built()}, levels={s: g.st[s]["level"] for s in g.built()},
-                    W=len(g.waiters), T=g.tables, G=len(g.gallas), bill=g.basket(), arr=self.arrivals())
+                    W=len(g.waiters), T=g.tables, G=len(g.gallas), bill=g.basket(), arr=self.arrivals(),
+                    stage=g.stage, sign=g.sign, wl=list(g.waiters), bind=capacity(g)["bind"])
 
     def _gain_of(self, mutate, undo):
         g = self.g
@@ -1452,7 +1685,165 @@ class SeatedModel:
                 return s
         return None
 
+    # ---- CORE AND FEEL: promotions, signboard, starter (the build-plan prototype's bot)
+    def last_dish_level(self, sid):
+        menu = self.g.menu(sid)
+        return int(menu[-1].get("from_level", 100)) if menu else 100
+
+    def content_done(self):
+        """Every counter built and at its last dish (renovation.unlock "all_dishes": L100)."""
+        g = self.g
+        return all(g.st[s]["built"] and g.st[s]["level"] >= self.last_dish_level(s) for s in g.station_ids())
+
+    def location_order(self):
+        locs = self.g.e.get("locations", {})
+        return [x for x in locs.get("order", []) if isinstance(locs.get(x), dict)]
+
+    def next_location(self):
+        order = self.location_order()
+        cur = self.g.location
+        if cur in order and order.index(cur) + 1 < len(order):
+            return order[order.index(cur) + 1]
+        return ""
+
+    def promo_cost(self):
+        """Stage 0: the renovation; later: the move to the next location."""
+        e = self.g.e
+        if self.g.stage == 0:
+            return float(e.get("renovation", {}).get("cost", 0.0))
+        return float(e["locations"][self.next_location()].get("cost", 0.0))
+
+    def best_level_payback(self, c):
+        """Minutes for the best LEVEL UP to pay for itself (game.gd level_payback_min)."""
+        g = self.g
+        best = math.inf
+        for s in g.built():
+            if g.st[s]["level"] < g.sdef(s)["max_level"]:
+                gain = (g.price_at(s, g.st[s]["level"] + 1) - g.price(s)) * self.lam * c["shares"].get(s, 0.0)
+                if gain > 0:
+                    best = min(best, g.level_cost(s) / gain)
+        return best
+
+    def sign_payback(self, c):
+        """Minutes for one more signboard level to pay for itself (cost / gain per minute)."""
+        g = self.g
+        c2 = capacity(g, sign_extra=1)
+        gain = (c2["target"] - c["target"]) * g.basket()
+        return g.sign_cost() / gain if gain > 1e-9 else math.inf
+
+    def promote(self):
+        """game.gd renovate() / move_highway() (_promote_reset): levels 1, cooks 1, SPEED 0,
+        waiters [1], gallas [1], the family tables; on a move the location overlay,
+        every counter but the start ones to rebuild and the signboard reset."""
+        g, e = self.g, self.g.e
+        kind = "renovation" if g.stage == 0 else "move"
+        cost = self.promo_cost()
+        g.cash -= cost
+        self.marks[f"promo{g.stage}"] = self.t
+        self.marks[f"wl{g.stage}"] = list(g.waiters)
+        self.marks[f"sign{g.stage}"] = g.sign
+        g.stage += 1
+        self.stage_start[g.stage] = self.t
+        remap = {}
+        if kind == "move":
+            dest = self.next_location()
+            old_menus = {s: [d.get("key") for d in g.menu(s)] for s in g.station_ids()}
+            g.location = dest
+            apply_location(e, dest)
+            # dish keys by menu position (every location keeps NH 44's from_level / weight
+            # pattern, so the dish at the same position has the same unlock level and mix weight)
+            remap = {s: {k: nd.get("key") for k, nd in zip(old_menus[s], g.menu(s))} for s in g.station_ids()}
+        locd = e.get("locations", {}).get(g.location, {})
+        g.mult = float(e.get("renovation", {}).get("mult", 1.0)) * float(locd.get("mult", 1.0) if isinstance(locd, dict) else 1.0)
+        rebuild = kind == "move" and bool(locd.get("rebuild", False))
+        for s in g.station_ids():
+            g.st[s]["level"] = 1
+            g.st[s]["employees"] = max(1, int(g.sdef(s).get("employees_start", 1)))
+            g.st[s]["proc"] = 0
+            if rebuild and not g.sdef(s).get("start_built", False):
+                g.st[s]["built"] = False
+        g.waiters = [1] * max(1, int(e["waiters"]["start"]))
+        g.gallas = [1]
+        g.tables = g.tables_start()
+        if kind == "move" and e.get("signboard", {}).get("reset_on_move", True):
+            g.sign = 0
+        self.seen_levels = set()
+        # the ad bubble countdown restarts (game.gd: _ad_next_in = ad_bubble.first_delay_s)
+        self.next_ad = self.t + float(e["ad_bubble"].get("first_delay_s", e["ad_bubble"]["interval_s"]))
+        # task cards: absolute ones refresh, stale slots refill. After a move an open
+        # served_dish card follows its dish's menu position (the new dish at the same
+        # unlock level and weight) instead of the game's refill of that slot: a refill
+        # changes the greedy bot's later path (NH 48 all dishes +0:23 with ads, -1:38
+        # without, -0:52 in 20 min sessions; W1-PACE notes), not the economy, so the
+        # tool keeps the prototype's path. A card whose dish has no counterpart refills.
+        for i, tk in enumerate(g.tasks):
+            if tk["done"]:
+                continue
+            if tk["kind"] == "served_dish" and tk["dish"] in remap.get(tk["station"], {}):
+                tk["dish"] = remap[tk["station"]][tk["dish"]]
+            gone = tk["kind"] == "served_dish" and not any(d.get("key") == tk["dish"] for d in g.menu(tk["station"]))
+            if gone or g._stale(tk):
+                g.tasks[i] = g._next_task()
+        g._refresh_abs()
+        g._check()
+        self.log(f"PROMOTED {kind} {g.stage}: cost {rupees(cost)} mult x{g.mult:.2f} location {g.location}"
+                 f" waiters before {self.marks[f'wl{g.stage - 1}']}")
+
     def act(self):
+        """The prototype's bot around the base bot: sessions of the wall-ad cap, the
+        starter grant, saving for a promotion (that cash is never spent on anything
+        else), the signboard by the NEXT-chip payback rule."""
+        g, e = self.g, self.g.e
+        t = self.t
+        if self.ad_sessions > 0 and self.ads and t > 0:
+            sess = int(t // (self.ad_sessions * 60.0))
+            if sess != self._sess:
+                self._sess = sess
+                self.ads_shown = 0
+                self.ads_capped_at = None
+        b = capacity(g)["bind"].split(":")[0]
+        bt = self.bind_t.setdefault(g.stage, {})
+        bt[b] = bt.get(b, 0.0) + 0.5
+        if self.starter_min > 0 and not self.starter_paid and t >= self.starter_min * 60.0:
+            g.add_reward(self.starter_amount, "starter")
+            self.starter_paid = True
+            self.marks["starter"] = t
+            self.log(f"STARTER +{rupees(self.starter_amount)}")
+        reserve = 0.0
+        if self.content_done() and f"end{g.stage}" not in self.marks:
+            self.marks[f"end{g.stage}"] = t
+            self.log(f"ALL DISHES (stage {g.stage})")
+        if g.stage < self.stages and self.content_done():
+            key = f"unlock{g.stage}"
+            if key not in self.marks:
+                self.marks[key] = t
+                self.log(f"UNLOCKED {'renovation' if g.stage == 0 else 'move'} ({rupees(self.promo_cost())})")
+            reserve = self.promo_cost()
+            if g.cash >= reserve:
+                self.promote()
+                reserve = 0.0
+        # the NEXT chip offers the signboard only while the road is the limit and its
+        # payback is at most max(offer_payback_min, the best LEVEL UP payback); never
+        # from the cash saved for a promotion
+        if g.sign_on and g.sign < g.sign_max() and g.sign_unlocked():
+            c = capacity(g)
+            spend = g.cash - reserve
+            ok = c["bind"] == "max"
+            if ok:
+                pb = self.sign_payback(c)
+                ok = pb <= max(float(g.sdef_sign().get("offer_payback_min", 0.0)), self.best_level_payback(c))
+            cost = g.sign_cost()
+            if ok and cost <= SIGN_SPEND_FRAC * spend:
+                g.cash -= cost
+                g.sign += 1
+                self.sign_log.append((t, g.stage, g.sign, cost))
+                self.log(f"SIGNBOARD level {g.sign} ({rupees(cost)}), cap {e['traffic']['ramp_max_tpm'] + g.sign_bonus():.1f}/min")
+        saved = min(g.cash, reserve)
+        g.cash -= saved
+        self.act_base()
+        g.cash += saved
+
+    def act_base(self):
         g, e = self.g, self.g.e
         t = self.t
         for i, tk in enumerate(g.tasks):
@@ -1485,7 +1876,7 @@ class SeatedModel:
         if nb is not None and not g.can_build(nb) and Game.can_build(g, nb):
             cost = g.build_cost(nb)
             need = int(g.sdef(nb).get("requires_waiters", 0)) - len(g.waiters)
-            if need > 0 and len(g.waiters) < e["waiters"]["max"]:
+            if need > 0 and len(g.waiters) < g.waiters_max():
                 hire = g.waiter_hire_cost()
                 if g.cash >= cost + hire:
                     if g.buy("waiter_hire"):
@@ -1494,10 +1885,16 @@ class SeatedModel:
                     reserve = cost + hire
         if nb is not None and g.can_build(nb):
             cost = g.build_cost(nb)
-            if g.cash >= cost and nb not in self.first_afford:
+            if g.cash >= cost and nb not in self.first_afford and g.stage == 0:
                 self.first_afford[nb] = t
                 self.log(f"AFFORDABLE {nb} ({rupees(cost)})")
-            if g.cash >= cost:
+            if g.cash >= cost and g.stage > 0:
+                # a counter rebuilt after a move (not in the BILL CHECK: that checks the
+                # first build of each station on the roadside)
+                g.buy("build", nb)
+                self.rebuilds.append((t, g.stage, nb, cost))
+                self.log(f"REBUILD {nb} ({rupees(cost)}) at {g.location}")
+            elif g.cash >= cost:
                 mates = [(s, g.st[s]["level"], g.price(s)) for s in g.built() if g.group_of(s) == g.group_of(nb)]
                 before = capacity(g)
                 real_before = self.real_per_min()
@@ -1507,6 +1904,7 @@ class SeatedModel:
                 self.built_at[nb] = t
                 after = capacity(g)
                 self.stage.append(dict(t=t, sid=nb, before=before, after=after, real_before=real_before,
+                                       l1=g.price_at(nb, 1),
                                        basket_before=basket_before, basket_after=g.basket(),
                                        rate_before=rate_before, rate_after=g.rate(), afford_t=self.first_afford.get(nb, t), mates=mates,
                                        waiters=len(g.waiters), tables=g.tables,
@@ -1517,11 +1915,11 @@ class SeatedModel:
         spendable = g.cash - reserve
         # staff the floor: waiters first, tables when seats bind, gallas by queue
         c = capacity(g)
-        if len(g.waiters) < e["waiters"]["max"] and g.waiter_hire_cost() <= 0.5 * spendable:
+        if len(g.waiters) < g.waiters_max() and g.waiter_hire_cost() <= 0.5 * spendable:
             if g.buy("waiter_hire"):
                 spendable = g.cash - reserve
                 self.log(f"hire waiter {len(g.waiters)}")
-        if g.tables < e["seating"]["tables_max"] and g.table_cost() <= 0.5 * spendable \
+        if g.tables < g.tables_max() and g.table_cost() <= 0.5 * spendable \
                 and (c["bind"] == "seats" or c["seats"] < c["target"] * 1.3):
             if g.buy("table"):
                 spendable = g.cash - reserve
@@ -1542,9 +1940,9 @@ class SeatedModel:
                 want, cost = ("hire", tk["station"]), g.hire_cost(tk["station"])
             elif kind == "waiter_level" and tk.get("waiter", 0) < len(g.waiters):
                 want, cost = ("waiter_up", tk.get("waiter", 0)), g.waiter_up_cost(tk.get("waiter", 0))
-            elif kind == "tables" and g.tables < e["seating"]["tables_max"]:
+            elif kind == "tables" and g.tables < g.tables_max():
                 want, cost = ("table", None), g.table_cost()
-            elif kind == "waiters" and len(g.waiters) < e["waiters"]["max"]:
+            elif kind == "waiters" and len(g.waiters) < g.waiters_max():
                 want, cost = ("waiter_hire", None), g.waiter_hire_cost()
             else:
                 continue
@@ -1597,8 +1995,9 @@ class SeatedModel:
                 if g.st[s]["level"] >= m and (s, m) not in self.seen_levels:
                     self.seen_levels.add((s, m))
                     dish = next((d for d in g.menu(s) if int(d.get("from_level", 1)) == m), None)
-                    self.log(f"{s} reached L{m}" + (f": {dish['name']} on the menu" if dish else ""))
-                    self.unlock_t[f"{s}.L{m}" + (f" {dish['name']}" if dish else "")] = t
+                    pre = f"s{g.stage} " if g.stage > 0 else ""   # after a promotion: the stage
+                    self.log(f"{pre}{s} reached L{m}" + (f": {dish['name']} on the menu" if dish else ""))
+                    self.unlock_t[f"{pre}{s}.L{m}" + (f" {dish['name']}" if dish else "")] = t
 
     def run(self, minutes, report_every=120.0, quiet=False):
         g = self.g
@@ -1622,8 +2021,11 @@ class SeatedModel:
                 for s in ("chai", "tandoor", "lassi", "kadai"):
                     lv.append(f"{g.st[s]['level']:4d}" if s in g.st and g.st[s]["built"] else "   -")
                 c = capacity(g)
+                extra = ""
+                if g.stage > 0 or g.sign > 0:
+                    extra = f" | s{g.stage} sign {g.sign}" + (f" W{g.waiters}" if g.stage > 0 else "")
                 print(f"{fmt_t(self.t)[:-3]:>6} | {rupees(g.cash):>9} | {rupees(g.rate()):>9} | {rupees(self.real_per_min()):>9} |"
-                      f" {self.arrivals():4.1f} | {c['bind']:<14} | {' '.join(lv)} | {len(g.waiters)} {g.tables} {len(g.gallas)} | {g.claims:5d}")
+                      f" {self.arrivals():4.1f} | {c['bind']:<14} | {' '.join(lv)} | {len(g.waiters)} {g.tables} {len(g.gallas)} | {g.claims:5d}{extra}")
 
 
 def stage_matrix(eco):
@@ -1650,10 +2052,20 @@ def stage_matrix(eco):
     return rows
 
 
-def part_b(eco, run, minutes, ads):
-    """Seated free play from the end of the reference replay (tandoor built)."""
+def part_b(eco, run, minutes, ads, opts=None):
+    """Seated free play from the end of the reference replay (tandoor built).
+    `opts` (core and feel): promo, no_signboard, no_trays, realized, ad_sessions,
+    starter, starter_amount."""
+    o = dict(promo=False, no_signboard=False, no_trays=False, realized=REALIZED, ad_sessions=0.0,
+             starter=0.0, starter_amount=None)
+    o.update(opts or {})
     g0 = run["game"]
-    g = SeatedGame(eco)
+    # the model's own copy: a move applies the location overlay to it
+    g = SeatedGame(copy.deepcopy(eco))
+    if o["no_trays"]:
+        g.trays_on = False
+    if o["no_signboard"]:
+        g.sign_on = False
     # carry the reference run's end state over (levels, gallas, tasks); the cash
     # is the game's own tutorial-end figure (INGAME_TUTORIAL_END_CASH)
     g.cash = INGAME_TUTORIAL_END_CASH
@@ -1674,14 +2086,40 @@ def part_b(eco, run, minutes, ads):
     g.tables = TUT_END_TABLES[0]
     g._refresh_abs()
     g._check()
+    stages = 0
+    if o["promo"] and g.e.get("renovation"):
+        locs = [x for x in g.e.get("locations", {}).get("order", []) if isinstance(g.e["locations"].get(x), dict)]
+        stages = 1 + max(0, len(locs) - 1)
     print()
     print("=" * 96)
     print(f"PART B - seated free play after the tutorial (expected values), {minutes:.0f} min, ads {'on' if ads else 'off'},"
           f" greedy bot that saves for the next station once it costs <= 4 min of real income")
+    ch = g.e["stations"].get("chai", {})
+    sb = g.e.get("signboard", {})
+    feat = [f"chai price ramp L{ch.get('price_step_ramp_from')}->L{ch.get('price_step_ramp_to')}" if "price_step_ramp_to" in ch
+            else "no price ramp",
+            (f"signboard +{sb.get('tpm_per_level', 0):g}/min a level, {sb.get('cost_base', 0):g} x {sb.get('cost_growth', 1):g}^L,"
+             f" {sb.get('max_levels', 0)}/{sb.get('max_levels_family', 0)} levels, payback <= max({sb.get('offer_payback_min', 0):g} min,"
+             f" best LEVEL UP)") if g.sign_on else "signboard off",
+            (f"trays at waiter L{g.e['waiters'].get('tray_levels')} x{g.e['waiters'].get('tray_batch_est', 0):g}") if g.trays_on
+            else "trays off",
+            f"promotions {'on (' + str(stages) + ')' if stages else ('off (no renovation block)' if o['promo'] else 'off')}",
+            f"realized {o['realized']:.2f}"]
+    if o["ad_sessions"] > 0:
+        feat.append(f"wall-ad sessions of {o['ad_sessions']:g} min")
+    if o["starter"] > 0:
+        feat.append(f"starter at {o['starter']:g} min")
+    print("Core and feel: " + "; ".join(feat))
     print("=" * 96)
-    m = SeatedModel(g, ads=ads)
+    m = SeatedModel(g, ads=ads, realized=o["realized"], stages=stages, starter_min=o["starter"],
+                    starter_amount=o["starter_amount"], ad_sessions=o["ad_sessions"])
+    if stages:
+        # the prototype's checkpoints past the first hour
+        m.check_mins = sorted(set(m.check_mins) | {70, 80, 100, 150, 180})
     m.run(minutes, report_every=REPORT[0])
     print_round2(eco, m)
+    if stages:
+        print_promo(m)
     print()
     print("Timeline (station affordable / built, staff, milestones):")
     for t, ev in m.events:
@@ -1724,7 +2162,7 @@ def part_b(eco, run, minutes, ads):
         m.bill_fail += 0 if ok else 1
         mates = ", ".join(f"{s} L{lv} {rupees(p)}" for s, lv, p in st["mates"])
         print(f"  {st['sid']:<6} affordable {fmt_t(st['afford_t'])}, built {fmt_t(st['t'])}: bill {gain:+.1%}, HUD {hud:+.1%}"
-              f"  {'OK' if ok else 'FAIL'}   ({st['sid']} L1 {rupees(g.price_at(st['sid'], 1))} vs {mates})")
+              f"  {'OK' if ok else 'FAIL'}   ({st['sid']} L1 {rupees(st.get('l1', g.price_at(st['sid'], 1)))} vs {mates})")
     print(f"  bill check failures: {m.bill_fail}")
     if m.ads:
         n = m.ads_shown - 1
@@ -1768,19 +2206,54 @@ def print_matrix(eco):
     return fails
 
 
-def menu_check(eco):
+def apply_location(eco, loc_id):
+    """game.gd _apply_location (C6.3): for each station listed in
+    locations.<loc_id>.stations, replace each listed key wholesale (in place)."""
+    block = eco.get("locations", {}).get(loc_id, {})
+    over = block.get("stations", {}) if isinstance(block, dict) else {}
+    missing = []
+    for sid, keys in over.items():
+        if sid not in eco["stations"]:
+            missing.append(sid)
+            continue
+        for k, v in keys.items():
+            eco["stations"][sid][k] = copy.deepcopy(v)
+    return missing
+
+
+def menu_check_all(eco):
+    """MENU CHECK once per location: the base menus (the first location), then each
+    location's overlay applied to a copy of the economy. Returns all failures."""
+    locs = eco.get("locations", {})
+    order = [x for x in locs.get("order", []) if isinstance(locs.get(x), dict)] if isinstance(locs, dict) else []
+    if not order:
+        return menu_check(eco)
+    fails = 0
+    for loc in order:
+        e2 = copy.deepcopy(eco)
+        missing = apply_location(e2, loc)
+        fails += menu_check(e2, loc)
+        for sid in missing:
+            print(f"  {loc}: overlay station {sid} is not in the economy  FAIL")
+            fails += 1
+    return fails
+
+
+def menu_check(eco, label=""):
     """Station menus (docs/v3-station-menus.md §1.3): for every station and every
     unlock state n, the effective price / cook factors (raw / weighted mean of
     the unlocked raws) have weighted mean exactly 1.0, no dish's price falls
-    across an unlock (milestone_price_mult x M(n-1) / M(n) >= 1), and every
-    unlock level (dish 2+) is a milestone level. Returns the number of failures."""
+    across an unlock (milestone_price_mult x M(n-1) / M(n) >= 1), every
+    unlock level (dish 2+) is a milestone level, and every price_mult / cook_mult
+    is a positive number. Returns the number of failures."""
     fails = 0
     wn = float(eco.get("menus", {}).get("weight_newest", 0.4))
     pm = float(eco.get("milestone_price_mult", 2.0))
     ms = [int(m) for m in eco["level_milestones"]]
     print()
     print("=" * 96)
-    print(f"MENU CHECK - effective price / cook factors per unlock state (newest dish {wn:.0%}; must average 1.0,"
+    print(f"MENU CHECK{' [' + label + ']' if label else ''} - effective price / cook factors per unlock state"
+          f" (newest dish {wn:.0%}; must average 1.0,"
           f" never drop a price across an unlock; unlock levels in level_milestones {ms[:3]})")
     print("=" * 96)
     states = 0
@@ -1793,6 +2266,16 @@ def menu_check(eco):
         if int(menu[0].get("from_level", 1)) != 1:
             print(f"  {sid}: dish 1 from_level {menu[0].get('from_level')} != 1  FAIL")
             fails += 1
+        bad = False
+        for d in menu:
+            for k in ("price_mult", "cook_mult"):
+                v = d.get(k, 1.0)
+                if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(float(v)) or float(v) <= 0.0:
+                    print(f"  {sid}.{d.get('key')}: {k} {v!r} is not a positive number  FAIL")
+                    fails += 1
+                    bad = True
+        if bad:
+            continue
         for k, d in enumerate(menu[1:], 2):
             fl = int(d.get("from_level", 1))
             if fl not in ms or fl <= int(menu[k - 2].get("from_level", 1)):
@@ -1837,6 +2320,19 @@ def main():
                          " or --set stations.tandoor.price_base=8")
     ap.add_argument("--difficulty", type=float, default=None, metavar="D",
                     help="ROUND 2: the difficulty dial (difficulty.cost_mult; the JSON's value by default)")
+    ap.add_argument("--promo", action="store_true",
+                    help="CORE AND FEEL: part B also runs the Family Dhaba renovation and the moves of"
+                         " locations.order (the bot saves for each once it unlocks); prints the PROMO block")
+    ap.add_argument("--no-signboard", action="store_true", help="part B without the highway signboard (C5.3)")
+    ap.add_argument("--no-trays", action="store_true", help="part B without the waiter trays (C3.4)")
+    ap.add_argument("--realized", type=float, default=REALIZED, metavar="R",
+                    help=f"realized arrivals / ramp target in part B (default {REALIZED})")
+    ap.add_argument("--ad-sessions", type=float, default=0.0, metavar="M",
+                    help="part B as sessions of M minutes: the wall-ad cap (ad_bubble.max_per_session) resets each one")
+    ap.add_argument("--starter", type=float, default=0.0, metavar="MIN",
+                    help="grant the starter pack (offers.starter.amount) MIN minutes into part B (C7.4)")
+    ap.add_argument("--starter-amount", type=float, default=None, metavar="REF",
+                    help="override the starter pack's cash (ref units; default offers.starter.amount)")
     args = ap.parse_args()
     eco = json.loads(Path(args.eco).read_text())
     DISPLAY_SCALE[0] = float(eco.get("money_display_scale", 10.0))
@@ -1852,7 +2348,7 @@ def main():
         eco.setdefault("difficulty", {})["cost_mult"] = float(args.difficulty)
         print(f"override difficulty.cost_mult = {args.difficulty}")
     print(f"economy version {eco.get('version')}, difficulty dial {float(eco.get('difficulty', {}).get('cost_mult', 1.0))}")
-    fails = menu_check(eco)
+    fails = menu_check_all(eco)
     runs = part_a(eco, args.seeds, not args.no_ads)
     if args.minutes > 0:
         # start part B from a replay that built the tandoor at 160.5 s like the reference
@@ -1863,7 +2359,10 @@ def main():
         built = [r for r in src[args.seed if not args.no_ads else 0:] if r["game"].st["tandoor"]["built"]]
         run = built[0] if built else run_reference(eco, args.seed, True)
         REPORT[0] = args.report
-        m = part_b(eco, run, args.minutes, not args.no_ads)
+        m = part_b(eco, run, args.minutes, not args.no_ads,
+                   dict(promo=args.promo, no_signboard=args.no_signboard, no_trays=args.no_trays,
+                        realized=args.realized, ad_sessions=args.ad_sessions, starter=args.starter,
+                        starter_amount=args.starter_amount))
         fails += m.bill_fail
     if args.matrix:
         fails += print_matrix(eco)

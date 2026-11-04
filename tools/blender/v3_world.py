@@ -189,7 +189,8 @@ def build_dhaba_v3(mat, extra=None):
     gdec(a, 0.012, 1.68, 1.1, 0.54, 0.2, "+x", LIME)
     gdisc(a, 0.012, 1.92, 1.0, 0.07, SAFFRON, n=8, facing="+x")
     gdec(a, 0.012, 1.42, 1.1, 0.5, 0.12, "+x", RED)
-    window(a, (0.004, 1.72, 2.7), 1.15, 0.85, "+x")
+    # (core-and-feel C8.3, 2026-11-01: the window at z 2.7 went; the cricket TV (tv_set.glb, placed by
+    # code at Layout3.TV (0.14, 1.6, 2.7)) hangs on its shelf there)
     gdec(a, 0.006, 2.42, 4.0, 0.06, 1.2, "+x", INK)                           # tube light
     gbox(a, 0.0, 0.07, 2.39, 2.45, 3.45, 4.55, WHITE)
     gdec(a, 0.006, 1.35, 4.0, 0.22, 0.3, "+x", WHITE)                         # switchboard
@@ -278,6 +279,17 @@ def build_dhaba_v3(mat, extra=None):
         x = 2.52 + k * 0.33 + 0.04
         a.face([B(x, 2.66, 10.06), B(x + 0.2, 2.66, 10.06), B(x + 0.1, 2.86, 10.06)],
                (RED, PAINT_YELLOW, GREEN, NEON_PINK, MARIGOLD)[k % 5], normal=(0, -1, 0))
+    # nimbu-mirchi (core-and-feel C8.3): hangs from the awning's front edge right of the door path,
+    # low enough to show under the mango-leaf toran: thread, lemon, five chillies, lemon. The lemons use
+    # NOTE (#86D07A, lime green), not LIME: palette_nh48.png repaints LIME (a foliage swatch) khaki.
+    nx, nz = 4.42, 10.07
+    gtube(a, (nx, 2.0, nz), (nx, 1.42, nz), 0.006, INK, seg=3)
+    gico(a, (nx, 1.71, nz), 0.042, NOTE, subdiv=0)
+    for k in range(5):
+        y = 1.66 - k * 0.045
+        lean = 18 if k % 2 else -18
+        a.cyl(0.013, 0.085, B(nx, y, nz), GREEN, seg=3, r2=0.002, rot=(180 + lean, 0, 0))
+    gico(a, (nx, 1.4, nz), 0.042, NOTE, subdiv=0)
 
     # ---- set dressing (non-interactive)
     # matka on a tripod stand in the corner + steel lota

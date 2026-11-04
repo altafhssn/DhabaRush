@@ -20,6 +20,16 @@ extends RefCounted
 ## Effects in seconds, never multipliers.
 ## Every text comes back in the current language (UiKit.t(); Hindi from
 ## res://i18n/hi.po); callers rebuild on a language change.
+##
+## Core and feel (W2-PANELS):
+##  - C2.4: the waiter HIRE text (STAFF card and the 2-tap card) comes from
+##    Game.waiter_need() (the readout module, the single source):
+##    waiter_need_text(). hire_effect("waiters") keeps now / after / kind
+##    for the status line and the "NEW · Food wait 12 s → 7 s" line.
+##  - C2.5: help_ribbon() / grey_ribbon(): the grey "Not the bottleneck now"
+##    pill (Game.station_help) on the sheet's COOKS / SPEED and STAFF › COOKS.
+##  - C3.4: tray_line(i): "Tray: {k} orders a trip" · "Bigger tray at Lv {n}".
+##  - Debug: log_waiter_card() prints "[ui] waiter card: <text>".
 
 const ROLES := ["waiters", "cashiers", "cooks"]
 const ROW_H := 116.0
@@ -35,6 +45,20 @@ const SPEED_STEP := 1.05
 ## English msgid (labels auto-translate it).
 const RIBBON := "BEST NOW"
 const NEW_COL := Color(0.18, 0.55, 0.22)
+## C2.5 (plan 5.1, = readout.gd RIBBON): the grey ribbon on a buy that will
+## not raise the takings now, and its pill colours.
+const NOT_BOTTLENECK := "Not the bottleneck now"
+const GREY_RIBBON_BG := Color(0.55, 0.52, 0.49)
+const GREY_RIBBON_H := 26.0
+const GREY_RIBBON_PX := [15, 14, 13, 12, 11]
+## C3.4: the tray line on a waiter row.
+const TRAY_COL := Color(0.03, 0.4, 0.45)
+## C2.4 msgids (plan 5.1, word for word).
+const NEED_TEXT := "One waiter carries about {per} orders a minute. Your dhaba needs about {need} a minute."
+const ENOUGH_TEXT := "Your waiters carry about {cap} orders a minute. Enough for now."
+## C3.4 msgids (plan 5.3).
+const TRAY_NEXT_TEXT := "Bigger tray at Lv {n}"
+const TRAY_NOW_TEXT := "Tray: {k} orders a trip"
 
 
 # ================================================================ roles
@@ -342,7 +366,19 @@ static func _preview(role: String) -> Dictionary:
 	return {}
 
 
+## Waiters: the C2.4 text (waiter_need_text()) when Game has the readout,
+## else the seconds text below; now / after / kind always as below (the
+## STAFF status line and new_line() read them).
 static func _waiter_effect() -> Dictionary:
+	var d: Dictionary = _waiter_effect_secs()
+	var need: String = waiter_need_text()
+	if need != "":
+		d["text"] = need
+		d["need"] = true
+	return d
+
+
+static func _waiter_effect_secs() -> Dictionary:
 	var n: int = count("waiters")
 	var now: float = food_wait_now()
 	var after: float = _wait_after(now, n)
@@ -399,6 +435,106 @@ static func _cashier_effect() -> Dictionary:
 	return {"text": UiKit.t("Bills a traveller every {now} now.\nWith {n} cashiers: every {after}.").format(
 			{"now": secs1(60.0 / total), "n": n + 1, "after": secs1(60.0 / (total + add))}),
 			"now": 60.0 / total, "after": 60.0 / (total + add), "kind": "rate", "short": faster}
+
+
+## C2.4 (plan 0 / 5.1): what one waiter carries against what the dhaba
+## needs, from Game.waiter_need() {per, need, cap, enough} (the readout, live
+## when the Sim has been sampled): "One waiter carries about 9 orders a
+## minute. Your dhaba needs about 12 a minute."; when the waiters keep up
+## "Your waiters carry about 20 orders a minute. Enough for now." Whole
+## numbers. "" without the readout (or before it has numbers).
+static func waiter_need_text() -> String:
+	var v: Variant = Game.waiter_need()
+	if not (v is Dictionary):
+		return ""
+	var d: Dictionary = v
+	var per: float = float(d.get("per", 0.0))
+	var need: float = float(d.get("need", 0.0))
+	var cap: float = float(d.get("cap", 0.0))
+	if not (_finite_pos(per) and _finite_pos(need)):
+		return ""
+	if bool(d.get("enough", cap >= need)) and _finite_pos(cap):
+		return UiKit.t(ENOUGH_TEXT).format({"cap": orders_word(cap)})
+	return UiKit.t(NEED_TEXT).format({"per": orders_word(per), "need": orders_word(need)})
+
+
+static func _finite_pos(v: float) -> bool:
+	return v > 0.0 and not is_inf(v) and not is_nan(v)
+
+
+## Orders a minute as a whole number, at least 1 ("9").
+static func orders_word(v: float) -> String:
+	return "%d" % maxi(1, int(roundf(v)))
+
+
+## Debug: "[ui] waiter card: <text>" (callers print when a waiter card fills
+## or its text changes).
+static func log_waiter_card(text: String) -> void:
+	if OS.is_debug_build() and text != "":
+		print("[ui] waiter card: %s" % text.replace("\n", " "))
+
+
+## C3.4: waiter i's tray line: "Tray: 2 orders a trip" once his level has a
+## bigger tray, "Bigger tray at Lv 15" while a tray level is still ahead
+## (both, joined by " · ", between Lv 15 and Lv 30). "" without the data.
+static func tray_line(i: int) -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	var k: int = int(Game.waiter_tray_orders(i))
+	if k >= 2:
+		parts.append(UiKit.t(TRAY_NOW_TEXT).format({"k": k}))
+	var nxt: int = int(Game.tray_next_level(i))
+	if nxt > 0:
+		parts.append(UiKit.t(TRAY_NEXT_TEXT).format({"n": nxt}))
+	return " · ".join(parts)
+
+
+## C2.5: Game.station_help(id, kind).ribbon ("Not the bottleneck now" when a
+## cook ("cook") or SPEED ("speed") at counter `sid` will not raise the
+## takings now, else "").
+static func help_ribbon(sid: String, kind: String) -> String:
+	if sid == "":
+		return ""
+	var v: Variant = Game.station_help(sid, kind)
+	return str((v as Dictionary).get("ribbon", "")) if v is Dictionary else ""
+
+
+## C2.5: a grey "Not the bottleneck now" pill straddling a card's top edge
+## like the BEST NOW pill (hidden; the caller shows it). `pos` is its top
+## left in the card, `w` its width; the text shrinks to fit.
+static func grey_ribbon(parent: Control, pos: Vector2, w: float) -> Panel:
+	var p: Panel = UiKit.pill(GREY_RIBBON_BG, Vector2(w, GREY_RIBBON_H))
+	p.name = "NotBottleneck"
+	parent.add_child(p)
+	p.position = pos
+	var t: String = UiKit.t(NOT_BOTTLENECK)
+	var l: Label = UiKit.label_in(p, t, Vector2(6, -7), Vector2(w - 12.0, GREY_RIBBON_H + 14.0),
+			fit_px(t, GREY_RIBBON_PX, w - 16.0), Color.WHITE)
+	l.name = "Text"
+	l.clip_text = true
+	p.visible = false
+	return p
+
+
+## Lines `text` wraps to at `px` in `width` (body font, word wrap as a Label
+## with AUTOWRAP_WORD_SMART).
+static func wrap_lines(text: String, px: int, width: float, body: bool = true) -> int:
+	var f: Font = UiKit.font_body() if body else UiKit.font_bold()
+	if f == null or text == "":
+		return 1
+	var para := TextParagraph.new()
+	para.width = width
+	para.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	para.add_string(text, f, px)
+	return maxi(1, para.get_line_count())
+
+
+## The largest of `sizes` at which `text` wraps to at most `lines` lines in
+## `width` (body font); the smallest size when none does.
+static func fit_lines_px(text: String, sizes: Array, width: float, lines: int) -> int:
+	for v in sizes:
+		if wrap_lines(text, int(v), width) <= lines:
+			return int(v)
+	return int(sizes[sizes.size() - 1])
 
 
 ## The food wait the STATS card shows (avg seat -> served, seconds).

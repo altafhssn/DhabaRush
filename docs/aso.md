@@ -1,5 +1,7 @@
 # Dhaba Rush — ASO plan and competitor map
 
+> **Core-and-feel update (2 Nov 2026, C9.1 to C9.3):** the Play listing follows new copy rules ("apna dhaba" framing; the staff serve and the player decides what to fix; no earnings words such as "earn", "money", "kamaai", "payout"; "Works without internet" up front) and adds the Hindi-locale search terms of §3. The rules for every store image and video are in [store/README.md §6](store/README.md#6-store-media-rules-c93). Older copy below that breaks these rules (the iOS listing in §4, the v0.3 Play text in §5 and §6) must be rewritten to them before it is used.
+
 Date: 2026-10-20 · Scope: India soft launch (Android + iOS, 13 Dec 2026), then Tier-1 iOS. Store data was pulled on 20 Oct 2026 with `tools/aso/store_scrape.py` (iTunes Search API, Apple search hints on the India storefront, Google Play HTML with `gl=IN`, Apple top-free RSS). Counts change daily; rerun the tool before each store submission.
 
 ## 0. Decisions
@@ -97,20 +99,23 @@ Apple's autocomplete for "idle tycoon" in India now surfaces local-food titles f
 
 **Charts (App Store India, 20 Oct 2026).** Top free games: Truck Masters India #8, Top Tycoon #13, Pizza Ready #32, Carnival Tycoon #42, Bus Simulator Indonesia #58, Indian Vehicle Simulator 3d #84, Indian Bike Driving Simulator #100. Simulation chart: Truck Masters #1, Pizza Ready #5, Supermarket Tycoon Empire #29, Bus Masters India #40, Indian Train Simulator #43. Indian-theme simulators and food idle tycoons both chart in India today.
 
-**Complaints to answer in the listing** (from the leaders' reviews, see `docs/name-and-competitors.md`): forced interstitials, ads that show a different game, punishing resets, paywalled capacity, progress-blocking bugs. Our copy should say: works offline, earn while away, rewarded ads are optional, progress is saved on the phone, and our ads show the real game.
+**Complaints to answer in the listing** (from the leaders' reviews, see `docs/name-and-competitors.md`): forced interstitials, ads that show a different game, punishing resets, paywalled capacity, progress-blocking bugs. Our copy should say: works without internet, the staff keep working while you're away, no forced ads (every ad is the player's choice), progress is saved on the phone, and our ads show the real game.
 
 ## 3. Keyword map
 
 | Tier | Keywords | Where |
 |---|---|---|
 | 1 · genre head terms (high volume, high competition) | idle, tycoon, idle tycoon, idle games, tycoon games, simulator, business, empire, restaurant | App Store name + subtitle; Play title + short description; description headings |
-| 2 · theme and intent (medium volume) | Indian, indian game, highway, truck, truck stop, food, cooking, offline, manager, money, 3d | App Store subtitle + keyword field; Play short + full description |
+| 2 · theme and intent (medium volume) | Indian, indian game, highway, truck, truck stop, food, cooking, offline, manager, 3d ("money" dropped on 2 Nov: g3 links earnings words to real-money apps) | App Store subtitle + keyword field; Play short + full description |
+| 2b · Hindi-locale searches (g3, C9.1) | dhaba game, dukan wala game, बिज़नेस गेम, apna dhaba, bina internet | Play full descriptions, once each inside a sentence (`store/play-listing.md` §3); the Hindi listing's one Roman-script line |
 | 3 · own-able long tail (low volume today, zero competition) | dhaba, dhaba game, chai, chaiwala, chai wala, desi, roadside, paratha, tandoor, punjabi, NH48, lorry | Title ("Dhaba"), keyword field, Hindi keyword field, description body |
 | Brand | Dhaba Rush, Munshi-ji, Bhaiya | Everywhere; trademark search per PLAN.md |
 
 Rules used below: on the App Store a word is indexed once across name, subtitle and keyword field, so nothing repeats; Apple ignores "game", "app", "free" as weak terms. On Play the title carries the most weight, then the short description, then 2–3% density in the full description; stuffing is penalised.
 
 ## 4. App Store listing (App Store Connect)
+
+> **Not used yet (iOS comes later).** This draft predates the C9.1 rules: it uses "earn", "money", "Offline earnings" and "कमाई", and makes the player the server. Rewrite it to the rules of [store/play-listing.md](store/play-listing.md) (§1 and the claims table §5) before it goes into App Store Connect.
 
 Localisations to fill: **English (U.S.)** primary, **English (U.K.)** identical copy (the India storefront's English), **Hindi**. All three are indexed on the India storefront, so the Hindi keyword field is 100 extra characters of Latin-script Hinglish. Confirm in App Store Connect which English localisation India displays; AppTweak's India guide says U.K.
 
@@ -280,7 +285,7 @@ Full description: use the Hindi App Store description from §4b, with this first
 
 ## 6. Creative
 
-> **Replaced for Google Play (2026-10-26):** see [store/play-listing.md](store/play-listing.md) and [store/README.md](store/README.md). Do not run `tools/aso/make_store_art.sh` for Play: it would overwrite the new 8-shot set in `export/store/play/` with the old 7-shot set.
+> **Replaced for Google Play (2026-10-26):** see [store/play-listing.md](store/play-listing.md) and [store/README.md](store/README.md). Do not run `tools/aso/make_store_art.sh` for Play: it would overwrite the new 8-shot set in `export/store/play/` with the old 7-shot set. Every image and video follows the rules in [store/README.md §6](store/README.md#6-store-media-rules-c93) (2 Nov 2026); captions 2 and 5 below break them (the player as the server, earnings words).
 
 **Icon** (1024×1024 PNG without alpha for Apple; 512×512 32-bit PNG for Play, Play adds its own rounding). No text: it is unreadable at 48 px and Play discourages it. Three concepts, test A vs. B on Play:
 - A: Bhaiya's face, moustache and smile, holding a chai glass, saffron background (character icons: Eatventure, Pizza Ready).

@@ -101,14 +101,23 @@ extends Node3D
 ##   shelter is built here in code (_build_bus_stop). Lane -X through traffic
 ##   carries no buses (every bus that comes that way stops).
 ## - Ambient villagers strolling the shoulders (the far one detours behind
-##   the bus shelter, Layout3.ambient_far_z; they wait at manoeuvre areas),
-##   the cow on the divider and a sleeping dog (if its glb exists).
+##   the bus shelter, Layout3.ambient_far_z; they wait at manoeuvre areas;
+##   core and feel C2.1: the near one runs in front of the door line and
+##   turns back rather than walk through people standing in it), the cow on
+##   the divider, a sleeping dog (if its glb exists) and, C8.3, a sitting dog
+##   that watches passers-by and barks at a drive-past (_update_dog_sit).
+## - Core and feel C6.4 (W2-WORLD): request_bus(riders, "bus_baraat") sends
+##   the decorated baraat bus to the stop; drive_past(n, "baraat") sends it by.
 ## Vehicles face +X in their glbs. Puffs and indicator lamps are pooled; the
 ## per-frame update allocates nothing.
 
 signal vehicle_parked(slot: int, visit: int, model_id: String, riders: int)
 signal vehicle_left(slot: int, visit: int)
 signal drove_past(model_id: String)
+## C2.7 (W4-FIX-world): a drive_past() vehicle reached the gate it does not
+## stop at (Layout3.DOOR.x, where it honks): `kind` as last_pass_kind was
+## when it was sent, `riders` as Sim gave drive_past(). Sim flashes its cue.
+signal pass_at_gate(kind: String, riders: int)
 ## A bus stopped at the BUS STOP and opened its door at `door` (riders step
 ## off there, boarders climb in there).
 signal bus_stopped(visit: int, door: Vector3, riders: int)
@@ -340,6 +349,42 @@ const WALKER_MODELS := [
 ]
 const WALKER_SPEED_K := 1.4             # x height per second (a stroll)
 const WALKER_RESPAWN := Vector2(3.0, 10.0)
+## Core and feel C2.1 (W2-WORLD, lead decision 7): a near-line villager
+## never walks through the door line. When a traveller standing in it is
+## within WALKER_LINE_LOOK m ahead of him and WALKER_LINE_CLEAR m of his line
+## (the sidewalk slots 3-6 at z 9.85, 0.27 m from the line at z 10.12), he
+## stands WALKER_TURN_PAUSE s, then turns back. The turn-back draws no rng;
+## vehicles and the seats-beat fill (villager_beside) still give way to
+## villagers.
+## W2-FIX-world: the line is where its travellers stand and the slots they
+## walk to (_door_line_points). A villager with any of it within
+## WALKER_LINE_NEAR m along x (bodies touch below ~0.31 m at the 0.27 m gap)
+## walks off at once out past the line's nearer end, hurrying
+## (AREA_HURRY_VILLAGER), and heeds the line again once WALKER_LINE_LOOK m
+## clear of it: a joiner never steps into a slot beside him.
+const WALKER_LINE_LOOK := 0.75
+const WALKER_LINE_CLEAR := 0.45
+const WALKER_LINE_NEAR := 0.45
+const WALKER_TURN_PAUSE := 1.2
+const WALKER_LINE_RECHECK := 0.5
+## W3-FIX-look: the far line's east end (AMBIENT_WALK_X.y, AMBIENT_FAR_BACK_Z)
+## stands beside the hoarding, in the signboard fly's frame
+## (Layout3.hoarding_view()). While that end is on screen or within
+## WALKER_END_MARGIN px of it, no far villager appears or vanishes there: one
+## who would start there walking west starts at the line's west end instead
+## (no other rng draw), and one who reaches it stands WALKER_TURN_PAUSE s and
+## strolls back west. Villagers draw only from _walker_rng, never rng.
+## Vehicles still give way to them (_zone_people_clear, and _people_in_way
+## while reversing or pulling out), so while that end is on screen the
+## walk-backs can shift lot traffic timings slightly (lead decision 11).
+const WALKER_END_MARGIN := 40.0
+## C8.3 sitting dog (W2-WORLD): its head turns toward the nearest person
+## within DOG_LOOK_R m (at most DOG_LOOK_MAX rad off its facing), its tail
+## wags; it barks (dog_bark) at a vehicle that drives past for want of seats
+## as it reaches the gate (W4-FIX-world), at most once every DOG_BARK_GAP s.
+const DOG_LOOK_R := 3.0
+const DOG_LOOK_MAX := 0.9
+const DOG_BARK_GAP := 45.0
 
 enum Ph { DRIVE, APPROACH, STOP, REVERSE, SETTLE, PARKED, LEAVING, WAIT_MERGE, PULL_OUT, BUS_APPROACH, BUS_STOP, BUS_GO }
 
@@ -376,6 +421,8 @@ class Car:
 	var prev: Vector3 = Vector3.ZERO
 	var signal_on: bool = false
 	var honk_x: float = INF
+	var pass_cue: String = ""     # C2.7: a drive_past() vehicle's kind until it reaches the gate ("" = none)
+	var pass_n: int = 0           # ... and its riders (pass_at_gate)
 	var puff_t: float = 0.0
 	var merge_t: float = 0.0
 	var unloaded: bool = false    # riders of this visit already climbed down
@@ -383,6 +430,7 @@ class Car:
 	var t_parked: float = 0.0     # (stats) when it stopped in the bay
 	# ---- BUS STOP run (stop_bus: on its way to / standing at the stop)
 	var stop_bus: bool = false
+	var bus_tag: String = ""      # C6.4: the model Sim asked for ("bus_baraat"), "" = a plain bus
 	var bus_riders: int = 0       # riders who will step off at the stop
 	var alight_s: float = 0.0     # s from door open until its riders are off
 	var open_t: float = -1.0      # c.t when the door opened (-1 = not yet)
@@ -446,8 +494,10 @@ class Walker:
 	var wait: float = 0.0
 	var active: bool = false
 	var far: bool = false         # on the far shoulder line (detours behind the bus shelter)
-	var base_z: float = 9.8       # his line (z)
+	var base_z: float = 10.12     # his line (z)
 	var halted: bool = false      # standing at the edge of a manoeuvre area / by a vehicle
+	var turn_t: float = 0.0       # s left standing before he turns back from the door line (C2.1)
+	var flee: bool = false        # walking off the door line (W2-FIX-world): no door-line stop
 
 
 var _active: Array = []                 # of Car
@@ -501,6 +551,15 @@ var _cow_head_rest: Vector3 = Vector3.ZERO
 var _cow_flick_in: float = 2.0
 var _cow_flick_t: float = -1.0
 var _dog: Node3D = null
+## C8.3: the sitting dog and its head / tail (dog_sit glb), its head's yaw
+## offset now, the rest poses and the last bark (Traffic._t).
+var _dog_sit: Node3D = null
+var _dog_sit_head: Node3D = null
+var _dog_sit_tail: Node3D = null
+var _dog_sit_head_rest: Vector3 = Vector3.ZERO
+var _dog_sit_tail_rest: Vector3 = Vector3.ZERO
+var _dog_look: float = 0.0
+var _bark_t: float = -1000.0
 var _t: float = 0.0
 var _passes: int = 0
 ## Stats (debug_bays): finished bay visits, summed bay time / parked time / riders.
@@ -558,6 +617,16 @@ var rng := RandomNumberGenerator.new()
 ## wait (manoeuvre areas), so with the global RNG a --seed run no longer
 ## repeated (QA); a stream of their own keeps `rng`'s draws as they were.
 var _walker_rng := RandomNumberGenerator.new()
+## C2.1 (core-and-feel W1-WORLDA): the vehicle a drive_past() sends by (its
+## model pick) draws from its own stream, seeded from rng's seed + 7919, so
+## a drive-past never shifts rng's draws (the tutorial's timings).
+var _pass_rng := RandomNumberGenerator.new()
+const PASS_SEED_OFFSET := 7919
+## Kind of the last drive_past() vehicle: "lorry" | "car" | "auto" | "bus" |
+## "baraat" ("" before the first).
+var last_pass_kind: String = ""
+## (stats) drive_past() vehicles sent.
+var drive_pasts: int = 0
 
 
 func _ready() -> void:
@@ -570,6 +639,7 @@ func _ready() -> void:
 	else:
 		rng.seed = Sim.TUTORIAL_SEED + 7
 		_walker_rng.seed = Sim.TUTORIAL_SEED + 11
+	_pass_rng.seed = rng.seed + PASS_SEED_OFFSET
 	_pp.resize(OUT_PEOPLE)
 	_pd.resize(OUT_PEOPLE)
 	_pw.resize(OUT_PEOPLE)
@@ -772,13 +842,18 @@ func rider_back(slot: int, visit: int) -> void:
 ## stands at the stop the next one may already come (it waits behind it and
 ## pulls up when it leaves); false (nothing sent) while a bus is still on its
 ## way to the stop or one already waits behind the stopped one.
-func request_bus(riders: int) -> bool:
+## C6.4 (W2-WORLD): `model_id` "bus_baraat" sends the decorated baraat bus
+## (falls back to the plain bus when its glb is missing); bus_model(visit)
+## tells Sim which one opened its door.
+func request_bus(riders: int, model_id: String = "") -> bool:
 	if not bus_can_take_request():
 		return false
-	var c: Car = _get_car(K_BUS, _first_model(["bus"], K_BUS))
+	var mid: String = model_id if model_id != "" and CharacterRig.model_exists(model_id) else _first_model(["bus"], K_BUS)
+	var c: Car = _get_car(K_BUS, mid)
 	_mix_count("stop_bus")
 	c.slot = -1
 	c.stop_bus = true
+	c.bus_tag = model_id
 	c.bus_riders = maxi(0, riders)
 	c.open_t = -1.0
 	c.unloaded = false
@@ -867,6 +942,16 @@ func bus_boarded(visit: int) -> void:
 	var c: Car = _stop_bus(visit)
 	if c != null:
 		c.out = maxi(0, c.out - 1)
+
+
+## C6.4: model id of the stop bus of `visit`: the one Sim asked for
+## ("bus_baraat", even when its glb is missing and a plain bus came), else
+## the bus's own ("bus"); "" when no stop bus has that visit.
+func bus_model(visit: int) -> String:
+	var c: Car = _stop_bus(visit)
+	if c == null:
+		return ""
+	return c.bus_tag if c.bus_tag != "" else c.model
 
 
 ## The stop bus (at the stop or the one behind it) of `visit`, or null.
@@ -1210,6 +1295,8 @@ func _process(delta: float) -> void:
 	_update_cow(delta)
 	if _dog != null:
 		_dog.scale = Vector3(1.0, 1.0 + sin(_t * 1.7) * 0.035, 1.0)
+	if _dog_sit != null:
+		_update_dog_sit(delta)
 
 
 # ---------------------------------------------------------------- phases
@@ -1253,6 +1340,15 @@ func _tick_drive(c: Car, delta: float) -> bool:
 	if c.honk_x < INF and ((dir < 0.0 and x <= c.honk_x) or (dir > 0.0 and x >= c.honk_x)):
 		c.honk_x = INF
 		_horn(c)
+		if c.pass_cue != "":
+			# C2.7 / C8.3 (W4-FIX-world): a drive-past vehicle at the gate: the
+			# dog barks and Sim flashes the cue now, while it is on screen.
+			var cue: String = c.pass_cue
+			var cue_n: int = c.pass_n
+			c.pass_cue = ""
+			c.pass_n = 0
+			_dog_bark()
+			pass_at_gate.emit(cue, cue_n)
 	if c.slot < 0 and ((dir > 0.0 and x > Layout3.TRAFFIC_X.y) or (dir < 0.0 and x < Layout3.TRAFFIC_X.x)):
 		return true
 	return false
@@ -3553,6 +3649,8 @@ func _release(c: Car) -> void:
 	c.riders_total = 0
 	c.signal_on = false
 	c.honk_x = INF
+	c.pass_cue = ""
+	c.pass_n = 0
 	c.merge_t = 0.0
 	c.unloaded = false
 	c.stop_bus = false
@@ -3622,6 +3720,100 @@ func _dispatch_pass() -> void:
 	_lane_last[1] = c
 	_passes += 1
 	drove_past.emit(c.model)
+
+
+## C2.1 lossless door line (core-and-feel W1-WORLDA): the vehicle the arrival
+## account would have called drives past without stopping because the dhaba
+## has no room for its riders (Sim gates arrivals on free seats + door-line
+## slots). `kind` "" = a parker drawn from the account's vehicle_mix (lorry,
+## tempo or car, as request_arrival() would have called), "lorry" / "car" /
+## "auto" = that kind, "bus" / "baraat" = a bus. Every draw is on _pass_rng.
+## It drives the +X lane (the dhaba's side; through buses run there too).
+## `riders` is informational (nobody climbs down): pass_at_gate carries it
+## when the vehicle reaches the gate, where it honks and the dog barks
+## (W4-FIX-world: both fired at the off-camera spawn, 7 to 20 s early).
+## Always sent: true.
+func drive_past(riders: int = -1, kind: String = "") -> bool:
+	var mid: String = ""
+	var k: int = K_TRUCK
+	match kind:
+		"bus":
+			k = K_BUS
+			mid = _pass_pick(K_BUS)
+		"baraat":
+			k = K_BUS
+			mid = "bus_baraat" if CharacterRig.model_exists("bus_baraat") else _pass_pick(K_BUS)
+		"lorry":
+			k = K_TRUCK
+			mid = _pass_pick(K_TRUCK)
+		"car":
+			k = K_CAR
+			mid = _pass_pick(K_CAR)
+		"auto":
+			k = K_AUTO
+			mid = _pass_pick(K_AUTO)
+		_:
+			mid = _pass_park_model()
+			k = int(MODEL_KIND.get(mid, K_TRUCK))
+	# The +X lane, on the dhaba's side of the road: it never queues the
+	# parkers and the stop buses of the -X lane (a drive-past there held
+	# called vehicles back, so even fewer could come). It joins the lane
+	# upstream of anything already there, off camera: always sent.
+	var lane: int = 0
+	var c: Car = _get_car(k, mid)
+	_mix_count("thru_lorry" if k == K_TRUCK else ("thru_bus" if k == K_BUS else "thru_other"))
+	c.slot = -1
+	_place(c, lane, _lane_entry_x(lane))
+	# Honks as it passes the gate it did not stop at.
+	c.honk_x = Layout3.DOOR.x
+	_active.append(c)
+	_lane_last[lane] = c
+	_passes += 1
+	drive_pasts += 1
+	last_pass_kind = kind if kind == "baraat" else pass_kind_of(k)
+	c.pass_cue = last_pass_kind
+	c.pass_n = maxi(1, riders)
+	drove_past.emit(c.model)
+	return true
+
+
+## "lorry" | "car" | "auto" | "bus" for a vehicle kind (Car.kind).
+static func pass_kind_of(k: int) -> String:
+	match k:
+		K_BUS:
+			return "bus"
+		K_AUTO:
+			return "auto"
+		K_CAR:
+			return "car"
+		_:
+			return "lorry"
+
+
+## A model of `kind` drawn on _pass_rng (first existing of K_MODELS).
+func _pass_pick(kind: int) -> String:
+	var ok: Array = _kind_models[kind]
+	if not ok.is_empty():
+		return str(ok[_pass_rng.randi() % ok.size()])
+	return str((K_MODELS[kind] as Array)[0])
+
+
+## A parker of the account's vehicle_mix (_pick_park_model's odds), drawn
+## on _pass_rng; buses never park, so a "bus" in the mix maps to a lorry.
+func _pass_park_model() -> String:
+	var total: float = 0.0
+	for w in _park_weights:
+		total += w
+	var pick: String = str(_park_models[0]) if not _park_models.is_empty() else "truck"
+	var r: float = _pass_rng.randf() * total
+	for i in _park_models.size():
+		r -= _park_weights[i]
+		if r <= 0.0:
+			pick = str(_park_models[i])
+			break
+	if int(MODEL_KIND.get(pick, K_TRUCK)) == K_BUS:
+		return _pass_pick(K_TRUCK)
+	return pick
 
 
 ## Spreads a few vehicles along a lane so the highway is busy from frame one.
@@ -3909,16 +4101,24 @@ func _add_walker(i: int) -> void:
 func _start_walker(w: Walker, anywhere: bool) -> void:
 	w.active = true
 	w.halted = false
+	w.turn_t = 0.0
+	w.flee = false
 	w.dir = 1.0 if _walker_rng.randf() < 0.5 else -1.0
 	var zs: Array = Layout3.AMBIENT_WALK_Z
 	var line: int = _walker_rng.randi() % zs.size()
 	w.far = float(zs[line]) > Layout3.DIVIDER_Z
-	# The far line keeps clear of the -X lane's vehicles and the stop bus.
-	var jit: float = Layout3.AMBIENT_FAR_JITTER if w.far else 0.25
+	# The far line keeps clear of the -X lane's vehicles and the stop bus; the
+	# near one (C2.1) of Traffic's road list (z > HIGHWAY_Z.x - 0.35).
+	var jit: float = Layout3.AMBIENT_FAR_JITTER if w.far else Layout3.AMBIENT_NEAR_JITTER
 	w.base_z = float(zs[line]) + _walker_rng.randf_range(-jit, jit)
 	var x: float = Layout3.AMBIENT_WALK_X.x if w.dir > 0.0 else Layout3.AMBIENT_WALK_X.y
 	if anywhere:
 		x = _walker_rng.randf_range(Layout3.AMBIENT_WALK_X.x, Layout3.AMBIENT_WALK_X.y)
+	elif w.far and w.dir < 0.0 and _walk_end_seen(x, _walker_z(w, x)) \
+			and not _walk_end_seen(Layout3.AMBIENT_WALK_X.x, w.base_z):
+		# W3-FIX-look: not popping in beside the hoarding in view.
+		w.dir = 1.0
+		x = Layout3.AMBIENT_WALK_X.x
 	w.node.position = Vector3(x, 0.0, _walker_z(w, x))
 	w.node.visible = true
 	w.rig.set_yaw(PI * 0.5 if w.dir > 0.0 else -PI * 0.5)
@@ -3930,9 +4130,20 @@ func _walker_z(w: Walker, x: float) -> float:
 	return Layout3.ambient_far_z(x, w.base_z) if w.far else w.base_z
 
 
+## W3-FIX-look: a villager at the line end (x, z) would show on screen (his
+## middle within WALKER_END_MARGIN px of the view).
+func _walk_end_seen(x: float, z: float) -> bool:
+	var cam: Variant = Refs.camera
+	if cam == null or not is_instance_valid(cam) or not (cam as Object).has_method("is_on_screen"):
+		return false
+	return bool((cam as Object).call("is_on_screen", Vector3(x, 0.6, z), -WALKER_END_MARGIN))
+
+
 ## Villagers stroll their shoulder line; one stands while his next step would
 ## enter a manoeuvre area or a vehicle body (_ped_blocked), like travellers.
 func _update_walkers(delta: float) -> void:
+	var line_pts := PackedVector3Array()
+	var have_pts: bool = false
 	for v in _walkers:
 		var w: Walker = v
 		if not w.active:
@@ -3941,6 +4152,36 @@ func _update_walkers(delta: float) -> void:
 				_start_walker(w, false)
 			continue
 		var p: Vector3 = w.node.position
+		# C2.1: never through the door line - stand, then turn back (walk on
+		# if the line moved off; keep standing while it hems him in on both
+		# sides, so he never paces to and fro). W2-FIX-world: the line closing
+		# on him (a joiner walking to the slot beside him, standing or not)
+		# sends him off at once (_walker_flee).
+		if not w.far:
+			if not have_pts:
+				line_pts = _door_line_points()
+				have_pts = true
+			if w.flee and not _line_within(p, WALKER_LINE_LOOK, line_pts):
+				w.flee = false
+			elif not w.flee and _line_within(p, WALKER_LINE_NEAR, line_pts):
+				_walker_flee(w, p, line_pts)
+		if w.turn_t > 0.0:
+			w.turn_t -= delta
+			if w.turn_t <= 0.0:
+				if _line_ahead(p, w.dir, line_pts):
+					if _line_ahead(p, -w.dir, line_pts):
+						w.turn_t = WALKER_LINE_RECHECK
+						continue
+					w.dir = -w.dir
+					w.rig.set_yaw(PI * 0.5 if w.dir > 0.0 else -PI * 0.5)
+				w.halted = false
+				w.rig.walk(true)
+			continue
+		if not w.far and not w.flee and _line_ahead(p, w.dir, line_pts):
+			w.turn_t = WALKER_TURN_PAUSE
+			w.halted = true
+			w.rig.walk(false)
+			continue
 		var lx: float = p.x + w.dir * PED_LOOK
 		var hold: bool = _ped_blocked(p.x, p.z, lx, _walker_z(w, lx), null)
 		if hold != w.halted:
@@ -3948,19 +4189,110 @@ func _update_walkers(delta: float) -> void:
 			w.rig.walk(not hold)
 		if hold:
 			continue
-		# (one caught in a manoeuvre area that is on hurries out of it)
-		var x: float = p.x + w.dir * w.speed * (AREA_HURRY_VILLAGER if in_area_on(p) else 1.0) * delta
+		# (one caught in a manoeuvre area that is on, or walking off the door
+		# line, hurries out of it)
+		var x: float = p.x + w.dir * w.speed * (AREA_HURRY_VILLAGER if w.flee or in_area_on(p) else 1.0) * delta
 		var z: float = _walker_z(w, x)
 		if w.far:
 			# (facing along the detour; straight along the line elsewhere)
 			w.rig.set_yaw(Layout3.yaw_of(Vector3(x - p.x, 0.0, z - p.z)))
 		w.node.position = Vector3(x, 0.0, z)
 		if (w.dir > 0.0 and x > Layout3.AMBIENT_WALK_X.y) or (w.dir < 0.0 and x < Layout3.AMBIENT_WALK_X.x):
+			var ex: float = Layout3.AMBIENT_WALK_X.y
+			if w.far and w.dir > 0.0 and _walk_end_seen(ex, _walker_z(w, ex)):
+				# W3-FIX-look: not vanishing beside the hoarding in view:
+				# stand at the line's end, then stroll back west.
+				w.node.position = Vector3(ex, 0.0, _walker_z(w, ex))
+				w.dir = -1.0
+				w.rig.set_yaw(-PI * 0.5)
+				w.turn_t = WALKER_TURN_PAUSE
+				w.halted = true
+				w.rig.walk(false)
+				continue
 			w.active = false
 			w.halted = false
 			w.node.visible = false
 			w.rig.walk(false)
 			w.wait = _walker_rng.randf_range(WALKER_RESPAWN.x, WALKER_RESPAWN.y)
+
+
+## C2.1: a traveller standing in (or stepping into) the door line, or the
+## slot one is walking to, within WALKER_LINE_LOOK m ahead of a near villager
+## at `p` walking `dir`, and within WALKER_LINE_CLEAR m of his line.
+func _door_line_ahead(p: Vector3, dir: float) -> bool:
+	return _line_ahead(p, dir, _door_line_points())
+
+
+## The door line's points (C2.1): every DOOR_WAIT traveller where he is now
+## and (W2-FIX-world) every slot of Sim.door_queue, where each one is walking
+## to (Layout3.door_wait_slot; Traffic is the Sim's child).
+func _door_line_points() -> PackedVector3Array:
+	var out := PackedVector3Array()
+	for v in peds:
+		if not is_instance_valid(v):
+			continue
+		var t: Traveller = v
+		if t.state == Traveller.S.DOOR_WAIT:
+			out.append(t.position)
+	var sim: Node = get_parent()
+	var dq: Variant = sim.get("door_queue") if sim != null else null
+	if dq is Array:
+		for i in (dq as Array).size():
+			out.append(Layout3.door_wait_slot(i))
+	return out
+
+
+func _line_ahead(p: Vector3, dir: float, pts: PackedVector3Array) -> bool:
+	for q in pts:
+		var dx: float = (q.x - p.x) * dir
+		if dx > 0.0 and dx < WALKER_LINE_LOOK and absf(q.z - p.z) < WALKER_LINE_CLEAR:
+			return true
+	return false
+
+
+## A door-line point within `r` m of `p` along x (and WALKER_LINE_CLEAR in z).
+func _line_within(p: Vector3, r: float, pts: PackedVector3Array) -> bool:
+	for q in pts:
+		if absf(q.x - p.x) < r and absf(q.z - p.z) < WALKER_LINE_CLEAR:
+			return true
+	return false
+
+
+## W4-WORLD (lead decision 9): a near villager has door-line slot `pos`
+## within WALKER_LINE_NEAR m along x and WALKER_LINE_CLEAR m in z (the
+## reach that sends him off the line, _walker_flee). The seats-beat fill
+## (Sim.fill_for_seats_beat) pops no traveller in there: one popping in on
+## him overlapped him while he walked off. Slots 0-2 inside the gate are
+## never within it (0.55 m from his line in z).
+func villager_beside(pos: Vector3) -> bool:
+	for v in _walkers:
+		var w: Walker = v
+		if not w.active or w.far:
+			continue
+		var p: Vector3 = w.node.position
+		if absf(p.x - pos.x) < WALKER_LINE_NEAR and absf(p.z - pos.z) < WALKER_LINE_CLEAR:
+			return true
+	return false
+
+
+## W2-FIX-world: the door line closes on a villager, standing or walking (a
+## joiner is walking to the slot beside him, or the seats-beat fill pops
+## travellers in on the slots): he walks off at once, out past the
+## line's nearer end (its points form one stretch along the sidewalk), and
+## stops for it again only once WALKER_LINE_LOOK m clear of it.
+func _walker_flee(w: Walker, p: Vector3, pts: PackedVector3Array) -> void:
+	var lo: float = INF
+	var hi: float = -INF
+	for q in pts:
+		if absf(q.z - p.z) < WALKER_LINE_CLEAR:
+			lo = minf(lo, q.x)
+			hi = maxf(hi, q.x)
+	w.dir = -1.0 if p.x - lo < hi - p.x else 1.0
+	w.turn_t = 0.0
+	w.flee = true
+	w.halted = false
+	w.rig.set_yaw(PI * 0.5 if w.dir > 0.0 else -PI * 0.5)
+	w.rig.walk(true)
 
 
 # ================================================================ cow + dog
@@ -3978,15 +4310,64 @@ func _spawn_cow() -> void:
 		_cow_head_rest = _cow_head.rotation
 
 
-## A sleeping dog on the near shoulder (only when ART ships a `dog` glb).
+## A sleeping dog on the near shoulder (only when ART ships a `dog` glb) and,
+## C8.3, a sitting dog beside it at Layout3.DOG_SIT (`dog_sit` glb: head and
+## tail on their own pivots), facing the road.
 func _spawn_dog() -> void:
-	if not CharacterRig.model_exists("dog"):
+	if CharacterRig.model_exists("dog"):
+		_dog = Models.make("dog")
+		_dog.name = "Dog"
+		_dog.position = Layout3.DOG
+		_dog.rotation.y = 0.6
+		add_child(_dog)
+	if CharacterRig.model_exists("dog_sit"):
+		_dog_sit = Models.make("dog_sit")
+		_dog_sit.name = "DogSit"
+		_dog_sit.position = Layout3.DOG_SIT
+		add_child(_dog_sit)
+		_dog_sit_head = _dog_sit.find_child("head", true, false) as Node3D
+		_dog_sit_tail = _dog_sit.find_child("tail", true, false) as Node3D
+		if _dog_sit_head != null:
+			_dog_sit_head_rest = _dog_sit_head.rotation
+		if _dog_sit_tail != null:
+			_dog_sit_tail_rest = _dog_sit_tail.rotation
+
+
+## C8.3: the sitting dog's head follows the nearest person within DOG_LOOK_R
+## (this frame's people outside the dhaba, _collect_people) and comes back to
+## a slow look-around; its tail wags, faster while someone is near. Global
+## time only (no rng).
+func _update_dog_sit(delta: float) -> void:
+	var dp: Vector3 = _dog_sit.position
+	var best: float = DOG_LOOK_R * DOG_LOOK_R
+	var want: float = sin(_t * TAU / 9.0) * 0.25
+	var near: bool = false
+	for i in _pn:
+		var q: Vector3 = _pp[i]
+		var dx: float = q.x - dp.x
+		var dz: float = q.z - dp.z
+		var d2: float = dx * dx + dz * dz
+		if d2 < best and d2 > 0.04:
+			best = d2
+			near = true
+			want = clampf(wrapf(atan2(dx, dz) - _dog_sit.rotation.y, -PI, PI), -DOG_LOOK_MAX, DOG_LOOK_MAX)
+	_dog_look = lerpf(_dog_look, want, 1.0 - exp(-delta * 6.0))
+	if _dog_sit_head != null:
+		_dog_sit_head.rotation = _dog_sit_head_rest + Vector3(0.0, _dog_look, 0.0)
+	if _dog_sit_tail != null:
+		_dog_sit_tail.rotation = _dog_sit_tail_rest + Vector3(0.0, sin(_t * (11.0 if near else 6.0)) * 0.45, 0.0)
+
+
+## C8.3: the sitting dog barks at a vehicle that drives past (drive_past) as
+## it reaches the gate (_tick_drive, pass_at_gate), at most once every
+## DOG_BARK_GAP s.
+func _dog_bark() -> void:
+	if _dog_sit == null or _t - _bark_t < DOG_BARK_GAP:
 		return
-	_dog = Models.make("dog")
-	_dog.name = "Dog"
-	_dog.position = Layout3.DOG
-	_dog.rotation.y = 0.6
-	add_child(_dog)
+	_bark_t = _t
+	Sfx.play("dog_bark")
+	if OS.is_debug_build():
+		print("[world] dog bark")
 
 
 ## Idle tail flick every few seconds and a slow head turn (only if the cow

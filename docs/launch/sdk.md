@@ -10,6 +10,33 @@ has been built for a device yet (builds need the owner's go-ahead), so
 everything under "First device build" is still to do. Versions, sources and
 checksums are in [third-party.md](third-party.md).
 
+**Core-and-feel update (2 Nov 2026,
+[../core-and-feel/change-list.md](../core-and-feel/change-list.md)).** The
+facades' API is unchanged; what changed:
+
+- **Interstitials are off** for the soft launch (C7.1):
+  `interstitials_enabled=false` in `config/monetization.cfg`, and false is
+  also the code default in `ads.gd`, so a broken config never turns them on.
+  The guardrails ship for a later decision (section 3). No interstitial is
+  ever loaded or shown in this build.
+- **Products and prices** (C7.4): a new one-time `starter_pack` (placeholder
+  ₹49, a fixed 15,000 dhaba cash paid once after the tutorial); `remove_ads`
+  placeholder ₹149 (lowered from the old placeholder), sold as "No forced ads, now or later";
+  `vip_x2` placeholder title "VIP: ×2 dhaba income" (was "Seth-ji Special:
+  Double Kamaai"). The Play Console list is section 11, item 9.
+- **No offers after any purchase** (C7.4): `scripts/v3/core/offers.gd` picks
+  the wall-ad bubble's popup (FREE BONUS, STARTER PACK or VIP OFFER); after
+  any purchase, a restore or an old save with VIP / No Ads it is always FREE
+  BONUS.
+- **A rewarded ad always pays or never shows** (C7.2): the AD bubble hides as
+  soon as no ad is ready and comes back 15 s after one is; WELCOME BACK
+  offers COLLECT x2 only while its ad is ready; a reward owed when the app
+  died during an ad is paid once on the next launch.
+- **Consent card timing** (C4.4): the analytics consent card waits for the
+  tutorial's calm free step (about 1:50) and takes the one launch pop-up of a
+  later launch; players who quit before it send no events.
+- `--sdk-test`: 274 passed, 0 failed on the merged build (2 Nov, section 7).
+
 | Job | SDK | Version |
 |---|---|---|
 | Rewarded + interstitial ads, consent (GDPR / UMP) | Poing Studios godot-admob-plugin (Google Mobile Ads Next-Gen SDK 1.4.0 on Android, GMA iOS 13.9.0, UMP) | 5.1.0 |
@@ -105,18 +132,22 @@ privacy policy, the Data safety form and the Privacy options button, and an
 AdMob message can be added later without code changes.
 
 Then `MobileAds.initialize`, then preloading: one rewarded ad always, one
-interstitial only when interstitials are allowed (session 4+, no Remove Ads).
+interstitial only when interstitials are enabled in the config (off in this
+build, C7.1), from session 4, and never for Remove Ads buyers.
 A failed load retries after 5, 10, 20 ... s (capped at 300 s, plus or minus
 15 %); a resume retries at once. Loaded ads are dropped and reloaded after 55
 minutes (AdMob ads expire after an hour).
 
-Rewarded (`wall_ad` = the free-cash bubble / VIP FREE button,
-`offline_double` = WELCOME BACK x2 after 30+ min away; both unchanged):
+Rewarded (`wall_ad` = the WATCH AD button in the AD bubble's popup: FREE
+BONUS, STARTER PACK or VIP OFFER; `offline_double` = WELCOME BACK COLLECT x2
+after 30+ min away; placement ids unchanged, the not-ready handling changed
+by C7.2, below):
 
 - `is_rewarded_ready(placement)` is true only when an ad is loaded and no ad
-  is open. The game already handles "not ready" (bubble waits, offline x2
-  button denies, the tutorial gift path skips the video); a denied WATCH AD /
-  COLLECT x2 now also says why (`Ads.rewarded_block_reason()`: still loading
+  is open. When no ad is ready (C7.2, below), the AD bubble hides or is not
+  spawned, COLLECT x2 is not shown, and the tutorial skips its ad beat (L14,
+  L15 and the bubble); a WATCH AD / COLLECT x2 tapped in the moment before a
+  re-check is denied and says why (`Ads.rewarded_block_reason()`: still loading
   or offline, privacy question unanswered, no ad SDK), and a video that paid
   nothing says why too (`Ads.last_rewarded_outcome()`: closed early, failed
   to play).
@@ -127,17 +158,36 @@ Rewarded (`wall_ad` = the free-cash bubble / VIP FREE button,
   open answers `false` at once (v0.3 silently dropped it).
 - The master audio bus is muted while a full-screen ad is open.
 
-Interstitials (`maybe_show_interstitial(trigger) -> bool`): the caps planned
-in v0.3 ads.gd, now in the config: none before session 4, at least 60 s
-apart, never while another ad is open, never for Remove Ads buyers, plus
-none within 60 s after a rewarded video. Remove Ads does not touch rewarded
-ads (they stay opt-in). Call sites (UiRoot, section 6): `upgrade` when a
+Interstitials (`maybe_show_interstitial(trigger) -> bool`): **off in this
+build** (C7.1, 2 Nov 2026). `Ads.interstitial_block_reason()` answers
+`disabled` while `interstitials_enabled` is false, so nothing is loaded or
+shown. The guardrails ship for a later decision and apply only once they are
+switched on (config `[ads]`, defaults in `ads.gd`): none before session 4
+(`interstitial_min_session`), at least 180 s apart
+(`interstitial_min_interval_s`), never within 60 s of a rewarded video
+(`interstitial_after_rewarded_s`), a purchase (cash spent or a store
+purchase, `interstitial_after_purchase_s`), any reward
+(`interstitial_after_reward_s`) or a launch / return to the game (60 s in
+`ads.gd`), never while another ad is open, never for Remove Ads buyers, and
+never on the return screen: `welcome_back` is hard-coded in `NEVER_TRIGGERS`,
+so no config can switch it on. Remove Ads does not touch rewarded ads (they
+stay opt-in). The one call site left (UiRoot, section 6) is `upgrade`: a
 counter sheet / STAFF panel closes back to plain gameplay after an upgrade or
-hire was bought in it (the GDD's "after an upgrade purchase");
-`welcome_back` when the WELCOME BACK popup closes. Config
-`interstitial_triggers` lists the live ones: `upgrade` only by default
-(`welcome_back` is wired but off; owner decision). Never in the tutorial or
-while a panel, popup or Munshi-ji's dialogue is open.
+hire was bought in it. Config `interstitial_triggers` is empty, so even that
+one stays off. Never in the tutorial or while a panel, popup or Munshi-ji's
+dialogue is open.
+
+Rewarded ads in the core-and-feel build (C7.2): the wall-ad bubble hides as
+soon as `is_rewarded_ready("wall_ad")` is false (unloaded, expired, consent
+lost, offline; `ad_bubble.hide_when_not_ready`), gives its session slot back
+and is tried again `ad_bubble.retry_s` (15 s) later; the tutorial's forced
+bubble and a bubble whose FREE / VIP popup is open are exempt. Right before a
+rewarded ad that would pay, the popup saves `Game.set_ad_pending(placement,
+amount)`; the ad's done callback clears it. A record still in the save at the
+next launch is paid once, when the game UI exists ("Bonus from your last
+video: +{money} dhaba cash", analytics `rewarded_owed_paid {placement}`).
+`--ads=nofill` (debug builds) makes the fake backend never fill, to test the
+no-ad paths.
 
 Test devices: debug builds use sample units, which always serve test ads. To
 see test ads on real units (release-config testing), put the device id that
@@ -146,9 +196,23 @@ the SDK prints in logcat in `test_device_ids`. `Ads.open_ad_inspector()`
 
 ## 4. Purchases
 
-Product ids are unchanged: `vip_x2` (non-consumable), `remove_ads`
-(non-consumable), `sikke_small` (consumable, +80 Sikke). Store ids can be
-remapped per platform in `[iap_android]` / `[iap_ios]` (default: same id).
+Product ids: `vip_x2` (non-consumable), `remove_ads` (non-consumable),
+`starter_pack` (non-consumable, new in the core-and-feel build, C7.4) and
+`sikke_small` (consumable, +80 Sikke; not sold, not created in Play, decision
+12). Store ids can be remapped per platform in `[iap_android]` /
+`[iap_ios]` (default: same id; `starter_pack` is mapped in both).
+
+Every grant, restore and old-save entitlement goes first to
+`Game.note_purchase(id)` (the offers module), so the game shows no offer
+after any purchase. The starter pack's cash is not granted again at each
+launch like VIP and No Ads: the offers module marks it pending once, pays it
+once the tutorial is done and nothing is open (`add_reward(amount,
+"starter")`, toast "Starter Pack: +{money} dhaba cash"), and keeps
+`starter_granted` in the save (`save["sys"]["offers"]`). The amount is the
+economy's `offers.starter.amount` (1,500 reference units, 15,000 on screen),
+frozen when the offer is first shown. After a reinstall, Play restores the
+product and the new save pays it once more after the new game's tutorial (an
+accepted cost of a one-time ₹49 product; lead decision 3).
 
 Android (Play Billing):
 
@@ -207,6 +271,7 @@ in debug builds):
 | `interstitial_shown {trigger}` | design `ad:interstitial:shown:<trigger>` + ad event `show` / `interstitial` |
 | `iap_started / finished / pending / cancelled / failed / already_owned / timeout {id}` | design `iap:<what>:<id>`; a completed sale also sends a business event (currency + amount in paise from the store) |
 | `session_start`, `vip`, `menu_unlocked`, `ad_bubble_shown/tapped`, `traveller_lost`, `task_claimed`, `ad_load_failed`, `ad_consent`, `app_background/foreground` | design events with a value where there is a number |
+| core and feel (2 Nov 2026): `renovation_done {n}`, `location_move {to}`, `event_start {id}`, `event_goal {id, step}` | progression complete `renovation:<n>` / complete `location:<to>` / start `event:<id>` / complete `event:<id>` at the last goal (step 3), each with a design event; `reward` sources `starter` → item type `iap`, `event` → `reward`, `ad_owed` → `ad`. Every other new event (`bottleneck_fix_tap`, `readout_tap`, `daily_special`, `launch_popup`, `iap_offer_shown {id: starter_pack}` ...) is listed in [../softlaunch/analytics.md](../softlaunch/analytics.md) |
 | anything else | design `<name>` (or `<name>:<id>` when it has a short `id`) |
 
 All other parameters ride along as GameAnalytics custom fields (numbers and
@@ -265,7 +330,11 @@ Player messages (`scripts/v3/ui/sdk_notice.gd`, toasts on the HUD's own layer
 |---|---|
 | WATCH AD / COLLECT x2 tapped, no ad loaded (`Ads.rewarded_block_reason()`) | loading / offline: "No ad available right now. Try again in a minute."; consent unanswered: "Ads are paused until you answer the privacy question."; no ad SDK: "Ads are not available on this device."; another ad open: "Another ad is still open." |
 | a rewarded video paid nothing (`Ads.last_rewarded_outcome()`) | closed early: "Watch the ad to the end to get the reward."; failed: "The ad could not play. Please try again." |
-| `Iap.purchase_result(id, result)` (new signal) | pending: "Payment pending. You will get it as soon as the payment goes through."; granted later: "Payment received. Thank you!"; found by the silent restore (reinstall): "Purchases restored."; cancelled: "Purchase cancelled."; failed: "Purchase failed. Please try again."; unavailable (no store, billing off, item missing, store silent): "The store is not available right now. Please try again later."; busy: "Please wait, a purchase is still in progress."; a plain success shows nothing (the UI changes: VIP ACTIVE, "No ads. Thank you!") |
+| `Iap.purchase_result(id, result)` (new signal) | pending: "Payment pending. You will get it as soon as the payment goes through."; granted later: "Payment received. Thank you!"; found by the silent restore (reinstall): "Purchases restored."; cancelled: "Purchase cancelled."; failed: "Purchase failed. Please try again."; unavailable (no store, billing off, item missing, store silent): "The store is not available right now. Please try again later."; busy: "Please wait, a purchase is still in progress."; a plain success shows nothing (the UI changes: VIP ACTIVE, "No forced ads. Thank you!") |
+| core and feel (2 Nov 2026): no rewarded ad because the last load failed offline (C7.2) | "No internet: bonus videos come back when you are online." |
+| a reward owed from the last run is paid (C7.2) | "Bonus from your last video: +{money} dhaba cash" |
+| the starter pack's cash arrives after the tutorial (C7.4) | "Starter Pack: +{money} dhaba cash" |
+| WELCOME BACK gave way to another launch pop-up and paid at once (C4.4) | "Welcome back: +{money} dhaba cash while you were away" |
 
 The consent form (UMP) and the Play / App Store payment sheets are drawn by
 Google / Apple in the phone's language; the game shows no consent text of its
@@ -275,11 +344,12 @@ Interstitial call sites (`scripts/v3/ui/ui_root.gd`): `upgrade` 0.6 s after a
 counter sheet or the STAFF panel closes back to plain gameplay when an
 upgrade or hire (LEVEL UP, HIRE, processing, cashier / waiter upgrade or
 hire) was bought in it; builds, tables and the quick card's waiter hire are
-left out (the camera flies to the new thing / the "+1 WAITER" float plays). `welcome_back` when the WELCOME BACK popup closes. Neither
-fires in the tutorial, or while a panel, popup or Munshi-ji's dialogue is
-open. The facade applies the caps; config `[ads] interstitial_triggers`
-(default `PackedStringArray("upgrade")`) lists the live call sites, so
-switching `welcome_back` on is a config change.
+left out (the camera flies to the new thing / the "+1 WAITER" float plays).
+It never fires in the tutorial, or while a panel, popup or Munshi-ji's
+dialogue is open. **Core and feel (C7.1):** the `welcome_back` call site was
+removed and is refused in `ads.gd` whatever the config says; config `[ads]
+interstitial_triggers` is now `PackedStringArray()` (empty) and
+`interstitials_enabled=false`, so no interstitial shows anywhere.
 
 Facade additions (the old API is unchanged): `Ads.rewarded_block_reason()`,
 `Ads.last_rewarded_outcome()`, `Ads.interstitial_trigger_on(trigger)`,
@@ -371,6 +441,20 @@ payment).
 Not verified (needs a device build): real ad fill, the UMP form, Play
 purchases, GameAnalytics delivery, the Gradle build itself.
 
+Core-and-feel build (2 Nov 2026, QA slots, headless; the real project and save
+untouched): `--sdk-test` 274 passed, 0 failed on the merged build after wave 2
+(the integration gate's suite). New checks cover: interstitials off in the
+committed config and no live call site; the guardrails (180 s apart, 60 s
+after a purchase, a reward or a return, never on the return screen even when
+the config lists `welcome_back`); the placeholders (Starter Pack ₹49
+one-time, Remove Ads ₹149, "VIP: ×2 dhaba income"); the starter pack bought
+and acknowledged as a one-time product and paid once, never during the
+tutorial; the offer order (FREE BONUS in session 1 and the tutorial, STARTER
+PACK once, then VIP, one offer a session, none after any purchase or for an
+old save with VIP / No Ads); an owed rewarded ad paid once on the next
+launch; COLLECT x2 only while its ad is ready; the FREE BONUS caption and the
+Settings line "One-time, forever. Optional bonus videos stay.".
+
 ## 8. First device build: test plan
 
 Prerequisites: section 6 project.godot lines, Android SDK / JDK 17 paths in
@@ -405,16 +489,18 @@ A. Sideloaded debug APK (no Play Console needed):
    see Play products; expected);
    `[analytics] GameAnalytics off: no debug keys in config` (or
    `GameAnalytics initialized (build 0.3.4-debug)` once debug keys are set).
-2. Play the tutorial to the free-cash bubble, tap it, tap FREE: a Google
+2. Play the tutorial to the AD bubble, tap it, tap WATCH AD: a Google
    "Test Ad" rewarded video plays; close it after the reward: +100 cash and
    `[analytics] rewarded_completed {placement: wall_ad}`. Close one early:
    no cash, `rewarded_skipped`.
-3. Airplane mode, then tap the bubble when it next appears: the FREE button
-   denies with the toast "No ad available right now. Try again in a minute."
-   (Hindi: "अभी कोई ऐड नहीं है। …"); the log shows `rewarded failed to load
+3. Airplane mode: once the loaded ad is used or dropped, the AD bubble no
+   longer appears (`[game] ad bubble hidden: <why>` while one was up; C7.2),
+   and a WATCH AD / COLLECT x2 tapped with nothing loaded says "No internet: bonus
+   videos come back when you are online." (or "No ad available right now. Try
+   again in a minute." while loading); the log shows `rewarded failed to load
    (offline ...)` with growing retry delays; turn the network on and resume
-   the app: it loads again. Close a video early: "Watch the ad to the end to
-   get the reward."
+   the app: it loads again and the bubble returns. Close a video early:
+   "Watch the ad to the end to get the reward."
 4. Offline x2: close the app for 30+ minutes (or temporarily lower
    `offline.ad_min_away_s` in a scratch build), reopen, tap x2 on WELCOME
    BACK: test video, then double cash.
@@ -425,7 +511,7 @@ A. Sideloaded debug APK (no Play Console needed):
    loads; after choosing, `can request ads true`; Settings now shows PRIVACY
    OPTIONS, which reopens it.
 6. Fake purchases on a sideloaded APK: set `use_stub_store=true` in the local
-   config to test the VIP / Remove Ads / Sikke UI flows without Play. Without
+   config to test the VIP / Remove Ads / Starter Pack UI flows without Play. Without
    it, a sideloaded build's UNLOCK / REMOVE ADS shows "The store is not
    available right now. Please try again later." (Play finds no products).
 7. Settings in India / Android: no PRIVACY OPTIONS and no RESTORE PURCHASES
@@ -436,25 +522,37 @@ A. Sideloaded debug APK (no Play Console needed):
 
 B. Real purchases (Play internal testing track, license tester account):
 
-1. Upload a signed AAB to Internal testing, install from the Play link on a
-   phone signed in with a license tester.
-2. Prices on the VIP and Remove Ads buttons switch from the placeholder to
-   Play's (`[iap] Play Billing: 3 product(s) loaded`).
-3. Buy each product with "Test card, always approves": VIP x2 income, ads
-   bubble keeps working, Remove Ads hides the settings button and blocks
-   interstitials, Sikke +80. Log: `consume ok` / `acknowledge ok`.
+1. Upload a signed AAB to Internal testing, install from the Play link on
+   two phones, each signed in to Play with its own license tester account
+   (step 3 says why).
+2. Prices on the VIP, Starter Pack and Remove Ads buttons switch from the
+   placeholder to Play's (`[iap] Play Billing: 3 product(s) loaded`:
+   `vip_x2`, `remove_ads`, `starter_pack`; `sikke_small` is not created).
+3. Buy with "Test card, always approves", split over the two accounts.
+   After any purchase or restore the game offers neither the Starter Pack nor
+   VIP again (C7.4), and the VIP OFFER popup is the only place VIP is sold, so
+   one account can buy Remove Ads plus either the Starter Pack or VIP, never
+   both. Account 1: Starter Pack (offered on the first bubble tap of session
+   2 or later): the toast "Starter Pack: +15,000 dhaba cash" once the
+   tutorial is done, and from then on the bubble offers only FREE BONUS; then
+   Remove Ads: Settings shows "No forced ads. Thank you!" in place of the
+   button. Account 2, nothing bought before: close (or decline, step 4) the
+   STARTER PACK offer in session 2; the first bubble tap of session 3 shows
+   VIP OFFER: VIP x2 income, the ads bubble keeps working. Log: `acknowledge
+   ok`, `[offers] purchase noted: <id>`, `[offers] starter paid +1500.00`.
+   To reuse an account: refund and revoke its test orders in Play Console ›
+   Order management, then clear the app's storage.
 4. "Test card, always declines": purchase fails, nothing granted.
 5. "Slow test card, approves after a few minutes": `iap_pending`, then a few
    minutes later the item is granted (also after closing and reopening).
-6. Uninstall, reinstall: VIP and Remove Ads come back at launch; the Sikke
-   balance is not credited twice.
-7. Interstitials: from the 4th launch (session 4), open a counter sheet, tap
-   LEVEL UP, close the sheet: a Google test interstitial about 0.6 s later
-   (`[analytics] interstitial_shown {trigger: upgrade}`). At most one per 60 s,
-   none after a sheet closed without a purchase, none in the tutorial, none
-   for Remove Ads, none within 60 s of a rewarded video, none when the WELCOME
-   BACK popup closes (unless `welcome_back` is added to
-   `interstitial_triggers`).
+6. Uninstall, reinstall: the products bought with that account come back at
+   launch; the starter's 15,000 dhaba cash is paid once more after the new
+   game's tutorial (expected, lead decision 3), and never twice in one save.
+7. Interstitials (core and feel, C7.1): none in any session, with or without
+   Remove Ads. Open a counter sheet in session 4 or later, tap LEVEL UP, close
+   the sheet: no interstitial, and no `interstitial_shown` in the log. No
+   interstitial ad unit is ever requested (`[ads] loading interstitial` never
+   appears).
 8. "Slow test card" again: the toast "Payment pending. …" now, then "Payment
    received. Thank you!" when Play completes it.
 
@@ -558,16 +656,42 @@ AdMob (https://admob.google.com):
    root of the developer website entered in Play Console.
 7. Add your own phones as test devices (AdMob > Settings > Test devices, and
    `test_device_ids` in the local config).
+8. **Blocking controls (C7.3, core and feel).** AdMob > Blocking controls >
+   (All apps or Dhaba Rush) > Sensitive categories: block **Gambling &
+   betting** (it covers rummy, poker and fantasy-sports apps, the ones that
+   advertise "₹X cash" deposit bonuses), **Dating**, **Alcohol** and **Get
+   rich quick**, plus anything else you do not want next to a 13+ game. Match
+   the names AdMob shows today; if one is not offered as a sensitive
+   category, look for it under General categories. After launch, check
+   AdMob > Blocking controls > Ad review center every week of the soft launch
+   for rummy, card-game or betting ads that got through, and block those ads
+   or advertisers there. The ad content rating stays "T"
+   (`max_ad_content_rating`, decision 14). Why: in India, real-money gaming
+   ads next to a game that pays "cash" read as a real-money promise (g3).
 
 Google Play Console:
 
-8. Payments profile / merchant account (needed to sell in-app products).
-9. Create the in-app products (Monetize > Products > One-time products), ids
-   exactly: `vip_x2` "Seth-ji Special: Double Kamaai" ₹299, `remove_ads`
-   "No Ads" ₹199, `sikke_small` "Pouch of Sikke" (80 Sikke) ₹89; activate
-   each. (Prices are the placeholders in `iap.gd`; Play shows the real ones.)
-10. License testing: add tester Gmail accounts (Settings > License testing)
-    and the internal testing track's tester list.
+9. Create the in-app products (Monetize > Products > One-time products) once
+   the payments profile / merchant account exists (needed to sell in-app
+   products). Ids exactly as below; activate each. Prices and titles are
+   **placeholders** (the in-game fallbacks in `scripts/autoload/iap.gd`
+   `PRODUCTS`); the real ones are yours to set in Play Console. The game
+   shows Play's price once it loads (`Iap.price_label`); Play's purchase
+   sheet shows the title set here (`Iap.title` stays the local text).
+
+   | Id | Play type | Title (EN) | Description (EN) | Price | Status |
+   |---|---|---|---|---|---|
+   | `starter_pack` | One-time product (non-consumable: acknowledged, never consumed) | Starter Pack | 15,000 dhaba cash, one time. Paid once your tutorial is done. | ₹49 | **New** (C7.4). Fixed contents, not random. Offered once ever, on the first AD bubble tap of session 2 or later |
+   | `remove_ads` | One-time product (non-consumable) | No Ads | No forced ads, now or later. Optional bonus videos stay. | ₹149 | **Change the price** (the old docs had a higher placeholder). Interstitials are off in this build, so it is sold as a promise for later (lead decision 1; revisit with soft-launch data) |
+   | `vip_x2` | One-time product (non-consumable) | VIP: ×2 dhaba income | Doubles every sale, forever. | ₹299 | **Rename** from "Seth-ji Special: Double Kamaai" (an earnings word) |
+   | `sikke_small` | Consumable | Pouch of Sikke | | ₹89 | **Do not create** (decision 12: nothing sells or spends Sikke) |
+
+   Play then shows "In-app purchases ₹49 – ₹299 per item" on the listing by
+   itself. Add Hindi titles and descriptions in Play Console from the Hindi
+   listing's wording once the native review is back (C8.5).
+10. License testing: add tester Gmail accounts (Settings > License testing;
+    at least two for the purchase tests, §8 B step 3) and the internal
+    testing track's tester list.
 11. Upload a signed AAB to Internal testing (export format AAB in the Android
     preset; release keystore), required before Play Billing returns products.
 12. Target audience: 13+ (or older) so the Families policy does not apply to
@@ -608,20 +732,26 @@ Decisions and reviews (no account needed):
   **Decided 2026-10-23 (owner): keep arm64-only for the soft launch.** Revisit
   after soft-launch data if 32-bit-only devices show up in Play Console's
   device catalogue as a meaningful share.
-- Interstitials: only the `upgrade` call site is live. To also show one when
-  the WELCOME BACK popup closes, add `"welcome_back"` to
-  `interstitial_triggers` in `config/monetization.cfg`.
+- Interstitials: **off for the soft launch** (C7.1, core and feel). To switch
+  them on later, set `interstitials_enabled=true` and list `"upgrade"` in
+  `interstitial_triggers` (`config/monetization.cfg`); the guardrails in
+  section 3 then apply. The WELCOME BACK screen can never show one
+  (hard-coded). Decide with soft-launch data; Remove Ads is sold meanwhile as
+  "No forced ads, now or later".
 - Have a native Hindi speaker read the 21 new ad / purchase / consent strings
-  (hindi.md section 4, item 11) along with the rest.
+  (hindi.md section 4, item 11) along with the rest, and the core-and-feel
+  strings on the review sheet that the Hindi pass regenerates once the English
+  is final (C8.5, [../core-and-feel/owner-tasks.md](../core-and-feel/owner-tasks.md)
+  §3; the 27 Oct sheet in `docs/hindi-review/` does not have them).
 - Before committing: Git LFS for `*.a`; never commit
   `config/monetization.local.cfg`.
 
 App Store Connect (later, global launch):
 
 18. Apple Developer Program, agreements, tax and banking.
-19. In-app purchases with the same ids: `vip_x2` and `remove_ads`
-    non-consumable, `sikke_small` consumable (or map new ids in
-    `[iap_ios]`).
+19. In-app purchases with the same ids: `vip_x2`, `remove_ads` and
+    `starter_pack` non-consumable (or map new ids in `[iap_ios]`);
+    `sikke_small` only if Sikke are ever sold.
 20. Build the InAppStore plugin for Godot 4.7.2 (section 9), add the iOS
     team id, ATT usage text (English, plus Hindi through a `hi`
     InfoPlist.strings), App Privacy answers (same data as Play), and

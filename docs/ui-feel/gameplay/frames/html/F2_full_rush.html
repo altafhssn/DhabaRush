@@ -1,0 +1,93 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>F2 · Full dhaba at the dinner rush</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  body { background-image: url("file:///private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/uxd/bg/full/t009.0.png"); }
+  .patch { position: absolute; left: 0; top: 0; width: 720px; height: 1280px; }
+</style></head>
+<body><div class="cv">
+
+<!-- ============ WORLD: bg/full/t009 (all four counters, 5 tables, 1 cashier) ============ -->
+<!-- the old man walking at 380,840 is moved out of the way of the bill line (patch from walk/t175, same camera) -->
+<img class="patch" src="file:///private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/uxcap/shots/walk/t175.0.png" style="clip-path:polygon(368px 832px,442px 832px,442px 928px,368px 928px)">
+<!-- every seat on screen taken: two more diners -->
+<img class="a" src="../work/spr/d_bluecap.png" style="left:470px;top:500px">
+<img class="a" src="../work/spr/d_teal_nl_hf.png" style="left:449px;top:960px">
+<!-- the bill line: 4 people (walk/t067) -->
+<img class="a" src="../work/spr/q_galla4.png" style="left:245px;top:685px">
+<!-- the gate line: 5 travellers wait just inside the gate, by the seats board -->
+<img class="a" src="../work/spr/t_early2.png" style="left:140px;top:840px">
+<img class="a" src="../work/spr/t_hm4.png" style="left:222px;top:878px">
+<!-- the seats board's red FULL plate (gate_board.gd:38) -->
+<div class="a" style="left:144px;top:1019px;width:102px;height:39px;border-radius:4px;background:#d11f1a;box-shadow:inset 0 0 0 2px #7d0e0a"></div>
+<div class="a olr nowrap" style="left:144px;top:1021px;width:102px;text-align:center;color:#fff;font-size:20px;line-height:36px">FULL · भरा</div>
+
+<!-- dusk: tint, fairy lights and bunting lit (light layer taken from bg/night/t004) -->
+<div class="full" style="background:linear-gradient(180deg,rgba(70,50,140,.55),rgba(150,70,90,.45));mix-blend-mode:multiply"></div>
+<div class="full" style="background:linear-gradient(180deg,rgba(255,140,60,.10),rgba(255,120,40,.06));mix-blend-mode:screen"></div>
+<img class="full" src="../work/spr/lights_night.png" style="mix-blend-mode:screen">
+<!-- the passing lorry's headlights -->
+<div class="a" style="left:300px;top:1205px;width:150px;height:110px;clip-path:polygon(0 30%,22% 0,100% 55%,100% 100%,60% 100%);background:linear-gradient(125deg,rgba(255,240,170,.9),rgba(255,225,130,.25) 60%,rgba(255,220,120,0));mix-blend-mode:screen"></div>
+<div class="a" style="left:318px;top:1228px;width:14px;height:14px;border-radius:50%;background:#fff8d0;box-shadow:0 0 12px 7px rgba(255,228,130,.9)"></div>
+<div class="a" style="left:340px;top:1212px;width:14px;height:14px;border-radius:50%;background:#fff8d0;box-shadow:0 0 12px 7px rgba(255,228,130,.9)"></div>
+
+<!-- ============ WORLD UI ============ -->
+<div id="chits"></div>
+<div class="a onway" style="left:142px;top:1066px;width:104px">+2 on the way</div>
+
+<!-- the drive-past cue (G7): every vehicle that finds no room -->
+<div class="a wtag red nowrap" style="left:122px;top:1092px;height:40px;padding:0 14px;font-size:18px;line-height:35px">A lorry drove past: no room · <span style="color:#ff9b8a">−1,490/min</span></div>
+<div class="ptr" style="left:150px;top:1131px;border-top:10px solid #e5392b"></div>
+
+<!-- the mark over the cash counter, pulsing (G2) -->
+<div class="a" style="left:160px;top:440px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,205,90,.75),rgba(255,182,39,0) 65%)"></div>
+<img class="a" src="../work/svg/mark.svg" style="left:198px;top:466px;width:70px;height:70px">
+<div class="a" style="left:232px;top:532px;width:2px;height:10px;background:#7a3f0e"></div>
+<div class="a wtag mari" style="left:140px;top:540px;width:188px;height:52px;padding:3px 0 0 0;text-align:center;box-shadow:0 0 12px rgba(255,190,60,.8)">
+  <div style="font-size:15px;line-height:18px;color:var(--marigold-pale)">HIRE CASHIER</div>
+  <div style="font-size:19px;line-height:24px"><img src="../work/ico/note.png" style="width:24px;height:17px;vertical-align:-2px"> 500 <span style="color:var(--gain-light)">+2,350/min</span></div>
+</div>
+<div class="ptr" style="left:224px;top:592px;border-top:9px solid var(--marigold)"></div>
+
+<!-- ============ HUD ============ -->
+<div class="a pill"><img class="a note" src="../work/ico/note.png"><div class="a amt">1.85 L</div><img class="a trend" src="../work/ico/trend.png"><div class="a rate"><b>3,763</b> <i>/min</i></div></div>
+
+<div class="a chip problem"><div class="a lip"></div><div class="a face"></div>
+  <div class="a ic"><img class="a" src="../work/ico/galla_k.png" style="left:3px;top:2px"></div>
+  <img class="a" src="../work/svg/mark.svg" style="left:42px;top:-4px;width:28px;height:28px">
+  <div class="a l1 fit" data-w="250">PROBLEM · LONG BILL LINE</div>
+  <div class="a l2">Hire cashier 2</div>
+  <div class="a gain">+2,350/min</div><div class="a chev">›</div></div>
+
+<div class="a task"><div class="a tlabel">TASK</div><div class="a card" style="width:466px">
+  <div class="a txt">Upgrade Cashier 1 to level 5</div>
+  <div class="a bar" style="width:314px"><i style="width:20%"></i><span>1/5</span></div>
+  <div class="a rew"><img src="../work/ico/note.png">940</div></div>
+  <div class="a count" style="left:556px">1/3</div>
+  <img class="a" src="../work/ico/brief.png" style="left:628px;top:5px"></div>
+<div class="a" style="left:637px;top:307px;width:70px;height:70px;border-radius:16px;background:#c9b48c"></div>
+<div class="a" style="left:637px;top:303px;width:70px;height:68px;border-radius:16px;background:#fff3d6"><img class="a" src="../work/ico/stats_b.png" style="left:11px;top:10px"></div>
+<div class="a ol" style="left:612px;top:381px;width:120px;text-align:center;color:#fff;font-size:20px;line-height:24px">STATS</div>
+
+<div class="a meter">
+  <div class="a row" style="top:2px"><img src="../work/ico/m_seats.png"><div class="lab">SEATS</div><div class="track"><i class="amber" style="width:100%"></i></div><div class="val">+5</div></div>
+  <div class="a row" style="top:36px"><img src="../work/ico/m_cooks.png"><div class="lab">COOKS</div><div class="track"><i class="grey" style="width:0%"></i></div><div class="val">0 %</div></div>
+  <div class="a row" style="top:70px"><img src="../work/ico/m_waiters.png"><div class="lab">WAITERS</div><div class="track"><i class="grey" style="width:33%"></i></div><div class="val">33 %</div></div>
+  <div class="a row mark" style="top:104px"><img src="../work/ico/m_cash.png"><div class="lab">CASHIERS</div><div class="track"><i class="red" style="width:100%"></i></div><div class="pillr">+20</div><div class="chev">›</div></div>
+  <div class="a cap rush">DINNER RUSH</div>
+</div>
+
+<div class="a sq" style="left:15px;top:1115px"><div class="a lip"></div><div class="a face"></div><img class="a" src="../work/ico/staff.png" style="left:18px;top:16px"><div class="a lbl ol">STAFF</div>
+  <div class="a badge green" style="left:-6px;top:-8px">1</div></div>
+<div class="a sq" style="left:603px;top:1120px"><div class="a lip"></div><div class="a face"></div><img class="a" src="../work/ico/build.png" style="left:13px;top:14px"><div class="a lbl ol">BUILD</div></div>
+<img class="a gear" src="../work/ico/gear.png">
+
+<div class="a flabel"><b>F2</b> · Full dhaba at the dinner rush</div>
+<div class="a looktag">Look not final</div>
+</div>
+<script src="chits.js"></script>
+<script>
+  addChits("chits", [[509,503],[571,557],[653,397],[706,447],[423,916],[564,804],[628,855],[487,964]]);
+</script>
+<script src="fit.js"></script>
+</body></html>

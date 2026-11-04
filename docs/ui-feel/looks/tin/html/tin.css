@@ -1,0 +1,205 @@
+/* Dhaba Rush · look "Hand-lettered tin signboards" (key: tin).
+   One page = the 720x1280 canvas drawn as 360x640 CSS px at 2x. 1 CSS px = 2 canvas px.
+   Every colour is a world swatch (tools/blender/build_assets.py:40-67) or a world sign colour
+   from code (gate_board.gd, traffic.gd). Ornaments drawn in CSS/SVG stand for art to be made. */
+
+@font-face{font-family:B2;src:url("file:///Users/almeer/Documents/HighwayDhaba/assets/fonts/Baloo2.ttf");font-weight:400 800}
+@font-face{font-family:NSD;src:url("file:///Users/almeer/Documents/HighwayDhaba/assets/fonts/NotoSansDevanagari.ttf")}
+
+:root{
+  /* ---- palette (name = world swatch) ---- */
+  --ink:#2B2420;        /* HAIR 19: sign black, text on light, rims, block shadows */
+  --enamel:#F7F4EE;     /* WHITE 20: enamel white plates, text on dark plates */
+  --chalk:#FAF5DB;      /* gate_board.gd:43 CHALK: text on the green board */
+  --yellow:#FFD23F;     /* PAINT_YELLOW 46: PUNCTURE board; primary + affordable plates, NEXT board */
+  --red:#D9412B;        /* RED 12: PUNCTURE letters; badges, close, warning band (glyphs/large text only) */
+  --maroon:#8E2436;     /* JACKET 55: DHABA RUSH board field; panel headers, name plates */
+  --gold:#F7C548;       /* GOLD 56: signboard rules; keylines + title letters on maroon */
+  --marigold:#FF8A1F;   /* MARIGOLD 61: signboard border; affordable glint, celebration */
+  --navy:#2B3A67;       /* NAVY 38: info plates (cash, task rail, unaffordable tag) */
+  --blue:#1F4D9E;       /* BUS STOP board, traffic.gd:3927: secondary plates */
+  --green:#1C4D33;      /* SEATS board, gate_board.gd:48: meter + menu board */
+  --leaf:#2F6B3A;       /* DARK_GREEN 37: gains text on light, built tick */
+  --note:#86D07A;       /* NOTE 58: gains text on dark */
+  --teal:#3FB8BE;       /* TRUCK_TEAL 87: the only teal = rewarded-ad plates (ink letters, 6.40:1) */
+  --tin:#C9CDD2;        /* STEEL 24: galvanised (unpainted) tin = disabled / not the limit */
+  --tin-dk:#5E646B;     /* DARK_STEEL 25: rivet shade (never text) */
+  --asphalt:#4A4A52;    /* ASPHALT 0: text on tin */
+  --brick:#C9553B;      /* BRICK_RED 52: counter-sheet tin sheet */
+  --wood:#C68A4E;       /* WOOD 7 */
+  --wood-dk:#80522B;    /* gate_board.gd:49 FRAME_WOOD */
+  --trunk:#7A4E2D;      /* TRUNK 6: secondary text on enamel */
+  --horn:#DBC7A2;       /* HORN 75: plank wall */
+  --khaki:#B89B62;      /* KHAKI 67: plank seams */
+  --sh: rgba(43,36,32,.62); /* plate drop shadow (ink) */
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:360px;height:640px;overflow:hidden}
+body{position:relative;background:#E8D2A4;font-family:B2,NSD,sans-serif;color:var(--ink);
+  -webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.world{position:absolute;inset:0;background-size:360px 640px;background-repeat:no-repeat}
+.abs{position:absolute}
+
+/* ---- type scale (canvas px / CSS px): 56/28 hero · 40/20 title · 30/15 head · 24/12 label · 20/10 body · 16/8 fine ---- */
+.f-hero{font:800 28px/1 B2,NSD;font-variant-numeric:tabular-nums}
+.f-title{font:400 20px/1.05 'Rozha One',B2,NSD}
+.f-ptitle{font:400 28px/1 'Rozha One',B2,NSD}        /* full-panel title = hero size */
+.f-head{font:400 15px/1.05 'Rozha One',B2,NSD}        /* card names */
+.f-lab{font:600 12px/1 Teko,B2,NSD;letter-spacing:.03em}   /* plate words, button words */
+.f-lab15{font:600 15px/1 Teko,B2,NSD;letter-spacing:.03em} /* big plate words (30 canvas) */
+.f-num{font:800 15px/1 B2,NSD;font-variant-numeric:tabular-nums}
+.f-num12{font:800 12px/1 B2,NSD;font-variant-numeric:tabular-nums}
+.f-body{font:500 10px/1.3 B2,NSD}
+.f-bodyb{font:700 10px/1.3 B2,NSD}
+.f-fine{font:600 8px/1.25 B2,NSD}
+.tnum{font-variant-numeric:tabular-nums}
+.paint{ /* one-direction block shadow, painted by hand */
+  text-shadow:.5px .5px 0 var(--bs,var(--ink)),1px 1px 0 var(--bs,var(--ink)),1.5px 1.5px 0 var(--bs,var(--ink)),2px 2px 0 var(--bs,var(--ink))}
+.paint1{text-shadow:.5px .5px 0 var(--bs,var(--ink)),1px 1px 0 var(--bs,var(--ink))}
+
+/* ---- the tin plate: flat enamel face, rolled edge, ink rim, one hard shadow ---- */
+.pl{position:absolute;border-radius:5px;background:var(--face,var(--enamel));color:var(--fg,var(--ink));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -1.5px 0 rgba(0,0,0,.20),
+    0 0 0 1px var(--rim,var(--ink)),2px 2.5px 0 .5px var(--sh)}
+/* enamel keyline, inset like a fired border */
+/* critic: the SVG displacement made the keyline frayed and broken (it renders at low resolution); a clean painted line with
+   uneven corners and a slight lean reads as hand-lettered at both sizes. Final art paints the wobble into the texture. */
+.kl::before{content:"";position:absolute;inset:3px;border:1.4px solid var(--key,var(--navy));pointer-events:none;
+  border-radius:3px 4.5px 3.5px 4px / 4px 3px 4.5px 3.5px;transform:rotate(.12deg)}
+/* four rivets, each wholly inside a corner patch of the nine-slice */
+.rv::after{content:"";position:absolute;inset:1.5px;pointer-events:none;
+  --r:radial-gradient(circle at 42% 38%,#fff 0 .45px,#E3E5E8 .8px,#9A9FA6 1.55px,rgba(43,36,32,.75) 2.05px,transparent 2.4px);
+  background:var(--r) left top/5px 5px no-repeat,var(--r) right top/5px 5px no-repeat,
+             var(--r) left bottom/5px 5px no-repeat,var(--r) right bottom/5px 5px no-repeat}
+.rv2::after{content:"";position:absolute;inset:1.5px;pointer-events:none;  /* small plates: 2 side screws */
+  --r:radial-gradient(circle at 42% 38%,#fff 0 .4px,#E3E5E8 .7px,#9A9FA6 1.35px,rgba(43,36,32,.75) 1.8px,transparent 2.1px);
+  background:var(--r) left center/4.4px 4.4px no-repeat,var(--r) right center/4.4px 4.4px no-repeat}
+/* the one permitted bit of wear: a chip at one corner, dark iron showing */
+.chip{position:absolute;width:6.5px;height:2.6px;background:#5E5048;
+  clip-path:polygon(0 0,100% 0,92% 45%,74% 70%,58% 100%,40% 62%,22% 88%,9% 40%);opacity:.5;pointer-events:none}
+.chip.tr{top:-.4px;right:9px}.chip.bl{bottom:-.6px;left:14px;transform:rotate(180deg)}
+
+/* colourways */
+.c-enamel{--face:var(--enamel);--fg:var(--ink);--key:var(--navy)}
+.c-navy{--face:var(--navy);--fg:var(--enamel);--key:rgba(247,244,238,.75)}
+.c-yellow{--face:var(--yellow);--fg:var(--ink);--key:var(--maroon)}
+.c-maroon{--face:var(--maroon);--fg:var(--yellow);--key:var(--gold)}
+.c-green{--face:var(--green);--fg:var(--chalk);--key:rgba(250,245,219,.55)}
+.c-red{--face:var(--red);--fg:var(--enamel);--key:rgba(247,244,238,.8)}
+.c-tin{--face:var(--tin);--fg:var(--asphalt);--key:#9EA4AB}
+.c-teal{--face:var(--teal);--fg:var(--ink);--key:rgba(43,36,32,.55)}
+.c-blue{--face:var(--blue);--fg:var(--enamel);--key:rgba(247,244,238,.7)}
+.c-plank{--face:var(--horn)}
+
+/* buttons = tin plates; states */
+.btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center}
+.btn .cap{font:600 12px/1 Teko,B2,NSD;letter-spacing:.04em;padding-top:1px}
+.btn .cost{display:flex;align-items:center;gap:3px;font:800 12px/1 B2,NSD;font-variant-numeric:tabular-nums}
+.btn.afford{--face:var(--yellow);--fg:var(--ink);--key:var(--maroon);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1.5px 0 rgba(0,0,0,.18),0 0 0 1px var(--ink),2px 2.5px 0 .5px var(--sh),
+    0 0 0 2.5px rgba(255,138,31,.85),0 0 9px 2px rgba(255,138,31,.55)}
+.btn.normal{--face:var(--enamel);--fg:var(--navy);--key:var(--navy)}
+.btn.off{--face:var(--tin);--fg:var(--asphalt);--key:#9EA4AB;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1.5px 0 rgba(0,0,0,.14),0 0 0 1px #6E747B,1.5px 2px 0 .5px rgba(43,36,32,.35)}
+.btn.press{--face:#EDC43A;transform:translate(1.5px,2px);
+  box-shadow:inset 0 1.5px 2px rgba(0,0,0,.28),0 0 0 1px var(--ink),.5px .5px 0 0 var(--sh)}
+/* critic: the glint was an "x" of four diagonal rays, which reads as a close mark on a buy button; now an upright
+   four-point sparkle (a painted shine) */
+.glint{position:absolute;width:10px;height:10px;pointer-events:none;background:#FFFDF6;
+  clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%)}
+
+/* money note: an original painted note (K9), not the copied banknote */
+.note{display:inline-block;position:relative;width:15px;height:9.5px;border-radius:1.5px;background:var(--note);
+  box-shadow:0 0 0 1px var(--leaf),inset 0 0 0 1.2px #B7E3A8;flex:none}
+.note::after{content:"₹";position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font:800 7px/1 B2;color:var(--leaf)}
+.note.lg{width:31px;height:19px;border-radius:2.5px}
+.note.lg::after{font-size:13px}
+
+/* badges: enamel discs */
+.badge{position:absolute;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;
+  font:800 11px/1 B2;color:var(--enamel);box-shadow:0 0 0 1.2px var(--enamel),0 0 0 2.2px var(--ink),1px 1.5px 0 2px rgba(43,36,32,.4)}
+.badge.red{background:var(--red)}.badge.grn{background:var(--leaf)}.badge.cnt{background:#8A2C2C}
+
+/* hanging hardware */
+.hook{position:absolute;width:6px;height:9px;border:1.3px solid #4E4540;border-bottom:none;border-radius:3px 3px 0 0}
+.wire{position:absolute;width:1.2px;background:#4E4540}
+.ring{position:absolute;width:4px;height:5px;border:1.1px solid #6B625C;border-radius:50%}
+
+/* meter = enamel notice board in the SEATS board's green */
+.meter .row{position:absolute;left:5px;right:5px;height:17px;display:flex;align-items:center}
+.meter .row .ic{width:14px;height:14px;flex:none;margin-right:3px}
+.meter .row .lb{font:600 12px/1 Teko,B2,NSD;letter-spacing:.04em;width:46px;color:var(--chalk);padding-top:1.5px}
+.meter .row .tr{position:relative;flex:1;margin-left:2px;height:6px;border-radius:3px;background:rgba(0,0,0,.35);box-shadow:inset 0 1px 0 rgba(0,0,0,.35),0 .5px 0 rgba(250,245,219,.25)}
+.meter .row .fi{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--chalk)}
+.meter .row.lim{background:rgba(255,210,63,.16);border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,210,63,.55)}
+.meter .row.lim .lb{color:var(--yellow)}
+.meter .row.lim .fi{background:var(--yellow)}
+.meter .row .go{width:11px;height:12px;margin-left:3px;border-radius:2px;background:var(--red);color:var(--enamel);
+  font:800 10px/12px B2;text-align:center;box-shadow:0 0 0 .8px var(--ink)}
+.meter .row .mx{font:700 8px/1 B2;color:var(--chalk);margin-left:2px;width:16px;text-align:right}
+.meter .cap{position:absolute;left:5px;right:5px;bottom:4px;text-align:center;font:600 9px/1.1 B2;color:var(--chalk)}
+
+/* name plate under a HUD plate (fixes captions floating on the world) */
+.nameplate{position:absolute;height:14px;padding:0 6px;border-radius:3px;display:flex;align-items:center;justify-content:center;
+  background:var(--maroon);color:var(--enamel);font:600 12px/1 Teko,B2,NSD;letter-spacing:.06em;padding-top:1.5px;
+  box-shadow:inset 0 .8px 0 rgba(255,255,255,.25),0 0 0 1px var(--ink),1.5px 2px 0 .3px var(--sh)}
+
+/* hanging world tag */
+.wtag{position:absolute;display:flex;align-items:center;gap:4px;padding:0 6px;border-radius:4px}
+.ptr{position:absolute;left:50%;bottom:-6.5px;width:10px;height:6.5px;transform:translateX(-50%);
+  background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
+.ptr::after{content:"";position:absolute;left:1.6px;right:1.6px;top:0;height:4.2px;background:var(--face);clip-path:polygon(0 0,100% 0,50% 100%)}
+
+/* stars, sparkles (celebration art stand-ins) */
+.star{position:absolute;width:12px;height:12px;background:var(--yellow);
+  clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  filter:drop-shadow(1px 1px 0 var(--ink))}
+
+/* plank wall behind full-panel bodies (texture tile 256x256 at 2x) */
+.planks{position:absolute;left:0;right:0;background-color:var(--horn);
+  background-image:
+    repeating-linear-gradient(180deg,transparent 0 39px,rgba(122,78,45,.55) 39px 40px,rgba(255,255,255,.22) 40px 41px,transparent 41px 40px),
+    radial-gradient(circle at 6px 20px,rgba(78,69,64,.55) 0 1px,transparent 1.4px),
+    radial-gradient(circle at calc(100% - 6px) 20px,rgba(78,69,64,.55) 0 1px,transparent 1.4px),
+    repeating-linear-gradient(90deg,rgba(184,155,98,.0) 0 47px,rgba(184,155,98,.10) 47px 49px,transparent 49px 97px);
+  background-size:auto,100% 40px,100% 40px,auto}
+
+/* signboard header (full panels): the DHABA RUSH board's recipe — maroon field, gold rules, marigold edge, green strip */
+.sigboard{position:absolute;left:0;right:0;top:0;background:var(--maroon)}
+.sigboard .edge{position:absolute;left:0;right:0;height:12px;
+  background:
+    linear-gradient(180deg,var(--gold) 0 1.5px,var(--marigold) 1.5px 3.5px,var(--gold) 3.5px 4.5px,var(--leaf) 4.5px 11px,var(--ink) 11px 12px)}
+.sigboard .edge::after{content:"";position:absolute;left:0;right:0;top:6px;height:4px;
+  background:radial-gradient(circle,var(--gold) 0 1.1px,transparent 1.5px) 0 0/12px 4px repeat-x}
+.rosette{position:absolute;width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle,var(--maroon) 0 2.2px,var(--yellow) 2.6px 4.2px,transparent 4.6px),
+    repeating-conic-gradient(var(--marigold) 0 15deg,#E0611A 15deg 30deg);
+  box-shadow:0 0 0 1px var(--ink),1px 1.5px 0 .5px rgba(43,36,32,.5)}
+
+/* scrim for popups */
+.scrim{position:absolute;inset:0;background:rgba(23,18,28,.58)}
+
+/* night: lamp-lit plates. Faces keep their colours (all contrasts hold); a warm lamp spill from the top,
+   a glow on the lit boards, and a deeper, cooler shadow */
+.night .pl{--sh:rgba(10,8,30,.8)}
+.night .lamp{position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% -25%,rgba(255,226,150,.22),transparent 62%),linear-gradient(180deg,transparent 45%,rgba(16,14,48,.14))}
+.night .glow{filter:drop-shadow(0 0 6px rgba(255,200,90,.55))}
+.ptr.big{width:16px;height:10px;bottom:-10px}
+.ptr.big::after{left:2.6px;right:2.6px;height:6.6px}
+
+/* counter sheet: a riveted terracotta tin sheet (keeps today's terracotta frame, D1 §4) */
+.sheet{position:absolute;left:0;right:0;top:260px;bottom:0;background:var(--brick);border-radius:10px 10px 0 0;
+  box-shadow:0 0 0 1px var(--ink),0 -2px 0 1px rgba(43,36,32,.25),inset 0 2px 0 rgba(255,255,255,.25)}
+.sheet .seam{position:absolute;left:8px;right:8px;top:3px;height:5px;
+  background:radial-gradient(circle at 50% 50%,#F2D2C4 0 .5px,#D9A08C .9px,#7A3524 1.6px,transparent 2px) 0 0/12px 5px repeat-x}
+.stencil{position:absolute;opacity:.16;color:#5A1E12}
+/* small galvanised strip: "not the limit" */
+.tinstrip{position:absolute;height:14px;border-radius:3px;background:var(--tin);color:var(--asphalt);
+  display:flex;align-items:center;justify-content:center;font:600 8px/1 B2,NSD;
+  box-shadow:inset 0 .8px 0 rgba(255,255,255,.6),0 0 0 1px #6E747B,1px 1.5px 0 .3px rgba(43,36,32,.35)}
+.roundel{position:absolute;border-radius:50%;box-shadow:0 0 0 1px var(--ink),inset 0 0 0 2px rgba(247,244,238,.55),1.5px 2px 0 .3px var(--sh)}
+/* painted (not enamelled) boards carry faint horizontal brush streaks; white enamel stays smooth */
+.c-yellow,.c-navy,.c-maroon,.c-green,.btn.afford{background-image:
+  repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3.5px,rgba(0,0,0,.035) 3.5px 4.2px,transparent 4.2px 7px),
+  repeating-linear-gradient(0deg,transparent 0 11px,rgba(255,255,255,.04) 11px 12.5px,transparent 12.5px 19px)}

@@ -37,10 +37,32 @@ extends Control
 ## auto-translate; composed text uses tr() and is rebuilt by refresh() (also
 ## on NOTIFICATION_TRANSLATION_CHANGED while open). Hindi shows the Hindi dish
 ## and counter names alone.
+##
+## Core and feel (W2-PANELS, plan C2.5 / C6.2):
+##  - One source: the banner and the ribbons read the readout module through
+##    Game.bottleneck_state() / bottleneck_fix() / station_help(). While the
+##    limit is not this counter's own kitchen, the banner names the limit and
+##    its button is the saffron primary with the fix and its price ("HIRE
+##    WAITER" + 1,200); `fix_target` = that bottleneck_fix() dict and the
+##    button emits action("fix") (gate id "fix"; UiRoot.do_fix opens the
+##    card). With no fix (a maxed stage, or no readout) the old banner and its
+##    action("goto_limit") stay. LEVEL UP drops its marigold hero border while
+##    a fix button shows; the coach hand points at it the first 2 times
+##    (UiRoot.coach_hand kind "sheet_fix", which counts itself).
+##  - COOKS and SPEED carry a grey "Not the bottleneck now" pill straddling
+##    their top edge when Game.station_help(id, "cook" / "speed") says so
+##    (same _banner_allowed() gate as the banner; never on LEVEL UP; never on
+##    a maxed card). The honest gains stay (greyed).
+##  - The MENU chip (and the "i" card's chip) of today's special carries a
+##    "×2 TODAY" tag (Game.special_dish()); a one-dish counter (no MENU row)
+##    shows it at the right end of its "Sells for" row.
+##  - Debug: "[ui] sheet <id> ribbons: <cooks,speed|none> fix=<label|none>"
+##    when a sheet opens.
 
 signal outside_tapped(screen_pos: Vector2)
 ## Emitted after a successful action: "level_up", "hire", "processing",
-## "sheet_info" when the info card opens, and "goto_limit" when the limit
+## "sheet_info" when the info card opens, "fix" when the banner's fix button
+## is tapped (UiRoot.do_fix(fix_target)), and "goto_limit" when the old
 ## banner's button is tapped (UiRoot opens `limit_target`).
 signal action(id: String)
 ## The red X on the title ribbon was tapped (UiRoot closes the sheet).
@@ -103,6 +125,17 @@ const MINI_CHIP := Vector2(146, 70)
 const DELTA_PX := 22
 ## Greyed gain (COOKS / SPEED while another stage is the limit).
 const GAIN_GREY := Color(0.64, 0.6, 0.56)
+## C2.5: the fix button (saffron, caption + price on two lines) and the old
+## navigation button (teal, one line).
+const FIX_BTN := Vector2(232, 68)
+const FIX_BTN_PX := [19, 18, 17, 16, 15]
+const FIX_COST_PX := 19
+## C2.5: the grey ribbon on a side card (straddles its top edge).
+const RIBBON_INSET := 6.0
+## C6.2: the special's MENU chip tag (plan 5.3 msgid) and its size.
+const SPECIAL_TAG := "×2 TODAY"
+const SPECIAL_TAG_SIZE := Vector2(98, 24)
+const SPECIAL_TAG_PX := [14, 13, 12, 11]
 
 ## (id: String) -> bool, set by UiRoot.
 var gate: Callable = Callable()
@@ -118,6 +151,9 @@ var close_button: UiButton
 ## "waiters", "cashiers", "tables", "station:<id>" or "" (no button).
 var limit_btn: UiButton
 var limit_target: String = ""
+## C2.5 (plan 2.3): the Game.bottleneck_fix() dict the banner's fix button
+## shows ({} while it shows none). UiRoot reads it on action("fix").
+var fix_target: Dictionary = {}
 
 var _frame: Panel
 var _frame_sb: StyleBoxFlat
@@ -142,6 +178,8 @@ var _sell_lead: Label
 var _sell_value: Label
 var _sell_unit: Label
 var _sell_row: HBoxContainer
+## C6.2: {tag, tag_text} of the "Sells for" row's "×2 TODAY" (one dish).
+var _sell_tag: Dictionary = {}
 var _cards: Array[Panel] = []
 var _delta_hire: Label
 var _delta_hire_icon: UiIcon
@@ -169,6 +207,18 @@ var _content_h: float = CONTENT_H
 var _fade_tw: Tween
 var _top_tw: Tween
 var _closing: bool = false
+## C2.5: LEVEL UP's style box (its hero border), the grey ribbons on COOKS /
+## SPEED, whether a fix button showed at the last refresh, the banner button
+## mode, the poll timer and the open print.
+var _lvl_sb: StyleBoxFlat
+var _rib_hire: Panel
+var _rib_proc: Panel
+var _fix_was: bool = false
+var _btn_fix_mode: int = -1
+var _poll_t: float = 0.0
+var _open_logged: bool = true
+## C2.5 analytics not_bottleneck_shown: once a session.
+static var _nb_sent: bool = false
 
 
 func _init() -> void:
@@ -193,8 +243,21 @@ func _ready() -> void:
 	Game.rate_changed.connect(_on_rate_changed)
 	Game.menu_unlocked.connect(_on_menu_unlocked)
 	# The limit banner follows the waiters, seats and cashiers too.
-	for sig in ["waiter_changed", "seating_changed", "galla_changed"]:
+	for sig in ["waiter_changed", "seating_changed", "galla_changed", "signboard_changed"]:
 		UiKit.gconnect(sig, _on_limits_changed)
+	# C6.2: the "×2 TODAY" chip tag.
+	UiKit.gconnect("special_changed", _on_special_changed)
+
+
+## C2.5: the readout's limit moves with the Sim's live sample (every 0.5 s)
+## without a signal, so the banner and the ribbons re-read it while open.
+func _process(delta: float) -> void:
+	if not visible or _closing or station_id == "":
+		return
+	_poll_t += delta
+	if _poll_t >= 0.5:
+		_poll_t = 0.0
+		_refresh_deltas()
 
 
 ## Top edge of the sheet frame (canvas px; 520 at 720 x 1280). The MenuPop
@@ -210,6 +273,10 @@ func open(id: String) -> void:
 	_show_info(false)
 	_apply_theme(id)
 	_layout_key = ""
+	_limit_key = ""
+	_fix_was = false
+	_poll_t = 0.0
+	_open_logged = false
 	refresh()
 	visible = true
 	catcher.visible = true
@@ -312,11 +379,13 @@ func _build() -> void:
 	var c_level := _upgrade_card(MID_SIZE, "arrow_up", UiKit.SAFFRON, "LEVEL UP")
 	var c_proc := _upgrade_card(SIDE_SIZE, "clock", UiKit.TEAL, "SPEED")
 	_cards = [c_hire, c_level, c_proc]
-	var lvl_sb := c_level.get_theme_stylebox("panel") as StyleBoxFlat
-	if lvl_sb != null:
-		lvl_sb.set_border_width_all(3)
-		lvl_sb.border_width_bottom = 5
-		lvl_sb.border_color = UiKit.MARIGOLD
+	_lvl_sb = c_level.get_theme_stylebox("panel") as StyleBoxFlat
+	_set_level_hero(true)
+	# C2.5: "Not the bottleneck now" over COOKS and SPEED (hidden).
+	_rib_hire = StaffRows.grey_ribbon(c_hire, Vector2(RIBBON_INSET, -StaffRows.GREY_RIBBON_H * 0.5 - 1.0),
+			SIDE_SIZE.x - 2.0 * RIBBON_INSET)
+	_rib_proc = StaffRows.grey_ribbon(c_proc, Vector2(RIBBON_INSET, -StaffRows.GREY_RIBBON_H * 0.5 - 1.0),
+			SIDE_SIZE.x - 2.0 * RIBBON_INSET)
 
 	# deltas
 	var hrow := _delta_row(c_hire, "people", UiKit.WARN, SIDE_DELTA_Y)
@@ -421,6 +490,10 @@ func _build_product_card() -> void:
 	_sell_unit = UiKit.label("", 20, UiKit.INK_SOFT, 0, UiKit.INK, "body")
 	_sell_unit.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_sell_row.add_child(_sell_unit)
+	# C6.2: a one-dish counter has no MENU row, so its "×2 TODAY" sits at the
+	# right end of the "Sells for" row.
+	_sell_tag = _special_pill(sell, Vector2(SELL_RECT.size.x - SPECIAL_TAG_SIZE.x - 12.0,
+			(SELL_RECT.size.y - SPECIAL_TAG_SIZE.y) * 0.5))
 
 
 ## The one "<stage> can't keep up" banner (hidden until a limit shows).
@@ -594,8 +667,32 @@ func _menu_chip(parent: Control, pos: Vector2, sz: Vector2, k: int, tappable: bo
 	var sub: Label = UiKit.label_in(c, "", Vector2(CHIP_NAME_POS.x, sz.y - 32.0), Vector2(sz.x - 58.0, 26), CHIP_SUB_PX, UiKit.GAIN,
 			HORIZONTAL_ALIGNMENT_LEFT)
 	sub.clip_text = true
-	return {"panel": c, "sb": sb, "icon": icon, "lock": lock, "name": name_l, "sub": sub,
-			"name_y": name_l.position.y, "name_h": name_l.size.y}
+	# C6.2: "×2 TODAY" on today's special, straddling the chip's top edge
+	# on the sheet, its bottom edge in the "i" card (under the MENU caption).
+	var ty: float = -SPECIAL_TAG_SIZE.y * 0.5 if tappable else sz.y - SPECIAL_TAG_SIZE.y * 0.5 + 4.0
+	var tag: Dictionary = _special_pill(c, Vector2(sz.x - SPECIAL_TAG_SIZE.x - 4.0, ty))
+	return {"panel": c, "sb": sb, "icon": icon, "lock": lock, "name": name_l, "sub": sub, "tag": tag["tag"],
+			"tag_text": tag["tag_text"], "name_y": name_l.position.y, "name_h": name_l.size.y}
+
+
+## C6.2: a hidden "×2 TODAY" pill (maroon, marigold rim) at `pos` in
+## `parent`: {tag, tag_text} for _set_special_tag().
+func _special_pill(parent: Control, pos: Vector2) -> Dictionary:
+	var tag: Panel = UiKit.pill(UiKit.MAROON, SPECIAL_TAG_SIZE)
+	tag.name = "SpecialTag"
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var sbt: StyleBoxFlat = tag.get_theme_stylebox("panel") as StyleBoxFlat
+	if sbt != null:
+		sbt.set_border_width_all(2)
+		sbt.border_color = UiKit.MARIGOLD
+	parent.add_child(tag)
+	tag.position = pos
+	var tl: Label = UiKit.label_in(tag, "", Vector2(4, -6), Vector2(SPECIAL_TAG_SIZE.x - 8.0, SPECIAL_TAG_SIZE.y + 12.0),
+			int(SPECIAL_TAG_PX[0]), Color.WHITE)
+	tl.name = "Text"
+	tl.clip_text = true
+	tag.visible = false
+	return {"tag": tag, "tag_text": tl}
 
 
 ## The largest of CHIP_NAME_PX at which `name` fits `w` on one line, as
@@ -628,6 +725,7 @@ func _refresh_chips(chips: Array) -> void:
 	var id: String = station_id
 	var ids: Array[String] = Game.dish_ids(id) if id != "" else []
 	var n: int = Game.dishes_unlocked(id) if id != "" else 0
+	var special: String = Game.special_dish() if id != "" else ""
 	for k in chips.size():
 		var ch: Dictionary = chips[k]
 		var panel: Panel = ch["panel"]
@@ -637,6 +735,7 @@ func _refresh_chips(chips: Array) -> void:
 		panel.visible = true
 		var dish: String = ids[k]
 		var unlocked: bool = k < n
+		_set_special_tag(ch, unlocked and special != "" and dish == special)
 		var sb: StyleBoxFlat = ch["sb"]
 		var icon: TextureRect = ch["icon"]
 		var lock: UiIcon = ch["lock"]
@@ -687,6 +786,25 @@ func _on_chip_input(event: InputEvent, k: int) -> void:
 		head = tr(Game.dish_name(station_id, dish))
 	if toast_fn.is_valid():
 		toast_fn.call(head + "\n" + tr(Game.dish_desc(station_id, dish)))
+
+
+## C6.2: a chip's "×2 TODAY" tag (text re-read for a language change).
+func _set_special_tag(ch: Dictionary, on: bool) -> void:
+	var tag: Control = ch.get("tag") as Control
+	if tag == null:
+		return
+	if on:
+		var tl: Label = ch["tag_text"]
+		var t: String = tr(SPECIAL_TAG)
+		if tl.text != t:
+			tl.text = t
+			tl.add_theme_font_size_override("font_size", _fit_px(t, SPECIAL_TAG_PX, SPECIAL_TAG_SIZE.x - 10.0, false))
+	tag.visible = on
+
+
+func _on_special_changed() -> void:
+	if visible and station_id != "":
+		refresh()
 
 
 func _on_menu_unlocked(id: String, _dish: String) -> void:
@@ -856,6 +974,10 @@ func _refresh_sells(many: bool) -> void:
 	_sell_lead.text = "Avg" if many else "Sells for"
 	_sell_value.text = Fmt.price(v)
 	_sell_unit.text = tr("a %s") % u
+	# C6.2: with a MENU row the special's chip carries the tag instead.
+	var dids: Array[String] = Game.dish_ids(id)
+	var special: String = Game.special_dish()
+	_set_special_tag(_sell_tag, not many and special != "" and not dids.is_empty() and dids[0] == special)
 
 
 ## Level bar labels (A6.5): "Lv 12" ... "Lv 25: COFFEE" / "MAX" / "GOAL Lv n".
@@ -900,20 +1022,73 @@ func _refresh_deltas() -> void:
 			_delta_level_icon.visible = true
 	_delta_level.add_theme_font_size_override("font_size", _fit_px(_delta_level.text, [21, 20, 19, 18], 168.0, false))
 	var limit: String = UiKit.gstr("station_limit", [id], "")
-	# Grey only next to the banner that says why (not in the tutorial's beats).
-	var grey: bool = limit != "" and _banner_allowed()
+	# C2.5: one source. With the readout, COOKS and SPEED grey (and carry the
+	# ribbon) each when Game.station_help says it will not help; without it,
+	# both grey while station_limit names another stage (0.3.7).
+	var st: Dictionary = Game.bottleneck_state()
+	var allowed: bool = _banner_allowed()
+	var grey_hire: bool = limit != "" and allowed
+	var grey_proc: bool = grey_hire
+	var rib_hire: bool = false
+	var rib_proc: bool = false
+	if not st.is_empty():
+		rib_hire = allowed and StaffRows.help_ribbon(id, "cook") != ""
+		rib_proc = allowed and StaffRows.help_ribbon(id, "speed") != ""
+		grey_hire = rib_hire
+		grey_proc = rib_proc
 	if Game.hire_maxed(id):
 		_set_delta(_delta_hire, _delta_hire_icon, tr("{n}/{max} cooks").format({"n": int(Game.station_employees(id)),
-				"max": UiKit.max_employees(id)}), grey, UiKit.WARN)
+				"max": UiKit.max_employees(id)}), grey_hire, UiKit.WARN)
 	else:
-		_set_delta(_delta_hire, _delta_hire_icon, tr("+1 cook"), grey, UiKit.WARN)
+		_set_delta(_delta_hire, _delta_hire_icon, tr("+1 cook"), grey_hire, UiKit.WARN)
 	if Game.proc_maxed(id):
-		_set_delta(_delta_proc, _delta_proc_icon, tr("MAX"), grey, UiKit.FINE)
+		_set_delta(_delta_proc, _delta_proc_icon, tr("MAX"), grey_proc, UiKit.FINE)
 	else:
 		var t: float = Game.processing_time(id)
 		var nxt: float = t / (1.0 + float(Game.processing_step_pct(id)) / 100.0)
-		_set_delta(_delta_proc, _delta_proc_icon, secs_pair(t, nxt), grey, UiKit.FINE)
-	_refresh_banner(limit)
+		_set_delta(_delta_proc, _delta_proc_icon, secs_pair(t, nxt), grey_proc, UiKit.FINE)
+	# No ribbon on a maxed card (nothing to buy there).
+	_set_ribbon(_rib_hire, rib_hire and not Game.hire_maxed(id))
+	_set_ribbon(_rib_proc, rib_proc and not Game.proc_maxed(id))
+	if st.is_empty():
+		_refresh_banner(limit)
+	else:
+		_refresh_banner_fix(st)
+	_log_open()
+
+
+## C2.5: shows / hides a grey ribbon (text re-read for a language change);
+## not_bottleneck_shown {button, station} once a session.
+func _set_ribbon(p: Panel, on: bool) -> void:
+	if p == null:
+		return
+	if on and not p.visible:
+		var l: Label = p.get_node_or_null("Text") as Label
+		var t: String = tr(StaffRows.NOT_BOTTLENECK)
+		if l != null and l.text != t:
+			l.text = t
+			l.add_theme_font_size_override("font_size", StaffRows.fit_px(t, StaffRows.GREY_RIBBON_PX, p.size.x - 16.0))
+		if not _nb_sent:
+			_nb_sent = true
+			Analytics.event("not_bottleneck_shown", {"button": "cooks" if p == _rib_hire else "speed", "station": station_id})
+	p.visible = on
+
+
+## Debug: "[ui] sheet <id> ribbons: cooks,speed fix=HIRE WAITER" once per open.
+func _log_open() -> void:
+	if _open_logged:
+		return
+	_open_logged = true
+	if not OS.is_debug_build():
+		return
+	var ribs: PackedStringArray = PackedStringArray()
+	if _rib_hire != null and _rib_hire.visible:
+		ribs.append("cooks")
+	if _rib_proc != null and _rib_proc.visible:
+		ribs.append("speed")
+	var fl: String = str(fix_target.get("label", "")) if not fix_target.is_empty() else ""
+	print("[ui] sheet %s ribbons: %s fix=%s" % [station_id, ",".join(ribs) if not ribs.is_empty() else "none",
+			fl if fl != "" else "none"])
 
 
 ## "2.0 s → 1.9 s": one decimal, two when one would not show the change.
@@ -942,11 +1117,31 @@ func _set_delta(l: Label, icon: UiIcon, text: String, greyed: bool, col: Color) 
 func _refresh_banner(limit: String) -> void:
 	_gate_was = _banner_allowed()
 	var info: Dictionary = _limit_info(limit) if limit != "" and _gate_was else {}
+	_apply_banner(info)
+
+
+## C2.5: the banner from the readout state (Game.bottleneck_state()).
+func _refresh_banner_fix(st: Dictionary) -> void:
+	_gate_was = _banner_allowed()
+	var info: Dictionary = _fix_info(st) if _gate_was else {}
+	_apply_banner(info)
+
+
+## Shows `info` ({title, sub, button, target, fix, cost}; {} hides the
+## banner): a fix button (saffron, caption + price, action "fix") when
+## info.fix is set, else the old teal "goto_limit" button (or none). Then
+## LEVEL UP's hero border, the coach hand and the layout.
+func _apply_banner(info: Dictionary) -> void:
 	var show: bool = not info.is_empty()
+	var btn: String = str(info.get("button", "")) if show else ""
+	var fv: Variant = info.get("fix", {})
+	var fix: Dictionary = fv if fv is Dictionary and btn != "" else {}
+	fix_target = fix.duplicate(true)
 	if show:
-		var btn: String = str(info.get("button", ""))
 		limit_target = str(info.get("target", "")) if btn != "" else ""
-		var key: String = "%s|%s|%s|%s" % [info.get("title", ""), info.get("sub", ""), btn, limit_target]
+		var cost: String = str(info.get("cost", "")) if not fix.is_empty() else ""
+		var key: String = "%s|%s|%s|%s|%s|%s" % [info.get("title", ""), info.get("sub", ""), btn, limit_target, cost,
+				str(fix.get("kind", ""))]
 		if key != _limit_key:
 			_limit_key = key
 			_limit_title.text = str(info.get("title", ""))
@@ -954,8 +1149,10 @@ func _refresh_banner(limit: String) -> void:
 			limit_btn.visible = btn != ""
 			var text_w: float = BANNER_SIZE.x - BANNER_TEXT_X - 16.0
 			if btn != "":
+				_set_btn_mode(not fix.is_empty())
 				limit_btn.set_caption(btn)
-				limit_btn.set_font_sizes(_fit_btn_px(btn))
+				limit_btn.set_cost(cost)
+				limit_btn.set_font_sizes(_fit_btn_px(btn), FIX_COST_PX)
 				text_w = limit_btn.position.x - BANNER_TEXT_X - 10.0
 			_limit_title.size.x = text_w
 			_limit_sub.size.x = text_w
@@ -964,8 +1161,119 @@ func _refresh_banner(limit: String) -> void:
 	else:
 		limit_target = ""
 		_limit_key = ""
+	_refresh_fix_afford()
+	var fix_now: bool = not fix_target.is_empty()
+	# LEVEL UP is not the hero while the banner offers the real fix.
+	_set_level_hero(not fix_now)
+	if fix_now and not _fix_was:
+		_coach_fix()
+	_fix_was = fix_now
 	var chips: bool = station_id != "" and Game.dishes_unlocked(station_id) > 1
 	_apply_layout(show, chips, true)
+
+
+## C2.5: the banner for the readout state: {} when the limit is this
+## counter's own kitchen (COOKS and SPEED here are the fix) or nothing
+## limits; else the limit's title and line, and the fix (Game's
+## bottleneck_fix(), the state's "fix") as the button, except LEVEL UP on
+## this very counter (the hero card is right below) and a maxed stage.
+func _fix_info(st: Dictionary) -> Dictionary:
+	var id: String = station_id
+	var capped: bool = bool(st.get("road_capped", false))
+	var limit: String = "road" if capped else str(st.get("limit", ""))
+	var slow: String = str(st.get("station", ""))
+	if limit == "" or id == "":
+		return {}
+	if limit == "cooks" and (slow == "" or slow == id):
+		return {}
+	var fv: Variant = st.get("fix", {})
+	var fix: Dictionary = fv if fv is Dictionary else {}
+	var kind: String = str(fix.get("kind", "none"))
+	var info: Dictionary = {"title": "", "sub": tr("More cooks or speed won't help yet."), "button": "", "target": "",
+			"fix": {}, "cost": ""}
+	var target: String = ""
+	match limit:
+		"waiters":
+			info["title"] = tr("Waiters can't keep up.")
+			target = "waiters"
+		"cashiers":
+			info["title"] = tr("Cashiers can't keep up.")
+			target = "cashiers"
+		"seats":
+			info["title"] = tr("All seats are full.")
+			target = "tables"
+			if kind == "none":
+				info["sub"] = tr("Every table is built. LEVEL UP pays more.")
+		"cooks":
+			info["title"] = tr("The %s can't keep up.") % tr(Game.station_name(slow))
+			target = "station:" + slow
+		"road":
+			info["title"] = tr("Every traveller is served.")
+			if kind != "signboard":
+				info["sub"] = tr("LEVEL UP: each one pays more.")
+		_:
+			return {}
+	if kind == "none" or str(fix.get("label", "")) == "":
+		return info
+	var fst: String = str(fix.get("station", ""))
+	if kind == "level":
+		if fst == id or fst == "":
+			return info
+		target = "station:" + fst
+	elif kind == "signboard":
+		target = ""
+	elif kind == "cook" or kind == "speed":
+		target = "station:" + fst if fst != "" else target
+	info["button"] = tr(str(fix["label"]))
+	info["cost"] = Fmt.price(float(fix.get("cost", 0.0)))
+	info["target"] = target
+	info["fix"] = fix
+	return info
+
+
+## The banner button: the saffron fix button (caption + price) or the old
+## teal navigation button.
+func _set_btn_mode(fix: bool) -> void:
+	var m: int = 1 if fix else 0
+	if m == _btn_fix_mode:
+		return
+	_btn_fix_mode = m
+	var sz: Vector2 = FIX_BTN if fix else BANNER_BTN
+	limit_btn.custom_minimum_size = sz
+	limit_btn.size = sz
+	limit_btn.position = Vector2(BANNER_SIZE.x - sz.x - 12.0, (BANNER_SIZE.y - sz.y) * 0.5 - 2.0)
+	limit_btn.set_face(UiKit.SAFFRON if fix else UiKit.TEAL)
+	limit_btn.big_ring = fix
+	if not fix:
+		limit_btn.set_cost("")
+		limit_btn.set_affordable(true)
+
+
+## The fix button greys while its price is out of reach (it still opens the
+## card: a tap is navigation).
+func _refresh_fix_afford() -> void:
+	if fix_target.is_empty():
+		return
+	limit_btn.set_affordable(Game.can_afford(float(fix_target.get("cost", 0.0))))
+
+
+## LEVEL UP's marigold hero border (off while the banner offers a fix).
+func _set_level_hero(on: bool) -> void:
+	if _lvl_sb == null:
+		return
+	_lvl_sb.set_border_width_all(3 if on else 0)
+	_lvl_sb.border_width_bottom = 5
+	_lvl_sb.border_color = UiKit.MARIGOLD if on else UiKit.CARD.darkened(0.16)
+
+
+## The first 2 times a fix banner shows: the coach hand on its button
+## (UiRoot.coach_hand counts "coach_sheet_fix" and stays quiet while the
+## Director runs).
+func _coach_fix() -> void:
+	var ui: Variant = Refs.ui
+	if ui == null or not is_instance_valid(ui) or not (ui as Object).has_method("coach_hand"):
+		return
+	(ui as Object).call("coach_hand", limit_btn, {"kind": "sheet_fix"})
 
 
 ## Title, line and button for a limit label ("WAITERS", "CASHIERS",
@@ -1069,6 +1377,7 @@ func _refresh_buttons() -> void:
 		btn_proc.set_caption("UPGRADE")
 		btn_proc.set_cost(Fmt.price(pc))
 		btn_proc.set_affordable(Game.can_afford(pc))
+	_refresh_fix_afford()
 
 
 func _on_station_changed(id: String) -> void:
@@ -1135,8 +1444,26 @@ func _on_proc() -> void:
 		btn_proc.deny()
 
 
-## The limit banner's button: UiRoot opens `limit_target`.
+## The limit banner's button. A fix (C2.5): action("fix"), UiRoot opens the
+## card for `fix_target` (UiRoot.do_fix, W2-ROOT); a UiRoot without do_fix
+## still gets the old "goto_limit" to `limit_target`. Otherwise the old
+## button: UiRoot opens `limit_target`.
 func _on_limit() -> void:
+	if not fix_target.is_empty():
+		if not _allowed("fix"):
+			return
+		limit_btn.juice()
+		# Same `fix` value as UiRoot.do_fix sends for the meter / caption
+		# ("<kind>" or "<kind>:<role>", e.g. "hire:waiters"; W2-INT).
+		var fk: String = str(fix_target.get("kind", ""))
+		var fr: String = str(fix_target.get("role", ""))
+		Analytics.event("bottleneck_fix_tap", {"fix": fk + (":" + fr if fr != "" else ""), "source": "sheet"})
+		action.emit("fix")
+		var ui: Variant = Refs.ui
+		var has_fix: bool = ui != null and is_instance_valid(ui) and (ui as Object).has_method("do_fix")
+		if not has_fix and limit_target != "" and visible and not _closing:
+			action.emit("goto_limit")
+		return
 	if limit_target == "" or not _allowed("goto_limit"):
 		return
 	limit_btn.juice()

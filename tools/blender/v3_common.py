@@ -67,21 +67,44 @@ class Parts:
 
 def export_group(g, outdir):
     """Exports the parts of `g` as top-level nodes named after the parts (plus the
-    socket empties in g.extras)."""
+    socket empties in g.extras).
+
+    g.extras items are (name, Blender location) or (name, location, Blender Euler radians):
+    a socket can carry a rotation (seats_board's text_socket lies in the tilted face).
+    g.parents (optional, core-and-feel 2026-11-01) maps a part or socket name to the name of
+    another part or socket: that node is exported as its child instead of top level
+    (hoarding_l3 is an empty whose child mesh is fairy_bulb_hoarding). Parents are expected
+    at the model origin with no rotation, so a child keeps its model-space transform."""
     bpy.ops.object.select_all(action="DESELECT")
     for o, n in zip(g.objs, g.names):
         o.name = n
     for o in g.objs:
         o.select_set(True)
     empties = []
-    for (n, loc) in g.extras:
+    for ex in g.extras:
+        n, loc = ex[0], ex[1]
         e = bpy.data.objects.new(n, None)
         e.empty_display_type = "PLAIN_AXES"
         e.empty_display_size = 0.1
         e.location = Vector(loc)
+        if len(ex) > 2 and ex[2] is not None:
+            e.rotation_euler = ex[2]
         bpy.context.scene.collection.objects.link(e)
         e.select_set(True)
         empties.append(e)
+    by_name = dict(zip(g.names, g.objs))
+    by_name.update({e.name: e for e in empties})
+    parented = []
+    for child, parent in getattr(g, "parents", {}).items():
+        c, p = by_name.get(child), by_name.get(parent)
+        if c is None or p is None:
+            continue
+        bpy.context.view_layer.update()
+        mw = c.matrix_world.copy()
+        c.parent = p
+        c.matrix_parent_inverse = p.matrix_world.inverted()
+        c.matrix_world = mw
+        parented.append(c)
     bpy.context.view_layer.objects.active = g.objs[0]
     path = os.path.join(outdir, g.name + ".glb")
     bpy.ops.export_scene.gltf(
@@ -91,6 +114,12 @@ def export_group(g, outdir):
         export_draco_mesh_compression_enable=False, export_animations=False,
         export_cameras=False, export_lights=False, export_vertex_color="ACTIVE",
     )
+    for c in parented:
+        if c in empties:
+            continue                 # a socket under a part: removed with the other empties
+        mw = c.matrix_world.copy()
+        c.parent = None
+        c.matrix_world = mw
     for e in empties:
         bpy.data.objects.remove(e, do_unlink=True)
     for o, n in zip(g.objs, g.names):

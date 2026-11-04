@@ -23,9 +23,16 @@ extends UiWorldTag
 ## (SHINE_AT) and a few gold twinkles follow (TWINKLE_AT). Haptics gives the
 ## CELEBRATE pulse from Game.menu_unlocked; WorldJuice celebrates over the
 ## station itself.
+## Core and feel (W2-ROOT):
+##  - C3.5: each pop stays POP_LIFE 4.0 s (was 2.6; economy menus.pop_life_s
+##    when present), so the new dish is read before it rides the trays.
+##  - C6.2: show_special(station_id, dish_id) queues the same card for the
+##    day's special (UiRoot, when WELCOME BACK does not carry the band):
+##    caption "AAJ KA SPECIAL", main line "{dish} ×2 today" (no price
+##    column); prints "[menu_pop] special <dish_id>".
 
 const QUEUE_MAX := 4
-const POP_LIFE := 2.6
+const POP_LIFE := 4.0
 const CARD := Vector2(330, 100)
 const PTR := 12.0
 const TOP_CLEAR := 150.0
@@ -44,7 +51,7 @@ const TWINKLE_AT := 0.5
 ## () -> float: the open station sheet's top (INF when closed). Set by UiRoot.
 var sheet_top_fn: Callable = Callable()
 
-var _q: Array = []        # of [station_id, dish_id]
+var _q: Array = []        # of [station_id, dish_id, kind ("new" | "special")]
 var _station: String = ""
 var _dish: String = ""
 var _left: float = 0.0
@@ -52,6 +59,8 @@ var _icon: Texture2D = null
 var _name_en: String = ""
 var _name_hi: String = ""
 var _price: String = ""
+## "new" (NEW ON THE MENU) or "special" (AAJ KA SPECIAL) for the card on show.
+var _kind: String = "new"
 var _font_bold: Font = null
 var _font_body: Font = null
 var _shine: FxShine = null
@@ -77,11 +86,35 @@ func _setup() -> void:
 
 ## Queues a pop for `dish_id` over station `station_id`.
 func show_unlock(station_id: String, dish_id: String) -> void:
-	if _q.size() >= QUEUE_MAX:
+	_enqueue([station_id, dish_id, "new"])
+
+
+## C6.2: queues the AAJ KA SPECIAL card for `dish_id` over `station_id`
+## (never dropped by a full queue: it is shown at most once a session).
+func show_special(station_id: String, dish_id: String) -> void:
+	_enqueue([station_id, dish_id, "special"], true)
+
+
+func _enqueue(e: Array, force: bool = false) -> void:
+	if _q.size() >= QUEUE_MAX and not force:
 		return
-	_q.append([station_id, dish_id])
+	_q.append(e)
 	if not _showing and _left <= 0.0:
 		_next()
+
+
+## The station of the card on show ("" = none); WorldNoteTag hides its
+## counter tag under it.
+func showing_station() -> String:
+	return _station if _showing and _left > 0.0 else ""
+
+
+## Seconds a card stays (economy menus.pop_life_s, else POP_LIFE).
+static func pop_life() -> float:
+	var m: Variant = Game.eco.get("menus", {})
+	if m is Dictionary:
+		return maxf(0.5, float((m as Dictionary).get("pop_life_s", POP_LIFE)))
+	return POP_LIFE
 
 
 func _next() -> void:
@@ -90,13 +123,14 @@ func _next() -> void:
 	var e: Array = _q.pop_front()
 	_station = str(e[0])
 	_dish = str(e[1])
-	_left = POP_LIFE
+	_kind = str(e[2]) if e.size() > 2 else "new"
+	_left = pop_life()
 	world_point = Layout3.station_pos(_station) + Vector3(0.0, 1.3, 0.0)
 	_icon = DishArt.icon_texture(_dish)
 	_name_en = Game.dish_name(_station, _dish)
 	_name_hi = Game.dish_name_hi(_station, _dish)
 	_price = Fmt.price(Game.dish_price(_station, _dish))
-	print("[menu_pop] %s" % _dish)
+	print("[menu_pop] %s%s" % ["special " if _kind == "special" else "", _dish])
 	_t = 0.0
 	set_shown(true)
 	# Clamp now too: the first frame used to draw unclamped (high on the
@@ -177,24 +211,38 @@ func _draw() -> void:
 		draw_texture_rect(_icon, Rect2(Vector2(16.0, 24.0), Vector2(52.0, 58.5)), false)
 	if _font_bold == null:
 		return
-	draw_string(_font_bold, Vector2(NAME_X, 16.0 + 12.0), tr("NEW ON THE MENU"), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, UiKit.MARIGOLD)
-	var pw: float = _font_bold.get_string_size(_price, HORIZONTAL_ALIGNMENT_LEFT, -1, PRICE_PX).x
-	var name_w: float = CARD.x - 16.0 - pw - NAME_GAP - NAME_X
+	var caption: String = "AAJ KA SPECIAL" if _kind == "special" else "NEW ON THE MENU"
+	draw_string(_font_bold, Vector2(NAME_X, 16.0 + 12.0), tr(caption), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, UiKit.MARIGOLD)
+	# The special's card has no price column: its "×2 today" line needs the room.
+	var special: bool = _kind == "special"
+	var pw: float = 0.0 if special else _font_bold.get_string_size(_price, HORIZONTAL_ALIGNMENT_LEFT, -1, PRICE_PX).x
+	var name_w: float = CARD.x - 16.0 - NAME_X - (0.0 if special else pw + NAME_GAP)
 	# Hindi: the Hindi name is the main line and there is no subtitle.
 	var hindi: bool = UiKit.is_hindi()
-	var main_name: String = tr(_name_en) if hindi else _name_en
+	var main_name: String = _main_name()
 	draw_string(_font_bold, Vector2(NAME_X, 46.0 + 20.0), main_name, HORIZONTAL_ALIGNMENT_LEFT, name_w, _name_px(name_w), Color.WHITE)
 	if not hindi and _name_hi != "" and _font_body != null:
 		draw_string(_font_body, Vector2(NAME_X, 74.0 + 14.0), _name_hi, HORIZONTAL_ALIGNMENT_LEFT, 200, 17, CREAM)
-	draw_string(_font_bold, Vector2(CARD.x - 16.0 - pw, 60.0 + 7.0), _price, HORIZONTAL_ALIGNMENT_LEFT, -1, PRICE_PX, UiKit.GAIN)
+	if not special:
+		draw_string(_font_bold, Vector2(CARD.x - 16.0 - pw, 60.0 + 7.0), _price, HORIZONTAL_ALIGNMENT_LEFT, -1, PRICE_PX, UiKit.GAIN)
 
 
 ## Largest of NAME_PX at which the EN name is no wider than `w` (the last
 ## size when none fits; draw_string then clips at `w`).
 func _name_px(w: float) -> int:
-	var n: String = tr(_name_en) if UiKit.is_hindi() else _name_en
+	var n: String = _main_name()
 	for v in NAME_PX:
 		var px: int = int(v)
 		if _font_bold.get_string_size(n, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x <= w:
 			return px
 	return int(NAME_PX[NAME_PX.size() - 1])
+
+
+## The card's main line: the dish name (Hindi: the Hindi name), or for the
+## special "{dish} ×2 today" with the dish in title case (Hindi: its name).
+func _main_name() -> String:
+	var hindi: bool = UiKit.is_hindi()
+	if _kind == "special":
+		var d: String = tr(_name_en) if hindi else Game.title_case(_name_en)
+		return tr("{dish} ×2 today").replace("{dish}", d)
+	return tr(_name_en) if hindi else _name_en

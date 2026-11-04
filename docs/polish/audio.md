@@ -1,6 +1,6 @@
 # Dhaba Rush: sound and music
 
-Sprint 2026-10-26 · sound track · 0.3.6.
+Sprint 2026-10-26 · sound track · 0.3.6. **Updated 2 Nov 2026 for the core-and-feel build:** three new world sounds (the night TV, the baraat band, the sitting dog; section 3, "World sounds"), listening points 21–24 (section 2), and the `angry` sound is no longer heard (nobody gives up and leaves, C2.1).
 
 Nothing was committed, exported, installed or uploaded. Every Godot run used a scratch copy with its own HOME; the real save is unchanged (md5 `0df78beb11133c66873437f0b54b2108`). No agent can hear: everything below was measured (loudness, spectrograms, recordings of the game's own output), and section 2 is the list of things only your ears can judge.
 
@@ -59,6 +59,13 @@ Tick each line or write what is wrong next to it. Every fix is one number in `to
 20. After 10 minutes of it (play the file on repeat while you work): still OK, or does one phrase start to grate? Name the phrase (time in the file) and it can be rewritten.
 
 **The reel (`sfx_reel.mp3`)**: does anything sound wrong for what it is (a lorry that sounds like a goose, a sizzle that sounds like rain)? The table in section 3 says what each one is meant to be.
+
+**Core-and-feel sounds (on the phone build; not in the MP3s above, which predate them)**
+
+21. **The night TV** (`tv_cheer`). At night, every 40–90 s, a quiet cricket crowd from the small TV on the left wall. It should sit far back, under the music, like a TV across the room. Too present? Does it ever sound like a real broadcast you recognise? It should not.
+22. **The baraat band** (`baraat_band`). On a Saturday or Sunday, after 10 minutes of free play, when the decorated bus drops its guests: a dhol chaal and a trumpet rising to a held note, in the music's key. Festive, or too loud next to the sale chime? It plays at most once per bus (a bus every 120 s at most).
+23. **The dog** (`dog_bark`). Two short barks a little way off, as a vehicle that does not stop (the dhaba had no room for its riders) passes the gate, so you see it go by (at most once every 45 s). Does it read as "a lorry just drove past", or is it annoying when the dhaba is full for a while?
+24. **C8.5: the music on a phone.** Points 1, 12 and 17–20 again, on the phone speaker and on earphones. Nobody has heard the music on a phone yet; it was synthesised and only measured.
 
 ## 3. Every sound
 
@@ -122,6 +129,20 @@ Tick each line or write what is wrong next to it. Every fix is one number in `to
 | `menu_unlock` | NEW ON THE MENU (L25 / L50 / L100) | three rising bells over a soft harmonium chord | 0.96 s | −13 |
 | `ready` | a counter becomes affordable to build (first time each session) | two soft bells, A5 then D6 | 0.66 s | −17 |
 | `angry` | a traveller gives up and leaves, only after 20 s without another give-up (feel track, `world_juice.gd`) | a soft falling "hm-mm" on a muted reed, not a buzzer | 0.40 s | −24 |
+
+### World sounds (core and feel, 2 Nov 2026)
+
+All three are on the SFX bus (SOUND OFF silences them), 22 050 Hz mono 16-bit `.wav`, made by `tools/audio/make_sfx.py` like the rest. "Loud" is the target in the game (LUFS-M max of the file + `VOLUME_DB` + the 3 dB bus); `measure.py` measured the files at −17.4, −11.5 and −17.1 LUFS-M max.
+
+| Id | Plays when (code) | Meant to sound like | Length | Loud | Cooldown | `VOLUME_DB` |
+|---|---|---|---|---|---|---|
+| `tv_cheer` | at night only, while the TV on the left wall is on: every 40–90 s, a random gap from the TV's own random generator (`scripts/v3/world/tv_node.gd`, `CHEER_GAP`) | a cricket crowd swelling out of a small TV across the room: voices, claps, a tinny speaker | 1.69 s | −30 (quiet, distant) | 30 s | −15.6 |
+| `baraat_band` | a decorated baraat bus drops one or more wedding guests at the stop (weekend baraat, C6.4; `scripts/v3/world/sim.gd`); a bus that drives past because the seats are full plays nothing | a dhol bhangra chaal and a trumpet sting rising up the D major chord to a held D6 (pitch jitter 0, so it stays in key) | 2.99 s | −19 | 20 s | −10.5 |
+| `dog_bark` | the sitting dog by the dhaba barks when a vehicle that drives past for want of room reaches the gate, on screen at home (C2.1 drive-past; `scripts/v3/world/traffic.gd` `_tick_drive` → `_dog_bark()`, at most once every 45 s, `DOG_BARK_GAP`; since 3 Nov at the gate, not when the vehicle is sent off screen) | two short barks a little way off | 0.71 s | −24 | 20 s | −9.9 |
+
+The levels are set in `scripts/autoload/sfx.gd` (`BUS_OF`, `COOLDOWN`, `VOLUME_DB`, `PITCH_JITTER_MAX`). `tools/audio/measure.py` does not list them in `TARGETS` yet; add `"tv_cheer": -30.0, "baraat_band": -19.0, "dog_bark": -24.0` there so `--suggest` agrees (the final QA step of the core-and-feel build owns that file). Their `.import` files appear when the project is next opened in the Godot editor (owner task; keep `compress/mode=2`, QOA).
+
+`angry` (section "UI and moments") still exists and is still wired to a traveller giving up, but in this build nobody gives up (`seating.give_up_s` 0, C2.1), so it is never heard.
 
 All tonal sounds use notes of D major, the music's key, and Sfx limits their random pitch change (`PITCH_JITTER_MAX`: chimes ±1.2 %, fanfares 0) so they stay in tune with it.
 
@@ -200,7 +221,7 @@ New `.wav` files need their `.import` (Godot writes it on the next editor open; 
 
 | | Before | After |
 |---|---|---|
-| Sound files | 25 `.wav` + 10.4 s music `.wav` (19 played) | 31 `.wav` + 3 `.ogg` (all played except `chai_pour`, `tandoor_slap` until hooked) |
+| Sound files | 25 `.wav` + 10.4 s music `.wav` (19 played) | 31 `.wav` + 3 `.ogg` (all played except `chai_pour`, `tandoor_slap` until hooked); core and feel (2 Nov 2026): 34 `.wav` (+ `tv_cheer`, `baraat_band`, `dog_bark`), and `angry` is no longer heard |
 | Music | 10.43 s mono, repeats ~6× a minute; its last quarter-second was 6.7 dB quieter than its first, a dip at every repeat | 68.57 s stereo, seamless |
 | In the APK (imported, as packed) | 212 766 B | 609 228 B (SFX QOA 172 697 B, Ogg 436 531 B) |
 | Whole mix, first 10 min (seed 1, autopilot) | not measured | −20.6 LUFS integrated, peak −0.8 dBFS (limiter), 0 clipped samples |

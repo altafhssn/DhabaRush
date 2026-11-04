@@ -609,6 +609,88 @@ def sfx_defs():
         return mix(0.45, [(hum(57, 0.16, 0.02), 0.0, 1.0), (hum(53, 0.24, 0.06), 0.15, 0.9)])
 
     d["angry"] = (angry, -4.0)
+
+    # ---------------- core-and-feel (2026-11-01, W1-ART1): appended, earlier entries untouched
+    def tv_cheer(r):
+        """A cricket crowd roaring out of a small TV across the room (night, C8.3): a swell of many
+        voices (vowel formants), a few voices on top, a scatter of claps, through a tinny speaker
+        and a little room."""
+        dur = 1.5
+        n = n_of(dur)
+        t = np.arange(n) / SR
+        swell = np.clip(t / 0.25, 0, 1) ** 1.5 * np.exp(-np.clip(t - 0.45, 0, None) / 0.45)
+        crowd = shaped_noise(n, r, 250, 3200, peaks=((650, 9, 180), (1150, 7, 260), (2500, 4, 400)))
+        flutter = fft_filter(r.standard_normal(n), hi=14.0)
+        flutter = 0.7 + 0.3 * flutter / (np.max(np.abs(flutter)) + 1e-9)
+        parts = [(crowd * swell * flutter, 0.0, 0.6)]
+        for _ in range(6):                                        # a few voices: "aaah", "ohh"
+            vd = r.uniform(0.5, 0.9)
+            tt = t_axis(vd)
+            f0 = r.uniform(170, 300)
+            f = f0 * (1 + 0.04 * np.sin(TAU * r.uniform(3, 6) * tt)) * (1 + 0.15 * tt / vd)
+            ph = TAU * np.cumsum(f) / SR
+            v = sum(np.sin(m * ph) / m for m in range(1, 12))
+            v = fft_filter(v, 300, 3000, peaks=((700, 10, 150), (1200, 8, 220)))
+            parts.append((v * ramp_env(len(tt), 0.08, 0.3), r.uniform(0.08, 0.35), r.uniform(0.06, 0.12)))
+        for _ in range(26):                                       # claps
+            c = shaped_noise(n_of(0.02), r, 900, 5000) * env(n_of(0.02), 0.0005, 0.004)
+            parts.append((c, r.uniform(0.15, 1.1), r.uniform(0.05, 0.14)))
+        x = fft_filter(mix(dur + 0.2, parts), 320, 3600, peaks=((1800, 4, 600),))   # small TV speaker
+        return room(x, r, 0.45, 0.25)
+
+    def baraat_band(r):
+        """A wedding band arriving (C6.4): a dhol in a bhangra chaal (the bass head's palm bend, the
+        stick's crack on the treble head) and a trumpet sting rising up the D major chord to a held
+        D6 with a second trumpet a third under it. About 3 s."""
+        eighth = 60.0 / 150 / 2
+
+        def dhol_bass(v):
+            return v * modes(95, 0.45, [(1, 1.0, 0.16), (1.5, 0.3, 0.07), (2.3, 0.15, 0.04)], 0.002, r,
+                             glide=0.18, glide_t=0.04)
+
+        def dhol_tick(v):
+            k = modes(520, 0.12, [(1, 1.0, 0.035), (1.62, 0.6, 0.02), (2.7, 0.3, 0.012)], 0.0006, r)
+            k += 0.5 * shaped_noise(len(k), r, 1500, 7000) * env(len(k), 0.0003, 0.006)
+            return v * k
+
+        def brass(m, dur, vib=0.0):
+            tt = t_axis(dur)
+            f = note(m) * (1 + vib * np.sin(TAU * 5.5 * tt) * np.clip((tt - 0.15) / 0.2, 0, 1))
+            ph = TAU * np.cumsum(f) / SR
+            w = sum(np.sin(k * ph) * k ** -0.9 for k in range(1, 18) if k * note(m) < 7000)
+            w = fft_filter(w, 200, 6000, peaks=((1300, 8, 500),))
+            return w * ramp_env(len(tt), 0.03, min(0.12, dur * 0.4))
+
+        parts = []
+        chaal = (("B", 0, 1.0), ("T", 2, 0.6), ("B", 3, 0.85), ("T", 5, 0.6), ("B", 6, 0.8), ("T", 7, 0.7))
+        for rep in range(2):
+            for (kind, e, v) in chaal:
+                at = (rep * 8 + e) * eighth
+                v *= r.uniform(0.9, 1.0)
+                parts.append((dhol_bass(v) if kind == "B" else dhol_tick(v), at, 1.0))
+        for i, (m, d_) in enumerate(((74, 0.16), (78, 0.16), (81, 0.16))):
+            parts.append((brass(m, d_), 1.2 + i * 0.17, 0.45))
+        parts.append((brass(86, 1.1, 0.006), 1.71, 0.5))
+        parts.append((brass(83, 1.0, 0.007), 1.75, 0.3))
+        x = room(mix(3.2, parts), r, 0.6, 0.18)[: n_of(3.0)]
+        return end_fade(x, 0.25)
+
+    def dog_bark(r):
+        """A street dog's two short barks (C8.3), a little way off."""
+        def bark(f0, dur):
+            tt = t_axis(dur)
+            f = f0 * (1.25 - 0.45 * np.clip(tt / dur, 0, 1))
+            ph = TAU * np.cumsum(f) / SR
+            v = sum(np.sin(m * ph) * m ** -0.7 for m in range(1, 16))
+            v = v + 0.6 * shaped_noise(len(tt), r, 400, 4500)
+            v = fft_filter(v, 250, 5000, peaks=((900, 9, 250), (2200, 5, 400)))
+            e = np.clip(tt / 0.008, 0, 1) * np.exp(-np.clip(tt - 0.03, 0, None) / 0.045)
+            return v * e
+        return far(mix(0.6, [(bark(430, 0.16), 0.0, 1.0), (bark(390, 0.18), 0.24, 0.9)]), r, 3800, 0.5, 0.22)
+
+    d["tv_cheer"] = (tv_cheer, -6.0)
+    d["baraat_band"] = (baraat_band, -3.0)
+    d["dog_bark"] = (dog_bark, -3.0)
     return d
 
 

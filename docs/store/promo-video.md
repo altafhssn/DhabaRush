@@ -1,6 +1,8 @@
 # Promo video: shot list (15–30 s)
 
-Dhaba Rush 0.3.7 · store page track · 2026-10-26, updated 2026-10-27.
+Dhaba Rush 0.3.7 · store page track · 2026-10-26, updated 2026-10-27; updated 2 Nov 2026 for the core-and-feel build (C9.1, C9.3).
+
+**The rules for every frame are in [README.md §6](README.md#6-store-media-rules-c93)** (current build only, re-record when the build changes, no real brands, no earnings wording, no prices that differ from the game, no feature the build lacks, the owner posts). Record the promo from the core-and-feel build, not from 0.3.7.
 
 One edit, four exports: the Play listing video (English and Hindi) and two 9:16 cuts for YouTube Shorts, where the organic plan lives (faceless gameplay Shorts). Target length 25 s. Real gameplay only, from the current build. Play and YouTube both reject or demote videos that show things the game does not have, and "the ad looked different from the game" is the genre's most common review complaint.
 
@@ -9,7 +11,8 @@ One edit, four exports: the Play listing video (English and Hindi) and two 9:16 
 - Gameplay on screen in the first second. No studio logo up front.
 - Captions burned in, because most people watch muted. Use Baloo 2 ExtraBold (in `assets/fonts/`, OFL), white with the marigold highlight, as on the screenshots. Hindi version: the Hindi UI (`--lang=hi`) and Hindi captions.
 - Sound: the game's own music and sound effects. The sound track is being reworked this sprint, so record after it lands. No film songs or other copyrighted music.
-- Show only what 0.3.7 has. No sikke, no shop, no events, no prices that differ from the game.
+- Show only what the build being recorded has ([README.md §6](README.md#6-store-media-rules-c93)). No sikke, no shop, no prices that differ from the game. The weekend baraat, the Family Dhaba and NH 48 only as they really play.
+- Never make the player the server or the earner: the staff serve, the player decides what to fix.
 - Play listing video: upload to YouTube as public or unlisted, with ads turned off on the video and embedding allowed, then paste the URL in Play Console. 16:9 is the safe format for the listing: put the portrait gameplay in the centre and the captions and brand on the sides. Check the current Play Console help when you upload, in case portrait video is now shown full size for portrait games.
 
 ## 2. Shot list (25 s)
@@ -18,9 +21,9 @@ Times are for the 9:16 cut; the 16:9 version uses the same beats.
 
 | Time | Beat | On screen | Caption EN / HI | How to get it |
 |---|---|---|---|---|
-| 0.0–2.5 | Hook | Close on the chai counter: Pinky pours, the radial timer fills, a kulhad lands on the pass. Quick zoom out to the busy dhaba by day | Your own highway dhaba / अपना हाईवे ढाबा | Late-game state (section 3, LATE), pinch from zoom-in to the home view |
+| 0.0–2.5 | Hook | Close on the chai counter: Pinky pours, the radial timer fills, a cutting-chai glass lands on the pass. Quick zoom out to the busy dhaba by day | Your own highway dhaba / अपना हाईवे ढाबा | Late-game state (section 3, LATE), pinch from zoom-in to the home view |
 | 2.5–5.0 | Highway | A lorry reverses into the truck parking at dusk; travellers walk through the lit gate | Trucks pull in hungry / भूखे ड्राइवर रुकते हैं | Front view, `--time=0.58`, wait for a lorry (seed 7: about 40–70 s in) |
-| 5.0–8.0 | Serve | A waiter carries chai and roti on one tray; the items hop onto the charpai; the traveller pays at the galla, cash burst and sale number | Serve every order / हर ऑर्डर परोसें | Follow a waiter (`--capture=tray` shows the framing), then the galla |
+| 5.0–8.0 | Waiters | A waiter carries chai and roti on one tray; the items hop onto the charpai; the traveller pays at the galla, cash burst and sale number | Every order in one trip / हर ऑर्डर एक ही बार में | Follow a waiter (`--capture=tray` shows the framing), then the galla |
 | 8.0–11.0 | Unlock | Tap the chai counter, three LEVEL UP taps, NEW ON THE MENU: Coffee | Unlock 16 dishes / 16 पकवान खोलें | Chai at level 22 (`--buy=chai_lvl22`), then tap LEVEL UP three times |
 | 11.0–14.0 | Staff | STAFF › WAITERS, HIRE WAITER 3, the new waiter walks out and picks up a tray | Hire your staff / स्टाफ़ रखें | MID state (2 waiters), enough cash for the hire |
 | 14.0–18.0 | Build | BUILD › KADAI › BUILD, the camera flies to the annex, the kadai appears, Shera stirs, steam rises | Build new counters / नए काउंटर बनाएँ | MID state plus a third waiter and ₹10,000 or more |
@@ -55,8 +58,9 @@ Godot's Movie Maker (`--write-movie out.png --fixed-fps 30`) works in a scratch 
 
 ## 5. Faceless Shorts ideas from the same footage
 
-1. "₹0 to ₹1 lakh: building a highway dhaba", a time-lapse of the first 10 minutes.
+1. "From one chai counter to a full dhaba", a time-lapse of the first 10 minutes (no rupee amounts in the title: no earnings wording, README §6).
 2. "Day vs night at the dhaba", a split screen at the same framing.
 3. "Every dish on the menu", 16 unlock pops cut to the beat.
-4. "POV: you're the waiter", the follow camera on a tray run.
+4. "Every order in one trip", the follow camera on a waiter's tray run (never "POV: you're the waiter": the staff serve, not the player, README §6.1 rule 4).
 5. "Munshi-ji rates your dhaba", his lines over gameplay.
+6. "The Family Dhaba: before and after", the renovation and the AC family hall, from a save that has reached it in the build being recorded.

@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Truck art: Munshi-ji's box</title>
+<link href="https://fonts.googleapis.com/css2?family=Bakbak+One&display=block" rel="stylesheet">
+<link href="truck.css" rel="stylesheet">
+<style>
+/* Munshi-ji's 3D bust is not UI art: it is cut from the base shot (walk/t004.0.png) and kept as it is */
+.bust{position:absolute;left:0;top:0;width:360px;height:640px;background-size:360px 640px;
+  clip-path:polygon(222.5px 355.0px, 224.0px 337.5px, 240.0px 324.0px, 267.5px 315.0px, 292.5px 318.0px, 311.0px 330.0px, 319.0px 349.0px, 327.0px 356.0px, 335.0px 359.0px, 333.0px 390.0px, 320.0px 400.0px, 312.5px 416.0px, 297.5px 425.0px, 325.0px 431.0px, 346.0px 436.0px, 360.0px 445.0px, 360.0px 535.0px, 174.0px 535.0px, 170.5px 505.0px, 169.5px 478.0px, 176.0px 457.0px, 190.0px 442.0px, 205.0px 433.0px, 224.0px 429.0px, 230.0px 426.0px, 221.0px 412.5px, 216.0px 395.0px, 217.5px 370.0px)}
+.rule{position:absolute;left:1px;right:1px;height:1px;background:#BFCBDA}
+.cash.one{height:21.5px}
+</style>
+</head><body>
+<div class="world" style="background-image:url('file:///private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/uxd/bg/early/t004.0.png')"></div>
+
+<!-- critic fix: the game hides the cash pill until the first sale (hud.gd:9-12, :609-612), so the intro line (t 4 s) has no HUD at all.
+     This page now shows line l5, 0.3 s after the first sale (script_lines.gd:100-103; base state SH/walk/t046.0.png, cash 101.00 x 10 = 1,010):
+     the first moment Munshi-ji's box and the HUD are on screen together. One row: the rate row only comes at the first sheet (Game.HUD_RATE). -->
+<div class="cash one">
+  <div class="top"><span class="bolt"></span><span class="ic ic-note"></span><span class="amt num">1,010</span><span class="bolt"></span></div>
+</div>
+
+<div class="bust" style="background-image:url('file:///private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/uxcap/shots/walk/t004.0.png')"></div>
+
+<!-- the dialogue box, kept: khata paper, ruled lines, red margin, brass plaque, maroon arrow.
+     Only K1 (a 31 px line pitch from Baloo 2 alone) and the type scale (26 px body, 16 px hint) change. -->
+<div class="dlg" style="background-image:none">
+  <div class="abs" style="left:11px;top:0;bottom:0;width:1px;background:#E07A6A"></div>
+  <div class="rule" style="top:41px"></div><div class="rule" style="top:56.5px"></div><div class="rule" style="top:72px"></div>
+  <div class="name" style="width:118.5px;justify-content:center;padding:0">MUNSHI-JI</div>
+  <div class="tx" style="top:27px">First sale! Your cash is up here, top left.</div>
+  <div class="more">tap to continue</div>
+  <div class="tri"></div>
+</div>
+</body></html>

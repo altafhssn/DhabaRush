@@ -44,14 +44,50 @@ extends CanvasLayer
 ##    beat, BUILD at L16; Game: the tutorial's end, the first finished task,
 ##    the 3rd claim, the kadai); a control that appears while playing gets
 ##    the gold reveal burst (Game.hud_element_revealed, plus a poll).
+##
+## Core and feel (W2-HUD; C2.6, C2.7, C3.1, C6.1, C6.4, C6.5):
+##  - The bottleneck meter (BottleneckMeter, meter()): x 12, y = task strip
+##    bottom + 16 (from _task_y), 226 x 128; an extra revealed with
+##    Game.hud_revealed("meter") (after the tutorial; W3-TUT reveals it at
+##    LW1), hidden in sheet / panel modes, kept in dialogue mode while the
+##    Director's lesson_stage() names a row. Rows and caption taps go out as
+##    the meter's row_tapped / road_tapped signals (UiRoot routes them).
+##  - The BARAAT button (EventButton, event_button()): x 15, meter bottom +
+##    12, only while Game.event_active(); pressed_event() after the gate
+##    allows "event_button".
+##  - HOME in the family layout: always shown in gameplay; a tap while the
+##    camera is already home (<= HOME_EPS m) flies to Layout3.hall_view()
+##    (gate "home_hall"); the next tap flies home as usual.
+##  - Game.task_auto_claimed (Munshi-ji's delegation): the CLAIM burst and
+##    the toast "Munshi-ji claimed it for you".
+##  - Debug prints: "[hud] meter revealed at <t>", "[hud] rate <before> ->
+##    <after> in <s> s (<what>)" for the first rise of the "/min" within
+##    RATE_RISE_S after a hire, table or signboard (also the rate_rose
+##    signal and last_rate_rise, for tests); the meter prints its own lines.
 
 signal button_pressed(id: String)
+## Core and feel C3.1: the "/min" rose after a hire (debug print's data).
+signal rate_rose(before: float, after: float, secs: float, what: String)
 
 const EXTRAS := ["task_bar", "manager_button", "medal_button", "stats_button",
-		"shop_button", "staff_button", "build_button", "settings_button", "home_button"]
+		"shop_button", "staff_button", "build_button", "settings_button", "home_button",
+		"bottleneck_meter", "event_button"]
 ## Round 2 step 2: HUD control -> reveal element (revealed()).
 const REVEAL_EL := {"task_bar": "tasks", "staff_button": "staff", "build_button": "build",
-		"stats_button": "stats", "settings_button": "gear"}
+		"stats_button": "stats", "settings_button": "gear", "bottleneck_meter": "meter"}
+## Core and feel C2.6: the meter sits this far under the task strip.
+const METER_GAP := 16.0
+## C6.4: the BARAAT button sits this far under the meter.
+const EVENT_GAP := 12.0
+const EVENT_X := 15.0
+## C6.1: HOME's hall stop needs the camera within this of the home point.
+const HOME_EPS := 0.3
+## C3.1: the rate print watches this long after a hire.
+const RATE_RISE_S := 5.0
+## cash_spent kinds that start the rate watch (plan 2.4: hires, a table,
+## the signboard).
+const RATE_WATCH_KINDS := ["waiter_hire", "galla_hire", "table", "signboard"]
+const RATE_WATCH_PREFIX := ["hire:", "staff_hire:"]
 const STAFF_SIZE := Vector2(100, 100)
 const HOME_PILL := Vector2(184, 64)
 const BADGE_POLL := 0.5
@@ -78,6 +114,9 @@ var task_bar: TaskBar
 var mode: String = "gameplay"
 ## UX fix A7: the NEXT chip (free play guidance).
 var next_chip: NextChip
+## Core and feel C3.1: the last "/min" rise after a hire ({before, after,
+## secs, what}; {} until one).
+var last_rate_rise: Dictionary = {}
 
 var _root: Control
 var _pill_layer: CanvasLayer
@@ -117,6 +156,11 @@ var _bottom: float = 1240.0
 var _task_y: float = 0.0
 var _home_poll: float = 0.0
 var _home_wanted: bool = false
+## Core and feel widgets.
+var _meter: BottleneckMeter
+var _event_btn: EventButton
+var _rate_shown: float = 0.0
+var _rate_watch: Dictionary = {}    # {t0, before, what} while a hire is watched
 
 # reward count-up (J12): entries {id, remaining, chunk, left, attached}
 var _held: float = 0.0
@@ -147,6 +191,7 @@ func _ready() -> void:
 	task_bar.claim_requested.connect(_on_claim)
 	task_bar.goto_requested.connect(_on_task_goto)
 	task_bar.chest_tapped.connect(_on_chest)
+	_build_meter()
 	_build_buttons()
 	_build_toast()
 	add_child(UiJuice.new())
@@ -168,6 +213,11 @@ func _ready() -> void:
 	# Round 2 step 2: CORE's per-element reveal and the STAFF badge.
 	UiKit.gconnect("hud_element_revealed", _poll_reveal)
 	UiKit.gconnect("staff_alert_changed", _on_staff_alert_changed)
+	# Core and feel (wave 1 is merged: direct).
+	Game.task_auto_claimed.connect(_on_task_auto_claimed)
+	Game.cash_spent.connect(_on_cash_spent)
+	Game.event_changed.connect(_on_event_changed)
+	_show_event_auto_paid.call_deferred(false)
 	set_process(true)
 
 
@@ -183,13 +233,40 @@ func set_mode(p_mode: String, keep: Array = []) -> void:
 	_apply_extras(true, delay, dur_in)
 
 
+## Core and feel C2.6: the bottleneck readout (a BottleneckMeter; row_control
+## (stage), road_control(), signals row_tapped(stage) / road_tapped()).
+func meter() -> Control:
+	return _meter
+
+
+## Core and feel C6.4: the BARAAT button (an EventButton; signal
+## pressed_event()).
+func event_button() -> Control:
+	return _event_btn
+
+
+## The screen rect the wall-ad bubble keeps clear of (the BARAAT button
+## while it shows; Rect2() otherwise).
+func bubble_avoid_rect() -> Rect2:
+	if _event_btn == null or not _event_btn.is_visible_in_tree():
+		return Rect2()
+	return _event_btn.get_global_rect()
+
+
 ## Tutorial hand anchors: money_pill, money_icon, sikke_pill, task_bar,
 ## task_card_0..2 (the strip's card when it shows that task, else the
 ## 3-task view's), peti, staff_button, manager_button, medal_button,
 ## stats_button, shop_button, build_button, settings_button, home_button,
-## next_chip (null while hidden).
+## next_chip (null while hidden); core and feel: bottleneck_meter,
+## meter_row_<stage>, meter_road, event_button.
 func anchor(n: String) -> Control:
 	match n:
+		"bottleneck_meter":
+			return _meter
+		"meter_road":
+			return _meter.road_control() if _meter != null else null
+		"event_button":
+			return _event_btn
 		"money_pill":
 			return _money_pill
 		"next_chip":
@@ -204,6 +281,8 @@ func anchor(n: String) -> Control:
 			return task_bar.chest
 	if n.begins_with("task_card_"):
 		return task_bar.card_for_slot(int(n.substr(10)))
+	if n.begins_with("meter_row_") and _meter != null:
+		return _meter.row_control(n.substr(10))
 	if _buttons.has(n):
 		return _buttons[n]
 	return null
@@ -341,6 +420,28 @@ func _build_pills() -> void:
 	next_chip.mode_fn = func() -> String: return mode
 	next_chip.cash_fn = shown_cash
 	_pill_root.add_child(next_chip)
+
+
+## Core and feel C2.6 / C6.4: the meter and the BARAAT button (extras, hidden
+## until revealed / an event is on).
+func _build_meter() -> void:
+	_meter = BottleneckMeter.new()
+	_meter.name = "bottleneck_meter"
+	_meter.gate = _allowed
+	_meter.chip = next_chip
+	_meter.visible = false
+	_meter.modulate.a = 0.0
+	_root.add_child(_meter)
+	# W2-FIX-ui: before the TaskBar in HudRoot, so the strip's open "1/3"
+	# view (TaskBar.VIEW_Y, a STOP panel over the meter's rect) draws above
+	# the meter and takes the taps first (input picks by tree order).
+	_root.move_child(_meter, task_bar.get_index())
+	_event_btn = EventButton.new()
+	_event_btn.name = "event_button"
+	_event_btn.gate = _allowed
+	_event_btn.visible = false
+	_event_btn.modulate.a = 0.0
+	_root.add_child(_event_btn)
 
 
 func _build_buttons() -> void:
@@ -483,6 +584,9 @@ func _layout() -> void:
 	(_buttons["medal_button"] as Control).position = Vector2(97, _side_y())
 	# STATS under the one-task strip (78 px), at the right edge.
 	(_buttons["stats_button"] as Control).position = Vector2(w - 15.0 - 68.0, _task_y + TaskBar.BAR_SIZE.y + 22.0)
+	# Core and feel: the meter under the strip (left), BARAAT under the meter.
+	_meter.position = Vector2(12.0, _task_y + TaskBar.BAR_SIZE.y + METER_GAP)
+	_event_btn.position = Vector2(EVENT_X, _meter.position.y + BottleneckMeter.SIZE.y + EVENT_GAP)
 	(_buttons["shop_button"] as Control).position = Vector2(15, _bottom - 102.0)
 	(_buttons["staff_button"] as Control).position = Vector2(15, _bottom - 102.0 - 4.0)
 	(_buttons["home_button"] as Control).position = Vector2((w - HOME_PILL.x) * 0.5, _bottom - HOME_PILL.y - 6.0)
@@ -613,6 +717,8 @@ func _revealed(id: String) -> bool:
 			return _reveal >= 6 and _feature("shop")
 		"home_button":
 			return (revealed("staff") or Game.is_tutorial_done()) and _home_wanted
+		"event_button":
+			return Game.is_tutorial_done() and Game.event_active()
 	if REVEAL_EL.has(id):
 		return revealed(str(REVEAL_EL[id])) or _named_by_tutorial(id) or _pointed_at(id)
 	return _reveal >= 6
@@ -627,12 +733,16 @@ func _poll_reveal(_key: Variant = null) -> void:
 	for id: String in REVEAL_EL.keys():
 		var on: bool = _revealed(id)
 		var had: Variant = _rev.get(id, null)
+		if id == "bottleneck_meter":
+			_meter.active = on
 		if had == null:
 			_rev[id] = on
 			continue
 		if bool(had) != on:
 			_rev[id] = on
 			changed = true
+			if on and id == "bottleneck_meter" and OS.is_debug_build():
+				print("[hud] meter revealed at %.2f" % _game_time())
 			if on and per_element:
 				_reveal_burst.call_deferred(id)
 	if changed:
@@ -664,6 +774,9 @@ func _wanted(id: String) -> bool:
 		"gameplay", "popup":
 			return true
 		"dialogue":
+			# C2.6: the meter stays up while the Director's lesson names a row.
+			if id == "bottleneck_meter" and BottleneckMeter._lesson_stage() != "":
+				return true
 			return _keep.has("*") or _keep.has(id)
 	return false
 
@@ -675,8 +788,13 @@ func _apply_extras(animate: bool, delay: float, dur_in: float) -> void:
 
 
 func _extra_node(id: String) -> Control:
-	if id == "task_bar":
-		return task_bar
+	match id:
+		"task_bar":
+			return task_bar
+		"bottleneck_meter":
+			return _meter
+		"event_button":
+			return _event_btn
 	return _buttons[id]
 
 
@@ -759,6 +877,12 @@ func _process(delta: float) -> void:
 	if _rev_t >= HOME_POLL:
 		_rev_t = 0.0
 		_poll_reveal()
+		# Core and feel: BARAAT follows the event window; the meter follows
+		# the Director's lesson in dialogue mode (no signal for either).
+		_set_extra("event_button", _wanted("event_button"), true, 0.0, 0.15)
+		if mode == "dialogue":
+			_set_extra("bottleneck_meter", _wanted("bottleneck_meter"), true, 0.0, 0.15)
+		_check_rate_watch(_rate_shown)
 	_home_poll += delta
 	if _home_poll < HOME_POLL:
 		return
@@ -767,7 +891,7 @@ func _process(delta: float) -> void:
 		# A sheet's focus / restore or a pending fly-and-return keeps the
 		# current state: no HOME flash while the camera comes back by itself.
 		return
-	var want: bool = _home_off_screen()
+	var want: bool = _home_off_screen() or _family_home()
 	if want != _home_wanted:
 		_home_wanted = want
 		_set_extra("home_button", _wanted("home_button"), true, 0.0, 0.15)
@@ -785,6 +909,31 @@ func _cam_scripted() -> bool:
 	if o.has_method("mode_name") and ["panel", "panel_restore"].has(str(o.call("mode_name"))):
 		return true
 	return o.has_method("has_pending_return") and bool(o.call("has_pending_return"))
+
+
+## C6.1: in the family layout HOME stays up in free play (at home a tap
+## flies to the hall, see _hall_stop()).
+func _family_home() -> bool:
+	if not Game.is_tutorial_done() or not Layout3.is_family():
+		return false
+	var d: Variant = Refs.director
+	if d != null and is_instance_valid(d) and (d as Object).has_method("in_chain") and bool((d as Object).call("in_chain")):
+		return false
+	var cam: Variant = Refs.camera
+	return cam != null and is_instance_valid(cam)
+
+
+## C6.1: a HOME tap now goes to the hall: the family layout, free play, the
+## camera already at home (within HOME_EPS of CameraRig.home_point()).
+func _hall_stop() -> bool:
+	if not _family_home():
+		return false
+	var o: Object = Refs.camera
+	if not o.has_method("target_point") or not o.has_method("fly_to"):
+		return false
+	var at: Vector3 = o.call("target_point")
+	var home: Vector3 = CameraRig.home_point()
+	return Vector2(at.x, at.z).distance_to(Vector2(home.x, home.z)) <= HOME_EPS
 
 
 func _home_off_screen() -> bool:
@@ -806,6 +955,40 @@ func _home_off_screen() -> bool:
 
 func _on_rate_changed(per_min: float) -> void:
 	_rate_num.text = Fmt.per_min(per_min)
+	_rate_shown = per_min
+	_check_rate_watch(per_min)
+
+
+## C3.1: a hire, a table or the signboard starts the watch of the "/min"
+## (the rate shown before the purchase).
+func _on_cash_spent(_amount: float, what: String) -> void:
+	var watch: bool = RATE_WATCH_KINDS.has(what)
+	for pre: String in RATE_WATCH_PREFIX:
+		if what.begins_with(pre):
+			watch = true
+	if not watch:
+		return
+	_rate_watch = {"t0": Refs.clock, "before": _rate_shown, "what": what}
+
+
+## The first rise of the "/min" within RATE_RISE_S of the purchase: print
+## "[hud] rate <before> -> <after> in <s> s (<what>)" once.
+func _check_rate_watch(per_min: float) -> void:
+	if _rate_watch.is_empty():
+		return
+	var secs: float = Refs.clock - float(_rate_watch["t0"])
+	if secs > RATE_RISE_S:
+		_rate_watch = {}
+		return
+	var before: float = float(_rate_watch["before"])
+	if per_min <= before + maxf(0.005, before * 0.002):
+		return
+	var what: String = str(_rate_watch["what"])
+	_rate_watch = {}
+	last_rate_rise = {"before": before, "after": per_min, "secs": secs, "what": what}
+	if OS.is_debug_build():
+		print("[hud] rate %.2f -> %.2f in %.2f s (%s)" % [before, per_min, secs, what])
+	rate_rose.emit(before, per_min, secs, what)
 
 
 func _on_sikke_changed(n: int) -> void:
@@ -940,6 +1123,17 @@ func _allowed(id: String) -> bool:
 
 
 func _on_hud_button(id: String, b: UiButton) -> void:
+	if id == "home_button" and _hall_stop():
+		# C6.1: already home in the family layout -> the AC family hall.
+		if not _allowed("home_hall"):
+			return
+		b.juice()
+		# W3-FIX-look: wider on a phone taller than 16:9 (Layout3.hall_view_mult).
+		(Refs.camera as Object).call("fly_to", Layout3.hall_view(), CameraRig.GAME * Layout3.hall_view_mult())
+		if OS.is_debug_build():
+			print("[hud] home -> hall view")
+		button_pressed.emit("home_hall")
+		return
 	if not _allowed(id):
 		return
 	b.juice()
@@ -971,6 +1165,50 @@ func _on_claim(slot: int) -> void:
 	Sfx.play("claim", 0.0)
 	play_reward_burst(from, got)
 	button_pressed.emit(id)
+
+
+## C6.5: Munshi-ji claimed a finished card (Game already paid it): the
+## CLAIM burst of _on_claim and a toast.
+func _on_task_auto_claimed(slot: int, reward: float) -> void:
+	if reward <= 0.0:
+		return
+	var card: Control = task_bar.card_for_slot(slot)
+	if card != null and card.is_visible_in_tree():
+		UiKit.ripple(card, true)
+	Sfx.play("claim", 0.0)
+	play_reward_burst(burst_center(), reward)
+	toast(tr("Munshi-ji claimed it for you"))
+
+
+## C6.4: the event window opened or closed, or its track moved.
+func _on_event_changed() -> void:
+	_set_extra("event_button", _wanted("event_button"), true, 0.0, 0.15)
+	if _event_btn != null:
+		_event_btn.refresh()
+	_show_event_auto_paid(true)
+
+
+## W4-FIX-core (C6.4): baraat steps paid without a CLAIM (the weekend window
+## closed, or a promotion settled them) get a toast; mid-session also the
+## burst that releases the held count-up. At launch and after a promotion's
+## reload the cash is already shown, so the toast alone gives the reason.
+func _show_event_auto_paid(burst: bool) -> void:
+	if not Game.has_method("take_event_auto_paid"):
+		return
+	var amt: float = float(Game.call("take_event_auto_paid"))
+	if amt <= 0.0:
+		return
+	toast(tr("Baraat reward: +{money} dhaba cash").format({"money": Fmt.money(amt)}))
+	if burst:
+		play_reward_burst(burst_center(), amt)
+
+
+## main3's game time (the "[auto] <t>" clock), else Refs.clock.
+func _game_time() -> float:
+	var cs: Node = get_tree().current_scene if is_inside_tree() else null
+	if cs != null and cs.has_method("game_time"):
+		return float(cs.call("game_time"))
+	return Refs.clock
 
 
 func _on_chest() -> void:

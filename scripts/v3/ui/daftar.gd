@@ -40,6 +40,24 @@ extends Control
 ##  - STATS (the tab inside BUILD until the kadai) gains SEATS IN USE next to
 ##    SEATS FULL and TRAVELLERS LOST (the old SEATING panel's three numbers).
 ##
+## Core and feel (W2-ROOT, build plan C2.1 / C5.2 / C5.3 / C6.1 / C6.3):
+##  - STATS: TRAVELLERS LOST (nobody leaves unpaid any more, C2.1) is now the
+##    neutral "ONE MORE TABLE · +{money}/min" (Game.preview_table(); "MAX"
+##    once every table is built).
+##  - BUILD gains rows after the counters: HIGHWAY SIGNBOARD (C5.3: "Level
+##    {n}/{max}", the honest "+{money}/min" or "Not the bottleneck now", lock
+##    "AFTER KADAI", "BIGGEST BOARD ON THE HIGHWAY" at the top level; BUILD /
+##    UPGRADE + price, action "signboard_buy"), then FAMILY DHABA before the
+##    renovation (C5.2 / C6.1: shown from the start, the tutorial's BUILD beat
+##    included, "Dishes {n}/{total}", SEE + price, action "see_renovation")
+##    or NH 48 · RAJASTHAN after it until the move (C6.3: "Counters at Lv
+##    100: {n}/4", action "see_move"). UiRoot opens the carry-over popup.
+##    Anchors row_button("signboard" | "renovation" | "move"); focus_row()
+##    flashes a row like focus_tables(). Gate ids: "signboard_buy",
+##    "build_row_renovation", "build_row_move".
+##  - Prints "[ui] build rows: <id> <state>, ..." each time the BUILD tab
+##    opens (debug).
+##
 ## Language (launch blockers track B): English literals on labels are msgids
 ## (auto-translated); composed lines use tr() / UiKit.t(); in Hindi the title
 ## is the Hindi word alone ("दफ़्तर" / "हिसाब", UiKit.TitleGroup). The panel
@@ -52,6 +70,8 @@ signal action(id: String)
 signal tab_changed(tab: String)
 
 const HEADER_EXTRA := 240.0
+## Soft launch analytics: once-per-install funnel events.
+const Funnel := preload("res://scripts/v3/core/funnel.gd")
 ## Lock reason label in a station row (menu expansion §6): card rect, sizes.
 const REASON_POS := Vector2(470.0, 70.0)
 const REASON_SIZE := Vector2(210.0, 40.0)
@@ -96,7 +116,9 @@ const STAT_ROWS := [
 	["top_dish", "TOP DISH", "tray", "text"],
 	["avg_galla_line", "AVG CASHIER LINE", "people", "dec1"],
 	["avg_galla_wait", "AVG CASHIER WAIT", "clock", "secs"],
-	["travellers_lost|lost|lost_travellers", "TRAVELLERS LOST", "people", "int"],
+	# C2.1: nobody is lost any more; what one more table would add instead
+	# (Game.preview_table(), neutral tone).
+	["one_more_table", "ONE MORE TABLE", "table_plus", "table_gain"],
 ]
 ## Local tone thresholds [warn, bad] for rows Game.stats() has no tone for.
 const FALLBACK_TONES := {
@@ -129,6 +151,9 @@ var _stat_rows: Array = []         # [{key, kind, sb, value}]
 var _summary_rows: Dictionary = {} # id -> {value, profit, cap, lvl}
 ## The TABLES row: {card, sb, btn, check, sub}.
 var _table_row: Dictionary = {}
+## Core and feel: the rows after the counters, kind ("signboard" |
+## "renovation" | "move") -> {card, sb, btn, lock, soon, line, gain, kind}.
+var _extra_rows: Dictionary = {}
 var _poll: float = 0.0
 var _fade_tw: Tween
 var _top: float = 40.0
@@ -156,6 +181,7 @@ func _ready() -> void:
 	Game.station_changed.connect(_on_station_changed)
 	Game.menu_unlocked.connect(_on_menu_unlocked)
 	UiKit.gconnect("seating_changed", _on_seating_changed)
+	Game.signboard_changed.connect(_on_signboard_changed)
 	set_process(false)
 
 
@@ -170,6 +196,8 @@ func open(p_tab: String = "build") -> void:
 	_fade_tw.tween_property(self, "modulate:a", 1.0, 0.12)
 	select_tab(p_tab if p_tab == "hisaab" else "build", true)
 	set_process(true)
+	if tab == "build" and OS.is_debug_build():
+		print("[ui] build rows: %s" % build_rows_line())
 
 
 func close() -> void:
@@ -354,6 +382,7 @@ func _rebuild_content() -> void:
 	_stat_rows.clear()
 	_summary_rows.clear()
 	_table_row = {}
+	_extra_rows.clear()
 	if tab == "build":
 		_build_tab_content()
 	else:
@@ -387,6 +416,12 @@ func _build_tab_content() -> void:
 	_scroll.content.add_child(_tables_row())
 	for id: String in Game.station_ids():
 		_scroll.content.add_child(_station_row(id))
+	# Core and feel: after the counters, the signboard, then the next promotion
+	# (rows below the tandoor's, so the tutorial's BUILD beat is unchanged).
+	_scroll.content.add_child(_signboard_row())
+	var pk: String = promo_kind()
+	if pk != "":
+		_scroll.content.add_child(_promo_row(pk))
 
 
 func _station_row(id: String) -> Panel:
@@ -563,7 +598,9 @@ func _tables_row() -> Panel:
 	UiKit.label_in(card, "TABLES", Vector2(118, 8), Vector2(ROW_TITLE_W, 44), 24, UiKit.TEAL_DARK, HORIZONTAL_ALIGNMENT_LEFT)
 	var sub: Label = UiKit.label_in(card, "", Vector2(118, 50), Vector2(345, 28), 18, UiKit.INK, HORIZONTAL_ALIGNMENT_LEFT,
 			0, UiKit.INK, "body")
-	UiKit.label_in(card, "More seats: fewer travellers leave.", Vector2(118, 80), Vector2(345, 26), 16, UiKit.INK_SOFT,
+	# C2.1: nobody leaves any more (travellers wait at the gate, passing
+	# vehicles drive on); the line is seating.info's first sentence (plan 5.1).
+	UiKit.label_in(card, "More tables, more travellers.", Vector2(118, 80), Vector2(345, 26), 16, UiKit.INK_SOFT,
 			HORIZONTAL_ALIGNMENT_LEFT, 0, UiKit.INK, "body")
 	var check := UiIcon.new("check", Vector2(66, 66), Color.WHITE, UiKit.GAIN)
 	check.bg_shape = "rounded"
@@ -716,6 +753,10 @@ func _refresh_stats() -> void:
 	var tones: Dictionary = st.get("tones", {})
 	for r in _stat_rows:
 		var d: Dictionary = r
+		if str(d["kind"]) == "table_gain":
+			(d["value"] as Label).text = table_gain_text()
+			(d["sb"] as StyleBoxFlat).bg_color = UiKit.FINE
+			continue
 		var key: String = UiKit.stat_key(st, d["keys"])
 		if key == "":
 			(d["value"] as Label).text = "--"
@@ -805,6 +846,11 @@ func _on_cash_changed(_cash: float) -> void:
 	_refresh_rows_visible()
 
 
+## Signboard levels (C5.3) change its row.
+func _on_signboard_changed(_level: int) -> void:
+	_refresh_rows_visible()
+
+
 ## Waiter hires change "NEEDS <n> WAITERS" rows (and the badge) too.
 func _on_waiters_changed() -> void:
 	_refresh_rows_visible()
@@ -827,6 +873,7 @@ func _refresh_rows_visible() -> void:
 		_refresh_table_row()
 		for id in _build_rows.keys():
 			_refresh_build_row(str(id))
+		_refresh_extra_rows()
 
 
 func _on_seating_changed() -> void:
@@ -837,6 +884,7 @@ func _on_built(id: String) -> void:
 	if visible and tab == "build":
 		for k in _build_rows.keys():
 			_refresh_build_row(str(k))
+		_refresh_extra_rows()
 	_refresh_badge()
 	if visible and _build_rows.has(id):
 		# J18: the BUILD pill becomes a check box fading 0.4 -> 1 over 0.1 s.
@@ -916,3 +964,301 @@ func _on_close() -> void:
 		return
 	close_button.juice()
 	close_pressed.emit()
+
+
+# ================================================================ core and feel: rows after the counters
+## The next promotion's BUILD row: "renovation" before the Family Dhaba,
+## "move" after it while a next highway exists, else "".
+static func promo_kind() -> String:
+	if bool(Game.renovation_state().get("shown", false)):
+		return "renovation"
+	if move_target() != "":
+		return "move"
+	return ""
+
+
+## The next highway of the ladder (Game.location_ids() after the current
+## one; "" at the last).
+static func move_target() -> String:
+	var ids: Array = Game.location_ids()
+	var k: int = ids.find(Game.location_id())
+	if k < 0 or k + 1 >= ids.size():
+		return ""
+	return str(ids[k + 1])
+
+
+## STATS: what one more table adds now ("+1,250/min"), "MAX" at the cap.
+static func table_gain_text() -> String:
+	var pv: Dictionary = Game.preview_table()
+	if pv.is_empty():
+		return "--"
+	if bool(pv.get("maxed", false)):
+		return UiKit.t("MAX")
+	var g: float = maxf(0.0, float(pv.get("gain_per_min", 0.0)))
+	return UiKit.t("+{money}/min").replace("{money}", Fmt.money(g))
+
+
+## A row card for the extras, like a counter row (icon, title, two lines of
+## description, the info line at MENU_POS and a button / lock on the right).
+func _extra_card(kind: String, icon_name: String, tile: Color, title: String, desc: String) -> Dictionary:
+	var card: Panel = UiKit.card(UiKit.CARD, 16.0, 5)
+	card.name = "Row_" + kind
+	card.custom_minimum_size = Vector2(690, ROW_H_MENU)
+	var ic := UiIcon.new(icon_name, Vector2(86, 86), Color.WHITE, tile)
+	ic.pad = 0.12
+	ic.position = Vector2(16, 21)
+	card.add_child(ic)
+	UiKit.label_in(card, title, Vector2(118, 8), Vector2(ROW_TITLE_W, 44), _fit_px(tr(title), [24, 22, 20, 18], ROW_TITLE_W - 4.0),
+			UiKit.TEAL_DARK, HORIZONTAL_ALIGNMENT_LEFT)
+	UiKit.para(card, desc, Vector2(118, 50), 345.0, _desc_px(tr(desc), 345.0), UiKit.INK_SOFT, 3)
+	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_theme_constant_override("separation", 10)
+	card.add_child(row)
+	UiKit.place(row, MENU_POS - Vector2(0, 4), Vector2(MENU_SIZE.x, 30))
+	var line: Label = UiKit.label("", 16, UiKit.TEAL_DARK)
+	line.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(line)
+	var gain: Label = UiKit.label("", 16, UiKit.GAIN)
+	gain.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	row.add_child(gain)
+	var lock := UiIcon.new("lock", Vector2(50, 50))
+	lock.position = Vector2(690.0 - 50.0 - 38.0, 22.0)
+	card.add_child(lock)
+	var soon: Label = UiKit.label_in(card, "", REASON_POS, REASON_SIZE, int(REASON_PX[0]), UiKit.INK_SOFT, HORIZONTAL_ALIGNMENT_RIGHT)
+	soon.clip_text = true
+	var d: Dictionary = {"card": card, "sb": card.get_theme_stylebox("panel"), "lock": lock, "soon": soon,
+			"line": line, "gain": gain, "kind": kind}
+	_extra_rows[kind] = d
+	return d
+
+
+## C5.3: HIGHWAY SIGNBOARD.
+func _signboard_row() -> Panel:
+	var d: Dictionary = _extra_card("signboard", "signboard", UiKit.MARIGOLD_PALE, "HIGHWAY SIGNBOARD",
+			"A painted board up the highway. More lorries stop.")
+	var card: Panel = d["card"]
+	var btn := UiButton.new("BUILD", UiKit.SAFFRON, Vector2(196, 72))
+	btn.name = "SignboardButton"
+	btn.set_font_sizes(20, 24)
+	btn.big_ring = true
+	btn.press_sound = "build_done"
+	card.add_child(btn)
+	btn.position = Vector2(690.0 - 196.0 - 18.0, 28.0)
+	btn.tapped.connect(_on_signboard)
+	d["btn"] = btn
+	_refresh_signboard_row()
+	return card
+
+
+## C6.1 / C6.3: FAMILY DHABA ("renovation") or NH 48 · RAJASTHAN ("move").
+func _promo_row(kind: String) -> Panel:
+	var reno: bool = kind == "renovation"
+	var d: Dictionary
+	if reno:
+		d = _extra_card(kind, "family_hall", UiKit.TEAL_LIGHT, "FAMILY DHABA",
+				"AC family hall, 3 more tables, a 4th waiter. Prices ×2 forever.")
+	else:
+		d = _extra_card(kind, "highway", UiKit.MARIGOLD_PALE, "NH 48 · RAJASTHAN",
+				"A second dhaba with a Rajasthani menu. Prices ×3 forever.")
+	var card: Panel = d["card"]
+	var btn := UiButton.new("SEE", UiKit.TEAL, Vector2(196, 72))
+	btn.name = "SeeButton"
+	btn.set_font_sizes(20, 24)
+	btn.big_ring = true
+	btn.press_sound = "tap"
+	card.add_child(btn)
+	btn.position = Vector2(690.0 - 196.0 - 18.0, 28.0)
+	btn.tapped.connect(_on_see.bind(kind))
+	d["btn"] = btn
+	(d["lock"] as Control).visible = false
+	(d["soon"] as Control).visible = false
+	_refresh_promo_row(kind)
+	if reno:
+		Funnel.once("renovation_card_shown", "renovation_card_shown", {"tutorial": not Game.is_tutorial_done()})
+	return card
+
+
+func _refresh_extra_rows() -> void:
+	_refresh_signboard_row()
+	for k in ["renovation", "move"]:
+		_refresh_promo_row(k)
+
+
+func _refresh_signboard_row() -> void:
+	if not _extra_rows.has("signboard"):
+		return
+	var d: Dictionary = _extra_rows["signboard"]
+	var btn: UiButton = d["btn"]
+	var lock: Control = d["lock"]
+	var soon: Label = d["soon"]
+	var line: Label = d["line"]
+	var gain: Label = d["gain"]
+	var lv: int = Game.signboard_level()
+	var mx: int = Game.signboard_max()
+	var unlocked: bool = Game.signboard_unlocked() and Game.is_tutorial_done()
+	var maxed: bool = Game.signboard_maxed()
+	btn.visible = unlocked and not maxed
+	lock.visible = not unlocked
+	soon.visible = not unlocked
+	if not unlocked:
+		var txt: String = UiKit.t("AFTER KADAI")
+		if soon.text != txt:
+			soon.text = txt
+			soon.add_theme_font_size_override("font_size", _fit_px(txt, REASON_PX, REASON_MAX_W))
+	line.text = UiKit.t("Level {n}/{max}").replace("{n}", str(lv)).replace("{max}", str(mx))
+	if maxed:
+		gain.text = UiKit.t("BIGGEST BOARD ON THE HIGHWAY")
+		gain.add_theme_color_override("font_color", UiKit.MAROON)
+	elif unlocked:
+		var g: float = Game.signboard_gain_per_min()
+		if g > 0.005:
+			gain.text = UiKit.t("+{money}/min").replace("{money}", Fmt.money(g))
+			gain.add_theme_color_override("font_color", UiKit.GAIN)
+		else:
+			gain.text = UiKit.t("Not the bottleneck now")
+			gain.add_theme_color_override("font_color", UiKit.INK_SOFT)
+	else:
+		gain.text = ""
+	if btn.visible:
+		btn.set_caption("BUILD" if lv == 0 else "UPGRADE")
+		var c: float = Game.signboard_cost()
+		btn.set_cost(Fmt.price(c))
+		btn.set_affordable(Game.can_afford(c))
+	_mark_ready(d, unlocked and not maxed and bool(Game.signboard_offer().get("offer", false)))
+
+
+func _refresh_promo_row(kind: String) -> void:
+	if not _extra_rows.has(kind):
+		return
+	var d: Dictionary = _extra_rows[kind]
+	var btn: UiButton = d["btn"]
+	var line: Label = d["line"]
+	var gain: Label = d["gain"]
+	var st: Dictionary = Game.renovation_state() if kind == "renovation" else Game.location_state(move_target())
+	if kind == "renovation":
+		line.text = UiKit.t("Dishes {n}/{total}").replace("{n}", str(int(st.get("dishes", 0)))) \
+				.replace("{total}", str(int(st.get("dishes_total", 16))))
+	else:
+		line.text = UiKit.t("Counters at Lv 100: {n}/4").replace("{n}", str(int(st.get("counters_at_100", 0))))
+	gain.text = ""
+	btn.set_cost(Fmt.price(float(st.get("cost", 0.0))))
+	btn.set_affordable(true)
+	_mark_ready(d, bool(st.get("unlocked", false)))
+
+
+## A row that is ready (an affordable signboard offer, an unlocked
+## promotion) gets the marigold border, like focus_tables().
+func _mark_ready(d: Dictionary, on: bool, force: bool = false) -> void:
+	var sb: StyleBoxFlat = d["sb"]
+	if not force and d.get("ready", null) is bool and bool(d["ready"]) == on:
+		return
+	d["ready"] = on
+	if on:
+		sb.set_border_width_all(3)
+		sb.border_width_bottom = 5
+		sb.border_color = UiKit.MARIGOLD
+	else:
+		sb.set_border_width_all(0)
+		sb.border_width_bottom = 5
+		sb.border_color = UiKit.CARD.darkened(0.16)
+
+
+## Anchor: the button of the "signboard", "renovation" or "move" row (null
+## when that row or its button is not shown).
+func row_button(kind: String) -> UiButton:
+	if tab != "build" or not _extra_rows.has(kind):
+		return null
+	var b: Variant = (_extra_rows[kind] as Dictionary).get("btn", null)
+	if b is UiButton and (b as UiButton).visible:
+		return b
+	return null
+
+
+## BUILD at the `kind` row: scrolled into view, its border flashing marigold.
+func focus_row(kind: String) -> void:
+	if tab != "build":
+		select_tab("build")
+	if not _extra_rows.has(kind):
+		return
+	var d: Dictionary = _extra_rows[kind]
+	var card: Panel = d["card"]
+	var sb: StyleBoxFlat = d["sb"]
+	sb.set_border_width_all(4)
+	sb.border_width_bottom = 6
+	sb.border_color = UiKit.MARIGOLD
+	# One tween owned by the card (0.05 s scroll, after the list has laid the
+	# rows out; 0.3 s punch; 2.4 s border back): a rebuild of the list (a tab
+	# switch or a reopen) frees the card and kills the tween with it, so no
+	# callback runs on a freed card (tree timers printed "Lambda capture at
+	# index 0 was freed").
+	var tw: Tween = card.create_tween()
+	tw.tween_interval(0.05)
+	tw.tween_callback(func() -> void:
+		if card.is_visible_in_tree():
+			_scroll_to(card))
+	tw.tween_interval(0.25)
+	tw.tween_callback(func() -> void:
+		if card.is_visible_in_tree():
+			UiKit.punch(card, 1.03))
+	tw.tween_interval(2.1)
+	tw.tween_callback(func() -> void:
+		_mark_ready(d, bool(d.get("ready", false)), true))
+
+
+## Scrolls the BUILD list so `card` sits in view (UiScroll has no helper:
+## its offset is set and re-fitted, which clamps it to the list).
+func _scroll_to(card: Control) -> void:
+	if _scroll == null or not ("_offset" in _scroll):
+		return
+	_scroll.set("_offset", -maxf(0.0, card.position.y - 16.0))
+	_scroll.call("_fit")
+
+
+## "[ui] build rows: ..." (debug): every BUILD row with its state.
+func build_rows_line() -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	parts.append("tables %d/%d" % [UiKit.gint("table_count", [], 0), UiKit.gint("table_max", [], 5)])
+	for id: String in Game.station_ids():
+		var r: String = Game.build_block_reason(id)
+		var stv: String = "built" if Game.is_built(id) else ("open" if r == "" else ("waiters" if r.begins_with("waiters:") else "locked"))
+		parts.append("%s %s" % [id, stv])
+	var sbs: String = "locked"
+	if Game.signboard_maxed():
+		sbs = "maxed"
+	elif Game.signboard_unlocked() and Game.is_tutorial_done():
+		sbs = "offer" if bool(Game.signboard_offer().get("offer", false)) else "open"
+	parts.append("signboard %d/%d %s" % [Game.signboard_level(), Game.signboard_max(), sbs])
+	match promo_kind():
+		"renovation":
+			parts.append("family_dhaba %s" % ("unlocked" if bool(Game.renovation_state().get("unlocked", false)) else "locked"))
+		"move":
+			var tgt: String = move_target()
+			parts.append("%s %s" % [tgt, "unlocked" if bool(Game.location_state(tgt).get("unlocked", false)) else "locked"])
+	return ", ".join(parts)
+
+
+func _on_signboard() -> void:
+	if not _allowed("signboard_buy"):
+		return
+	var b: UiButton = row_button("signboard")
+	if b == null:
+		return
+	if not Game.can_afford(Game.signboard_cost()):
+		b.deny()
+		return
+	b.juice()
+	if Game.buy_signboard():
+		_refresh_extra_rows()
+		action.emit("signboard_buy")
+
+
+## SEE on a promotion row: UiRoot opens the carry-over popup over BUILD.
+func _on_see(kind: String) -> void:
+	if not _allowed("build_row_" + kind):
+		return
+	var b: UiButton = row_button(kind)
+	if b == null:
+		return
+	b.juice()
+	action.emit("see_" + kind)

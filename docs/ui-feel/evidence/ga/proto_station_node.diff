@@ -1,0 +1,11 @@
+--- /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/ga_base/proj/scripts/v3/world/station_node.gd	2026-11-03 01:24:57
++++ /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/ga_pkg/proj/scripts/v3/world/station_node.gd	2026-11-03 18:47:43
+@@ -640,7 +640,7 @@
+ 			if s.delay <= 0.0:
+ 				_start(s)
+ 		elif s.phase == P.RUN:
+-			s.elapsed += delta
++			s.elapsed += delta * float(Engine.get_meta("ga_hold_" + id, 1.0))
+ 			if s.timer != null and is_instance_valid(s.timer):
+ 				s.timer.set_progress(minf(s.elapsed / s.duration, 1.0))
+ 			if s.elapsed >= s.duration:

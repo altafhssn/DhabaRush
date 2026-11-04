@@ -87,7 +87,8 @@ extends Node3D
 ##    Building it adds the StationNode hidden (no cooking) and reveals it
 ##    (pop-in, sparkles) 0.35 s after the Daftar closes (reveal_station).
 ##  - Free-play tap boxes (Layout3 §2.7) for the waiter stand and galla 1 once
-##    the lassi pad first appears or lassi is built (_apply_free_play_taps).
+##    the lassi pad first appears or lassi is built, and in the family layout
+##    from the start (_apply_free_play_taps).
 ##
 ## ROUND 2 STEP 2 (docs/round2/ui-proposal.md §3.4 / §3.7, mockup 03 A / F):
 ##  - Every waiter is tappable (Waiter tap area "waiter_<i>", the "waiters"
@@ -101,6 +102,68 @@ extends Node3D
 ##  - inject_orders(n): the tutorial's waiter beat (problem first): n
 ##    travellers sit down at free seats at once and order; their plates land
 ##    on the pass together and wait for Raju (rings from the start).
+##
+## CORE AND FEEL (docs/core-and-feel/build-plan.md, package W1-WORLDA):
+##  - C2.1 lossless door line: nobody gives up for want of a seat (Game
+##    seat_give_up_time() 0 or INF = never) and a full line still takes
+##    newcomers. Arrivals are gated on room: arrival_room() = free seats
+##    (+ those about to free: eating, or every item on its way) + the door
+##    line's 7 places - the line - arrivals_incoming() (walking in + riders
+##    of vehicles already called). The arrival account calls a vehicle only
+##    when the room covers its mean riders, else holds its travellers; once
+##    it is full (its cap) the vehicle it cannot call drives past instead
+##    (Traffic.drive_past, its own rng) and counts as passed
+##    (Game.report_passed_by); a bus brings at most the room and none below
+##    BUS_MIN_ROOM. Its HUD cue (vehicle_drove_past) fires when it reaches
+##    the gate, only while the seats board reads FULL or a door line stands
+##    (W4-FIX-world, _on_pass_at_gate). The tutorial's
+##    reference pacing (a fixed 18/min until its ad chain) is not gated, so
+##    its beats keep their timing: its door line grows (7 places) instead of
+##    losing anyone. Scene end prints the conservation line (arrived = paid
+##    + inside + left unpaid; drove past apart).
+##  - C2.3 held plates (StationNode.held_tickets, W1-WORLDB) get wait rings.
+##  - C2.8 dispatch (free play): among plannable orders a free waiter takes
+##    the shortest trip for him; an order whose plate has waited WAIT_RING_S
+##    goes first, oldest first. A waiter away from his spot may set off for
+##    an order ready within order_early_s + his walk home and back. The
+##    tutorial keeps the 0.3.7 dispatch (oldest first, every item READY).
+##  - C3.1 a hired waiter takes the oldest order with READY items at once;
+##    for FAST_EASE_WINDOW s after a staff, table or signboard change the
+##    ramp eases up with FAST_EASE_TAU (free play).
+##  - C3.2 a new table seats the door line, its own seats first.
+##  - C3.4 trays: a waiter with tray k > 1 also takes up to k - 1 orders
+##    whose items are all READY and whose seats are in the same area (store,
+##    courtyard, hall); capacity_estimate() counts the tray factor.
+##  - C4.1 fill_for_seats_beat(n): every free seat filled and n travellers
+##    in the door line (fixed models, no rng draw).
+##  - C5.3 the ramp's cap rises by Game.signboard_bonus_tpm() in free play.
+##  - C6.1 family layout: the AC hall model, hall seats (tables 2-4) that
+##    families take first, the hall waiter's tap box.
+##
+## CORE AND FEEL, wave 2 (package W2-WORLD):
+##  - World props added in _ready (static world only), before Main3 attaches
+##    the fairy lights: the SEATS board at the gate (gate_board.gd, C2.2), the
+##    highway hoarding that shows the signboard level (hoarding_node.gd,
+##    C5.3), the TV on the store's left wall (tv_node.gd, C8.3), the Shaadi
+##    gate (event_deco.gd, C6.4) and, on a highway other than the first, its
+##    look (region_look.gd, C6.3: palette, milestone, camel cart). All are
+##    loaded by path (no class_name) and draw on no rng.
+##  - C6.1: hall table sets use Layout3.table_model(i) ("family_table"); the
+##    hall's bilingual sign (HALL_SIGN_LINES) at Layout3.HALL_SIGN; the
+##    waiter tap boxes from Layout3.waiter_tap_boxes_free().
+##  - C3.5 fans: when Game.take_fan_due() names a fan he walks in at once
+##    from the walkway (_tick_fans; Traveller.fan_of = the counter, pref_dish
+##    = the new dish, which he orders: on_traveller_seated); after that
+##    menus.fan_share of the free-play arrivals are one of Game.fan_models()
+##    (a later dish of his counter). Drawn from fan_rng, never rng: rng's
+##    draws are the same as before (the tutorial pool is untouched).
+##  - C6.4 baraat bus: while Game.event_active() (free play), the first
+##    BARAAT_FIRST_S s in and then every event.baraat.bus_interval_s, the
+##    decorated bus (Traffic.request_bus(n, "bus_baraat")) brings
+##    min(riders, arrival_room()) wedding guests (trav_baraati_m / _f in
+##    turn, Traveller.event_guest), or drives past (vehicle_drove_past
+##    "baraat") below min_room. Guests are on top of the arrival account and
+##    every one who pays counts once (Game.event_guest_served()).
 
 signal traveller_spawned(t: Traveller)
 ## (compat; travellers no longer walk to stations)
@@ -130,6 +193,12 @@ signal waiter_added(waiter: Waiter)
 signal vehicle_arrived(slot: int, riders: int)
 ## A bus stopped: `riders` step off, `boarding` (the waiting line) climb aboard.
 signal bus_arrived(riders: int, boarding: int)
+## C2.1: a vehicle drove past for want of room (kind "lorry" | "car" | "auto"
+## | "bus" | "baraat"). C2.7 cue: emitted as it passes the gate, only while
+## the seats board reads FULL or a door line stands (_on_pass_at_gate).
+signal vehicle_drove_past(kind: String, riders: int)
+## C3.1: a newly hired waiter took the oldest order with READY items.
+signal waiter_took_order(waiter_index: int, waited_s: float)
 
 const TRAVELLER_MODELS := [
 	["trav_trucker", "customer_c"],
@@ -149,6 +218,11 @@ const BUS_RIDERS := Vector2i(3, 6)
 const BUS_MAX_WAIT := 25.0        # s the first in line waits before a bus is sent anyway
 const BUS_FIRST_DELAY := 5.0      # s after arrivals open before the first bus
 const BUS_BOARD := 0.25           # s between passengers climbing aboard
+## C5.3 (W1-INT fix): in free play an account bus may carry up to this many
+## riders beyond bus_riders_max when 4 bays and one bus a trip cannot carry
+## the arrival target (_bus_load_max); the load wanted gets this margin.
+const BUS_LOAD_EXTRA_MAX := 4
+const BUS_LOAD_MARGIN := 1.2
 ## Reference pacing (the tutorial up to "ramp_tutorial_from"): a bus every
 ## this many s ("tutorial_bus_interval_s"), the bays get the rest of
 ## travellers_per_min.
@@ -203,6 +277,71 @@ const NO_SEAT_COLOR := Color(0.8, 0.8, 0.82)
 ## Fixed seed for the pacing randomness while the tutorial runs (models,
 ## jitter, Traffic's bays / riders): the tutorial's timings repeat run to run.
 const TUTORIAL_SEED := 20261019
+## C2.1: a bus brings at most the room, and none below this.
+const BUS_MIN_ROOM := 2
+## C2.1: places in the door line the arrival gate counts as room: the line's
+## 7 places (= Layout3.DOOR_WAIT, 7 slots from W1-WORLDB; frozen, plan C2.1
+## "anyone who still reaches a full line joins it (7 slots)"), not
+## Game.door_line_max() 4 (the "Seats full" pill's line).
+const DOOR_LINE_PLACES := 7
+## C3.1: after a staff / table / signboard change the ramp eases up with this
+## time constant (s) for FAST_EASE_WINDOW s (free play).
+const FAST_EASE_TAU := 1.5
+const FAST_EASE_WINDOW := 4.0
+## C2.8: farther than this (m) from his spot a waiter is away from home.
+const HOME_NEAR := 0.5
+## C3.4: seats in one area (x < STORE_X: store, < HALL_X: courtyard, else the
+## hall) can share a tray.
+const AREA_STORE_X := 9.0
+const AREA_HALL_X := 15.4                     # = Layout3.HALL_MIN.x (frozen, plan 2.3)
+## C6.1 family layout (frozen, plan 2.3): table sets 2-4 stand in the hall;
+## the hall waiter's spot and its tap box.
+const HALL_TABLE_FIRST := 2
+const HALL_TABLE_LAST := 4
+## C2.8 dispatch age rule, tuned at gate 1 (W1-INT, plan open question 5): an
+## urgent hall order counts this many s older, about the extra walk from the
+## passes to a hall table. Without it a hall table's orders, served one trip
+## each, waited 1.07-1.58 x the roadside food wait with one waiter (bar 1.5).
+const HALL_AGE_LEAD := 6.0
+const FAMILY_SEAT_MODELS := ["trav_family_m", "trav_family_f", "trav_baraati_m", "trav_baraati_f"]
+## C4.1: the seats-beat fill's travellers, in turn (fixed, no rng draw).
+const FILL_MODELS := [["trav_trucker", "customer_c"], ["trav_family_m", "customer_a"], ["trav_biker", "customer_d"]]
+## s between two looks at the oldest open ticket (max_ticket_age).
+const AGE_POLL := 1.0
+## Core and feel wave 2 (W2-WORLD): world props, loaded by path (no class_name).
+const GATE_BOARD_PATH := "res://scripts/v3/world/gate_board.gd"
+const HOARDING_PATH := "res://scripts/v3/world/hoarding_node.gd"
+const TV_PATH := "res://scripts/v3/world/tv_node.gd"
+const EVENT_DECO_PATH := "res://scripts/v3/world/event_deco.gd"
+const REGION_LOOK_PATH := "res://scripts/v3/world/region_look.gd"
+## W4-FIX-world (startup): the five prop scripts compile with this script,
+## so _add_prop's load() finds them in the resource cache. Each one load()ed
+## cold at run time re-analysed the Game autoload it names (~10-30 ms each,
+## ~125 ms of scene load headless). Still no class_name.
+const _PROP_SCRIPTS := [
+	preload("res://scripts/v3/world/gate_board.gd"),
+	preload("res://scripts/v3/world/hoarding_node.gd"),
+	preload("res://scripts/v3/world/tv_node.gd"),
+	preload("res://scripts/v3/world/event_deco.gd"),
+	preload("res://scripts/v3/world/region_look.gd"),
+]
+## C6.1: the AC family hall's sign board (plan 5.5, bilingual board art).
+const HALL_SIGN_LINES := ["AC FAMILY HALL", "एसी फ़ैमिली हॉल"]
+const HALL_SIGN_CAPS := [0.15, 0.12]
+const HALL_SIGN_DY := [0.1, -0.13]
+const HALL_SIGN_MAX_W := 2.2
+const HALL_SIGN_COL := Color(1.0, 0.86, 0.45)
+const HALL_SIGN_OUTLINE := Color(0.25, 0.04, 0.06)
+## C3.5: fans' own stream (seeded from rng's seed + this; never rng).
+const FAN_SEED_OFFSET := 4447
+const FAN_SHARE := 0.1            # default of menus.fan_share
+const FAN_POLL := 0.5             # s between looks for a due fan (_tick_fans)
+## C6.4 baraat bus: the first one this long after the window is seen open,
+## then every event.baraat.bus_interval_s (once due, it waits for the stop).
+const BARAAT_FIRST_S := 15.0
+const BARAAT_BUS := "bus_baraat"
+const BARAAT_MODELS := [["trav_baraati_m", "trav_family_m"], ["trav_baraati_f", "trav_family_f"]]
+const BARAAT_DEF := {"bus_interval_s": 120.0, "riders": 6, "min_room": 2}
 
 ## false: the integrator places the static world itself.
 @export var build_static_world: bool = true
@@ -368,9 +507,67 @@ var _ring_clock: float = 0.0
 ## Tickets injected by inject_orders(): their rings show from the start.
 var _ring_now: Dictionary = {}
 var _inject_until: float = -1.0
+## C3.4 (debug, --tray=N): every waiter carries N orders (0 = Game's trays).
+var debug_tray: int = 0
+## Layout variant of this scene: "roadside" | "family" (_variant()).
+var _variant_s: String = "roadside"
+## C2.1 conservation (this scene): travellers spawned, paid at a galla, left
+## without paying; riders of vehicles that drove past for want of room.
+var _c_arrived: int = 0
+var _c_paid: int = 0
+var _c_unpaid: int = 0
+var _c_drove_past: int = 0
+## C2.1: fraction of a rider carried between drive-pasts (_drive_past).
+var _pass_carry: float = 0.0
+## (stats) longest door line, held plates now / most, the oldest open
+## ticket's age (sampled every AGE_POLL s), C3.4 trips and their orders.
+var _door_max: int = 0
+var _held_max: int = 0
+var _max_age: float = 0.0
+var _age_t: float = 0.0
+var _trips_n: int = 0
+var _trip_orders_n: int = 0
+## C6.1 (stats): travellers seated this scene / at a hall seat; food waits
+## (seat -> last item) at hall seats and at the other seats.
+var _seated_n: int = 0
+var _hall_seated_n: int = 0
+var _hall_fw_sum: float = 0.0
+var _hall_fw_n: int = 0
+var _road_fw_sum: float = 0.0
+var _road_fw_n: int = 0
+## C3.1: sim_clock until which the ramp eases up fast.
+var _fast_ease_until: float = -1.0
+## C3.1: cooks per counter the Sim last saw (station id -> int), so a cook
+## hire (more employees on station_changed) opens the fast ease.
+var _cooks_seen: Dictionary = {}
+## Core and feel wave 2 (W2-WORLD): the props (null when not built) ...
+var gate_board: Node3D = null
+var hoarding: Node3D = null
+var tv: Node3D = null
+var shaadi_gate: Node3D = null
+var region_look: Node3D = null
+var hall_sign: Node3D = null
+## ... C3.5 fans (fan_rng: never rng) ...
+var fan_rng := RandomNumberGenerator.new()
+var fans_arrived: int = 0
+var _fan_wait: Dictionary = {}    # the due fan not yet walked in ({} = none)
+var _fan_poll: float = 0.0
+## ... and C6.4 baraat buses (s to the next one, -1 = no window seen).
+var _baraat_t: float = -1.0
+var _baraat_k: int = 0
+var baraat_buses: int = 0
+var baraat_guests: int = 0
+var baraat_passed: int = 0
 
 
 func _ready() -> void:
+	_variant_s = _variant()
+	Waiter.layout_variant = _variant_s
+	if OS.is_debug_build():
+		for a in OS.get_cmdline_user_args():
+			if a.begins_with("--tray="):
+				debug_tray = maxi(0, int(a.get_slice("=", 1)))
+				print("[sim] tray forced %d" % debug_tray)
 	if debug_seed >= 0:
 		rng.seed = TUTORIAL_SEED + 101 * debug_seed
 		order_rng.seed = rng.seed + ORDER_SEED_OFFSET
@@ -380,6 +577,7 @@ func _ready() -> void:
 	else:
 		rng.seed = TUTORIAL_SEED
 		order_rng.seed = rng.seed + ORDER_SEED_OFFSET
+	fan_rng.seed = rng.seed + FAN_SEED_OFFSET
 	Layout3.ghost_pad_id = ""
 	_bus_due = _bus_mean_riders()
 	if auto_tutorial_hold and not bool(Game.tutorial_get("done", false)):
@@ -406,6 +604,7 @@ func _ready() -> void:
 	traffic.vehicle_left.connect(_on_vehicle_left)
 	traffic.bus_stopped.connect(_on_bus_stopped)
 	traffic.bus_departed.connect(_on_bus_departed)
+	traffic.pass_at_gate.connect(_on_pass_at_gate)
 	_build_waiter_stand()
 	for id: String in _station_order():
 		if id == "chai" or Game.is_built(id):
@@ -419,9 +618,18 @@ func _ready() -> void:
 	Game.station_changed.connect(_on_station_changed)
 	Game.waiter_changed.connect(_on_waiter_changed)
 	Game.seating_changed.connect(_on_seating_changed)
+	# C5.3 (W1-CORE's signal, reached by name: rule 5 of the build plan)
+	if Game.has_signal("signboard_changed"):
+		Game.connect("signboard_changed", _on_signboard_changed)
 	_update_build_pad(false)
-	if stations.has("lassi") or _pad_id == "lassi":
+	# (W2-FIX-world: the family layout at once, lassi built or not - after a
+	# move to NH 48 only chai stands, and Gopal's hall box comes only with
+	# these; the family layout exists only after the tutorial, so a forced
+	# --layout=family tutorial keeps the old boxes)
+	if stations.has("lassi") or _pad_id == "lassi" or (is_family_layout() and Game.is_tutorial_done()):
 		_apply_free_play_taps()
+	if build_static_world:
+		_add_world_props()
 
 
 # ================================================================ public API
@@ -659,6 +867,369 @@ func door_waiting_count() -> int:
 	return door_queue.size()
 
 
+# ================================================================ core and feel API (W1-WORLDA, plan 2.3)
+## C2.1: travellers the dhaba can still take in now: free seats + seats
+## about to free up (_seats_freeing) + the door line's places
+## (DOOR_LINE_PLACES) - the door line - arrivals_incoming().
+func arrival_room() -> int:
+	return seats_free() + _seats_freeing() + DOOR_LINE_PLACES - door_queue.size() - arrivals_incoming()
+
+
+## C2.1: seated travellers who stand up within seconds: eating, or every
+## item still owed to them already on a waiter's tray or being fetched. The
+## riders counted in arrivals_incoming() reach the door 5 to 25 s from now,
+## so with only the seats free this instant (and door_line_max 4) the gate
+## held a seat-bound dhaba ~20 % under its arrivals (measured; build notes
+## W1-WORLDA). A waiter counts once: a tray bundle (up to 3 orders taken at
+## once, served one stop after another, then eaten) frees one seat soon (his
+## next stop), as a tray-1 order does; counting the whole bundle let the door
+## line grow past its 7 places.
+func _seats_freeing() -> int:
+	var n: int = 0
+	var counted: Dictionary = {}
+	var m: int = mini(seats_total(), seats_occ.size())
+	for s in m:
+		var v: Variant = seats_occ[s]
+		if not is_instance_valid(v):
+			continue
+		var t: Traveller = v
+		if t.state == Traveller.S.EATING or t.state == Traveller.S.STANDING:
+			n += 1
+			continue
+		if t.state != Traveller.S.SEATED or t.tickets.is_empty():
+			continue
+		var taken: bool = true
+		var w: Variant = null
+		for tv in t.tickets:
+			var tk: StationNode.Ticket = tv
+			if tk != null and tk.state < StationNode.TK.SERVED:
+				if tk.waiter == null:
+					taken = false
+					break
+				if is_instance_valid(tk.waiter):
+					w = tk.waiter
+		if taken and (w == null or not counted.has(w)):
+			if w != null:
+				counted[w] = true
+			n += 1
+	return n
+
+
+## C2.1: travellers on their way in (walking in from a vehicle or the bus
+## stop, or about to step down) + riders of vehicles already called (not
+## parked / at the stop yet).
+func arrivals_incoming() -> int:
+	var n: int = 0
+	for t in travellers:
+		if is_instance_valid(t) and t.state == Traveller.S.ARRIVING:
+			n += 1
+	if traffic != null:
+		n += ceili(traffic.en_route_riders(_avg_riders) - 0.01)
+	return n
+
+
+## C3.1: world position of the plate that has waited longest for a waiter
+## (READY on a pass or a plate stool, nobody coming); Vector3.INF when none.
+func oldest_waiting_plate() -> Vector3:
+	var best: StationNode.Ticket = null
+	for sv in stations.values():
+		var st: StationNode = sv
+		for tk in _waiting_plates(st):
+			if best == null or tk.ready_at < best.ready_at:
+				best = tk
+	if best == null:
+		return Vector3.INF
+	return best.item.global_position
+
+
+## C2.3: plates held on the plate stools now (pass full), and the most seen.
+func held_plates() -> int:
+	var n: int = 0
+	for sv in stations.values():
+		n += _held_of(sv).size()
+	return n
+
+
+func held_plates_max() -> int:
+	return _held_max
+
+
+## C2.1: the longest door line this scene.
+func door_line_max_seen() -> int:
+	return _door_max
+
+
+## C3.4: mean orders (travellers) per waiter trip this scene (1.0 before any).
+func trip_orders_mean() -> float:
+	if _trips_n <= 0:
+		return 1.0
+	return float(_trip_orders_n) / float(_trips_n)
+
+
+## C2.8: walks home from away (all waiters, this scene).
+func home_walks() -> int:
+	var n: int = 0
+	for w in waiters:
+		n += w.home_walks()
+	return n
+
+
+## C6.1: travellers seated at a hall seat / at any seat this scene.
+func hall_seated_total() -> int:
+	return _hall_seated_n
+
+
+func seated_total_scene() -> int:
+	return _seated_n
+
+
+## C6.1: mean food wait (seat -> last item, s) at hall seats / other seats
+## this scene (0 before any).
+func hall_food_wait_mean() -> float:
+	return _hall_fw_sum / float(_hall_fw_n) if _hall_fw_n > 0 else 0.0
+
+
+func road_food_wait_mean() -> float:
+	return _road_fw_sum / float(_road_fw_n) if _road_fw_n > 0 else 0.0
+
+
+## C2.1: {arrived, paid, inside, left_unpaid, drove_past} this scene.
+## arrived = paid + inside + left_unpaid holds unless a traveller vanished.
+func conservation() -> Dictionary:
+	var inside: int = 0
+	for t in travellers:
+		if is_instance_valid(t) and not t.has_meta("_cons"):
+			inside += 1
+	return {"arrived": _c_arrived, "paid": _c_paid, "inside": inside, "left_unpaid": _c_unpaid, "drove_past": _c_drove_past}
+
+
+## The oldest open ticket's age (s; sampled every AGE_POLL s), this scene.
+func max_ticket_age() -> float:
+	return _max_age
+
+
+## Orders served so far (all waiters, this scene).
+func orders_served() -> int:
+	var n: int = 0
+	for w in waiters:
+		n += w.orders_done
+	return n
+
+
+func _exit_tree() -> void:
+	if not OS.is_debug_build():
+		return
+	var c: Dictionary = conservation()
+	print("[sim] conservation arrived %d paid %d inside %d left_unpaid %d drove_past %d" % [int(c["arrived"]),
+			int(c["paid"]), int(c["inside"]), int(c["left_unpaid"]), int(c["drove_past"])])
+	_sample_ticket_age()
+	print("[sim] max ticket age %.1f" % _max_age)
+	print("[sim] door line max %d" % _door_max)
+	print("[sim] home walks %d per %d orders" % [home_walks(), orders_served()])
+	print("[sim] trip orders %.2f (%d trips)" % [trip_orders_mean(), _trips_n])
+	if _variant_s == "family":
+		print("[sim] hall seated %d of %d | hall food %.1f s road food %.1f s" % [_hall_seated_n, _seated_n,
+				hall_food_wait_mean(), road_food_wait_mean()])
+	if fans_arrived > 0 or baraat_buses > 0 or baraat_passed > 0:
+		print("[sim] fans %d | baraat buses %d guests %d drove past %d" % [fans_arrived, baraat_buses,
+				baraat_guests, baraat_passed])
+
+
+## Layout variant: "family" with --layout=family (debug), else Game's
+## layout_variant() (W1-CORE, reached by name), else "roadside".
+static func _variant() -> String:
+	if OS.is_debug_build() and OS.get_cmdline_user_args().has("--layout=family"):
+		return "family"
+	if Game.has_method("layout_variant"):
+		return str(Game.call("layout_variant"))
+	return "roadside"
+
+
+func is_family_layout() -> bool:
+	return _variant_s == "family"
+
+
+## C6.1: a seat at a hall table (family layout, table sets 2-4).
+func _is_hall_seat(s: int) -> bool:
+	if _variant_s != "family" or s < 0:
+		return false
+	var ti: int = Layout3.seat_table(s)
+	return ti >= HALL_TABLE_FIRST and ti <= HALL_TABLE_LAST
+
+
+## C3.4: 0 store, 1 courtyard, 2 hall (by the seat's x).
+static func _seat_area(s: int) -> int:
+	if s < 0:
+		return -1
+	var x: float = Layout3.seat_pos(s).x
+	if x < AREA_STORE_X:
+		return 0
+	return 1 if x < AREA_HALL_X else 2
+
+
+## C2.3: a station's held tickets (StationNode.held_tickets, W1-WORLDB; read
+## by name: [] when the property does not exist).
+static func _held_of(st: Object) -> Array:
+	if st == null or not is_instance_valid(st):
+		return []
+	var v: Variant = st.get("held_tickets")
+	return v if v is Array else []
+
+
+## Plates of `st` waiting for a waiter: READY, item shown, nobody coming
+## (pass slots, then held plates).
+func _waiting_plates(st: StationNode) -> Array:
+	var out: Array = []
+	for v in st.pass_items:
+		var tk: StationNode.Ticket = v as StationNode.Ticket
+		if tk != null and tk.state == StationNode.TK.READY and tk.waiter == null and tk.item != null and is_instance_valid(tk.item):
+			out.append(tk)
+	for v in _held_of(st):
+		var tk2: StationNode.Ticket = v as StationNode.Ticket
+		if tk2 != null and tk2.state == StationNode.TK.READY and tk2.waiter == null and tk2.item != null \
+				and is_instance_valid(tk2.item) and not out.has(tk2):
+			out.append(tk2)
+	return out
+
+
+## The oldest open (not yet served) ticket's age, into _max_age.
+func _sample_ticket_age() -> void:
+	var now: float = Traveller.now_s()
+	for v in seats_occ:
+		if not is_instance_valid(v):
+			continue
+		var t: Traveller = v
+		for tv in t.tickets:
+			var tk: StationNode.Ticket = tv
+			if tk != null and tk.state < StationNode.TK.SERVED:
+				_max_age = maxf(_max_age, now - tk.created_at)
+
+
+## C2.1: a would-be arrival of `riders` (mean) drives past (Traffic sends
+## it; false only without Traffic). Reports it to Game (report_passed_by, by
+## name) and counts it (conservation) now. The HUD's cue (vehicle_drove_past)
+## waits for the vehicle to reach the gate: _on_pass_at_gate.
+func _drive_past(riders: float, kind: String) -> bool:
+	if traffic == null:
+		return false
+	var room: int = arrival_room()
+	# Whole riders that add up to the mean riders the account spends (2.52 a
+	# pass reports 2 or 3, never always 3); no rng, so no draw moves.
+	var n: int = maxi(1, floori(_pass_carry + riders + 0.0001))
+	if not traffic.drive_past(n, kind):
+		return false
+	_pass_carry += riders - float(n)
+	var k: String = traffic.last_pass_kind
+	_c_drove_past += n
+	if Game.has_method("report_passed_by"):
+		Game.call("report_passed_by", n, k)
+	if OS.is_debug_build():
+		print("[sim] pass sent: %s %d (room %d)" % [k, n, room])
+	return true
+
+
+## C2.7 (W4-FIX-world): a vehicle sent by _drive_past reached the gate it does
+## not stop at (Traffic.pass_at_gate, as it honks there; it spawns off camera
+## 7 to 20 s upstream). The caption and the gate tag (vehicle_drove_past,
+## 3 s) flash now, while it passes on screen, and only when the seats board
+## beside the tag backs "seats full": every seat taken (the board's FULL) or
+## a door line standing. Otherwise the cue is dropped: the room gate also
+## counts riders still on their way in, so the board can read 0/8. The pass
+## itself was counted when it was sent (report_passed_by, the conservation
+## line). Prints "[sim] drove past: <kind> <n> ..." with each cue (G-road
+## pairs it with its "[hud] road:" caption) or "[sim] drive-past cue dropped".
+func _on_pass_at_gate(kind: String, riders: int) -> void:
+	var door: int = door_queue.size()
+	if seats_free() > 0 and door == 0:
+		if OS.is_debug_build():
+			print("[sim] drive-past cue dropped: %s %d (seats %d/%d, door 0)" % [kind, riders, seats_in_use(), seats_total()])
+		return
+	vehicle_drove_past.emit(kind, riders)
+	if OS.is_debug_build():
+		print("[sim] drove past: %s %d (room %d, seats %d/%d, door %d)" % [kind, riders, arrival_room(),
+				seats_in_use(), seats_total(), door])
+
+
+## C2.1: room for a vehicle of `riders` mean riders right now (the mean
+## rounded down: one rider more than the room just waits in the door line,
+## which has 7 places and loses nobody).
+func _room_for(riders: float) -> bool:
+	return arrival_room() >= maxi(1, floori(riders + 0.001))
+
+
+## C4.1 (the tutorial's seats beat, W3-TUT): fills every free seat at once
+## (travellers pop in at the seat and order, like inject_orders) and puts
+## `door_n` travellers just inside the gate on the door-line slots. Fixed
+## models (FILL_MODELS in turn), no draw on rng or Traffic.rng. Returns how
+## many it placed. They walk home to the walkway (no vehicle waits for them).
+## W4-WORLD (lead decision 9, W3-FIX-tut handoff 1): every free seat still
+## fills, so the riders already on their way in (arrivals_incoming()) beyond
+## the seats about to free (_seats_freeing()) can only join the door line.
+## When they fill its DOOR_LINE_PLACES by themselves (a resumed tutorial:
+## the dhaba restarts empty with ~9 riders called), the gate gets one
+## traveller more than the seats about to free, not `door_n`: those riders
+## reach the door 5 to 25 s from now, while the freeing seats empty within
+## seconds and take the gate's first travellers. So the seats beat still has
+## its line at once, and keeps it until the riders arrive (W4-FIX-world: with
+## one gate traveller on a busy dhaba he took the first seat that freed, the
+## line was gone, and a refill pushed LT1 past free + 8 s). The resumed
+## empty dhaba (nothing freeing) still gets one. Otherwise the gate keeps
+## `door_n` (fewer broke the seats beat's 8 s bar at 30 fps, seed 41: the
+## one at the gate took a seat that freed, and the line was gone). And no
+## gate traveller pops in on a near villager beside his slot
+## (Traffic.villager_beside): the fill stops at that slot.
+func fill_for_seats_beat(door_n: int) -> int:
+	var asked: int = door_n
+	var incoming: int = arrivals_incoming()
+	var freeing: int = _seats_freeing()
+	var line_bound: int = maxi(incoming - freeing, 0)
+	if door_queue.size() + line_bound >= DOOR_LINE_PLACES:
+		door_n = mini(door_n, 1 + freeing)
+	var seated: int = 0
+	var k: int = 0
+	while true:
+		var s: int = _find_free_seat()
+		if s < 0:
+			break
+		var t: Traveller = _make_traveller(Layout3.seat_approach(s), _fill_model(k))
+		k += 1
+		seats_occ[s] = t
+		var ap: Vector3 = Layout3.seat_approach(s)
+		t.place_at(ap, Layout3.seat_facing(s))
+		t.pop_in()
+		t.go_to_seat(s, [ap])
+		seated += 1
+	var at_gate: int = 0
+	var held: int = -1
+	for _i in maxi(0, door_n):
+		var i: int = door_queue.size()
+		var pos: Vector3 = Layout3.door_wait_slot(i)
+		if traffic != null and traffic.villager_beside(pos):
+			held = i
+			break
+		var t2: Traveller = _make_traveller(pos, _fill_model(k))
+		k += 1
+		t2.place_at(pos, Layout3.door_wait_look(i))
+		t2.pop_in()
+		door_queue.append(t2)
+		t2.wait_at_door(pos, Layout3.door_wait_look(i))
+		traveller_waiting.emit(t2)
+		at_gate += 1
+	_door_max = maxi(_door_max, door_queue.size())
+	if OS.is_debug_build():
+		var why: String = ""
+		if door_n != asked:
+			why += " (%d asked, %d riders on the way, %d for the line)" % [asked, incoming, line_bound]
+		if held >= 0:
+			why += " (stopped at slot %d: a villager beside it)" % held
+		print("[sim] seats fill: %d seated, %d at the gate%s" % [seated, at_gate, why])
+	return seated + at_gate
+
+
+func _fill_model(k: int) -> String:
+	return CharacterRig.first_existing(FILL_MODELS[k % FILL_MODELS.size()])
+
+
 # ================================================================ arrivals
 func _process(delta: float) -> void:
 	_tick_rings(delta)
@@ -674,6 +1245,10 @@ func _process(delta: float) -> void:
 	if Game.sim_paused:
 		return
 	sim_clock += delta
+	_age_t += delta
+	if _age_t >= AGE_POLL:
+		_age_t = 0.0
+		_sample_ticket_age()
 	_tick_door_line(delta)
 	_tick_dispatch(delta)
 	_rate_t -= delta
@@ -681,7 +1256,11 @@ func _process(delta: float) -> void:
 		_rate_t = RATE_REFRESH
 		_refresh_rate()
 	_ease_rate(delta)
+	# (the baraat bus first: when it is due it takes the stop before the
+	# account's next bus, which comes every ~25 s at full capacity)
+	_tick_baraat(delta)
 	_tick_buses(delta)
+	_tick_fans(delta)
 	if hold_spawns:
 		# The failsafe only covers a missing / finished Director: a player who
 		# idles on an early tutorial line keeps the dhaba to the first traveller.
@@ -798,15 +1377,27 @@ func _tick_ref_lorries(delta: float) -> void:
 ## back as a bus, never as a catch-up burst (the account is capped at two
 ## busloads beyond the riders already called).
 func _tick_account(delta: float) -> void:
-	var cap: float = float(_bus_riders_range().y) * 2.0
+	var cap: float = float(_bus_load_max()) * 2.0
 	cap += _inflight_riders()     # (the riders of vehicles already called are spoken for)
 	var c1: float = _credit + delta * maxf(0.0, arrivals_target) / 60.0
 	if c1 > cap:
 		debug_credit_lost += c1 - cap
 	_credit = minf(c1, cap)
-	if _gap > 0.0 or traffic.free_bays() <= 0:
+	if _gap > 0.0:
 		return
 	if _credit - _inflight_riders() < _avg_riders:
+		return
+	if not _room_for(_avg_riders):
+		# C2.1: no room for its riders. The account holds them while it can (a
+		# seat or a door-line place frees within seconds when the line just
+		# bunched up); once it is full - they would be dropped at its cap -
+		# the vehicle it cannot call drives past instead (also while every
+		# bay is taken: buses bring only what the room takes).
+		if _credit >= cap - _avg_riders - 0.001 and _drive_past(_avg_riders, ""):
+			_credit -= _avg_riders
+			_gap = ARRIVAL_GAP
+		return
+	if traffic.free_bays() <= 0:
 		return
 	if traffic.request_arrival():
 		_inflight[traffic.last_request_bay] = Vector2(_avg_riders, sim_clock)
@@ -861,6 +1452,8 @@ func _ease_rate(delta: float) -> void:
 		return
 	var up: bool = arrivals_raw > arrivals_target
 	var tau: float = maxf(0.5, _bus_value("ramp_ease_s" if up else "ramp_ease_down_s", RAMP_EASE if up else RAMP_EASE_DOWN))
+	if up and sim_clock < _fast_ease_until:
+		tau = minf(tau, FAST_EASE_TAU)     # C3.1: a purchase shows within 2-3 s
 	arrivals_target = lerpf(arrivals_target, arrivals_raw, 1.0 - exp(-delta / tau))
 	if _lorry_rate >= 0.0 and not hold_spawns:
 		_lorry_rate -= _lorry_rate * delta / LORRY_RATE_TAU
@@ -954,7 +1547,10 @@ func capacity_estimate() -> Dictionary:
 		items = 1.0
 	items = maxf(1.0, items)
 	var n_w: int = maxi(1, Game.waiter_count())
-	var w_cap: float = float(n_w) * 60.0 / maxf(0.5, per_trav)
+	# C3.4: a tray of k orders makes a trip count 1 + tray_batch_est x (k - 1)
+	# orders (Game.waiter_capacity_per_min uses the same factor).
+	var tray_f: float = tray_factor()
+	var w_cap: float = float(n_w) * 60.0 / maxf(0.5, per_trav) * tray_f
 	var food: float = proc + _bus_value("ramp_food_trip_k", RAMP_FOOD_TRIP_K) * per_trav
 	var seat_time: float = _bus_value("ramp_seat_overhead_s", RAMP_SEAT_OVERHEAD) + food + Game.eat_time()
 	var s_cap: float = float(seats_total()) * 60.0 / maxf(1.0, seat_time)
@@ -989,11 +1585,12 @@ func capacity_estimate() -> Dictionary:
 				owed += 0.5 * per_trav
 		elif t.state == Traveller.S.TO_SEAT or t.state == Traveller.S.SITTING:
 			owed += per_trav
-	var backlog_s: float = owed / float(n_w)
+	var backlog_s: float = owed / float(n_w) / tray_f
 	var damp_now: float = clampf(_bus_value("ramp_backlog_s", RAMP_BACKLOG_S) / maxf(0.001, backlog_s),
 			_bus_value("ramp_backlog_min", RAMP_BACKLOG_MIN), 1.0)
 	var lo: float = _bus_value("ramp_min_tpm", RAMP_MIN_TPM)
-	var hi: float = maxf(lo, _bus_value("ramp_max_tpm", Game.travellers_per_min()))
+	# C5.3: the highway signboard raises the cap (free play; W1-CORE, by name)
+	var hi: float = maxf(lo, _bus_value("ramp_max_tpm", Game.travellers_per_min()) + _signboard_bonus())
 	# The floor keeps the dhaba busy; only a backlog takes arrivals below it.
 	var target: float = clampf(_bus_value("ramp_capacity_k", RAMP_K) * m, lo, hi) * _damp
 	if debug_arrivals_tpm > 0.0:
@@ -1002,7 +1599,34 @@ func capacity_estimate() -> Dictionary:
 		target = Game.travellers_per_min()
 	return {"seats": s_cap, "waiters": w_cap, "stations": st_cap, "gallas": g_cap, "min": m,
 			"target": target, "items": items, "order_trip": per_trav, "backlog_s": backlog_s, "damp_now": damp_now, "damp": _damp,
-			"shares": shares}
+			"shares": shares, "cap": hi, "tray_f": tray_f}
+
+
+## C5.3: Game.signboard_bonus_tpm() (W1-CORE, by name) in free play, else 0.
+func _signboard_bonus() -> float:
+	if not Game.is_tutorial_done() or not Game.has_method("signboard_bonus_tpm"):
+		return 0.0
+	return maxf(0.0, float(Game.call("signboard_bonus_tpm")))
+
+
+## C3.4: mean over the waiters of 1 + waiters "tray_batch_est" x (orders a
+## tray carries - 1) (1.0 with every tray at 1 order).
+func tray_factor() -> float:
+	var n: int = maxi(1, Game.waiter_count())
+	var est: float = maxf(0.0, float(Game.waiter_value("tray_batch_est", 0.45)))
+	var sum: float = 0.0
+	for i in n:
+		sum += 1.0 + est * float(_tray_k_of(i) - 1)
+	return sum / float(n)
+
+
+## C3.4: orders waiter i's tray carries a trip.
+func _tray_k_of(i: int) -> int:
+	if debug_tray > 0:
+		return debug_tray
+	if Game.has_method("waiter_tray_orders"):
+		return maxi(1, int(Game.call("waiter_tray_orders", i)))
+	return 1
 
 
 ## In the tutorial's ad chain (ramp on, tandoor not built yet) the ramp plans
@@ -1029,6 +1653,24 @@ func _bus_riders_range() -> Vector2i:
 			hi = maxi(hi, roundi(lerpf(float(hi), float(nd.get("bus_riders_max", hi)), night_f)))
 			lo = mini(hi, roundi(lerpf(float(lo), float(nd.get("bus_riders_min", lo)), night_f)))
 	return Vector2i(lo, hi)
+
+
+## C5.3 (W1-INT fix): riders one account bus may carry. The stop gets the next
+## bus only once the last one stands there, so with one bus a trip (~25 s) at
+## bus_riders_max and 4 bays the dhaba could not take in much more than ~20
+## travellers a minute, and a signboard level past the 19.5 cap brought
+## nobody (gate G-sign). In free play the bus now takes what the bays leave
+## of the arrival target over one trip (x BUS_LOAD_MARGIN), up to
+## BUS_LOAD_EXTRA_MAX more than bus_riders_max: the buses bring what the bays
+## cannot (plan C5.3). Below that, and always in the tutorial and on its
+## reference pacing, it is bus_riders_max as before.
+func _bus_load_max() -> int:
+	var hi: int = _bus_riders_range().y
+	if traffic == null or _ref_pacing() or not Game.is_tutorial_done():
+		return hi
+	var trip: float = maxf(traffic.bus_trip_avg(), traffic.bus_lead_time())
+	var want: float = maxf(0.0, arrivals_target - lorry_supply()) * trip / 60.0 * BUS_LOAD_MARGIN
+	return clampi(ceili(want - 0.001), hi, hi + BUS_LOAD_EXTRA_MAX)
 
 
 func _bus_mean_riders() -> float:
@@ -1099,9 +1741,67 @@ func _tick_buses(delta: float) -> void:
 		due = maxf(1.0, float(_bus_riders_range().x))
 	if avail >= due:
 		var n: int = _take_bus_riders(avail, true)
+		# C2.1: a bus brings at most the room, and none below BUS_MIN_ROOM.
+		var room: int = arrival_room()
+		if n > room:
+			if room < BUS_MIN_ROOM:
+				return     # (no bus below BUS_MIN_ROOM: the account holds them, see _tick_account)
+			n = room
 		if traffic.request_bus(n):
 			_credit -= float(n)
 			_new_bus_due()
+
+
+## C6.4: while the weekend baraat runs (free play), the decorated bus comes
+## BARAAT_FIRST_S s after the window is first seen open, then every
+## event.baraat.bus_interval_s: min(riders, arrival_room()) wedding guests
+## (_on_bus_stopped), on top of the arrival account. Below min_room it drives
+## past instead ("The baraat drove past: seats full"). While the stop cannot
+## take a bus the call waits (looked at every frame).
+func _tick_baraat(delta: float) -> void:
+	if traffic == null or hold_spawns or not Game.is_tutorial_done() or not Game.event_active():
+		_baraat_t = -1.0
+		return
+	if _baraat_t < 0.0:
+		_baraat_t = BARAAT_FIRST_S
+	_baraat_t = maxf(0.0, _baraat_t - delta)
+	# Due: it waits (looked at every frame) until the stop can take a bus; the
+	# account sends its next one the moment a bus stands at the stop, so this
+	# runs first in _process.
+	if _baraat_t > 0.0 or not traffic.bus_can_take_request():
+		return
+	var cfg: Dictionary = _baraat_cfg()
+	var riders: int = maxi(1, int(cfg["riders"]))
+	var room: int = arrival_room()
+	var n: int = mini(riders, room)
+	if n < maxi(1, int(cfg["min_room"])):
+		if _drive_past(float(riders), "baraat"):
+			baraat_passed += 1
+		_baraat_t = maxf(5.0, float(cfg["bus_interval_s"]))
+		return
+	if not traffic.request_bus(n, BARAAT_BUS):
+		return
+	baraat_buses += 1
+	_baraat_t = maxf(5.0, float(cfg["bus_interval_s"]))
+
+
+## event.baraat's bus keys (bus_interval_s, riders, min_room), with defaults.
+func _baraat_cfg() -> Dictionary:
+	var out: Dictionary = BARAAT_DEF.duplicate()
+	var ev: Variant = Game.eco.get("event", {})
+	if ev is Dictionary and (ev as Dictionary).get("baraat") is Dictionary:
+		var b: Dictionary = (ev as Dictionary)["baraat"]
+		for k: String in out:
+			if b.has(k):
+				out[k] = b[k]
+	return out
+
+
+## C6.4: the next wedding guest's model (men and women in turn; no rng).
+func _baraat_model() -> String:
+	var ids: Array = BARAAT_MODELS[_baraat_k % BARAAT_MODELS.size()]
+	_baraat_k += 1
+	return CharacterRig.first_existing(ids)
 
 
 func _next_ref_bus_interval() -> float:
@@ -1111,10 +1811,10 @@ func _next_ref_bus_interval() -> float:
 
 
 ## Riders for an account bus leaving now: the account's whole travellers
-## (at most bus_riders_max; a scheduled bus at least bus_riders_min).
+## (at most _bus_load_max(); a scheduled bus at least bus_riders_min).
 func _take_bus_riders(avail: float, scheduled: bool) -> int:
 	var r: Vector2i = _bus_riders_range()
-	var n: int = mini(floori(avail + 0.0001), r.y)
+	var n: int = mini(floori(avail + 0.0001), _bus_load_max())
 	if scheduled:
 		n = maxi(n, r.x)
 	return maxi(0, n)
@@ -1139,12 +1839,21 @@ func _dispatch_pickup(allowed: bool, ref: bool) -> void:
 	# empty, so a quiet dhaba is not kept busy with bus riders.)
 	var need: float = _bus_due if traffic.free_bays() > 0 else _bus_due * _bus_value("ramp_pickup_phase", RAMP_PICKUP_PHASE)
 	if avail >= need:
-		var n: int = _take_bus_riders(avail, false)
-		if traffic.request_bus(n):
+		var n: int = _room_capped(_take_bus_riders(avail, false))
+		if traffic.request_bus(n) and n > 0:
 			_credit -= float(n)
 			_new_bus_due()
 		return
 	traffic.request_bus(0)
+
+
+## C2.1: the riders a bus may bring now: at most the room, none below
+## BUS_MIN_ROOM (it still comes for the waiting line).
+func _room_capped(n: int) -> int:
+	var room: int = arrival_room()
+	if n <= room:
+		return n
+	return room if room >= BUS_MIN_ROOM else 0
 
 
 ## A bus opened its door at the stop: its riders step off toward the crossing
@@ -1156,20 +1865,31 @@ func _on_bus_stopped(visit: int, door: Vector3, riders: int) -> void:
 	buses_stopped += 1
 	bus_wait_max = maxf(bus_wait_max, bus_wait_oldest())
 	var n: int = 0 if hold_spawns else riders
-	if not hold_spawns and not _ref_pacing() and riders > 0:
+	# C6.4: the decorated baraat bus brings its wedding guests only (no top-up)
+	var baraat: bool = traffic != null and traffic.bus_model(visit) == BARAAT_BUS
+	if not baraat and not hold_spawns and not _ref_pacing() and riders > 0:
 		# Travellers the account came to owe while this bus was on its way
 		# ride it too (up to bus_riders_max).
-		var extra: int = mini(floori(_credit - _inflight_riders() + 0.0001), _bus_riders_range().y - n)
+		var extra: int = mini(floori(_credit - _inflight_riders() + 0.0001), _bus_load_max() - n)
+		# C2.1: only as many as there is room for (its own riders not counted yet)
+		extra = mini(extra, arrival_room() - n)
 		if extra > 0:
 			n += extra
 			_credit -= float(extra)
 	for m in n:
 		var at: Vector3 = door + Vector3(rng.randf_range(-0.06, 0.06), 0.0, rng.randf_range(-0.05, 0.05))
-		var t: Traveller = _make_traveller(at, "")
+		var t: Traveller = _make_traveller(at, _baraat_model() if baraat else "")
 		t.bus_rider = true
 		t.drop_visit = visit
+		if baraat:
+			t.event_guest = true
 		t.walk_in(Layout3.bus_entry_path(door), FIRST_STEP_DELAY + float(m) * BUS_STAGGER, true)
 	arrivals_bus += n
+	if baraat and n > 0:
+		baraat_guests += n
+		Sfx.play("baraat_band")
+		if OS.is_debug_build():
+			print("[sim] baraat bus: %d guests" % n)
 	var alight: float = FIRST_STEP_DELAY + float(n) * BUS_STAGGER + (0.2 if n > 0 else 0.0)
 	_bus_board_at = sim_clock + alight
 	_bus_board_cd = 0.0
@@ -1266,20 +1986,101 @@ func _on_vehicle_parked(slot: int, visit: int, _model_id: String, riders: int) -
 
 func _make_traveller(at: Vector3, model_id: String) -> Traveller:
 	var mid: String = model_id
+	var fan: Dictionary = {}
 	if mid == "":
 		var i: int = rng.randi() % TRAVELLER_MODELS.size()
 		if i == _last_model:
 			i = (i + 1) % TRAVELLER_MODELS.size()
 		_last_model = i
 		mid = CharacterRig.first_existing(TRAVELLER_MODELS[i])
+		# C3.5: a fan instead (fan_rng only: rng drew as before)
+		fan = _fan_pick()
+		if not fan.is_empty():
+			mid = str(fan["model"])
 	var t := Traveller.new()
 	add_child(t)
 	t.setup(self, mid, at)
+	if not fan.is_empty():
+		t.fan_of = str(fan.get("station", ""))
+		t.pref_dish = str(fan.get("dish", ""))
 	travellers.append(t)
+	_c_arrived += 1
 	t.reached_galla.connect(_on_t_reached_galla)
 	t.left.connect(_on_t_left)
 	traveller_spawned.emit(t)
 	return t
+
+
+## C3.5: a fan instead of a usual free-play arrival, {model, station, dish}
+## ({} = none): menus.fan_share of the arrivals are a fan of
+## Game.fan_models() (introduced already) who orders a later dish of his
+## counter. fan_rng only; never in the tutorial; a missing glb skips him.
+## (A fan Game.take_fan_due() names walks in at once: _tick_fans.)
+func _fan_pick() -> Dictionary:
+	if hold_spawns or not Game.is_tutorial_done():
+		return {}
+	var fans: Array = Game.fan_models()
+	if fans.is_empty():
+		return {}
+	var share: float = FAN_SHARE
+	var md: Variant = Game.eco.get("menus", {})
+	if md is Dictionary:
+		share = float((md as Dictionary).get("fan_share", FAN_SHARE))
+	if fan_rng.randf() >= share:
+		return {}
+	var m2: String = str(fans[fan_rng.randi() % fans.size()])
+	if not CharacterRig.model_exists(m2):
+		return {}
+	var st: String = _fan_station(m2)
+	var dish2: String = ""
+	if st != "" and stations.has(st):
+		var n: int = Game.dishes_unlocked(st)
+		if n > 1:
+			dish2 = Game.dish_at(st, 1 + fan_rng.randi() % (n - 1))
+	fans_arrived += 1
+	return {"model": m2, "station": st, "dish": dish2}
+
+
+## C3.5: right after a counter's dish unlock its fan is due
+## (Game.take_fan_due(), one shot): he walks in from the walkway (SPAWN, over
+## the crossing; no vehicle, so no rng draw and the arrival account is
+## untouched) as soon as there is room for one, orders the new dish
+## (pref_dish) and walks home to the walkway after paying. Polled every
+## FAN_POLL s in free play.
+func _tick_fans(delta: float) -> void:
+	if hold_spawns or not Game.is_tutorial_done():
+		return
+	_fan_poll -= delta
+	if _fan_poll > 0.0:
+		return
+	_fan_poll = FAN_POLL
+	if _fan_wait.is_empty():
+		_fan_wait = Game.take_fan_due()
+		if _fan_wait.is_empty():
+			return
+	var m: String = str(_fan_wait.get("model", ""))
+	if m == "" or not CharacterRig.model_exists(m):
+		_fan_wait = {}
+		return
+	if arrival_room() < 1:
+		return
+	var dish: String = str(_fan_wait.get("dish", ""))
+	var t: Traveller = _make_traveller(Layout3.SPAWN, m)
+	t.fan_of = str(_fan_wait.get("station", ""))
+	t.pref_dish = dish
+	t.walk_in(Layout3.entry_path(Layout3.SPAWN), 0.0)
+	_fan_wait = {}
+	fans_arrived += 1
+	if OS.is_debug_build():
+		print("[sim] fan %s arrives for %s" % [m, dish])
+
+
+## C3.5: the built counter whose fan is `model` ("" = none).
+static func _fan_station(model: String) -> String:
+	for id: String in Game.built_station_ids():
+		if str(Game.station_def(id).get("fan", "")) == model:
+			return id
+	return ""
 
 
 func _station_order() -> Array[String]:
@@ -1324,11 +2125,35 @@ func _compute_seat_order() -> Array[int]:
 	return order
 
 
-func _find_free_seat() -> int:
+## The nearest free seat (cheapest walk from the door). C6.1: in the family
+## layout a traveller of family_seat_models (seating) takes a free hall seat
+## first (nearest within the hall), then any.
+func _find_free_seat(t: Traveller = null) -> int:
+	if t != null and _variant_s == "family" and _is_family_model(t.model_id):
+		for s in _seat_order:
+			if _is_hall_seat(s) and _seat_free(s):
+				return s
 	for s in _seat_order:
-		if Layout3.seat_table(s) < tables_built and s < seats_occ.size() and seats_occ[s] == null:
+		if _seat_free(s):
 			return s
 	return -1
+
+
+func _seat_free(s: int) -> bool:
+	return Layout3.seat_table(s) < tables_built and s < seats_occ.size() and seats_occ[s] == null
+
+
+## C3.2: the nearest free seat of table `ti` (-1 = none).
+func _free_seat_on_table(ti: int) -> int:
+	for s in _seat_order:
+		if Layout3.seat_table(s) == ti and _seat_free(s):
+			return s
+	return -1
+
+
+func _is_family_model(mid: String) -> bool:
+	var v: Variant = Game.seating_value("family_seat_models", FAMILY_SEAT_MODELS)
+	return v is Array and (v as Array).has(mid)
 
 
 ## Traveller reached the first step inside the gate.
@@ -1336,7 +2161,7 @@ func on_traveller_at_door(t: Traveller) -> void:
 	if not door_queue.is_empty():
 		_join_door_line(t)
 		return
-	var s: int = _find_free_seat()
+	var s: int = _find_free_seat(t)
 	if s >= 0:
 		_send_to_seat(t, s, false)
 	else:
@@ -1352,20 +2177,23 @@ func _send_to_seat(t: Traveller, s: int, from_line: bool) -> void:
 	t.go_to_seat(s, Layout3.smooth(t.position, pts, Layout3.obstacle_mask()))
 
 
+## C2.1: the door line never turns anyone away: past Game.door_line_max()
+## the newcomer still joins it (the arrival gate keeps it short).
 func _join_door_line(t: Traveller) -> void:
-	if door_queue.size() >= Game.door_line_max():
-		_give_up(t)
-		return
 	door_queue.append(t)
 	var i: int = door_queue.size() - 1
+	_door_max = maxi(_door_max, door_queue.size())
 	t.wait_at_door(Layout3.door_wait_slot(i), Layout3.door_wait_look(i))
 	traveller_waiting.emit(t)
 
 
+## Counts each one's wait at the door; C2.1: a give-up time of 0 or INF
+## (Game.seat_give_up_time(), economy give_up_s 0) means nobody gives up.
 func _tick_door_line(delta: float) -> void:
 	if door_queue.is_empty():
 		return
 	var limit: float = Game.seat_give_up_time()
+	var never: bool = limit <= 0.0 or is_inf(limit)
 	var i: int = door_queue.size() - 1
 	while i >= 0:
 		if i >= door_queue.size():
@@ -1376,7 +2204,7 @@ func _tick_door_line(delta: float) -> void:
 			door_queue.remove_at(i)
 		else:
 			t.door_wait_t += delta
-			if t.door_wait_t >= limit:
+			if not never and t.door_wait_t >= limit:
 				_give_up(t)
 		i -= 1
 
@@ -1386,6 +2214,7 @@ func _give_up(t: Traveller) -> void:
 	var idx: int = door_queue.find(t)
 	if idx >= 0:
 		door_queue.remove_at(idx)
+	_mark_unpaid(t)
 	Game.report_traveller_lost()
 	_pop_text(t.global_position + Vector3(0.0, t.height + 0.35, 0.0), NO_SEAT_TEXT, NO_SEAT_COLOR)
 	var pts: Array = Layout3.give_up_path(t.position)
@@ -1395,20 +2224,33 @@ func _give_up(t: Traveller) -> void:
 	_shuffle_door_line()
 
 
-## Free seats go to the door line first (in order).
-func _serve_door_line() -> void:
+## Free seats go to the door line first (in order). C3.2: with
+## `prefer_table` >= 0 (a table just added) its seats fill first.
+func _serve_door_line(prefer_table: int = -1) -> void:
 	var moved: bool = false
 	while not door_queue.is_empty():
-		var s: int = _find_free_seat()
+		var t: Traveller = door_queue[0]
+		if not is_instance_valid(t):
+			door_queue.pop_front()
+			moved = true
+			continue
+		var s: int = _free_seat_on_table(prefer_table) if prefer_table >= 0 else -1
+		if s < 0:
+			s = _find_free_seat(t)
 		if s < 0:
 			break
-		var t: Traveller = door_queue.pop_front()
+		door_queue.pop_front()
 		moved = true
-		if not is_instance_valid(t):
-			continue
 		_send_to_seat(t, s, true)
 	if moved:
 		_shuffle_door_line()
+
+
+## C2.1 conservation: `t` leaves without paying (counted once).
+func _mark_unpaid(t: Traveller) -> void:
+	if t != null and is_instance_valid(t) and not t.has_meta("_cons"):
+		t.set_meta("_cons", 2)
+		_c_unpaid += 1
 
 
 func _shuffle_door_line() -> void:
@@ -1422,6 +2264,9 @@ func _shuffle_door_line() -> void:
 ## built stations, drawn from order_rng) goes to the cooks, one ticket each.
 func on_traveller_seated(t: Traveller) -> void:
 	Game.task_event("seated")
+	_seated_n += 1
+	if _is_hall_seat(t.seat):
+		_hall_seated_n += 1
 	traveller_seated.emit(t, t.seat)
 	var now: float = Traveller.now_s()
 	var ids: Array[String] = []
@@ -1430,6 +2275,11 @@ func on_traveller_seated(t: Traveller) -> void:
 			ids.append(id)
 	if ids.is_empty() and stations.has("chai"):
 		ids.append("chai")
+	# C3.5: a fan orders his dish (his counter takes the place of the one of
+	# the same menu group; no draw for that ticket)
+	var pref_st: String = _pref_station(t)
+	if pref_st != "" and not ids.has(pref_st):
+		_order_swap_in(ids, pref_st)
 	var okey: String = order_key(ids)
 	order_counts[okey] = int(order_counts.get(okey, 0)) + 1
 	for id: String in ids:
@@ -1439,7 +2289,7 @@ func on_traveller_seated(t: Traveller) -> void:
 		tk.seat = t.seat
 		tk.station = st
 		tk.station_id = id
-		tk.dish_id = Game.roll_dish(id, order_rng)
+		tk.dish_id = t.pref_dish if id == pref_st else Game.roll_dish(id, order_rng)
 		tk.created_at = now
 		t.tickets.append(tk)
 		t.pending += 1
@@ -1451,6 +2301,32 @@ func on_traveller_seated(t: Traveller) -> void:
 		return
 	_orders.append(t)
 	_dispatch_waiters()
+
+
+## C3.5: the counter of `t`'s preferred dish when he may order it now (built,
+## unlocked), else "".
+func _pref_station(t: Traveller) -> String:
+	if t.pref_dish == "" or not t.pref_dish.contains("."):
+		return ""
+	var sid: String = t.pref_dish.get_slice(".", 0)
+	if not stations.has(sid) or not Game.dish_unlocked(sid, t.pref_dish):
+		return ""
+	return sid
+
+
+## C3.5: puts counter `sid` into the order `ids` in place of the counter of
+## its menu group (a drink for a drink, a dish for a dish), else adds it.
+static func _order_swap_in(ids: Array[String], sid: String) -> void:
+	for g: String in Game.order_groups():
+		var opts: Array[String] = Game.order_options(g)
+		if not opts.has(sid):
+			continue
+		for k in ids.size():
+			if opts.has(ids[k]):
+				ids[k] = sid
+				return
+		break
+	ids.append(sid)
 
 
 ## He finished eating and stood up: clear his table, free the seat, send him
@@ -1469,6 +2345,7 @@ func on_traveller_done_eating(t: Traveller) -> void:
 		seats_occ[seat_i] = null
 	var g: GallaNode = _pick_galla(t)
 	if g == null:
+		_mark_unpaid(t)
 		t.leave_now([])
 	else:
 		var via: Array = Layout3.galla_chain()
@@ -1528,10 +2405,22 @@ func _on_item_ready(st: StationNode, tkv: RefCounted) -> void:
 ## waiters the one who would finish the order first gets it. In the tutorial
 ## (not done) every item must already be on its pass (Raju's beats follow the
 ## kulhad landing on the pass, as before).
+## CORE AND FEEL C2.8 / C3.4 (free play): _dispatch_free_play. The tutorial
+## keeps this 0.3.7 loop (_dispatch_tutorial) so its beats keep their timing.
 func _dispatch_waiters() -> void:
 	if _dispatching:
 		return
 	_dispatching = true
+	if Game.is_tutorial_done():
+		_dispatch_free_play()
+	else:
+		_dispatch_tutorial()
+	_dispatching = false
+
+
+## The 0.3.7 dispatch: orders oldest first, each to the free waiter who would
+## finish it first.
+func _dispatch_tutorial() -> void:
 	var i: int = 0
 	while i < _orders.size():
 		var free_n: int = 0
@@ -1563,16 +2452,205 @@ func _dispatch_waiters() -> void:
 			i += 1
 			continue
 		_orders.remove_at(i)
-		var seq: Array = best["seq"]
-		for v in seq:
+		_assign(best_w, best["seq"], 1)
+
+
+## C2.8 (free play): while a waiter is free, the (waiter, order) pair to
+## dispatch next among the plannable ones (_plan_order "ok"): an order with a
+## plate that has waited WAIT_RING_S goes first (the oldest order first,
+## _urgent_age; a hall order counts HALL_AGE_LEAD s older), else the quickest
+## trip (walk + pass waits + serve) of any free waiter. C3.4: a waiter whose tray takes k > 1 orders adds up to k - 1
+## orders whose items are all READY at tables in the same area (_bundle).
+func _dispatch_free_play() -> void:
+	var guard: int = 0
+	while guard < 12:
+		guard += 1
+		var free: Array[Waiter] = []
+		for w in waiters:
+			if w.is_free():
+				free.append(w)
+		if free.is_empty():
+			return
+		var now: float = Traveller.now_s()
+		var best_w: Waiter = null
+		var best_t: Traveller = null
+		var best_plan: Dictionary = {}
+		var best_age: float = -1.0
+		var best_f: float = INF
+		var i: int = 0
+		while i < _orders.size():
+			var tv: Variant = _orders[i]
+			if not is_instance_valid(tv):
+				_orders.remove_at(i)
+				continue
+			var t: Traveller = tv
+			var tks: Array = _open_tickets(t)
+			if tks.is_empty():
+				_orders.remove_at(i)
+				continue
+			i += 1
+			var age: float = _urgent_age(tks, now)
+			var urgent: bool = age >= 0.0
+			if urgent and _is_hall_seat(t.seat):
+				age += HALL_AGE_LEAD     # (the hall's extra walk; see HALL_AGE_LEAD)
+			for w in free:
+				var plan: Dictionary = _plan_order(w, tks)
+				if plan.is_empty() or not bool(plan["ok"]):
+					continue
+				var f: float = float(plan["finish"])
+				var better: bool = best_w == null
+				if not better:
+					var b_urgent: bool = best_age >= 0.0
+					if urgent != b_urgent:
+						better = urgent
+					elif urgent and absf(age - best_age) > 0.001:
+						better = age > best_age
+					else:
+						better = f < best_f - 0.001
+				if better:
+					best_w = w
+					best_t = t
+					best_plan = plan
+					best_age = age
+					best_f = f
+		if best_w == null:
+			return
+		_orders.erase(best_t)
+		var seq: Array = best_plan["seq"]
+		var n: int = 1
+		var k: int = best_w.max_orders()
+		if k > 1:
+			var extras: Array = _bundle_extras(best_t, k - 1)
+			if not extras.is_empty():
+				var all: Array = seq.duplicate()
+				for et in extras:
+					_orders.erase(et)
+					all.append_array(_open_tickets(et))
+				seq = _bundle_seq(best_w, all)
+				n += extras.size()
+		_assign(best_w, seq, n)
+
+
+## Hands `seq` (tickets in pass order; `n_orders` travellers) to `w`.
+func _assign(w: Waiter, seq: Array, n_orders: int) -> void:
+	for v in seq:
+		var tk: StationNode.Ticket = v
+		if tk.state == StationNode.TK.READY:
+			tk.state = StationNode.TK.ASSIGNED
+	w.assign_order(seq)
+	_trips_n += 1
+	_trip_orders_n += n_orders
+	for v in seq:
+		var tk: StationNode.Ticket = v
+		waiter_assigned.emit(w, tk.traveller, tk)
+
+
+## Urgency of an order (C2.8): -1 when no plate of it has waited
+## WAIT_RING_S (nor is held finished in a cook's hands: pass full, no plate
+## stool), else the seconds since the order was placed - urgent orders go
+## oldest order first, so far tables (and held plates) never starve.
+static func _urgent_age(tks: Array, now: float) -> float:
+	var urgent: bool = false
+	var placed: float = INF
+	for v in tks:
+		var tk: StationNode.Ticket = v
+		placed = minf(placed, tk.created_at)
+		if tk.state == StationNode.TK.READY:
+			if now - tk.ready_at >= WAIT_RING_S:
+				urgent = true
+		elif tk.state == StationNode.TK.COOKING and tk.station != null and is_instance_valid(tk.station) \
+				and tk.station.is_pickable(tk):
+			urgent = true
+	return now - placed if urgent and placed < INF else -1.0
+
+
+## C3.4: up to `n` more waiting orders for the tray of the waiter taking
+## `primary`: every item READY and pickable, the seat in the same area,
+## nearest to the primary's seat first.
+func _bundle_extras(primary: Traveller, n: int) -> Array:
+	var out: Array = []
+	if primary == null or not is_instance_valid(primary):
+		return out
+	var area: int = _seat_area(primary.seat)
+	var p0: Vector3 = Layout3.seat_pos(primary.seat)
+	var cands: Array = []
+	for tv in _orders:
+		if not is_instance_valid(tv) or tv == primary:
+			continue
+		var t: Traveller = tv
+		if _seat_area(t.seat) != area:
+			continue
+		var tks: Array = _open_tickets(t)
+		if tks.is_empty():
+			continue
+		var all_ready: bool = true
+		for v in tks:
 			var tk: StationNode.Ticket = v
-			if tk.state == StationNode.TK.READY:
-				tk.state = StationNode.TK.ASSIGNED
-		best_w.assign_order(seq)
-		for v in seq:
-			var tk: StationNode.Ticket = v
-			waiter_assigned.emit(best_w, tk.traveller, tk)
-	_dispatching = false
+			if tk.state != StationNode.TK.READY or tk.station == null or not is_instance_valid(tk.station) \
+					or not tk.station.is_pickable(tk):
+				all_ready = false
+				break
+		if all_ready:
+			cands.append([p0.distance_squared_to(Layout3.seat_pos(t.seat)), t])
+	cands.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	for c in cands:
+		if out.size() >= n:
+			break
+		out.append(c[1])
+	return out
+
+
+## C3.4: the pass order for a bundle: tickets grouped by station, the groups
+## in the order of the quickest round (walk + waits) from where `w` stands.
+func _bundle_seq(w: Waiter, tks: Array) -> Array:
+	var groups: Dictionary = {}
+	var keys: Array = []
+	for v in tks:
+		var tk: StationNode.Ticket = v
+		if not groups.has(tk.station_id):
+			groups[tk.station_id] = []
+			keys.append(tk.station_id)
+		(groups[tk.station_id] as Array).append(tk)
+	for id in keys:
+		(groups[id] as Array).sort_custom(func(a: StationNode.Ticket, b: StationNode.Ticket) -> bool: return a.pass_slot < b.pass_slot)
+	var sp: float = maxf(0.1, w.speed)
+	var best: Array = []
+	var best_t: float = INF
+	for perm in _perms_all(keys):
+		var t: float = 0.0
+		var pos: Vector3 = w.position
+		var seq: Array = []
+		for id in perm:
+			for v in groups[id]:
+				var tk: StationNode.Ticket = v
+				var pk: Vector3 = Layout3.pass_pickup(tk.station_id, maxi(0, tk.pass_slot))
+				t += _walk_est(pos, pk) / sp
+				var e: float = tk.station.ticket_eta(tk) if tk.station != null and is_instance_valid(tk.station) else 0.0
+				if e > t and e < INF:
+					t = e
+				t += Waiter.PICK_TIME
+				pos = pk
+				seq.append(tk)
+		if t < best_t - 0.001:
+			best_t = t
+			best = seq
+	return best
+
+
+## Every order of up to 4 keys (stations).
+static func _perms_all(a: Array) -> Array:
+	var out: Array = []
+	if a.size() <= 1:
+		out.append(a.duplicate())
+		return out
+	for i in a.size():
+		var rest: Array = a.duplicate()
+		var head: Variant = rest.pop_at(i)
+		for p in _perms_all(rest):
+			var q: Array = [head]
+			q.append_array(p)
+			out.append(q)
+	return out
 
 
 ## His tickets nobody is fetching yet (empty = nothing to dispatch: gone,
@@ -1598,6 +2676,12 @@ func _open_tickets(t: Traveller) -> Array:
 func _plan_order(w: Waiter, tks: Array) -> Dictionary:
 	var tutorial: bool = not Game.is_tutorial_done()
 	var early: float = maxf(0.0, float(Game.waiter_value("order_early_s", ORDER_EARLY)))
+	if not tutorial:
+		# C2.8: away from his spot, waiting at the pass beats a walk home and back
+		# ("away" by real distance, as Waiter.go_home: _walk_est is not 0 on the spot)
+		var hm: Vector3 = Layout3.waiter_home(w.index)
+		if Vector2(w.position.x - hm.x, w.position.z - hm.z).length() > HOME_NEAR:
+			early += 2.0 * _walk_est(w.position, hm) / maxf(0.1, w.speed)
 	var etas: Dictionary = {}
 	for v in tks:
 		var tk: StationNode.Ticket = v
@@ -1666,6 +2750,63 @@ static func _perms(a: Array) -> Array:
 			q.append_array(p)
 			out.append(q)
 	return out
+
+
+## C2.8: a waiter lingering at a table (Waiter.W.LINGER, free play) keeps
+## waiting there while an order still to be taken will be ready within his
+## walk home and back (+ order_early_s: the window in which _plan_order
+## sends him from where he stands; cooking, or queued for a cook:
+## _eta_est); else he walks home.
+func waiter_should_wait(w: Waiter) -> bool:
+	if w == null or not Game.is_tutorial_done():
+		return false
+	var hm: Vector3 = Layout3.waiter_home(w.index)
+	if Vector2(w.position.x - hm.x, w.position.z - hm.z).length() <= HOME_NEAR:
+		return false
+	var dh: float = _walk_est(w.position, hm)
+	var rt: float = 2.0 * dh / maxf(0.1, w.speed) + maxf(0.0, float(Game.waiter_value("order_early_s", ORDER_EARLY)))
+	for tv in _orders:
+		if not is_instance_valid(tv):
+			continue
+		var tks: Array = _open_tickets(tv as Traveller)
+		if tks.is_empty():
+			continue
+		var e: float = 0.0
+		for v in tks:
+			e = maxf(e, _eta_est(v))
+		if e <= rt:
+			return true
+	return false
+
+
+## Seconds until `tk`'s item is ready: ticket_eta, or for a ticket still
+## queued for a cook, when a cook frees up (in queue order) plus its brew.
+func _eta_est(tk: StationNode.Ticket) -> float:
+	var st: StationNode = tk.station
+	if st == null or not is_instance_valid(st) or st.reveal_pending:
+		return INF
+	var e: float = st.ticket_eta(tk)
+	if e < INF:
+		return e
+	var q: int = st.queue.find(tk)
+	if q < 0 or st.slots.is_empty():
+		return INF
+	var frees: Array[float] = []
+	for v in st.slots:
+		var sl: StationNode.Slot = v
+		match sl.phase:
+			StationNode.P.IDLE:
+				frees.append(0.0)
+			StationNode.P.DELAY:
+				frees.append(maxf(0.0, sl.delay) + Game.dish_cook_time(st.id, sl.ticket.dish_id if sl.ticket != null else ""))
+			StationNode.P.RUN:
+				frees.append(maxf(0.0, sl.duration - sl.elapsed))
+			_:
+				frees.append(Game.dish_cook_time(st.id, ""))     # holding: until a waiter clears the pass
+	frees.sort()
+	var brew: float = maxf(0.05, Game.dish_cook_time(st.id, tk.dish_id)) + StationNode.NEXT_DELAY
+	var c: int = frees.size()
+	return frees[q % c] + float(floori(float(q) / float(c))) * brew + brew
 
 
 ## Free waiters and orders still waiting for their items: re-plan now and
@@ -1737,6 +2878,12 @@ func on_waiter_served(w: Waiter, tk: StationNode.Ticket) -> void:
 		food_wait_sum += fw
 		food_wait_n += 1
 		food_wait_max = maxf(food_wait_max, fw)
+		if _is_hall_seat(t.seat):
+			_hall_fw_sum += fw
+			_hall_fw_n += 1
+		else:
+			_road_fw_sum += fw
+			_road_fw_n += 1
 		Game.report_food_wait(fw)
 
 
@@ -1823,14 +2970,17 @@ func _no_shadows(n: Node) -> void:
 # ================================================================ tables + ghost
 func _sync_tables(with_fx: bool) -> void:
 	var n: int = clampi(Game.table_count(), 0, Layout3.table_max_layout())
+	var added: int = -1
 	while tables_built < n:
 		var i: int = tables_built
 		_add_table(i, with_fx)
 		tables_built += 1
+		added = i
 		if with_fx:
 			table_added.emit(i)
 	_update_ghost()
-	_serve_door_line()
+	# C3.2: a table bought now seats the door line, its own seats first
+	_serve_door_line(added if with_fx else -1)
 
 
 func _add_table(i: int, with_fx: bool) -> void:
@@ -1838,7 +2988,9 @@ func _add_table(i: int, with_fx: bool) -> void:
 	root.name = "TableSet%d" % (i + 1)
 	root.position = Layout3.table_pos(i)
 	add_child(root)
-	var parts: Array = _make_set_models(root)
+	var parts: Array = _make_set_models(root, i)
+	if OS.is_debug_build() and _variant_s == "family" and Layout3.is_hall_table(i):
+		print("[sim] table %d model %s" % [i, str((parts[0] as Node).name) if not parts.is_empty() else "-"])
 	# Round 2 step 2: a built table's box stops at TABLE_TAP_H, so a waiter
 	# serving at its end stays tappable (his head and shoulders are above it).
 	var ts: Vector3 = Layout3.table_tap_size()
@@ -1861,8 +3013,17 @@ func _add_table(i: int, with_fx: bool) -> void:
 
 
 ## dining_table + one charpai on each long side; returns the three nodes.
-func _make_set_models(root: Node3D) -> Array:
+## C6.1 (W2-WORLD): a hall set (Layout3.table_model(i), "family_table": the
+## table with its cloth and two cushioned benches, the dining-set footprint)
+## is one model when its glb exists.
+func _make_set_models(root: Node3D, i: int = -1) -> Array:
 	var out: Array = []
+	var tm: String = Layout3.table_model(i) if i >= 0 and _variant_s == "family" else ""
+	if tm != "" and CharacterRig.model_exists(tm):
+		var ft: Node3D = Models.make(tm)
+		root.add_child(ft)
+		out.append(ft)
+		return out
 	var tbl: Node3D = Models.make("dining_table", Vector3(1.7, 0.5, 0.8), Color(0.55, 0.36, 0.2))
 	root.add_child(tbl)
 	out.append(tbl)
@@ -1888,7 +3049,7 @@ func _update_ghost() -> void:
 	_ghost.name = "GhostTable"
 	_ghost.position = Layout3.table_pos(idx)
 	add_child(_ghost)
-	_make_set_models(_ghost)
+	_make_set_models(_ghost, idx)
 	_apply_ghost(_ghost)
 	var area: Area3D = StationNode.make_tap_area(Layout3.table_tap_size(), "ghost_table")
 	area.set_meta("table_index", idx)
@@ -1929,6 +3090,7 @@ func _build_waiter_stand() -> void:
 
 func _sync_waiters(with_fx: bool) -> void:
 	var n: int = maxi(1, Game.waiter_count())
+	var hired: Array[Waiter] = []
 	while waiters.size() < n:
 		var w := Waiter.new()
 		add_child(w)
@@ -1939,8 +3101,13 @@ func _sync_waiters(with_fx: bool) -> void:
 			w.scale = Vector3.ONE * 0.01
 			var tw := w.create_tween()
 			tw.tween_property(w, "scale", Vector3.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			hired.append(w)
 	for w in waiters:
 		w.refresh_speed()
+		w.refresh_tray()
+	# C3.1: the new waiter pops in and takes the oldest waiting order at once
+	for w in hired:
+		_give_oldest_order(w)
 	# QA round 2: Raju's spot moves beside the rack once a second waiter is
 	# hired (Layout3.waiter_home); an idle waiter off his spot walks over.
 	if Game.waiter_count() >= 2:
@@ -1950,6 +3117,55 @@ func _sync_waiters(with_fx: bool) -> void:
 			if iw.state == Waiter.W.IDLE and Vector2(iw.position.x - h.x, iw.position.z - h.z).length() > 0.05:
 				iw.go_home()
 	_dispatch_waiters()
+
+
+## C3.1: hands the newly hired `w` the open order whose READY plate has
+## waited longest (all its items must have an ETA; in the tutorial every
+## item READY), bypassing the quickest-trip choice once.
+func _give_oldest_order(w: Waiter) -> void:
+	if w == null or not w.is_free():
+		return
+	var tut: bool = not Game.is_tutorial_done()
+	var now: float = Traveller.now_s()
+	var best_t: Traveller = null
+	var best_tks: Array = []
+	var best_ready: float = INF
+	for tv in _orders:
+		if not is_instance_valid(tv):
+			continue
+		var t: Traveller = tv
+		var tks: Array = _open_tickets(t)
+		if tks.is_empty():
+			continue
+		var oldest: float = INF
+		var all_ready: bool = true
+		var known: bool = true
+		for v in tks:
+			var tk: StationNode.Ticket = v
+			if tk.station == null or not is_instance_valid(tk.station) or tk.station.ticket_eta(tk) == INF:
+				known = false
+				break
+			if tk.state == StationNode.TK.READY:
+				oldest = minf(oldest, tk.ready_at)
+			else:
+				all_ready = false
+		if not known or oldest == INF or (tut and not all_ready):
+			continue
+		if oldest < best_ready:
+			best_ready = oldest
+			best_t = t
+			best_tks = tks
+	if best_t == null:
+		return
+	var plan: Dictionary = _plan_order(w, best_tks)
+	if plan.is_empty():
+		return
+	_orders.erase(best_t)
+	_assign(w, plan["seq"], 1)
+	var waited: float = now - best_ready
+	waiter_took_order.emit(w.index, waited)
+	if OS.is_debug_build():
+		print("[sim] waiter %d joins: takes the oldest order (waited %.1f s)" % [w.index + 1, waited])
 
 
 # ================================================================ ghost waiter (round 2 step 2)
@@ -2089,18 +3305,15 @@ func _tick_rings(delta: float) -> void:
 func _sync_rings() -> void:
 	var now: float = Traveller.now_s()
 	var want: Dictionary = {}
+	var held_n: int = 0
 	for sv in stations.values():
 		var st: StationNode = sv
-		for v in st.pass_items:
-			if v == null:
-				continue
-			var tk: StationNode.Ticket = v as StationNode.Ticket
-			if tk == null or tk.item == null or not is_instance_valid(tk.item):
-				continue
-			if tk.state != StationNode.TK.READY or tk.waiter != null:
-				continue
+		held_n += _held_of(st).size()
+		# (C2.3: plates held on the plate stool ring too)
+		for tk in _waiting_plates(st):
 			if now - tk.ready_at >= WAIT_RING_S or _ring_now.has(tk):
 				want[tk] = tk.item.global_position
+	_held_max = maxi(_held_max, held_n)
 	for tk in _rings.keys():
 		if not want.has(tk):
 			var r: MeshInstance3D = _rings[tk]
@@ -2158,6 +3371,7 @@ func _add_station(id: String, with_fx: bool) -> void:
 	add_child(st)
 	st.setup(id, self)
 	stations[id] = st
+	_cooks_seen[id] = Game.station_employees(id)     # (a build or a load is no hire)
 	st.ticket_started.connect(_on_ticket_started)
 	st.item_ready.connect(_on_item_ready)
 	station_added.emit(st)
@@ -2333,25 +3547,33 @@ func reveal_station(id: String) -> void:
 
 
 ## Free-play tap boxes (§2.7) for the waiter stand and galla 1: from the first
-## lassi pad (or a save with lassi built) on, for the rest of the session.
+## lassi pad (or a save with lassi built, or the family layout) on, for the
+## rest of the session.
 func _apply_free_play_taps() -> void:
 	if _free_taps:
 		return
 	_free_taps = true
 	if waiter_area != null:
-		StationNode.set_tap_boxes(waiter_area, Layout3.WAITER_TAP_BOXES_FREE)
+		# (C6.1: the family layout adds the hall waiter's spot)
+		StationNode.set_tap_boxes(waiter_area, Layout3.waiter_tap_boxes_free())
 	if not gallas.is_empty() and gallas[0].tap_area != null:
 		StationNode.set_tap_boxes(gallas[0].tap_area, Layout3.GALLA0_TAP_BOXES_FREE)
 
 
 func _on_galla_changed(_index: int) -> void:
 	_sync_gallas(true)
+	_open_fast_ease()
 
 
 func _on_station_changed(id: String) -> void:
 	if stations.has(id):
 		var st: StationNode = stations[id]
 		st.sync_staff()
+		# C3.1: a cook hire (not LEVEL UP or SPEED) is a staff purchase too
+		var cooks: int = Game.station_employees(id)
+		if cooks > int(_cooks_seen.get(id, cooks)):
+			_open_fast_ease()
+		_cooks_seen[id] = cooks
 	if _pad_id == "":
 		_update_build_pad()
 
@@ -2359,6 +3581,7 @@ func _on_station_changed(id: String) -> void:
 func _on_waiter_changed() -> void:
 	_sync_waiters(true)
 	_update_build_pad()
+	_open_fast_ease()
 	# The ghost stood where the new waiter now stands: it moves on (UiRoot
 	# shows it again at the next spot while its tag is still up).
 	if _ghost_waiter != null and _ghost_waiter_i != Game.waiter_count():
@@ -2367,6 +3590,20 @@ func _on_waiter_changed() -> void:
 
 func _on_seating_changed() -> void:
 	_sync_tables(true)
+	_open_fast_ease()
+
+
+func _on_signboard_changed(_level: int = 0) -> void:
+	_open_fast_ease()
+
+
+## C3.1 (free play): the ramp re-reads the capacity on the next frame and
+## eases up with FAST_EASE_TAU for FAST_EASE_WINDOW s.
+func _open_fast_ease() -> void:
+	if not Game.is_tutorial_done():
+		return
+	_fast_ease_until = sim_clock + FAST_EASE_WINDOW
+	_rate_t = 0.0
 
 
 # ================================================================ signal mirrors
@@ -2401,7 +3638,13 @@ func _on_galla_service_started(g: GallaNode, t: Traveller) -> void:
 	galla_service_started.emit(g)
 
 
-func _on_galla_sold(g: GallaNode, _t: Traveller, amount: float) -> void:
+func _on_galla_sold(g: GallaNode, t: Traveller, amount: float) -> void:
+	if t != null and is_instance_valid(t) and not t.has_meta("_cons"):
+		t.set_meta("_cons", 1)
+		_c_paid += 1
+		# C6.4: a wedding guest paid (once each)
+		if t.event_guest:
+			Game.event_guest_served()
 	sales_count += 1
 	sale.emit(g, amount)
 	if not _first_sale_done:
@@ -2462,8 +3705,77 @@ func _build_static() -> void:
 		add_child(s)
 	else:
 		_fallback_street()
+	# C6.1: the AC family hall (world-coord glb) in the family layout
+	if _variant_s == "family" and CharacterRig.model_exists("family_hall"):
+		var fh: Node3D = Models.make("family_hall")
+		fh.name = "FamilyHall"
+		add_child(fh)
 	if not Game.is_built("tandoor"):
 		_add_tandoor_lock()
+
+
+## Core and feel wave 2 (W2-WORLD): the world props of C2.2, C5.3, C8.3,
+## C6.4, the hall sign (C6.1) and the region look (C6.3). Built at the end of
+## _ready (the board reads the seats), before Main3 attaches the fairy
+## lights (the hoarding's and the Shaadi gate's bulbs). No rng draws.
+func _add_world_props() -> void:
+	gate_board = _add_prop(GATE_BOARD_PATH)
+	hoarding = _add_prop(HOARDING_PATH)
+	tv = _add_prop(TV_PATH)
+	shaadi_gate = _add_prop(EVENT_DECO_PATH)
+	if _variant_s == "family":
+		_add_hall_sign()
+	region_look = _add_prop(REGION_LOOK_PATH, false)
+	if region_look != null:
+		region_look.call("apply", self, str(Game.palette_override()))
+
+
+## A prop script (extends Node3D, no class_name) added under the Sim, then
+## setup(self) when `with_setup`; null when the script is missing.
+func _add_prop(path: String, with_setup: bool = true) -> Node3D:
+	if not ResourceLoader.exists(path):
+		return null
+	var scr: Script = load(path) as Script
+	if scr == null:
+		return null
+	var n: Node3D = scr.new() as Node3D
+	if n == null:
+		return null
+	add_child(n)
+	if with_setup and n.has_method("setup"):
+		n.call("setup", self)
+	return n
+
+
+## C6.1: "AC FAMILY HALL" / "एसी फ़ैमिली हॉल" on the hall's north-wall board
+## (Layout3.HALL_SIGN, faces +Z); fixed bilingual art, never translated.
+func _add_hall_sign() -> void:
+	hall_sign = Node3D.new()
+	hall_sign.name = "HallSign"
+	hall_sign.position = Layout3.HALL_SIGN
+	add_child(hall_sign)
+	for k in HALL_SIGN_LINES.size():
+		var l := Label3D.new()
+		l.name = "Line%d" % (k + 1)
+		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		l.text = str(HALL_SIGN_LINES[k])
+		if _font != null:
+			l.font = _font
+		l.font_size = 96
+		l.outline_size = 10
+		l.modulate = HALL_SIGN_COL
+		l.outline_modulate = HALL_SIGN_OUTLINE
+		l.shaded = false
+		l.double_sided = false
+		l.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		l.position = Vector3(0.0, float(HALL_SIGN_DY[k]), 0.004)
+		var px: float = float(HALL_SIGN_CAPS[k]) / (0.68 * 96.0)
+		if _font != null:
+			var w: float = _font.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 96).x
+			if w > 0.0:
+				px = minf(px, HALL_SIGN_MAX_W / w)
+		l.pixel_size = px
+		hall_sign.add_child(l)
 
 
 func _add_tandoor_lock() -> void:

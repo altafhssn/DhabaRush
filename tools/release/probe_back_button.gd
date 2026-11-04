@@ -12,6 +12,9 @@ extends SceneTree
 ##   (--fresh alone: the tutorial variant, back over Munshi-ji's first line)
 ## Expect only "[probe] PASS" lines, then "finalize (quit) expected=true
 ## fails=0" (free play) or "finalize-ready fails=0" (tutorial).
+## Core and feel (W2-ROOT): free play also checks that back closes the
+## promotion carry-over popup ("promo", UiRoot.open_promo) and the weekend
+## baraat panel ("event", UiRoot.open_event) without asking to quit.
 var fails := 0
 var quitting_expected := false
 var ui: Node
@@ -73,6 +76,24 @@ func _run() -> void:
 	await frames(20)
 	ck(str(ui.get("current_panel")) == "", "back closed the chai sheet")
 	ck(not qopen(), "closing a sheet does not ask to quit")
+	# 2b) core and feel: the promotion carry-over popup ("promo") and the
+	# weekend baraat panel ("event") close like any popup / panel
+	if ui.has_method("open_promo"):
+		ui.call("open_promo", "renovation")
+		await frames(10)
+		ck(str(ui.get("current_popup")) == "promo", "promo popup open")
+		back()
+		await frames(2)
+		ck(str(ui.get("current_popup")) == "", "back closed the promo popup")
+		ck(not qopen(), "closing the promo popup does not ask to quit")
+	if ui.has_method("open_event"):
+		ui.call("open_event")
+		await frames(20)
+		ck(str(ui.get("current_panel")) == "event", "event panel open")
+		back()
+		await frames(20)
+		ck(str(ui.get("current_panel")) == "", "back closed the event panel")
+		ck(not qopen(), "closing the event panel does not ask to quit")
 	# 3) top level: the question, and the game keeps running
 	back()
 	await frames(20)

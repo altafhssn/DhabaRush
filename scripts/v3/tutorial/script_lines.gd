@@ -19,6 +19,16 @@ extends RefCounted
 ## free-play waiter lines say "Tap STAFF". 19 tutorial lines. Lines that
 ## name the STAFF (bottom-left) or BUILD (bottom-right) button carry
 ## "box_side" so the box leaves that button in view (DialogueBox).
+## Core and feel (W3-TUT, build plan 5.4; W3-STR keeps these msgids): L3
+## says the player's job (C4.2); LW2 sends the player to the new waiter's
+## "+ WAITER" tag and his 2-tap card (C3.1; no box_side: STAFF is not named
+## any more); LT1 no longer says travellers leave (C2.1: the door line
+## waits); L14 / L15 say "bonus", never "cash" or "pays us" (C7.5); the
+## need-waiters lines point at the new waiter too. New free-play lines:
+## Munshi-ji's reactions (C4.3, "react_*") and the tease / delegation /
+## event lines are non-blocking chips ("chip": true, shown by MunshiNotes'
+## ReactChip: no box, no dim, no taps taken); "reno_ready", "reno_done",
+## "move_ready", "move_done" are dialogue lines (C6.1, C6.3).
 ##
 ## Markup inside `text`: [k]…[/k] = keyword (peacock teal, bold),
 ## [n]…[/n] = a new station (leaf green, bold). ScriptLines.line() turns them
@@ -42,6 +52,7 @@ extends RefCounted
 ##   dim         scene dim 0.11 behind the box
 ##   pause_sim   freeze service timers / traveller paths while the line is up
 ##   hide_hud    the post-claim ad chain hides every HUD extra (critic §4.1)
+##   chip        a non-blocking Munshi-ji chip line (ReactChip), never a box
 
 const KEYWORD_COLOR := "#0E7C86"
 ## The tutorial's lines in play order (word probe, AUTO_DWELL).
@@ -59,6 +70,7 @@ const DEFAULTS := {
 	"dim": true,
 	"pause_sim": false,
 	"hide_hud": false,
+	"chip": false,
 }
 
 const LINES := {
@@ -73,9 +85,10 @@ const LINES := {
 		"pose": "cheer", "trans": "crouch",
 	},
 	# ---- he is seated; Pinky's ticket timer popped; camera settled on the
-	#      chai counter (pause line: Pinky brews, Raju will carry it over)
+	#      chai counter (pause line: Pinky brews, Raju will carry it over).
+	#      C4.2: the player's job, said early (shorter than 0.3.7's line)
 	"l3": {
-		"text": "[k]Pinky[/k], our cook, makes his chai. [k]Raju[/k], our waiter, carries it.",
+		"text": "[k]Pinky[/k] cooks, [k]Raju[/k] serves. Your job: fix what's slow.",
 		"pose": "point", "enter": "right", "pause_sim": true,
 	},
 	# ---- served, ate, walked over; galla timer popped; camera settled (pause line)
@@ -119,20 +132,23 @@ const LINES := {
 	#      on the road crossing while the traffic runs)
 	"lw1": {
 		"text": "Food is waiting! [k]Raju[/k] can't carry it all.",
-		"pose": "worried", "enter": "right", "box_side": "right",
+		"pose": "worried", "enter": "right",
 	},
+	# ---- C3.1: the new waiter's "+ WAITER" tag pops in over the ghost by the
+	#      rack while this line names it; its 2-tap card holds HIRE
 	"lw2": {
-		"text": "Tap [k]STAFF[/k] and [k]HIRE[/k] a second waiter.",
-		"pose": "point", "trans": "dip", "box_side": "right",
+		"text": "Tap the new [k]WAITER[/k], then [k]HIRE[/k].",
+		"pose": "point", "trans": "dip",
 	},
 	# ---- STAFF closed with two waiters; the camera is back home
 	"lw3": {
 		"text": "Two waiters: food reaches the tables faster.",
 		"pose": "cheer", "enter": "right",
 	},
-	# ---- seats beat (free play, the first door line): no dim, the ghost table in view
+	# ---- seats beat (free play, the first door line): no dim, the ghost table in view.
+	#      C2.1: the door line waits for a seat (nobody leaves)
 	"lt1": {
-		"text": "Every seat is taken, and travellers are leaving!",
+		"text": "Every seat is taken! Travellers wait at the gate.",
 		"pose": "worried", "enter": "right", "dim": false,
 	},
 	"lt2": {
@@ -140,13 +156,14 @@ const LINES := {
 		"pose": "point", "trans": "dip", "dim": false,
 	},
 	# ---- after the first task claim (or the fallback): no dim, HUD extras hidden
+	# C7.5: a bonus, never money from a company (no real-money reading)
 	"l14": {
-		"text": "Good news: a company pays us to show its ads!",
+		"text": "Good news: watch a short [k]AD[/k] for a bonus!",
 		"pose": "cheer", "enter": "bottom_right", "dim": false, "hide_hud": true,
 	},
 	# ---- 0.3 s into the reward stream (slides in from the right)
 	"l15": {
-		"text": "Whenever the [k]AD[/k] bubble pops up, tap it for free cash.",
+		"text": "When the [k]AD[/k] bubble pops up, tap it for a bonus.",
 		"pose": "ledger", "enter": "right", "trans": "slide_right", "chain": ["cheer"], "dim": false, "hide_hud": true, "box_side": "left",
 	},
 	"l16": {
@@ -172,11 +189,11 @@ const LINES := {
 		"pose": "point", "enter": "right", "chain": ["cheer"], "dim": true, "pause_sim": false, "hide_hud": false, "box_side": "left",
 	},
 	"menu_need_waiters_lassi": {
-		"text": "Lassi needs 2 waiters. Tap [k]STAFF[/k] and [k]HIRE[/k] one.",
+		"text": "Lassi needs 2 waiters. Tap the new [k]WAITER[/k] and [k]HIRE[/k].",
 		"pose": "point", "enter": "right", "chain": ["worried"], "dim": true, "pause_sim": false, "hide_hud": false, "box_side": "right",
 	},
 	"menu_need_waiters": {
-		"text": "Kadai needs 3 waiters. Tap [k]STAFF[/k] and [k]HIRE[/k] one.",
+		"text": "Kadai needs 3 waiters. Tap the new [k]WAITER[/k] and [k]HIRE[/k].",
 		"pose": "point", "enter": "right", "chain": ["worried"], "dim": true, "pause_sim": false, "hide_hud": false, "box_side": "right",
 	},
 	"menu_dish_chai": {
@@ -201,6 +218,43 @@ const LINES := {
 		"text": "New prices! Your levels, staff and dishes are all kept.",
 		"pose": "ledger", "enter": "right", "chain": ["cheer"], "dim": true, "pause_sim": false, "hide_hud": false,
 	},
+	# ---- core and feel C4.3: Munshi-ji reacts when the player's purchase
+	#      fixes the stage that was the limit (or the PROBLEM shown). Chips
+	#      (MunshiNotes' ReactChip, 2.5 s): the first per kind once per save,
+	#      later ones from the two generic lines. C8.2: "hotel" in dialogue.
+	"react_waiters": {"text": "Shabaash! Food moves faster now.", "pose": "cheer", "chip": true},
+	"react_seats": {"text": "More charpais, more customers. Waah!", "pose": "cheer", "chip": true},
+	"react_cashiers": {"text": "The galla is quick now. Badhiya!", "pose": "cheer", "chip": true},
+	"react_kitchen": {"text": "The kitchen keeps up now. First class!", "pose": "cheer", "chip": true},
+	"react_road": {"text": "More lorries stopping. Best hotel on the highway!", "pose": "cheer", "chip": true},
+	"react_any_1": {"text": "Ekdum sahi, boss! Good fix.", "pose": "cheer", "chip": true},
+	"react_any_2": {"text": "Our hotel runs like the Rajdhani now, boss!", "pose": "cheer", "chip": true},
+	# ---- C5.2: about 90 s after the tutorial, once (chip)
+	"reno_tease": {"text": "One day this becomes a [n]FAMILY DHABA[/n]. See [k]BUILD[/k].", "pose": "point", "chip": true},
+	# ---- C6.1: every counter at L100 (all 16 dishes); the camera flies to
+	#      the hall site (MunshiNotes.reno_ready_view()) and back, like the lassi note
+	"reno_ready": {
+		"text": "All 16 dishes! The [n]FAMILY DHABA[/n] waits in [k]BUILD[/k].",
+		"pose": "cheer", "enter": "right", "chain": ["ledger"], "dim": true, "box_side": "left",
+	},
+	# ---- C6.1: after the renovation's reveal (Fx.reveal_finished), once per renovation
+	"reno_done": {
+		"text": "The AC family hall is open! It's far: hire more waiters.",
+		"pose": "cheer", "enter": "bottom", "chain": ["namaste"], "dim": true,
+	},
+	# ---- C6.3: the next highway unlocked; after the move's reveal
+	"move_ready": {
+		"text": "A new highway is calling, boss! See [k]BUILD[/k].",
+		"pose": "point", "enter": "right", "chain": ["cheer"], "dim": true, "box_side": "left",
+	},
+	"move_done": {
+		"text": "Welcome to NH 48, boss! New road, Rajasthani dishes.",
+		"pose": "namaste", "enter": "bottom", "then_pose": "cheer", "then_delay": 1.2, "dim": true,
+	},
+	# ---- C6.4: once per weekend, as the BARAAT button appears (chip)
+	"event_start": {"text": "A baraat is coming this weekend! Tap [k]BARAAT[/k].", "pose": "cheer", "chip": true},
+	# ---- C6.5: Munshi-ji's delegation unlocks (20 task claims; chip)
+	"delegation_on": {"text": "Boss, I'll claim finished task cards for you from now on.", "pose": "ledger", "chip": true},
 }
 
 

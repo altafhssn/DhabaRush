@@ -1,0 +1,10 @@
+--- orig/project.godot	2026-11-03 18:25:54
++++ /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/gb_m/proj/project.godot	2026-11-03 18:25:54
+@@ -33,6 +33,7 @@
+ Game="*res://scripts/autoload/game.gd"
+ Fx="*res://scripts/autoload/fx.gd"
+ Refs="*res://scripts/autoload/refs.gd"
++GbProbe="*res://scripts/gb_probe.gd"
+ 
+ [display]
+ 

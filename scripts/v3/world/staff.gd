@@ -24,9 +24,11 @@ func setup(model_ids: Array, p_yaw: float, p_name: String = "") -> void:
 	rig.set_yaw(yaw)
 
 
-func serve(on: bool) -> void:
+## Loops `pose` while a timer runs ("serve"; the tandoor cook "slap", C8.1),
+## idle when `on` is false.
+func serve(on: bool, pose: String = "serve") -> void:
 	if rig != null:
-		rig.play("serve" if on else "idle")
+		rig.play(pose if on else "idle")
 
 
 ## The station clerk's ~90 deg turn-and-back after handing over an order.

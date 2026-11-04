@@ -244,6 +244,8 @@ TARGETS = {
     "claim": -14.0, "build_done": -12.0, "menu_unlock": -13.0, "ready": -17.0, "upgrade": -18.0,
     # hooks
     "angry": -24.0,
+    # world moments, core and feel (docs/polish/audio.md section 3)
+    "tv_cheer": -30.0, "baraat_band": -19.0, "dog_bark": -24.0,
 }
 PITCHED = {"pop": -23.0, "deny": -21.0, "reward_count": -23.0, "upgrade": -21.0}
 

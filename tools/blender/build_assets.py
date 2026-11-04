@@ -443,6 +443,12 @@ def build_characters(mat):
 
 # ------------------------------------------------------------------ vehicles (face +X)
 TRUCK_ART = [YELLOW, GREEN, BLUE, PINK, SAFFRON, PAINT_YELLOW, WHITE, ORANGE, RED]
+# Tailgate slogan (core-and-feel C8.1, 2026-11-01): two lines, each fitted into a w x h box at its
+# centre height. One line (1.46 x 0.2 at y 1.6) measured 12.0 px tall at the tutorial follow framing
+# and the rear tarpaulin hump hid its middle from the game camera; two lines lower on the tailgate
+# measure ~15 px and stay clear of the hump (v3_render prints the figure).
+TRUCK_HORN_LINES = (("HORN OK", 1.45), ("PLEASE", 1.21))
+TRUCK_HORN_TEXT = (1.3, 0.2)
 # Truck header board lean in degrees (+ = top toward +X). The brief asked for 15 deg forward,
 # but that turns the face away from the 52 deg camera (seen at ~40% height); leaning it
 # back 15 deg shows the full crown art. Override with DHABA_HEADER_TILT for comparisons.
@@ -534,15 +540,19 @@ def truck_geo(t, cab=ORANGE, body=RED, trim=PAINT_YELLOW, crown=GREEN, wseg=10, 
                     t.decal((x, Y + s * 0.004, z), 0.2, 0.2, side, c2, rot=45)
     Bx = -2.205                                                              # tailgate
     t.decal((Bx, 0, 1.3), 1.6, 1.0, "-x", PAINT_YELLOW)
-    t.decal((Bx - 0.004, 0, 1.15), 0.5, 0.3, "-x", BLUE)
+    t.decal((Bx - 0.004, 0, 1.7), 1.5, 0.05, "-x", RED)                      # painted top band
+    t.decal((Bx - 0.004, 0, 0.92), 0.5, 0.12, "-x", BLUE)
     for y in (-0.5, 0.5):
-        t.decal((Bx - 0.004, y, 1.12), 0.24, 0.24, "-x", GREEN, rot=45)
+        t.decal((Bx - 0.004, y * 1.2, 0.95), 0.2, 0.2, "-x", GREEN, rot=45)
         t.decal((Bx, y * 1.4, 0.72), 0.2, 0.12, "-x", RED)                 # tail lights
     tg = globals().get("text_geo")
-    if tg is not None and lod == 0:                                          # painted slogans
-        tg(t, "HORN OK PLEASE", (Bx - 0.006, 1.6, 0.0), (0, 0, 1), (0, 1, 0), 1.46, 0.2, RED, bold=0.05)
+    if tg is not None and lod == 0:                                          # painted slogan, two lines
+        for (line, zc) in TRUCK_HORN_LINES:
+            tg(t, line, (Bx - 0.006, zc, 0.0), (0, 0, 1), (0, 1, 0), TRUCK_HORN_TEXT[0], TRUCK_HORN_TEXT[1], RED,
+               bold=0.05)
     else:
-        t.decal((Bx - 0.004, 0, 1.56), 1.3, 0.16, "-x", RED)
+        for (line, zc) in TRUCK_HORN_LINES:
+            t.decal((Bx - 0.004, 0, zc), 0.9, 0.16, "-x", RED)
     for i in range(5):
         t.decal((Bx, -0.4 + i * 0.2, 0.72), 0.16, 0.12, "-x", WHITE if i % 2 else HAIR)
     t.block((0.12, 1.8, 0.16), (-2.22, 0, 0.36), DARK_STEEL)
@@ -565,7 +575,7 @@ def truck_geo(t, cab=ORANGE, body=RED, trim=PAINT_YELLOW, crown=GREEN, wseg=10, 
     return t
 
 
-def bus_geo(b, body=CREAM, s1=GREEN, s2=ORANGE, wseg=10, lod=0):
+def bus_geo(b, body=CREAM, s1=GREEN, s2=ORANGE, wseg=10, lod=0, luggage=True):
     """Indian state bus: 6.5 long (X), 2.2 wide, ~2.7 high, faces +X, 6 wheels."""
     for x in (2.2, -1.6, -2.5):
         for y in (-0.97, 0.97):
@@ -634,10 +644,11 @@ def bus_geo(b, body=CREAM, s1=GREEN, s2=ORANGE, wseg=10, lod=0):
             b.block((0.05, 0.05, 0.12), (x, y, 2.46), DARK_STEEL)
     for x in (-2.4, 2.0):
         b.beam((x, -0.9, 2.56), (x, 0.9, 2.56), 0.05, DARK_STEEL)
-    b.block((0.9, 0.8, 0.28), (-1.6, 0.3, 2.46), RED)
-    b.block((0.6, 0.6, 0.24), (-0.55, -0.4, 2.46), BLUE)
-    b.ball(0.4, (0.4, 0.2, 2.5), ROPE, seg=6, rings=4, scale=(1.3, 1.0, 0.55))   # luggage bundle
-    b.block((0.5, 0.5, 0.22), (1.3, -0.2, 2.46), PAINT_YELLOW)
+    if luggage:                    # (bus_baraat dresses its roof instead: core-and-feel C6.4)
+        b.block((0.9, 0.8, 0.28), (-1.6, 0.3, 2.46), RED)
+        b.block((0.6, 0.6, 0.24), (-0.55, -0.4, 2.46), BLUE)
+        b.ball(0.4, (0.4, 0.2, 2.5), ROPE, seg=6, rings=4, scale=(1.3, 1.0, 0.55))   # luggage bundle
+        b.block((0.5, 0.5, 0.22), (1.3, -0.2, 2.46), PAINT_YELLOW)
     return b
 
 
@@ -1860,6 +1871,16 @@ V3_BUDGETS = {"dhaba_v3": 24000, "street_v3": 38000, "tandoor_lock": 3500, "chai
               "prop_naan_basket": 250, "prop_keema_pot": 250, "prop_kulcha_board": 250,
               "prop_chaas_jug": 250, "prop_mango_crate": 250, "prop_patiala_glass": 250,
               "prop_dal_handi": 250, "prop_paneer_block": 250, "prop_chole_sack": 250}
+# core-and-feel build (docs/core-and-feel/build-plan.md section 4, 2026-11-01): W1-ART1 world art ...
+V3_BUDGETS.update({"seats_board": 300, "plate_stool": 300, "tray_wide": 300, "family_hall": 6500,
+                   "family_table": 900, "hoarding": 1600, "tv_set": 300, "dog_sit": 1200, "bus_baraat": 2000,
+                   "deco_baraat": 4000, "camel_cart": 1800, "pass_plate": 450, "pass_kulhad": 450})
+# ... and W1-ART2's people and NH 48 pass items (v3_chars.py, v3_dishes_nh48.py)
+V3_BUDGETS.update({n: 1800 for n in ("trav_elder", "trav_sardar", "trav_farmer", "trav_techie", "trav_baraati_m",
+                                     "trav_baraati_f", "gopal", "lakhan", "balwant", "sonu", "bittu")})
+V3_BUDGETS.update({n: 550 for n in ("pass_missi_roti", "pass_lahsun_roti", "pass_baati", "pass_rabri",
+                                    "pass_dal_baati", "pass_gatte", "pass_ker_sangri", "pass_laal_maas",
+                                    "pass_shikanji")})
 V3_CHAR_BUDGET, V3_BUST_BUDGET = 1800, 3000
 
 
@@ -1885,15 +1906,37 @@ def build_v3(mat):
     props = _load_helper("v3_props", ns)
     _load_helper("v3_world", ns)
     ext = _load_helper("v3_exterior", ns)
+    # core-and-feel: NH 48 pass items (W1-ART2's module), loaded by path only when the file exists
+    nh48 = _load_helper("v3_dishes_nh48", ns) if os.path.exists(os.path.join(_HERE, "v3_dishes_nh48.py")) else None
     render = _load_helper("v3_render", ns)
     w_singles, w_groups = ext.build_world_ext(mat)
+    cf_singles, cf_groups = ext.build_core_feel_ext(mat)
     singles = (w_singles + props.build_props_v3(mat) + props.build_menu_items(mat)
-               + props.build_unlock_props(mat))
+               + props.build_unlock_props(mat) + [props.build_pass_kulhad(mat)] + props.build_core_feel_props(mat)
+               + cf_singles + (list(nh48.build_nh48_dishes(mat)) if nh48 is not None else []))
     groups = (w_groups + chars.build_travellers(mat) + chars.build_staff(mat) + chars.build_waiters(mat)
               + [props.build_cow(mat)] + props.build_menu_stations(mat) + chars.build_menu_cooks(mat)
               + chars.build_menu_helpers(mat)
-              + chars.build_munshi(mat))
+              + chars.build_munshi(mat) + props.build_core_feel_prop_groups(mat) + cf_groups)
     return singles, groups, common, render
+
+
+def _bounds(o):
+    vs = [o.matrix_world @ v.co for v in o.data.vertices]
+    return (Vector((min(v.x for v in vs), min(v.y for v in vs), min(v.z for v in vs))),
+            Vector((max(v.x for v in vs), max(v.y for v in vs), max(v.z for v in vs))))
+
+
+def _check_inside_bounds(objs, name, ref):
+    """Prints whether model `name` stays inside model `ref`'s bounds (Traffic sizes vehicles from
+    their bounds, so a decorated variant must not grow)."""
+    by = {o.name: o for o in objs}
+    if name not in by or ref not in by:
+        return
+    (a0, a1), (b0, b1) = _bounds(by[name]), _bounds(by[ref])
+    ok = all(a0[i] >= b0[i] - 1e-4 and a1[i] <= b1[i] + 1e-4 for i in range(3))
+    f = lambda v: "(%.3f, %.3f, %.3f)" % tuple(v)
+    print("[check] %s inside %s bounds: %s  %s..%s vs %s..%s" % (name, ref, ok, f(a0), f(a1), f(b0), f(b1)))
 
 
 def v3_budget(name):
@@ -1938,6 +1981,7 @@ def main():
         if flag:
             over.append(o.name)
         print(f"[asset] {o.name:<16} {tris:>6} tris  {os.path.getsize(p) // 1024:>4} KB{flag}")
+    _check_inside_bounds(objs + v3_singles, "bus_baraat", "bus")
     for g in v3_groups:
         tris = g.tris()
         p = v3_common.export_group(g, outdir)
@@ -1962,6 +2006,12 @@ def main():
                 lookup[o.name] = o
                 names.append(o.name)
             for g in v3_groups:
+                if getattr(g, "kind", "") == "world" and g.name not in ("dhaba_v3", "street_v3"):
+                    # core-and-feel world models shown by code (family_hall, deco_baraat): staged
+                    # part by part where a view wants them, never in every world render
+                    lookup[g.name] = g.objs[0]
+                    v3_render.GROUPS[g.name] = g
+                    continue
                 if getattr(g, "kind", "") == "world":
                     # static mesh renders as is; the bulbs / wires are staged by v3_render
                     lookup[g.name] = g.objs[0]

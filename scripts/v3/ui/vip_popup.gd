@@ -6,10 +6,22 @@ extends Control
 ## an UNLOCK button (Iap "vip_x2", permanent x2 income), and a peacock-teal
 ## reward panel with a rubber-banded bundle and a FREE (rewarded ad) button.
 ## Appears in a single frame; UiRoot owns the 50% dim.
-## UX fix (A4.4 / A5 / D7): English copy ("VIP OFFER", "FOREVER", "×2 ALL
-## INCOME", "UNLOCK · ₹299", "▶ WATCH AD", "Watch one short ad, get +1,000
-## now.") and a `free_only` variant ("FREE CASH": the tailgate and its ₹299
-## offer hidden, the body 690 x 660) for the first session / the tutorial.
+## UX fix (A4.4 / A5 / D7): English copy ("VIP OFFER", "×2 ALL INCOME",
+## "UNLOCK · ₹299", "▶ WATCH AD") and a `free_only` variant (the tailgate and
+## its offer hidden, the body 690 x 660) for the first session / the tutorial.
+## Core and feel (W1-MONEY):
+##  - C7.5: the free variant is "FREE BONUS" and the caption "Watch a short ad
+##    for a +%s bonus." (Fmt.money with the bill icon, never ₹).
+##  - C7.4: three variants, `variant` "free" | "starter" | "vip" (UiRoot takes
+##    it from Game.offer_variant()). "starter": the tailgate sells the one-time
+##    STARTER PACK (Iap "starter_pack": "+{money} dhaba cash, one time",
+##    "ONE-TIME OFFER", BUY · price); "vip": "ONE-TIME · FOREVER" on the pill.
+##    Game.set_vip only for vip_x2; the starter is paid by Game after the
+##    tutorial (offers module).
+##  - C7.2: before the ad shows, Game.set_ad_pending("wall_ad", reward) (paid
+##    on the next launch if the app dies under the ad; not inside the
+##    tutorial's chain, whose relaunch replays the beat); cleared when it ends,
+##    after the reward is paid (lead decision 6(b)).
 
 signal close_pressed
 ## "vip_free" (ad watched, reward credited) or "vip_unlock" (purchase done).
@@ -24,6 +36,8 @@ const BIG_MAX_W := 410.0
 var gate: Callable = Callable()
 var hud: Hud
 var reward: float = 100.0
+## C7.4: "free" | "starter" | "vip" (the one shown).
+var variant: String = "free"
 var close_button: UiButton
 var free_button: UiButton
 var unlock_button: UiButton
@@ -32,6 +46,9 @@ var _body: Control
 var _amount: Label
 var _bundle: UiIcon
 var _busy: bool = false
+## FREE paid on this showing (reset by open()): a press during the close fade
+## pays nothing.
+var _paid: bool = false
 var free_only: bool = false
 var _design: Vector2 = DESIGN
 var _title_label: Label
@@ -40,6 +57,12 @@ var _gate_p: Panel
 var _reward_p: Panel
 var _caption: Label
 var _big: Label
+## C7.4: the tailgate pill ("ONE-TIME · FOREVER" / "ONE-TIME OFFER") and the
+## starter pack's amount line.
+var _pill_label: Label
+var _starter_label: Label
+## The Iap product UNLOCK / BUY sells in this variant.
+var _product: String = "vip_x2"
 
 
 func _init() -> void:
@@ -55,27 +78,45 @@ func _ready() -> void:
 	Game.vip_changed.connect(_on_vip_changed)
 
 
-## free_only (D7): the FREE CASH variant without the ₹299 offer.
-func open(p_reward: float, p_free_only: bool = false) -> void:
+## p_variant: "free" | "starter" | "vip", or a bool (true = the FREE BONUS
+## variant without an offer, false = VIP; the D7 free_only flag).
+func open(p_reward: float, p_variant: Variant = false) -> void:
 	reward = p_reward if p_reward > 0.0 else Game.ad_bubble_reward()
 	_amount.text = Fmt.money(reward)
-	_caption.text = tr("Watch one short ad, get +%s now.") % Fmt.money(reward)
+	_caption.text = tr("Watch a short ad for a +%s bonus.") % Fmt.money(reward)
 	_busy = false
+	_paid = false
 	free_button.set_affordable(true)
-	_apply_variant(p_free_only)
+	var v: String = ("free" if bool(p_variant) else "vip") if p_variant is bool else str(p_variant)
+	_apply_variant(v if v in ["free", "starter", "vip"] else "free")
 	_refresh_unlock()
 	visible = true
 	modulate.a = 1.0
 	UiKit.kill_fade(self)
 
 
-func _apply_variant(on: bool) -> void:
+func _apply_variant(v: String) -> void:
+	variant = v
+	var on: bool = v == "free"
 	free_only = on
+	_product = Iap.STARTER if v == "starter" else "vip_x2"
 	_design = DESIGN_FREE if on else DESIGN
 	_body.size = _design
-	_title_label.text = "FREE CASH" if on else "VIP OFFER"
+	match v:
+		"free":
+			_title_label.text = "FREE BONUS"
+		"starter":
+			_title_label.text = "STARTER PACK"
+		_:
+			_title_label.text = "VIP OFFER"
 	_gate_p.visible = not on
 	unlock_button.visible = not on
+	var starter: bool = v == "starter"
+	_big.visible = not starter
+	_starter_label.visible = starter
+	if starter:
+		_starter_label.text = tr("+{money} dhaba cash, one time").replace("{money}", Fmt.money(_starter_amount()))
+	_fit_pill("ONE-TIME OFFER" if starter else "ONE-TIME · FOREVER")
 	UiKit.place(_paper, Vector2(0, 96), Vector2(_design.x, _design.y - 96.0))
 	var dy: float = -316.0 if on else 0.0
 	_reward_p.position = Vector2(14, 428.0 + dy)
@@ -158,13 +199,18 @@ func _build() -> void:
 	var forever: Panel = UiKit.pill(UiKit.TEAL, Vector2(236, 38))
 	gate_p.add_child(forever)
 	forever.position = Vector2(318, 34)
-	UiKit.label_in(forever, "FOREVER", Vector2(0, -6), Vector2(236, 50), 18, Color.WHITE)
+	_pill_label = UiKit.label_in(forever, "ONE-TIME · FOREVER", Vector2(0, -6), Vector2(236, 50), 18, Color.WHITE)
 	# Baloo 2's tall line box: 44 px with -28 spacing keeps two lines above UNLOCK.
 	# "HORN OK PLEASE" stays English in every language (truck-art slogan).
 	_big = UiKit.label_in(gate_p, "", Vector2(232, 70), Vector2(410, 132), 44, Color.WHITE,
 			HORIZONTAL_ALIGNMENT_CENTER, 12, UiKit.MAROON)
 	_big.add_theme_constant_override("line_spacing", -28)
 	_fit_big()
+	# C7.4: the starter pack's amount line (in place of "×2 ALL INCOME").
+	_starter_label = UiKit.label_in(gate_p, "", Vector2(232, 66), Vector2(410, 140), 34, Color.WHITE,
+			HORIZONTAL_ALIGNMENT_CENTER, 10, UiKit.MAROON)
+	_starter_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_starter_label.visible = false
 	unlock_button = UiButton.new("UNLOCK", UiKit.MAROON, Vector2(236, 64))
 	unlock_button.set_font_sizes(24, 18)
 	unlock_button.big_ring = true
@@ -234,10 +280,40 @@ func _fit_big() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and _big != null:
 		_fit_big()
+		if _pill_label != null:
+			_fit_pill(_pill_label.text)
+
+
+## The pill's caption at 18 px, smaller when the translation is wider.
+func _fit_pill(msg: String) -> void:
+	if _pill_label == null:
+		return
+	_pill_label.text = msg
+	var px: int = 18
+	while px > 12 and UiKit.font_bold().get_string_size(tr(msg), HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > 220.0:
+		px -= 1
+	_pill_label.add_theme_font_size_override("font_size", px)
+
+
+## The starter pack's dhaba cash (Game.starter_amount(): frozen when first
+## shown; the economy value before core and feel's game.gd).
+func _starter_amount() -> float:
+	if Game.has_method("starter_amount"):
+		return float(Game.call("starter_amount"))
+	var o: Variant = Game.eco.get("offers", {})
+	var st: Variant = (o as Dictionary).get("starter", {}) if o is Dictionary else {}
+	return float((st as Dictionary).get("amount", 1500.0)) if st is Dictionary else 1500.0
+
+
+func _owned(product_id: String) -> bool:
+	if product_id == "vip_x2":
+		return Game.vip
+	var iap: Node = UiKit.autoload("Iap")
+	return iap != null and iap.has_method("is_owned") and bool(iap.call("is_owned", product_id))
 
 
 func _refresh_unlock() -> void:
-	if Game.vip:
+	if _owned(_product):
 		unlock_button.set_caption("ACTIVE")
 		unlock_button.set_cost("")
 		unlock_button.set_affordable(false)
@@ -245,9 +321,13 @@ func _refresh_unlock() -> void:
 	var iap: Node = UiKit.autoload("Iap")
 	var price: String = ""
 	if iap != null and iap.has_method("price_label"):
-		price = str(iap.call("price_label", "vip_x2"))
-	# A5: the price at button size, one line ("UNLOCK · ₹299").
-	unlock_button.set_caption(tr("UNLOCK · %s") % price if price != "" else "UNLOCK")
+		price = str(iap.call("price_label", _product))
+	if _product == Iap.STARTER:
+		# C7.4: BUY · ₹49 (the dhaba cash it gives is the line above).
+		unlock_button.set_caption("%s · %s" % [tr("BUY"), price] if price != "" else "BUY")
+	else:
+		# A5: the price at button size, one line ("UNLOCK · ₹299").
+		unlock_button.set_caption(tr("UNLOCK · %s") % price if price != "" else "UNLOCK")
 	unlock_button.set_cost("")
 	unlock_button.set_affordable(true)
 
@@ -263,13 +343,14 @@ func _allowed(id: String) -> bool:
 
 
 func _on_free() -> void:
-	if _busy or not _allowed("vip_free"):
+	if _busy or _paid or not _allowed("vip_free"):
 		return
+	var d: Node = Refs.director
+	var in_tut: bool = d != null and d.has_method("in_chain") and bool(d.call("in_chain"))
 	if not Ads.is_rewarded_ready("wall_ad"):
 		# Inside the tutorial chain this is a gift (no ad video played in the
 		# reference either): never strand the player on a missing ad fill.
-		var d: Node = Refs.director
-		if d != null and d.has_method("in_chain") and bool(d.call("in_chain")):
+		if in_tut:
 			_busy = true
 			free_button.juice()
 			_on_ad_done(true)
@@ -281,6 +362,12 @@ func _on_free() -> void:
 	_busy = true
 	free_button.juice()
 	free_button.set_affordable(false)
+	# C7.2: what the ad pays if the app dies under it (paid on the next launch).
+	# Not in the tutorial's chain: a relaunch resumes the Director at its
+	# "ad_deal" checkpoint and replays this beat, and that replay is the one
+	# payment (W1-FIX-money).
+	if not in_tut and Game.has_method("set_ad_pending"):
+		Game.call("set_ad_pending", "wall_ad", reward)
 	Ads.show_rewarded("wall_ad", _on_ad_done)
 
 
@@ -288,19 +375,29 @@ func _on_ad_done(ok: bool) -> void:
 	_busy = false
 	free_button.set_affordable(true)
 	if not ok:
+		if Game.has_method("clear_ad_pending"):
+			Game.call("clear_ad_pending")
 		# Closed early / failed to play: a short reason (SdkNotice).
 		SdkNotice.toast(SdkNotice.ad_result_text())
 		return
+	# Paid: no second FREE until the next open(). UiRoot closes the popup
+	# after "vip_free", and a press during its 0.1 s fade must not pay again
+	# (the tutorial's no-fill gift path would).
+	_paid = true
 	var amount: float = reward
 	var from: Vector2 = _bundle.get_global_rect().get_center()
 	Game.add_reward(amount, "wall_ad")
+	# Lead decision 6(b): paid first, then the owed record is cleared; its
+	# immediate save writes the paid cash and the empty record together.
+	if Game.has_method("clear_ad_pending"):
+		Game.call("clear_ad_pending")
 	if hud != null:
 		hud.play_reward_burst(from, amount, true)
 	action.emit("vip_free")
 
 
 func _on_unlock() -> void:
-	if _busy or Game.vip or not _allowed("vip_unlock"):
+	if _busy or _owned(_product) or not _allowed("vip_unlock"):
 		return
 	var iap: Node = UiKit.autoload("Iap")
 	if iap == null or not iap.has_method("buy"):
@@ -308,13 +405,14 @@ func _on_unlock() -> void:
 		return
 	_busy = true
 	unlock_button.juice()
-	Funnel.once("iap_first_attempt", "iap_attempt", {"id": "vip_x2", "source": "wall_ad"})
-	iap.call("buy", "vip_x2", _on_iap_done)
+	Funnel.once("iap_first_attempt", "iap_attempt", {"id": _product, "source": "wall_ad"})
+	iap.call("buy", _product, _on_iap_done)
 
 
 func _on_iap_done(ok: bool) -> void:
 	_busy = false
-	if ok and not Game.vip:
+	# Only VIP switches anything on here; Iap grants every product itself.
+	if ok and _product == "vip_x2" and not Game.vip:
 		Game.set_vip(true)
 	_refresh_unlock()
 	if ok:

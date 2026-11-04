@@ -2,6 +2,10 @@
 
 Status: draft, 2026-10-18. Scope is the 8-week India soft-launch MVP. Items marked **[later]** are post-soft-launch.
 
+> **2 Nov 2026:** this is the original design. What the game does now differs (no interstitials in the soft launch, Remove Ads without an income bonus, a Starter Pack, travellers who wait instead of leaving, the Family Dhaba, NH 48, Aaj ka special, the weekend baraat): see [core-and-feel/change-list.md](core-and-feel/change-list.md) and [v3-architecture.md](v3-architecture.md) (addendum 2026-11-02).
+
+> **3 Nov 2026:** the current design document is [GDD-v3.md](GDD-v3.md): the game as built today plus the planned 10+ hour content.
+
 ## 1. Pitch
 
 You inherit a tiny roadside dhaba on an Indian highway. Trucks, bikes and cars pull in hungry. Serve chai and parathas, upgrade the tandoor, add charpais and parking, and grow from a tin shack into the most famous stop on the road. Warm, cozy, slightly funny. Portrait, one hand, low-poly 3D.

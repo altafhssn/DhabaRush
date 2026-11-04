@@ -12,6 +12,9 @@ extends Control
 ## the STATS caption, the gear and BUILD) on its own CanvasLayer 12 (UiRoot),
 ## and while that clamp holds it away from the painted wall a 16 px triangle
 ## on the clamped side points toward the wall.
+## Core and feel (W2-HUD): it also keeps clear of the HUD's BARAAT button
+## (Hud.bubble_avoid_rect(), x 15-83, y 440-534 at _top 110) while that
+## shows: a bubble clamped onto it moves down below it.
 
 signal tapped
 
@@ -165,6 +168,9 @@ func _follow() -> void:
 	var c: Vector2 = tl
 	c.x = clampf(tl.x, EDGE_MARGIN, maxf(EDGE_MARGIN, vs.x - SIZE.x - EDGE_MARGIN))
 	c.y = clampf(tl.y, EDGE_TOP, maxf(EDGE_TOP, vs.y - SIZE.y - EDGE_BOTTOM))
+	var avoid: Rect2 = _avoid_rect()
+	if avoid.has_area() and Rect2(c, SIZE).grow(4.0).intersects(avoid):
+		c.y = minf(avoid.end.y + 8.0, maxf(EDGE_TOP, vs.y - SIZE.y - EDGE_BOTTOM))
 	position = c.round()
 	var d: Vector2 = Vector2.ZERO
 	if (tl - c).length() > 1.0:
@@ -172,6 +178,18 @@ func _follow() -> void:
 	if d.distance_to(_point_dir) > 0.02:
 		_point_dir = d
 		queue_redraw()
+
+
+## The HUD control the bubble keeps clear of (Hud.bubble_avoid_rect(), the
+## BARAAT button while it shows; Rect2() otherwise).
+func _avoid_rect() -> Rect2:
+	var ui: Variant = Refs.ui
+	if ui == null or not is_instance_valid(ui):
+		return Rect2()
+	var h: Variant = (ui as Object).get("hud")
+	if h is Hud:
+		return (h as Hud).bubble_avoid_rect()
+	return Rect2()
 
 
 func _draw() -> void:

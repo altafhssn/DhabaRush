@@ -19,9 +19,19 @@ extends Node
 ##    form, NO THANKS / ALLOW), the Settings ANALYTICS row starting and
 ##    stopping GameAnalytics live, the Player ID (format, saved, given to
 ##    GameAnalytics before init, Settings line, copy), Hindi texts.
-## Prints "[sdk-test] PASS ..." / "FAIL ..." lines and quits with the number
-## of failures as the exit code. Run it only in a scratch copy: it buys
-## things and changes the save.
+##  - core and feel (W1-MONEY): interstitials off in the committed config and
+##    the guardrails (180 s, after a purchase / a reward / a return, never the
+##    return screen), the starter pack product, the offers module
+##    (scripts/v3/core/offers.gd: variants, one offer a session, the frozen
+##    amount, paid once after the tutorial, the owed rewarded ad), the wall-ad
+##    bubble hiding when its ad goes, WELCOME BACK's x2 only with a ready ad,
+##    the launch pop-up budget (UiRoot.can_interrupt) and the consent card
+##    waiting for the game, the new SdkNotice texts and the Settings line.
+##    Checks that need core and feel's game.gd (W1-CORE) print
+##    "[sdk-test] SKIP ..." while it is missing.
+## Prints "[sdk-test] PASS ..." / "FAIL ..." / "SKIP ..." lines and quits
+## with the number of failures as the exit code. Run it only in a scratch
+## copy: it buys things and changes the save.
 
 const Config := preload("res://scripts/v3/monetization/monetization_config.gd")
 const AdBase := preload("res://scripts/v3/monetization/ad_backend_base.gd")
@@ -35,9 +45,12 @@ const Map := preload("res://scripts/v3/monetization/analytics_map.gd")
 const AbiGuard := preload("res://scripts/v3/monetization/abi_guard.gd")
 const ADMOB_BACKEND := "res://scripts/v3/monetization/ad_backend_admob.gd"
 const ADMOB_MOCK_FACTORY := "res://addons/admob/internal/mock/mock_admob_factory.gd"
+## Core and feel: the offers module (loaded by path; no class_name).
+const OFFERS_PATH := "res://scripts/v3/core/offers.gd"
 
 var _pass: int = 0
 var _fail: int = 0
+var _skips: int = 0
 var _saved: Dictionary = {}
 var _ga_fake: FakeGA
 var _initial_analytics: String = ""
@@ -280,6 +293,7 @@ func _run() -> void:
 	_test_abi_guard()
 	await _test_lifecycle()
 	await _test_integration()
+	await _test_core_and_feel()
 	await _test_consent()
 	_restore_state()
 	Analytics._test_use_ga(null)
@@ -288,6 +302,7 @@ func _run() -> void:
 	Analytics._test_restart()
 	Analytics._test_set_consent(_consent0)
 	Config.clear_overrides()
+	_log("skipped: %d (need core and feel's game.gd)" % _skips)
 	_log("DONE: %d passed, %d failed" % [_pass, _fail])
 	get_tree().quit(_fail)
 
@@ -322,6 +337,17 @@ func _test_config() -> void:
 	var ids: Dictionary = Iap.debug_status().get("store_ids", {})
 	_check(ids.get("vip_x2") == "vip_x2" and ids.get("remove_ads") == "remove_ads" and ids.get("sikke_small") == "sikke_small",
 			"config: store ids keep the existing product ids")
+	# Core and feel C7.4 / C7.1.
+	_check(ids.get("starter_pack") == "starter_pack", "config: starter_pack maps to the store id starter_pack")
+	_check(not Config.get_bool("ads", "interstitials_enabled", true) and Ads.interstitial_block_reason() == "disabled",
+			"config: interstitials are off in the committed config (C7.1)")
+	_check(Config.get_strings("ads", "interstitial_triggers").is_empty() and not Ads.interstitial_trigger_on("upgrade"),
+			"config: no interstitial call site is live (empty trigger list)")
+	_check(is_equal_approx(Config.get_float("ads", "interstitial_min_interval_s", 0.0), 180.0)
+			and is_equal_approx(Config.get_float("ads", "interstitial_after_purchase_s", 0.0), 60.0)
+			and is_equal_approx(Config.get_float("ads", "interstitial_after_reward_s", 0.0), 60.0)
+			and Config.get_int("ads", "interstitial_min_session", 0) == 4,
+			"config: guardrails kept (180 s apart, 60 s after a purchase or a reward, session 4+)")
 
 
 func _test_analytics_map() -> void:
@@ -334,6 +360,11 @@ func _test_analytics_map() -> void:
 	_check(m[0]["item_id"] == "chai_level" and m[1]["id"] == "upgrade:level:chai", "map: station level -> item chai_level")
 	m = Map.map_event("upgrade_bought", {"id": "waiter_1", "kind": "waiter_hire", "value": 2, "cost": 40})
 	_check(m[0]["item_type"] == "hire" and m[0]["item_id"] == "waiter_hire", "map: waiter hire -> item type hire")
+	# Core and feel 2.8 (C3.1): source is a custom field only (map_money §4).
+	m = Map.map_event("upgrade_bought", {"id": "waiter_1", "kind": "waiter_hire", "value": 2, "cost": 40, "source": "world_card"})
+	_check(m.size() == 2 and m[1]["id"] == "upgrade:waiter_hire:waiter"
+			and str((m[1]["fields"] as Dictionary).get("source", "")) == "world_card",
+			"map: upgrade_bought source -> custom field on the same design id")
 	m = Map.map_event("reward", {"source": "wall_ad", "amount": 120.0})
 	_check(m.size() == 1 and m[0]["flow"] == "source" and m[0]["item_type"] == "ad" and m[0]["item_id"] == "wall_ad",
 			"map: wall_ad reward -> cash source 'ad'")
@@ -358,6 +389,28 @@ func _test_analytics_map() -> void:
 	_check(Map.design("a:b:c:d:e:f:g")["id"].split(":").size() == 5, "map: design ids capped at 5 parts")
 	_check(Map.map_event("rewarded_completed", {"placement": "wall_ad"})[0]["id"] == "ad:rewarded:completed:wall_ad",
 			"map: rewarded completed design id")
+	# Core and feel (build plan 2.8).
+	m = Map.map_event("reward", {"source": "starter", "amount": 1500.0})
+	_check(m.size() == 1 and m[0]["item_type"] == "iap" and m[0]["item_id"] == "starter", "map: starter pack reward -> cash source 'iap'")
+	_check(Map.map_event("reward", {"source": "ad_owed", "amount": 50.0})[0]["item_type"] == "ad"
+			and Map.map_event("reward", {"source": "event", "amount": 400.0})[0]["item_type"] == "reward",
+			"map: owed rewarded ad -> 'ad', baraat reward -> 'reward'")
+	_check(Map.ITEM_TYPES.has("iap") and Map.ITEM_TYPES.has("reward") and Map.ITEM_TYPES.has("ad"),
+			"map: every new reward item type is declared before init")
+	m = Map.map_event("renovation_done", {"n": 1, "mult": 2.0, "min_since_tutorial": 40.0})
+	_check(m[0]["kind"] == "progression" and m[0]["status"] == "complete" and m[0]["p1"] == "renovation" and m[0]["p2"] == "1",
+			"map: renovation -> progression complete renovation:1")
+	m = Map.map_event("location_move", {"to": "nh48", "min_since_tutorial": 70.0})
+	_check(m[0]["kind"] == "progression" and m[0]["status"] == "complete" and m[0]["p1"] == "location" and m[0]["p2"] == "nh48",
+			"map: highway move -> progression complete location:nh48")
+	m = Map.map_event("event_start", {"id": "baraat"})
+	_check(m[0]["kind"] == "progression" and m[0]["status"] == "start" and m[0]["p1"] == "event" and m[0]["p2"] == "baraat",
+			"map: event start -> progression start event:baraat")
+	m = Map.map_event("event_goal", {"id": "baraat", "step": 3})
+	_check(m[0]["kind"] == "progression" and m[0]["status"] == "complete" and m[0]["p2"] == "baraat"
+			and Map.map_event("event_goal", {"id": "baraat", "step": 1})[0]["kind"] == "design",
+			"map: the event's last goal -> progression complete event:baraat")
+	_check(Map.map_event("traveller_lost", {"seats": 1})[0]["id"] == "traveller:lost", "map: traveller_lost stays mapped")
 
 
 func _test_analytics_backend() -> void:
@@ -612,7 +665,7 @@ func _test_ads_failures() -> void:
 
 
 func _test_ads_interstitial() -> void:
-	var stub: AdStub = _install_ad_stub()
+	var stub: AdStub = _install_ad_stub(_inter_on())
 	Game.remove_ads = false
 	Game.sessions = 1
 	await _wait(0.3)
@@ -629,11 +682,42 @@ func _test_ads_interstitial() -> void:
 	await _until(func() -> bool: return int(fin["n"]) > 0, 3.0)
 	_check(fin.get("last") == ["upgrade", true] and _ga_fake.has_design("ad:interstitial:shown:upgrade"), "interstitial: finished + logged")
 	await _until(func() -> bool: return Ads.is_rewarded_ready("wall_ad"), 3.0)
-	_check(Ads.interstitial_block_reason() == "interval" and not Ads.maybe_show_interstitial("upgrade"), "interstitial: 60 s minimum interval")
+	_check(Ads.interstitial_block_reason() == "interval" and not Ads.maybe_show_interstitial("upgrade"), "interstitial: 180 s minimum interval")
 	Ads._test_reset_caps()
 	var r: Dictionary = _show_rewarded("wall_ad")
 	await _until(func() -> bool: return int(r["n"]) > 0, 3.0)
 	_check(Ads.interstitial_block_reason() == "after_rewarded", "interstitial: not right after a rewarded video")
+	Ads._test_reset_caps()
+	await _until(func() -> bool: return Ads.interstitial_block_reason() == "", 3.0)
+	# Core and feel C7.1 guardrails.
+	Ads._last_interstitial = Ads._now() - 179.0
+	_check(Ads.interstitial_block_reason() == "interval", "interstitial: still blocked 179 s after the last one")
+	Ads._last_interstitial = Ads._now() - 181.0
+	_check(Ads.interstitial_block_reason() == "", "interstitial: allowed again 181 s after the last one (180 s cap)")
+	Ads._test_reset_caps()
+	Iap.purchase_finished.emit("vip_x2", true)
+	_check(Ads.interstitial_block_reason() == "after_purchase", "interstitial: never within 60 s of a store purchase (after_purchase)")
+	Ads._last_purchase = Ads._now() - 61.0
+	_check(Ads.interstitial_block_reason() == "", "interstitial: allowed again 61 s after the purchase")
+	Ads._test_reset_caps()
+	Iap.purchase_finished.emit("vip_x2", false)
+	Iap.purchase_finished.emit("restore", true)
+	_check(Ads.interstitial_block_reason() == "", "interstitial: a failed purchase or a restore does not count as a purchase")
+	Ads._test_reset_caps()
+	if Game.has_signal("cash_spent"):
+		Game.emit_signal("cash_spent", 10.0, "test")
+		_check(Ads.interstitial_block_reason() == "after_purchase", "interstitial: never within 60 s of cash spent (Game.cash_spent)")
+	else:
+		_skip("interstitial: never within 60 s of cash spent", "Game.cash_spent missing")
+	Ads._test_reset_caps()
+	Game.reward_added.emit(1.0, "test")
+	_check(Ads.interstitial_block_reason() == "after_reward", "interstitial: never within 60 s of a reward (after_reward)")
+	Ads._test_reset_caps()
+	Ads._notification(NOTIFICATION_APPLICATION_RESUMED)
+	_check(Ads.interstitial_block_reason() == "after_return", "interstitial: never within 60 s of a return to the game")
+	Ads._test_reset_caps()
+	_check(Ads.interstitial_block_reason("welcome_back") == "return_screen" and not Ads.interstitial_trigger_on("welcome_back")
+			and not Ads.maybe_show_interstitial("welcome_back"), "interstitial: never on the return screen (welcome_back hard-coded)")
 	Ads._test_reset_caps()
 	await _until(func() -> bool: return Ads.interstitial_block_reason() == "", 3.0)
 	Game.remove_ads = true
@@ -670,7 +754,7 @@ func _test_ads_admob_mock() -> void:
 
 	var b: AdBase = script.new()
 	b.set("skip_consent", true)
-	Ads._test_install_backend(b, {"init_timeout_s": 5.0})
+	Ads._test_install_backend(b, _inter_on({"init_timeout_s": 5.0}))
 	_check(await _until(func() -> bool: return Ads.is_rewarded_ready("wall_ad"), 8.0), "admob: mock init + rewarded load through the real backend")
 	var factory: Script = load(ADMOB_MOCK_FACTORY)
 	var mock: Object = factory.call("get_mock_plugin", "PoingGodotAdMobRewardedAd")
@@ -734,6 +818,11 @@ func _buy(id: String) -> Dictionary:
 func _reset_entitlements() -> void:
 	Game.vip = false
 	Game.remove_ads = false
+	# Core and feel C7.4: nothing bought means no starter pack either (the
+	# offers module's purchase flags, when Game has the module).
+	var off: Object = _offers()
+	if off != null:
+		off.call("load_dict", {})
 
 
 func _test_iap_stub() -> void:
@@ -745,6 +834,10 @@ func _test_iap_stub() -> void:
 	await _frames(3)
 	_check(Iap.price_label("remove_ads") == "₹199.00" and Iap.price_label("vip_x2") == "₹299",
 			"iap: store price when known, placeholder otherwise")
+	_check(Iap.price_label("starter_pack") == "₹49" and str((Iap.PRODUCTS["remove_ads"] as Dictionary)["price"]) == "₹149"
+			and Iap.title("vip_x2") == "VIP: ×2 dhaba income" and Iap.title("starter_pack") == "Starter Pack"
+			and not bool((Iap.PRODUCTS["starter_pack"] as Dictionary)["consumable"]),
+			"iap: placeholders: Starter Pack ₹49 (one-time), Remove Ads ₹149, 'VIP: ×2 dhaba income'")
 
 	var fin: Dictionary = {"events": []}
 	var on_fin := func(id: String, ok: bool) -> void: (fin["events"] as Array).append([id, ok])
@@ -800,6 +893,27 @@ func _test_iap_stub() -> void:
 	await _frames(3)
 	_check(int(b["n"]) == 1 and b["ok"] == false, "iap: second purchase while busy -> false")
 	await _until(func() -> bool: return int(a["n"]) > 0, 3.0)
+
+	# Core and feel C7.4: the starter pack through the store.
+	var off: Object = _offers()
+	var off0: Dictionary = off.call("save_dict") if off != null else {}
+	if off != null:
+		off.call("load_dict", {})
+	r = _buy("starter_pack")
+	await _until(func() -> bool: return int(r["n"]) > 0, 3.0)
+	_check(r["ok"] == true and st.finalized.size() > 0 and not bool((st.finalized.back() as Dictionary)["consumable"]),
+			"iap: starter pack bought and acknowledged as a one-time product")
+	if off == null:
+		_skip("iap: starter pack owned, its grant pending until after the tutorial", "no offers module in Game")
+	else:
+		_check(Iap.is_owned("starter_pack") and bool(off.get("starter_owned")) and bool(off.get("purchased_any"))
+				and (bool(off.get("starter_pending")) or bool(off.get("starter_granted"))),
+				"iap: starter pack owned, its grant pending until after the tutorial")
+		var n_fin: int = st.finalized.size()
+		r = _buy("starter_pack")
+		await _frames(3)
+		_check(int(r["n"]) == 1 and r["ok"] == true and st.finalized.size() == n_fin, "iap: an owned starter pack is not bought twice")
+		off.call("load_dict", off0)
 
 	_reset_entitlements()
 	var rs: Dictionary = {"n": 0}
@@ -1035,14 +1149,20 @@ func _test_integration() -> void:
 	TranslationServer.set_locale(loc0)
 	_check(latin.is_empty(), "ui: every SDK message and Settings caption has Hindi text %s" % str(latin))
 
-	# Interstitial call-site list (config [ads] interstitial_triggers).
-	var istub: AdStub = _install_ad_stub()
+	# Interstitial call-site list (config [ads] interstitial_triggers; the
+	# committed list is empty, C7.1: the test switches "upgrade" on).
+	var istub: AdStub = _install_ad_stub(_inter_on())
 	Game.sessions = 4
 	await _until(func() -> bool: return Ads.interstitial_block_reason() == "", 3.0)
 	_check(Ads.interstitial_trigger_on("upgrade") and Ads.interstitial_block_reason("upgrade") == "",
-			"interstitial: 'upgrade' call site is on")
-	_check(Ads.interstitial_block_reason("welcome_back") == "trigger_off" and not Ads.maybe_show_interstitial("welcome_back")
-			and istub.shows_requested == 0, "interstitial: 'welcome_back' call site off by default")
+			"interstitial: 'upgrade' call site is on when listed")
+	_check(istub.shows_requested == 0, "interstitial: no show while only checked")
+	var never: Dictionary = _inter_on()
+	never["interstitial_triggers"] = PackedStringArray(["upgrade", "welcome_back"])
+	var istub2: AdStub = _install_ad_stub(never)
+	await _until(func() -> bool: return Ads.interstitial_block_reason() == "", 3.0)
+	_check(Ads.interstitial_block_reason("welcome_back") == "return_screen" and not Ads.maybe_show_interstitial("welcome_back")
+			and istub2.shows_requested == 0, "interstitial: 'welcome_back' never shows, even when the config lists it (return_screen)")
 	Game.sessions = 1
 
 	# Purchases: purchase_result for every outcome.
@@ -1094,6 +1214,9 @@ func _test_integration() -> void:
 		# Start from no policy URL, so these checks hold once the committed
 		# config/monetization.cfg [legal] privacy_policy_url is filled.
 		Config.set_override("legal", "privacy_policy_url", "")
+		# C7.4: REMOVE ADS not bought, so the line under it shows in both
+		# measurements below.
+		_reset_entitlements()
 		await _frames(3)
 		sett.call("open")
 		var plain_h: float = (sett.get("_design") as Vector2).y
@@ -1136,8 +1259,361 @@ func _test_integration() -> void:
 		await _frames(2)
 		_check(not pb.visible and not rb.visible and not pl.visible and is_equal_approx((sett.get("_design") as Vector2).y, plain_h),
 				"settings: controls hide again when they stop applying")
+		# Core and feel C7.4: the line under REMOVE ADS and the bought state.
+		_reset_entitlements()
+		sett.call("_refresh")
+		await _frames(1)
+		var line: Label = sett.get("_ads_line")
+		var rmb: Control = sett.get("_remove_ads")
+		var done_l: Label = sett.get("_ads_done")
+		var next_y: float = INF
+		for nm: String in ["_skip", "_privacy_btn", "_restore_btn", "_policy_link", "_pid_btn", "_ver"]:
+			var c: Control = sett.get(nm)
+			if c != null and c.visible:
+				next_y = minf(next_y, c.position.y)
+		_check(line != null and line.visible and line.text == "One-time, forever. Optional bonus videos stay."
+				and rmb.visible and line.position.y >= rmb.position.y + rmb.size.y and line.position.y + line.size.y <= next_y
+				and line.position.x >= 0.0 and line.position.x + line.size.x <= (sett.get("_design") as Vector2).x,
+				"settings: 'One-time, forever. Optional bonus videos stay.' under REMOVE ADS, above the next row")
+		Game.remove_ads = true
+		await _frames(2)
+		_check(not line.visible and not rmb.visible and done_l.visible and done_l.text == "No forced ads. Thank you!",
+				"settings: bought state 'No forced ads. Thank you!' (no line)")
+		Game.remove_ads = false
 		sett.call("close")
 	_check(_ga_fake.log.size() > ga0, "analytics: the facades' events reached the GameAnalytics queue (%d calls)" % (_ga_fake.log.size() - ga0))
+	_install_ad_stub()
+	Iap._test_install_backend(StoreStub.new())
+
+
+# ================================================================ core and feel (W1-MONEY)
+## Game's offers module (core and feel's game.gd), else null.
+func _offers() -> Object:
+	if not Game.has_method("system"):
+		return null
+	var o: Variant = Game.call("system", "offers")
+	return o if o is Object else null
+
+
+func _new_offers() -> Object:
+	var script: Script = load(OFFERS_PATH) if ResourceLoader.exists(OFFERS_PATH) else null
+	if script == null or not script.can_instantiate():
+		return null
+	var o: Object = script.new()
+	o.call("setup", Game)
+	o.call("load_dict", {})
+	return o
+
+
+## The tutorial's "done" flag, set for a check and put back after it (only
+## that key: the Director keeps writing its step into Game.tutorial).
+var _done0: Variant = null
+
+
+func _tut_done(on: bool) -> void:
+	Game.tutorial["done"] = on
+
+
+func _tut_restore() -> void:
+	if _done0 == null:
+		Game.tutorial.erase("done")
+	else:
+		Game.tutorial["done"] = _done0
+
+
+func _test_core_and_feel() -> void:
+	_done0 = Game.tutorial.get("done", null)
+	var sessions0: int = Game.sessions
+	_reset_entitlements()
+	var rewards: Array = []
+	var on_rw := func(amount: float, source: String) -> void: rewards.append([amount, source])
+	Game.reward_added.connect(on_rw)
+
+	# ---- the offers module on its own (scripts/v3/core/offers.gd)
+	var o: Object = _new_offers()
+	_check(o != null, "offers: the module loads by path (%s)" % OFFERS_PATH)
+	if o != null:
+		var amt: float = 1500.0
+		var e_off: Variant = Game.eco.get("offers", {})
+		if e_off is Dictionary and (e_off as Dictionary).get("starter") is Dictionary:
+			amt = float(((e_off as Dictionary)["starter"] as Dictionary).get("amount", 1500.0))
+		# Synchronous: the tutorial flag is flipped and restored without a frame.
+		Game.sessions = 1
+		_tut_done(true)
+		var v1: String = str(o.call("variant"))
+		Game.sessions = 2
+		_tut_done(false)
+		var v_tut: String = str(o.call("variant"))
+		_tut_done(true)
+		var v2: String = str(o.call("variant"))
+		o.call("mark_shown", "starter")
+		var v2b: String = str(o.call("variant"))
+		var frozen: float = float(o.call("starter_amount"))
+		Game.sessions = 3
+		var v3: String = str(o.call("variant"))
+		o.call("mark_shown", "vip")
+		var v3b: String = str(o.call("variant"))
+		Game.sessions = 4
+		var v4: String = str(o.call("variant"))
+		o.call("note_purchase", "remove_ads")
+		var v4b: String = str(o.call("variant"))
+		_check(v1 == "free" and v_tut == "free" and v2 == "starter" and v2b == "free" and v3 == "vip" and v3b == "free"
+				and v4 == "vip" and v4b == "free",
+				"offers: free in session 1 and the tutorial, STARTER once, then VIP, one offer a session, none after a purchase (%s)"
+				% [[v1, v_tut, v2, v2b, v3, v3b, v4, v4b]])
+		_check(is_equal_approx(frozen, amt) and bool(o.get("starter_shown")), "offers: the starter amount is frozen when first shown (%.0f)" % frozen)
+		var o2: Object = _new_offers()
+		Game.vip = true
+		var v_old: String = str(o2.call("variant"))
+		var any_old: bool = bool(o2.call("has_any"))
+		Game.vip = false
+		Game.remove_ads = true
+		var v_ads: String = str(o2.call("variant"))
+		Game.remove_ads = false
+		var v_none: String = str(o2.call("variant"))
+		_check(v_old == "free" and any_old and v_ads == "free" and v_none == "starter",
+				"offers: an old save with only VIP (or Remove Ads) gets no offer")
+		var o3: Object = _new_offers()
+		o3.call("load_dict", {"starter_shown": true, "starter_amount": 1234.0})
+		_check(is_equal_approx(float(o3.call("starter_amount")), 1234.0), "offers: the frozen starter amount survives a save / load")
+		# Granted twice, paid once, and only after the tutorial.
+		var o4: Object = _new_offers()
+		rewards.clear()
+		_tut_done(false)
+		var g1: float = float(o4.call("grant_starter"))
+		var g2: float = float(o4.call("grant_starter"))
+		var p_tut: float = float(o4.call("pay_starter_pending"))
+		_tut_done(true)
+		var p1: float = float(o4.call("pay_starter_pending"))
+		var p2: float = float(o4.call("pay_starter_pending"))
+		var g3: float = float(o4.call("grant_starter"))
+		var starter_pays: Array = rewards.filter(func(x: Array) -> bool: return x[1] == "starter")
+		_check(g1 > 0.0 and g2 > 0.0 and p_tut == 0.0 and is_equal_approx(p1, amt) and p2 == 0.0 and g3 == 0.0
+				and starter_pays.size() == 1 and is_equal_approx(float(starter_pays[0][0]), amt),
+				"offers: grant_starter() twice -> paid once (%.0f), nothing during the tutorial, never again" % p1)
+		o4.call("reset")
+		_check(bool(o4.get("starter_granted")) and bool(o4.get("starter_owned")) and bool(o4.get("purchased_any"))
+				and not bool(o4.get("starter_pending")) and str(o4.call("variant")) == "free",
+				"offers: a fresh game (wipe) keeps the purchase flags")
+		var o5: Object = _new_offers()
+		o5.call("load_dict", o4.call("save_dict"))
+		_check(bool(o5.get("starter_granted")) and bool(o5.get("purchased_any")) and float(o5.call("grant_starter")) == 0.0,
+				"offers: purchase flags survive a save / load")
+		# The owed rewarded ad: paid once on the next launch.
+		var o6: Object = _new_offers()
+		_tut_restore()
+		o6.call("set_pending", "wall_ad", 42.0)
+		var pend: Dictionary = o6.call("pending")
+		var o7: Object = _new_offers()
+		o7.call("load_dict", o6.call("save_dict"))
+		rewards.clear()
+		var paid: float = float(o7.call("pay_pending"))
+		var paid2: float = float(o7.call("pay_pending"))
+		var owed: Array = rewards.filter(func(x: Array) -> bool: return x[1] == "ad_owed")
+		_check(str(pend.get("placement", "")) == "wall_ad" and is_equal_approx(paid, 42.0) and paid2 == 0.0 and owed.size() == 1
+				and (o7.call("pending") as Dictionary).is_empty(), "offers: an owed rewarded ad is paid once on the next launch")
+		o6.call("clear_pending")
+		_check((o6.call("pending") as Dictionary).is_empty() and (o6.call("save_dict") as Dictionary).is_empty(),
+				"offers: a finished ad leaves nothing owed (nothing to save)")
+	_tut_restore()
+	Game.sessions = sessions0
+	_reset_entitlements()
+
+	# ---- through Game (core and feel's game.gd)
+	var off: Object = _offers()
+	if off == null:
+		for w: String in ["offers via Game: offer_variant() free after any purchase", "offers via Game: _grant of an owned product sets purchased_any",
+				"offers via Game: a restore during the tutorial pays the starter pack only after it, once",
+				"offers via Game: the owed bonus toast", "C7.2: the bubble hides when its ad goes, held while the popup is open",
+				"C7.2: FREE records what the ad owes until it ends"]:
+			_skip(w, "no offers module in Game")
+	else:
+		var keep: Dictionary = off.call("save_dict")
+		off.call("load_dict", {})
+		Game.sessions = 2
+		_tut_done(true)
+		var gv1: String = str(Game.call("offer_variant"))
+		Game.vip = true
+		var gv2: String = str(Game.call("offer_variant"))
+		Game.vip = false
+		_tut_restore()
+		_check(gv1 == "starter" and gv2 == "free", "offers via Game: offer_variant() starter in session 2, free with VIP (%s, %s)" % [gv1, gv2])
+		Game.vip = true
+		Iap._grant("vip_x2", {})
+		_check(bool(off.get("purchased_any")) and bool(Game.call("has_any_purchase")), "offers via Game: _grant of an owned product sets purchased_any")
+		Game.vip = false
+		off.call("load_dict", {})
+		# A restore delivering the starter pack on a fresh save, mid-tutorial.
+		var st := StoreStub.new()
+		st.delay_s = 0.05
+		st.owned = PackedStringArray(["starter_pack"])
+		Iap._test_install_backend(st)
+		rewards.clear()
+		var rs: Dictionary = {"n": 0}
+		Iap.restore_purchases(func(ok: bool) -> void:
+			rs["n"] = 1
+			rs["ok"] = ok)
+		await _until(func() -> bool: return int(rs["n"]) > 0, 3.0)
+		await _wait(1.5)
+		var during: int = rewards.filter(func(x: Array) -> bool: return x[1] == "starter").size()
+		var pending_mid: bool = bool(off.get("starter_pending"))
+		Game.sessions = 2
+		_tut_done(true)
+		var v_rest: String = str(Game.call("offer_variant"))
+		await _until(func() -> bool: return rewards.any(func(x: Array) -> bool: return x[1] == "starter"), 4.0)
+		var toast: Label = Refs.hud.get("_toast_label") if Refs.hud != null else null
+		var toast_ok: bool = toast != null and toast.text == SdkNotice.starter_paid_text(float(off.call("starter_amount")))
+		rs = {"n": 0}
+		Iap.restore_purchases(func(ok: bool) -> void: rs["n"] = 1)
+		await _until(func() -> bool: return int(rs["n"]) > 0, 3.0)
+		await _wait(1.5)
+		var after: Array = rewards.filter(func(x: Array) -> bool: return x[1] == "starter")
+		_tut_restore()
+		Game.sessions = sessions0
+		_check(during == 0 and pending_mid and v_rest == "free" and after.size() == 1
+				and is_equal_approx(float(after[0][0]), float(off.call("starter_amount"))) and bool(off.get("starter_granted")),
+				"offers via Game: a restore during the tutorial pays the starter pack only after it, once (offer free after the restore)")
+		_check(toast_ok, "offers via Game: 'Starter Pack: +%s dhaba cash' toast" % Fmt.money(float(off.call("starter_amount"))))
+		# The owed bonus toast (UiRoot on Game.ad_pending_paid).
+		off.call("set_pending", "wall_ad", 33.0)
+		off.call("pay_pending")
+		await _frames(2)
+		_check(toast != null and toast.text == SdkNotice.owed_bonus_text(33.0) and toast.text.contains("dhaba cash")
+				and not toast.text.contains("₹"), "offers via Game: 'Bonus from your last video: +%s dhaba cash'" % Fmt.money(33.0))
+		off.call("load_dict", keep)
+		Iap._test_install_backend(StoreStub.new())
+		# C7.2: the wall-ad bubble hides when its ad goes, but not under the popup.
+		var bstub: AdStub = _install_ad_stub()
+		await _until(func() -> bool: return Ads.is_rewarded_ready("wall_ad"), 3.0)
+		Game.show_ad_bubble(100.0, 30.0, false)
+		await _frames(2)
+		var c0: int = int(Game.get("_ad_session_count"))
+		Game.call("set_ad_hold", true)
+		bstub.load_mode = "hang"
+		bstub.discard("rewarded")
+		await _wait(0.3)
+		var held_ok: bool = Game.ad_bubble_ready()
+		Game.call("set_ad_hold", false)
+		var gone: bool = await _until(func() -> bool: return not Game.ad_bubble_ready(), 1.0)
+		_check(held_ok and gone and int(Game.get("_ad_session_count")) == c0 - 1,
+				"C7.2: the bubble hides when its ad goes (slot given back), held while the popup is open")
+		Game.show_ad_bubble(100.0, 30.0, true)
+		await _wait(0.3)
+		_check(Game.ad_bubble_ready(), "C7.2: the tutorial's looping bubble stays without an ad")
+		Game.hide_ad_bubble()
+		# C7.2: FREE records what the ad owes until the ad ends.
+		_install_ad_stub()
+		await _until(func() -> bool: return Ads.is_rewarded_ready("wall_ad"), 3.0)
+		var vp: Variant = Refs.ui.get("vip_popup") if Refs.ui != null else null
+		if vp == null:
+			_skip("C7.2: FREE records what the ad owes until it ends", "no VipPopup")
+		else:
+			var gate0: Callable = vp.get("gate")
+			vp.set("gate", Callable())
+			var dir: Node = Refs.director
+			var in_tut: bool = dir != null and dir.has_method("in_chain") and bool(dir.call("in_chain"))
+			vp.call("open", 77.0, true)
+			vp.call("_on_free")
+			var rec: Dictionary = Game.call("ad_pending")
+			await _until(func() -> bool: return not bool(vp.call("is_busy")), 3.0)
+			var rec2: Dictionary = Game.call("ad_pending")
+			vp.call("close")
+			vp.set("gate", gate0)
+			if in_tut:
+				# W1-FIX-money: a relaunch replays the tutorial's ad beat (its
+				# checkpoint), so nothing is owed inside the chain.
+				_check(rec.is_empty() and rec2.is_empty(),
+						"C7.2: FREE inside the tutorial's chain records nothing (a relaunch replays the beat)")
+			else:
+				_check(str(rec.get("placement", "")) == "wall_ad" and is_equal_approx(float(rec.get("amount", 0.0)), 77.0) and rec2.is_empty(),
+						"C7.2: FREE records what the ad owes (wall_ad 77) until it ends")
+
+	# ---- Ads: "No internet" (C7.2)
+	var hang := AdStub.new()
+	hang.load_mode = "hang"
+	Ads._test_install_backend(hang, {"load_timeout_s": 30.0})
+	await _wait(0.3)
+	hang.load_finished.emit("rewarded", false, {"reason": "offline", "message": "fake: offline"})
+	_check(Ads.rewarded_offline() and Ads.last_load_failure("rewarded") == "offline"
+			and SdkNotice.ad_unavailable_text() == "No internet: bonus videos come back when you are online.",
+			"C7.2: a load that failed offline -> 'No internet: bonus videos come back when you are online.'")
+	_install_ad_stub()
+	await _until(func() -> bool: return Ads.is_rewarded_ready("wall_ad"), 3.0)
+	_check(not Ads.rewarded_offline() and Ads.last_load_failure("rewarded") == "", "C7.2: a fill clears the offline reason")
+
+	# ---- WELCOME BACK: COLLECT x2 only with a ready ad (C7.2)
+	var op: Variant = Refs.ui.get("offline_popup") if Refs.ui != null else null
+	if op == null:
+		_log("skip: no OfflinePopup in this run")
+	else:
+		var pend0: float = Game.pending_offline
+		var secs0: float = Game.offline_seconds
+		Game.pending_offline = 100.0
+		Game.offline_seconds = 3600.0
+		var hang2 := AdStub.new()
+		hang2.load_mode = "hang"
+		Ads._test_install_backend(hang2, {"load_timeout_s": 30.0})
+		await _wait(0.2)
+		op.call("open", 100.0, 3600.0)
+		var no_ad: bool = not (op.get("double_button") as Control).visible
+		var short_h: float = (op.get("_card") as Control).size.y
+		_install_ad_stub()
+		await _until(func() -> bool: return Ads.is_rewarded_ready("offline_double"), 3.0)
+		var shown: bool = await _until(func() -> bool: return (op.get("double_button") as Control).visible, 2.0)
+		var tall_h: float = (op.get("_card") as Control).size.y
+		op.call("close")
+		Game.pending_offline = pend0
+		Game.offline_seconds = secs0
+		_check(no_ad and shown and tall_h > short_h, "C7.2: WELCOME BACK offers COLLECT x2 only while its ad is ready (%.0f -> %.0f px)" % [short_h, tall_h])
+
+	# ---- the FREE BONUS / STARTER PACK / VIP popup (C7.4, C7.5)
+	_reset_entitlements()
+	var vp2: Variant = Refs.ui.get("vip_popup") if Refs.ui != null else null
+	if vp2 == null:
+		_log("skip: no VipPopup in this run")
+	else:
+		vp2.call("open", 100.0, true)
+		var t_free: String = (vp2.get("_title_label") as Label).text
+		var cap: String = (vp2.get("_caption") as Label).text
+		vp2.call("open", 100.0, "starter")
+		var t_st: String = (vp2.get("_title_label") as Label).text
+		var st_line: String = (vp2.get("_starter_label") as Label).text
+		var st_btn: String = (vp2.get("unlock_button") as UiButton).get_caption()
+		var st_pill: String = (vp2.get("_pill_label") as Label).text
+		var want_amt: float = float(Game.call("starter_amount")) if Game.has_method("starter_amount") else 1500.0
+		vp2.call("open", 100.0, "vip")
+		var t_vip: String = (vp2.get("_title_label") as Label).text
+		var vip_pill: String = (vp2.get("_pill_label") as Label).text
+		var vip_big: bool = (vp2.get("_big") as Label).visible and not (vp2.get("_starter_label") as Label).visible
+		vp2.call("close")
+		_check(t_free == "FREE BONUS" and cap == "Watch a short ad for a +%s bonus." % Fmt.money(100.0) and not cap.contains("₹"),
+				"popup: FREE BONUS, 'Watch a short ad for a +%s bonus.' (C7.5)" % Fmt.money(100.0))
+		_check(t_st == "STARTER PACK" and st_line == "+%s dhaba cash, one time" % Fmt.money(want_amt) and st_btn == "BUY · ₹49"
+				and st_pill == "ONE-TIME OFFER", "popup: STARTER PACK '+%s dhaba cash, one time', BUY · ₹49 (C7.4) %s"
+				% [Fmt.money(want_amt), [t_st, st_line, st_btn, st_pill]])
+		_check(t_vip == "VIP OFFER" and vip_pill == "ONE-TIME · FOREVER" and vip_big, "popup: VIP OFFER with ONE-TIME · FOREVER (C7.4)")
+
+	# ---- launch pop-up budget and the consent card's game gate (C4.4)
+	var u: Variant = Refs.ui
+	if u == null or not (u as Object).has_method("can_interrupt"):
+		_log("skip: no UiRoot in this run (launch pop-up budget)")
+	else:
+		var why_c: String = str(u.call("interrupt_block_reason", "consent"))
+		_check(not bool(u.call("can_interrupt", "consent")) and why_c in ["level", "tutorial"] and not Analytics._ui_allows(),
+				"budget: the consent card waits for the game in the tutorial's intro (%s)" % why_c)
+		_check(str(u.call("interrupt_block_reason", "offline")) == "tutorial" and not bool(u.call("can_interrupt", "eco_note")),
+				"budget: WELCOME BACK and the eco note wait for the end of the tutorial")
+		var used0: int = int(u.call("_popup_budget_used"))
+		u.call("note_interrupt", "offline")
+		var used1: int = int(u.call("_popup_budget_used"))
+		_tut_done(true)
+		var why_o: String = str(u.call("interrupt_block_reason", "offline"))
+		_tut_restore()
+		_check(used1 == used0 + 1 and why_o == "budget", "budget: one launch pop-up used -> the next one is refused by the budget")
+	Game.reward_added.disconnect(on_rw)
+	_tut_restore()
+	Game.sessions = sessions0
+	_reset_entitlements()
 	_install_ad_stub()
 	Iap._test_install_backend(StoreStub.new())
 
@@ -1422,6 +1898,20 @@ func _check(cond: bool, what: String) -> void:
 	else:
 		_fail += 1
 		print("[sdk-test] FAIL ", what)
+
+
+## A check that needs code another package adds (counted apart).
+func _skip(what: String, why: String) -> void:
+	_skips += 1
+	print("[sdk-test] SKIP %s (%s)" % [what, why])
+
+
+## Interstitial checks run with interstitials switched on and the "upgrade"
+## call site live (the committed config has both off, C7.1).
+func _inter_on(extra: Dictionary = {}) -> Dictionary:
+	var d: Dictionary = {"interstitials_enabled": true, "interstitial_triggers": PackedStringArray(["upgrade"])}
+	d.merge(extra, true)
+	return d
 
 
 func _log(s: String) -> void:

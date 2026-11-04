@@ -238,7 +238,7 @@
       "id": "w2_fri_waiter_pov",
       "slot": "Week 2 · Fri 20 Nov 2026 · 7 pm IST",
       "lang": "hi",
-      "format": "POV: you're the waiter",
+      "format": "Every order in one trip (a waiter's tray run)",
       "music": false,
       "cover": {
         "segment": 0,
@@ -249,17 +249,17 @@
           "state": "POV1",
           "args": "--show-cash=9800 --clip=waiter --arrivals=19 --warm=30 --warm-speed=2 --zoom=0.6 --start=loaded --span=15.0",
           "text": {
-            "hook": "POV: आप हाईवे ढाबे के\n[h]वेटर[/h] हैं",
+            "hook": "हर ऑर्डर\n[h]एक ही बार में[/h]",
             "hook_end": 2.8,
             "caption": "[h]ढाबा रश[/h]\nफ़्री टेस्ट में खेलें",
             "cap_from": 12.6,
-            "hook_en": "POV: you are the highway\ndhaba's waiter",
+            "hook_en": "Every order\nin one trip",
             "caption_en": "Dhaba Rush\nPlay in the free test"
           }
         }
       ],
       "upload": {
-        "title": "POV: आप हाईवे ढाबे के वेटर हैं 🍽️",
+        "title": "हर ऑर्डर एक ही बार में 🍽️",
         "description": "हर मुसाफ़िर का पूरा ऑर्डर एक ही चक्कर में: चाय, रोटी, लस्सी, सब एक ट्रे में।\n\nढाबा रश: भारत के लिए बना आइडल टाइकून गेम, हिंदी और इंग्लिश में। Google Play पर फ़्री टेस्ट अभी चल रहा है: लिंक हमारे चैनल पेज पर है।",
         "hashtags": [
           "#DhabaRush",
@@ -267,7 +267,7 @@
           "#IdleGame"
         ],
         "pinned_comment": "लॉन्च से पहले खेलना है? Android का फ़्री टेस्ट खुला है: हमारे चैनल के नाम पर टैप करें, फिर चैनल पेज पर सबसे ऊपर वाला लिंक।",
-        "title_en": "POV: you are a highway dhaba's waiter",
+        "title_en": "Every order in one trip",
         "description_en": "Every traveller's whole order in one trip: chai, roti, lassi, all on one tray.\n\nDhaba Rush: an idle tycoon game made for India, in Hindi and English. The free test on Google Play is on now: the link is on our channel page.",
         "pinned_comment_en": "Want to play before launch? The free Android test is open: tap our channel name, then the link at the top of the channel page."
       }

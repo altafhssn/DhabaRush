@@ -6,6 +6,8 @@ App: **Dhaba Rush: Indian Idle Tycoon**, package `com.littletagartstudios.dhabar
 
 Before filling anything: host the privacy policy (docs/legal/README.md, step 1). Several forms ask for its URL.
 
+**Updated 2 Nov 2026 for the core-and-feel build** ([../core-and-feel/change-list.md](../core-and-feel/change-list.md)): interstitials are switched off (section 3), a one-time Starter Pack with fixed contents joins the products (section 4), travellers no longer give up and leave, and the AdMob blocking list is longer (section 13). No new data is collected or shared, so the Data safety answers do not change.
+
 Checks behind these answers: [checks.md](checks.md). Finding F1 is fixed from build 0.3.8 (analytics asks first: the consent card and Settings > ANALYTICS), which makes two Data safety rows Optional (section 10.3). F2 is kept and disclosed (owner decision, 27 Oct 2026).
 
 ## 1. Privacy policy
@@ -26,7 +28,7 @@ Google's rules for this URL: public, active, not geo-blocked, not a PDF, and it 
 
 | Question | Answer | Reason |
 |---|---|---|
-| Does your app contain ads? | **Yes, my app contains ads** | Google AdMob rewarded videos and interstitials (`scripts/autoload/ads.gd`). The store listing then shows "Contains ads". |
+| Does your app contain ads? | **Yes, my app contains ads** | Google AdMob rewarded videos, each one the player's choice (`scripts/autoload/ads.gd`). Interstitials (full-screen ads between moments of play) are switched off in the soft-launch build (`interstitials_enabled=false` in `config/monetization.cfg`, false by default in the code); the answer is Yes either way. The store listing then shows "Contains ads". |
 
 ## 4. Content rating (IARC questionnaire)
 
@@ -39,16 +41,16 @@ Answer **No** to every content question except "digital purchases". The question
 
 | Topic | Answer | Reason |
 |---|---|---|
-| Violence (realistic or fantasy, blood, gore, harming characters, weapons) | **No** | Cooking and serving food at a roadside restaurant. Customers who wait too long simply leave. No combat, no weapons, no injury. |
+| Violence (realistic or fantasy, blood, gore, harming characters, weapons) | **No** | Cooking and serving food at a roadside restaurant. Travellers who find every seat taken wait at the gate. No combat, no weapons, no injury. |
 | Fear / horror (scary scenes, frightening sounds) | **No** | Warm, cozy tone; a day-night cycle with fairy lights. |
 | Sexuality, nudity, sexual references or innuendo | **No** | None in art or text (checked: `i18n/hi.po`, `data/economy_v3.json`, tutorial scripts). |
 | Language: profanity, crude humour, insults, discriminatory language | **No** | Scanned every English/Hindi string pair in `i18n/hi.po` (348 msgids on 26 Oct) plus `data/economy_v3.json` for profanity and slurs: none. Mild jokes only ("smoky flavour" for a charred roti). |
 | Controlled substances: alcohol, tobacco, drugs (use or references) | **No** | Menu is chai, roti, naan, dal, lassi, kadai dishes. No alcohol, tobacco, paan or drugs anywhere. |
 | Gambling: real-money gambling, simulated gambling (casino, slots, cards, betting) | **No** | No betting, no casino or card games, no wagers. |
-| Purchase of random items (loot boxes, gacha) with real money or in-game currency bought with real money | **No** | The chest ("peti") gives a fixed reward (cash + Sikke) after 10 completed tasks, never random, and cannot be bought (`Game.open_chest`). The in-app products are fixed items. |
+| Purchase of random items (loot boxes, gacha) with real money or in-game currency bought with real money | **No** | The chest ("peti") gives a fixed reward (cash + Sikke) after 10 completed tasks, never random, and cannot be bought (`Game.open_chest`). The in-app products are fixed items: VIP (×2 on every sale), No Ads, and the Starter Pack, whose contents (15,000 dhaba cash) are shown before purchase and are the same for everyone (`scripts/v3/core/offers.gd`). |
 | Users can interact or exchange content (chat, voice, sharing photos) | **No** | No chat, no multiplayer, no user-generated content, no social features. |
 | Shares the user's current physical location with other users | **No** | The game has no location access. |
-| Allows users to purchase digital goods | **Yes** | VIP x2 and No Ads (one-time), through Google Play Billing. Adds the "In-App Purchases" notice. |
+| Allows users to purchase digital goods | **Yes** | VIP x2, No Ads and the Starter Pack (all one-time), through Google Play Billing. Adds the "In-App Purchases" notice. |
 | Unrestricted internet access (web browser, search) | **No** | The only outbound link is the privacy policy, opened in the phone's browser from Settings. |
 | Promotes or is primarily about real-money gaming, contests, lotteries | **No** | Entertainment only; virtual items have no cash value (Terms section 4). |
 
@@ -95,7 +97,7 @@ Note on India's DPDP Act: it treats everyone under **18** as a child. Its child-
 |---|---|---|---|
 | Google AdMob: Google Mobile Ads Next-Gen SDK 1.4.0 + UMP, via Poing godot-admob-plugin 5.1.0 | Advertising ID, app set ID; IP address (Google may estimate approximate location from it); user product interactions (app launches, taps, ad views, video views); diagnostics (app launch time, hang rate, energy use); device and app info | **Collected and shared** (Google uses it as a third party for advertising) | Google's [GMA Next-Gen SDK Data safety guidance](https://developers.google.com/admob/android/next-gen/privacy/play-data-disclosure); `scripts/v3/monetization/ad_backend_admob.gd` |
 | UMP consent check (part of the above) | IP address and app info, on every launch | Collected and shared (Google) | `ad_backend_admob.gd` `_request_consent_update()` |
-| GameAnalytics: GA-SDK-GODOT 3.1.2 with GameAnalytics Android SDK 7.1.0. **Only after the player taps ALLOW** on the first-launch card or turns Settings > ANALYTICS on (from 0.3.8; checks.md F1) | Random Player ID (made on the phone, shown in Settings, used as the GameAnalytics user ID); advertising ID and app set ID when available (checks.md F2); IP address (country lookup); device model, manufacturer, OS, locale, connection type, app build; session start / end / length / count; gameplay design, resource and progression events; ad events; business events (product id, price in paise, currency); automatic error events | **Collected, not shared**: GameAnalytics is our data processor (its [developer policy](https://www.gameanalytics.com/trust/privacy-faq) and [DPA](https://www.gameanalytics.com/trust/eu-data-processing-addendum)) | `scripts/autoload/analytics.gd`, `scripts/v3/monetization/analytics_backend_ga.gd`, `analytics_map.gd`; GA DPA data list |
+| GameAnalytics: GA-SDK-GODOT 3.1.2 with GameAnalytics Android SDK 7.1.0. **Only after the player taps ALLOW** on the analytics card ("Help us improve", a few minutes into the first game, C4.4) or turns Settings > ANALYTICS on (from 0.3.8; checks.md F1) | Random Player ID (made on the phone, shown in Settings, used as the GameAnalytics user ID); advertising ID and app set ID when available (checks.md F2); IP address (country lookup); device model, manufacturer, OS, locale, connection type, app build; session start / end / length / count; gameplay design, resource and progression events; ad events; business events (product id, price in paise, currency); automatic error events | **Collected, not shared**: GameAnalytics is our data processor (its [developer policy](https://www.gameanalytics.com/trust/privacy-faq) and [DPA](https://www.gameanalytics.com/trust/eu-data-processing-addendum)) | `scripts/autoload/analytics.gd`, `scripts/v3/monetization/analytics_backend_ga.gd`, `analytics_map.gd`; GA DPA data list |
 | Google Play Billing: GodotGooglePlayBilling 3.3.0 (Play Billing Library 9.1.0) | Payment details go from the user straight to Google Play; the app never sees them | **Not declared** (Google: data a payment service collects directly is not the app's to declare) | Play Console Data safety help; `scripts/v3/monetization/store_backend_play.gd` |
 | The game's own code (Godot) | Nothing. No HTTP calls of its own (searched for HTTPRequest, HTTPClient, sockets). Saves stay on the phone (`user://save3.json`, `settings.json`, `iap_ledger.json`); `android:allowBackup="false"` | Not collected | `scripts/autoload/game.gd`, `iap.gd`, `android/build/src/main/AndroidManifest.xml` |
 
@@ -130,7 +132,7 @@ Reasons, row by row:
 - **Diagnostics**: AdMob (launch time, hang rate, energy use) and GameAnalytics (device model, OS, connection type, session length).
 - **Device or other IDs**: AdMob (advertising ID, app set ID), GameAnalytics (random user ID, plus the advertising ID and app set ID when available).
 - **Required** (the four rows AdMob also uses): no in-game switch turns AdMob's collection off. The EEA consent form only changes whether Google personalises ads; Google still collects data to serve non-personalised ads.
-- **Optional** (Purchase history, Crash logs): only GameAnalytics collects these, and only after the player allows analytics. NO THANKS on the first-launch card, or Settings > ANALYTICS off, stops it (checks.md F1 and C5).
+- **Optional** (Purchase history, Crash logs): only GameAnalytics collects these, and only after the player allows analytics. NO THANKS on the analytics card, or Settings > ANALYTICS off, stops it (checks.md F1 and C5).
 - **Not "User IDs" under Personal info**: Google defines User IDs as identifiers of an identifiable person (account ID, account name). The game has no accounts; its IDs belong under Device or other IDs.
 
 Leave unticked (not collected): Personal info (name, email, user IDs, address, phone, race or ethnicity, political or religious beliefs, sexual orientation, other), Financial info (user payment info, credit score, other financial info), Health and fitness, Messages, Photos and videos, Audio, Files and docs, Calendar, Contacts, App activity (in-app search history, installed apps, other user-generated content, other actions), Web browsing history, precise location, Other app performance data.
@@ -162,6 +164,6 @@ Leave unticked (not collected): Personal info (name, email, user IDs, address, p
 ## 13. Related settings outside App content
 
 - **AdMob > Privacy & messaging:** publish a "European regulations" (GDPR) message, which is what makes the consent form appear in the EEA / UK / CH. Nothing is needed for India today; Google has no DPDP message type.
-- **AdMob > Blocking controls > Sensitive categories:** block gambling and betting (also illegal to advertise in India for real-money games), dating, alcohol, and any other category you do not want next to a 13+ game.
+- **AdMob > Blocking controls > Sensitive categories (C7.3):** block **Gambling & betting** (it covers rummy, poker and fantasy-sports apps; real-money game ads next to a game that pays "dhaba cash" read as a real-money promise), **Dating**, **Alcohol** and **Get rich quick**, and any other category you do not want next to a 13+ game. Match the names AdMob shows today. After launch, check **Blocking controls > Ad review center** weekly during the soft launch and block any rummy, card-game or betting ad that got through. Steps: [../launch/sdk.md](../launch/sdk.md) §11 item 8.
 - **AdMob > App settings:** the same privacy policy URL; link the app to the Play listing once it is published.
 - **app-ads.txt** at `https://littletagartstudios.com/app-ads.txt` (the domain must match the website on the Play listing). AdMob shows the exact line to put in it.

@@ -1,0 +1,88 @@
+--- /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/design_work/gb/orig/sim.gd	2026-11-03 18:25:54
++++ /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/gb_m/proj/scripts/v3/world/sim.gd	2026-11-03 18:45:59
+@@ -868,11 +868,61 @@
+ 
+ 
+ # ================================================================ core and feel API (W1-WORLDA, plan 2.3)
++# ---- GB design prototype (QA slot only): --gb-k=F free-play ramp k (P1),
++# ---- --gb-p0=N bill-line places per cashier before the bill line takes room
++# ---- (P0), --gb-cueall every drive-past is cued (P10). No flag = today.
++static var _gb_parsed: bool = false
++static var _gb_k: float = -1.0
++static var _gb_p0: int = -1
++static var _gb_cueall: bool = false
++static var _gb_p0hard: int = -1
++
++
++static func _gb_flags() -> void:
++	if _gb_parsed:
++		return
++	_gb_parsed = true
++	for a: String in OS.get_cmdline_user_args():
++		if a.begins_with("--gb-k="):
++			_gb_k = float(a.substr(7))
++		elif a.begins_with("--gb-p0="):
++			_gb_p0 = int(a.substr(8))
++		elif a == "--gb-cueall":
++			_gb_cueall = true
++		elif a.begins_with("--gb-p0hard="):
++			_gb_p0hard = int(a.substr(12))
++	print("[gb] sim flags k %.2f p0 %d cueall %s" % [_gb_k, _gb_p0, str(_gb_cueall)])
++
++
++## GB P0: bill-line travellers beyond _gb_p0 per cashier take room places.
++func _gb_bill_excess() -> int:
++	_gb_flags()
++	if _gb_p0 < 0:
++		return 0
++	var line: int = 0
++	var n: int = 0
++	for g in gallas:
++		if is_instance_valid(g):
++			n += 1
++			line += int(g.queue_length())
++	return maxi(0, line - _gb_p0 * maxi(1, n))
++
++
+ ## C2.1: travellers the dhaba can still take in now: free seats + seats
+ ## about to free up (_seats_freeing) + the door line's places
+ ## (DOOR_LINE_PLACES) - the door line - arrivals_incoming().
+ func arrival_room() -> int:
+-	return seats_free() + _seats_freeing() + DOOR_LINE_PLACES - door_queue.size() - arrivals_incoming()
++	var gb_room: int = seats_free() + _seats_freeing() + DOOR_LINE_PLACES - door_queue.size() - arrivals_incoming() - _gb_bill_excess()
++	if _gb_p0hard > 0:
++		var gl: int = 0
++		var gn: int = 0
++		for g in gallas:
++			if is_instance_valid(g):
++				gn += 1
++				gl += int(g.queue_length())
++		if gl >= _gb_p0hard * maxi(1, gn):
++			gb_room = mini(gb_room, 0)
++	return gb_room
+ 
+ 
+ ## C2.1: seated travellers who stand up within seconds: eating, or every
+@@ -1140,7 +1190,8 @@
+ ## pairs it with its "[hud] road:" caption) or "[sim] drive-past cue dropped".
+ func _on_pass_at_gate(kind: String, riders: int) -> void:
+ 	var door: int = door_queue.size()
+-	if seats_free() > 0 and door == 0:
++	_gb_flags()
++	if seats_free() > 0 and door == 0 and not _gb_cueall:
+ 		if OS.is_debug_build():
+ 			print("[sim] drive-past cue dropped: %s %d (seats %d/%d, door 0)" % [kind, riders, seats_in_use(), seats_total()])
+ 		return
+@@ -1592,7 +1643,11 @@
+ 	# C5.3: the highway signboard raises the cap (free play; W1-CORE, by name)
+ 	var hi: float = maxf(lo, _bus_value("ramp_max_tpm", Game.travellers_per_min()) + _signboard_bonus())
+ 	# The floor keeps the dhaba busy; only a backlog takes arrivals below it.
+-	var target: float = clampf(_bus_value("ramp_capacity_k", RAMP_K) * m, lo, hi) * _damp
++	var kk: float = _bus_value("ramp_capacity_k", RAMP_K)
++	_gb_flags()
++	if _gb_k > 0.0 and Game.is_tutorial_done():
++		kk = _gb_k
++	var target: float = clampf(kk * m, lo, hi) * _damp
+ 	if debug_arrivals_tpm > 0.0:
+ 		target = debug_arrivals_tpm
+ 	elif _ref_pacing():

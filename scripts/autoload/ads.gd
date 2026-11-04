@@ -8,8 +8,23 @@ extends Node
 ##   signal rewarded_finished(placement, rewarded)
 ## plus, for Settings: privacy_options_required(), show_privacy_options(cb),
 ## privacy_policy_url(); and, for the UI's messages (scripts/v3/ui/
-## sdk_notice.gd): rewarded_block_reason() (why no rewarded ad is ready) and
-## last_rewarded_outcome() (why the last one paid nothing).
+## sdk_notice.gd): rewarded_block_reason() (why no rewarded ad is ready),
+## rewarded_offline() (the last rewarded load failed for want of a network)
+## and last_rewarded_outcome() (why the last one paid nothing).
+##
+## Core and feel C7.1 (soft launch): interstitials are off
+## (config [ads] interstitials_enabled=false, and false is also the code
+## default, so a broken config never turns them on). The guardrails ship for
+## a later decision: never within interstitial_after_purchase_s (60 s) of a
+## purchase (Game.cash_spent, Iap.purchase_finished ok), never within
+## interstitial_after_reward_s (60 s) of a reward (Game.reward_added), never
+## within interstitial_after_return_s (60 s) of a launch or a return, never on
+## the return screen (NEVER_TRIGGERS, hard-coded: config cannot switch it
+## on), at most one every interstitial_min_interval_s (180 s), never before
+## session 4, never for Remove Ads. The "upgrade" call site stays wired in
+## UiRoot but the config's trigger list is empty.
+## C7.2: debug builds started with --ads=nofill get a fake backend that
+## never fills (prints "[ads] stub fill: none"), to test the no-ad paths.
 ##
 ## Backends (scripts/v3/monetization/): AdMob + UMP consent on a phone that
 ## has the plugin (ad_backend_admob.gd); fake ads on desktop / editor runs and
@@ -48,11 +63,26 @@ const TEST_UNITS := {
 }
 ## Grace period after a rewarded "closed" for a late reward event.
 const REWARD_GRACE_S := 0.5
+## C7.1: call sites that may never show an interstitial, whatever the config
+## says ("welcome_back" = the WELCOME BACK popup closed: the return screen).
+const NEVER_TRIGGERS := ["welcome_back"]
+## C7.1 defaults when a config key is missing.
+const AFTER_PURCHASE_S := 60.0
+const AFTER_REWARD_S := 60.0
+const AFTER_RETURN_S := 60.0
+const MIN_INTERVAL_S := 180.0
 
 var _busy: bool = false
 var _last_interstitial: float = -9999.0
 var _last_rewarded_end: float = -9999.0
 var _last_outcome: String = ""
+## C7.1 guardrail stamps (_now() seconds): the last purchase, reward and
+## launch / return.
+var _last_purchase: float = -9999.0
+var _last_reward: float = -9999.0
+var _last_return: float = -9999.0
+## C7.2: kind -> reason of the last failed load ("" after a fill).
+var _load_fail: Dictionary = {}
 
 var _cfg: Dictionary = {}
 var _backend: BaseBackend
@@ -76,6 +106,7 @@ var _audio_muted_by_us: bool = false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_last_now = _now()
+	_last_return = _last_now
 	for kind: String in KINDS:
 		_slots[kind] = _new_slot()
 	_cfg = Config.section("ads")
@@ -88,6 +119,15 @@ func _late_setup() -> void:
 	var game: Node = _game()
 	if game != null and game.has_signal("remove_ads_changed"):
 		game.connect("remove_ads_changed", _on_remove_ads_changed)
+	# C7.1 guardrail stamps (Game's cash_spent comes with core and feel's
+	# game.gd: connected by name).
+	if game != null and game.has_signal("cash_spent") and not game.is_connected("cash_spent", _on_cash_spent):
+		game.connect("cash_spent", _on_cash_spent)
+	if game != null and game.has_signal("reward_added") and not game.is_connected("reward_added", _on_reward_added):
+		game.connect("reward_added", _on_reward_added)
+	var iap: Node = get_node_or_null("/root/Iap")
+	if iap != null and iap.has_signal("purchase_finished") and not iap.is_connected("purchase_finished", _on_purchase_finished):
+		iap.connect("purchase_finished", _on_purchase_finished)
 
 
 func _new_slot() -> Dictionary:
@@ -118,13 +158,15 @@ func show_rewarded(placement: String, on_done: Callable) -> void:
 	_backend.show_ad(REWARDED, placement)
 
 
-## Interstitial rules from the plan: none before session 4, >= 60 s apart,
-## never during a rewarded flow, never for remove-ads buyers, only for the
-## triggers listed in interstitial_triggers (all in config/monetization.cfg).
+## Interstitial rules (config/monetization.cfg [ads]; C7.1): off unless
+## interstitials_enabled, never for NEVER_TRIGGERS, only for the triggers
+## listed in interstitial_triggers, never for Remove Ads buyers, never during
+## another ad, none before session 4, >= 180 s apart, never within 60 s of a
+## rewarded video, a purchase, a reward or a launch / return.
 ## Returns true when an ad is being shown.
-## Game call sites (UiRoot): "upgrade" (a sheet / panel closed back to the
-## game after a purchase in it, GDD §6), "welcome_back" (the WELCOME BACK
-## popup closed).
+## Game call site (UiRoot): "upgrade" (a sheet / panel closed back to the
+## game after a purchase in it, GDD §6); the config list is empty for the
+## soft launch, and a purchase blocks it for 60 s anyway.
 func maybe_show_interstitial(trigger: String) -> bool:
 	var why: String = interstitial_block_reason(trigger)
 	if why != "":
@@ -139,9 +181,14 @@ func maybe_show_interstitial(trigger: String) -> bool:
 
 ## "" when an interstitial could show now (for `trigger`, when given), else
 ## why not.
+## Reasons, in order: "disabled", "return_screen", "trigger_off",
+## "remove_ads", "busy", "session", "interval", "after_rewarded",
+## "after_purchase", "after_reward", "after_return", "not_loaded".
 func interstitial_block_reason(trigger: String = "") -> String:
-	if _backend == null or not bool(_cfg.get("interstitials_enabled", true)):
+	if _backend == null or not bool(_cfg.get("interstitials_enabled", false)):
 		return "disabled"
+	if trigger != "" and NEVER_TRIGGERS.has(trigger):
+		return "return_screen"
 	if trigger != "" and not interstitial_trigger_on(trigger):
 		return "trigger_off"
 	if _game_remove_ads():
@@ -151,18 +198,26 @@ func interstitial_block_reason(trigger: String = "") -> String:
 	if _game_sessions() < int(_cfg.get("interstitial_min_session", 4)):
 		return "session"
 	var now: float = _now()
-	if now - _last_interstitial < float(_cfg.get("interstitial_min_interval_s", 60.0)):
+	if now - _last_interstitial < float(_cfg.get("interstitial_min_interval_s", MIN_INTERVAL_S)):
 		return "interval"
 	if now - _last_rewarded_end < float(_cfg.get("interstitial_after_rewarded_s", 60.0)):
 		return "after_rewarded"
+	if now - _last_purchase < float(_cfg.get("interstitial_after_purchase_s", AFTER_PURCHASE_S)):
+		return "after_purchase"
+	if now - _last_reward < float(_cfg.get("interstitial_after_reward_s", AFTER_REWARD_S)):
+		return "after_reward"
+	if now - _last_return < float(_cfg.get("interstitial_after_return_s", AFTER_RETURN_S)):
+		return "after_return"
 	if _slots[INTERSTITIAL]["state"] != "ready" or not _backend.is_loaded(INTERSTITIAL):
 		return "not_loaded"
 	return ""
 
 
 ## config [ads] interstitial_triggers lists the call sites that may show one
-## (missing key = every trigger).
+## (missing key = every trigger); NEVER_TRIGGERS are never on.
 func interstitial_trigger_on(trigger: String) -> bool:
+	if NEVER_TRIGGERS.has(trigger):
+		return false
 	if not _cfg.has("interstitial_triggers"):
 		return true
 	var v: Variant = _cfg.get("interstitial_triggers")
@@ -189,6 +244,18 @@ func rewarded_block_reason() -> String:
 	if not can_request_ads() and _backend.consent_missing():
 		return "consent"
 	return "loading"
+
+
+## C7.2: the last rewarded load failed because the phone is offline (AdMob
+## reason "offline") and no rewarded ad is ready: the UI says "No internet".
+func rewarded_offline() -> bool:
+	return not is_rewarded_ready("") and str(_load_fail.get(REWARDED, "")) == "offline"
+
+
+## Why the last load of `kind` ("rewarded" / "interstitial") failed; "" after
+## a fill.
+func last_load_failure(kind: String = REWARDED) -> String:
+	return str(_load_fail.get(kind, ""))
 
 
 ## How the last show_rewarded() ended: "rewarded", "skipped" (closed before
@@ -254,6 +321,11 @@ func _make_backend() -> BaseBackend:
 	if not bool(_cfg.get("enabled", true)):
 		print("[ads] disabled in config")
 		return BaseBackend.new()
+	if debug and _nofill_flag():
+		var nf: StubBackend = StubBackend.new()
+		nf.fail_loads = 1 << 30
+		print("[ads] stub fill: none")
+		return nf
 	if debug and bool(_cfg.get("use_stub_ads", false)):
 		print("[ads] fake ads (use_stub_ads)")
 		return StubBackend.new()
@@ -327,7 +399,7 @@ func _wants(kind: String) -> bool:
 	if _units.get(kind, "") == "":
 		return false
 	if kind == INTERSTITIAL:
-		return bool(_cfg.get("interstitials_enabled", true)) and not _game_remove_ads() \
+		return bool(_cfg.get("interstitials_enabled", false)) and not _game_remove_ads() \
 				and _game_sessions() >= int(_cfg.get("interstitial_min_session", 4))
 	return true
 
@@ -385,6 +457,7 @@ func _on_load_finished(kind: String, ok: bool, info: Dictionary) -> void:
 		s["state"] = "ready"
 		s["attempt"] = 0
 		s["loaded_at"] = now
+		_load_fail[kind] = ""
 		print("[ads] %s loaded" % kind)
 		if kind == REWARDED:
 			rewarded_ready_changed.emit(true)
@@ -398,11 +471,15 @@ func _on_load_finished(kind: String, ok: bool, info: Dictionary) -> void:
 	var delay: float = minf(base * pow(2.0, float(int(s["attempt"]) - 1)), cap) * randf_range(0.85, 1.15)
 	s["retry_at"] = now + delay
 	var reason: String = str(info.get("reason", "unknown"))
+	_load_fail[kind] = reason
 	print("[ads] %s failed to load (%s: %s), retry in %.0f s" % [kind, reason, str(info.get("message", "")), delay])
 	Analytics.event("ad_load_failed", {"type": kind, "reason": reason, "attempt": int(s["attempt"])})
 
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_RESUMED:
+		# C7.1: a return opens a quiet window (no interstitial on the way back).
+		_last_return = _now()
 	if what == NOTIFICATION_APPLICATION_RESUMED and _backend != null:
 		_backend.on_app_resumed()
 		# Connectivity may be back: retry failed loads now instead of waiting.
@@ -528,6 +605,20 @@ func _report_rewarded(placement: String, rewarded: bool, cb: Callable) -> void:
 		cb.call(rewarded)
 
 
+## C7.1 guardrail stamps.
+func _on_cash_spent(_amount: float, _what: String = "") -> void:
+	_last_purchase = _now()
+
+
+func _on_purchase_finished(product_id: String, ok: bool) -> void:
+	if ok and product_id != "restore":
+		_last_purchase = _now()
+
+
+func _on_reward_added(_amount: float, _source: String = "") -> void:
+	_last_reward = _now()
+
+
 func _on_remove_ads_changed(on: bool) -> void:
 	if on and _backend != null and _show_kind != INTERSTITIAL:
 		_backend.discard(INTERSTITIAL)
@@ -553,6 +644,11 @@ func _game_sessions() -> int:
 	return int(g.get("sessions")) if g != null else 0
 
 
+## Debug: --ads=nofill (C7.2 QA: the fake backend never fills).
+func _nofill_flag() -> bool:
+	return OS.is_debug_build() and OS.get_cmdline_user_args().has("--ads=nofill")
+
+
 # ================================================================ sdk test hooks
 ## --sdk-test only: replace the backend (the old one is freed) and reset state.
 func _test_install_backend(b: BaseBackend, cfg_overrides: Dictionary = {}) -> void:
@@ -564,10 +660,15 @@ func _test_install_backend(b: BaseBackend, cfg_overrides: Dictionary = {}) -> vo
 		_busy = false
 	for kind: String in KINDS:
 		_slots[kind] = _new_slot()
+	_load_fail = {}
 	_test_reset_caps()
 	_install_backend(b)
 
 
+## --sdk-test only: forget every interstitial cap stamp.
 func _test_reset_caps() -> void:
 	_last_interstitial = -9999.0
 	_last_rewarded_end = -9999.0
+	_last_purchase = -9999.0
+	_last_reward = -9999.0
+	_last_return = -9999.0

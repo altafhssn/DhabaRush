@@ -1,0 +1,27 @@
+--- /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/ga_base/proj/scripts/v3/world/traveller.gd	2026-11-01 17:27:36
++++ /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/ga_pkg/proj/scripts/v3/world/traveller.gd	2026-11-03 18:47:43
+@@ -155,6 +155,8 @@
+ var _act_from: Vector3 = Vector3.ZERO
+ var _act_to: Vector3 = Vector3.ZERO
+ var _eat_left: float = 0.0
++## GA-1 prototype: done eating, waiting at the seat for room in the bill line.
++var ga_wait_pay: bool = false
+ var _bubble: Sprite3D = null
+ ## Order key the bubble shows (bubble_texture), "" = none / hiding.
+ var _bubble_key: String = ""
+@@ -782,8 +784,13 @@
+ 		ACT.EAT:
+ 			_eat_left -= delta
+ 			if _eat_left <= 0.0:
+-				_act = ACT.NONE
+-				_stand_up()
++				if _sim != null and _sim.ga_bill_full():
++					ga_wait_pay = true
++					_eat_left = 0.25
++				else:
++					ga_wait_pay = false
++					_act = ACT.NONE
++					_stand_up()
+ 		ACT.SAD:
+ 			if _act_t >= SAD_TIME:
+ 				_act = ACT.NONE

@@ -1,0 +1,78 @@
+=== NEW
+measure                            | today (n=4)            | GA pkg (n=4)           | GA no rush (n=4)       | GB rule (n=4)         
+every seat taken, % of samples     | 3 [0-6]                | 47 [45-49]             | 36 [28-52]             | 14 [11-17]            
+gate line > 0, % of samples        | 2 [0-4]                | 32 [27-38]             | 23 [17-37]             | 8 [6-10]              
+gate line max                      | 2 [0-4]                | 4 [4-5]                | 5 [4-5]                | 4 [3-6]               
+bill line max                      | 2 [1-2]                | 2 [2-2]                | 2 [2-2]                | 2 [2-3]               
+kitchen queue max                  | 13 [11-14]             | 14 [14-14]             | 14 [14-14]             | 14 [13-14]            
+takings, Rs a minute               | 487 [482-493]          | 524 [522-527]          | 526 [525-527]          | 521 [517-530]         
+food wait, s                       | 19.3 [17.3-21.0]       | 33.2 [32.5-34.2]       | 31.4 [29.7-34.6]       | 25.4 [24.1-25.9]      
+arrivals a minute                  | 13.3 [12.9-13.8]       | 14.4 [14.2-14.8]       | 14.4 [14.3-14.6]       | 14.0 [13.4-14.3]      
+riders driven past (60-905 s)      | 0 [0-0]                | 24 [20-30]             | 8 [2-15]               | 0 [0-0]               
+a meter row overflowing, %         | 66 [61-69]             | 92 [90-94]             | 93 [91-95]             | 85 [82-92]            
+  today: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit cooks 100% | overflowing row cooks 47%, waiters 18%, seats 0% | Rs/min per seed 485, 493, 490, 482
+  GA pkg: drive-pasts sent 39 (97 riders), cued 38, dropped 0 | today's meter limit cooks 100% | overflowing row cooks 87%, waiters 5%, seats 1% | Rs/min per seed 522, 522, 527, 525
+  GA no rush: drive-pasts sent 13 (32 riders), cued 12, dropped 0 | today's meter limit cooks 100% | overflowing row cooks 84%, waiters 8%, seats 1% | Rs/min per seed 527, 525, 527, 525
+  GB rule: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit cooks 100% | overflowing row cooks 67%, waiters 18%, seats 1% | Rs/min per seed 517, 530, 517, 522
+=== MID
+measure                            | today (n=4)            | GA pkg (n=4)           | GA no rush (n=4)       | GB rule (n=0)         
+every seat taken, % of samples     | 1 [0-2]                | 69 [66-73]             | 65 [61-70]             | -                     
+gate line > 0, % of samples        | 0 [0-1]                | 65 [63-69]             | 58 [54-63]             | -                     
+gate line max                      | 1 [0-2]                | 7 [6-7]                | 7 [6-8]                | -                     
+bill line max                      | 7 [5-8]                | 4 [4-4]                | 4 [4-4]                | -                     
+kitchen queue max                  | 9 [7-11]               | 8 [7-10]               | 8 [7-8]                | -                     
+takings, Rs a minute               | 997 [981-1023]         | 1027 [1015-1044]       | 1029 [1020-1052]       | -                     
+food wait, s                       | 14.5 [12.6-16.0]       | 12.5 [11.1-13.4]       | 12.5 [11.5-13.4]       | -                     
+arrivals a minute                  | 11.5 [11.4-11.6]       | 12.5 [12.2-12.7]       | 12.5 [12.4-12.6]       | -                     
+riders driven past (60-905 s)      | 0 [0-0]                | 31 [30-32]             | 15 [15-15]             | -                     
+a meter row overflowing, %         | 72 [57-90]             | 94 [91-96]             | 94 [91-96]             | -                     
+  today: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit cashiers 100% | overflowing row cashiers 45%, cooks 27%, waiters 0% | Rs/min per seed 981, 1000, 1023, 985
+  GA pkg: drive-pasts sent 50 (124 riders), cued 46, dropped 0 | today's meter limit cashiers 100% | overflowing row cashiers 65%, cooks 15%, seats 14% | Rs/min per seed 1015, 1026, 1044, 1025
+  GA no rush: drive-pasts sent 24 (60 riders), cued 23, dropped 0 | today's meter limit cashiers 100% | overflowing row cashiers 67%, cooks 14%, seats 12% | Rs/min per seed 1020, 1021, 1052, 1023
+=== FULL
+measure                            | today (n=4)            | GA pkg (n=4)           | GA no rush (n=4)       | GB rule (n=0)         
+every seat taken, % of samples     | 0 [0-0]                | 66 [64-68]             | 49 [47-53]             | -                     
+gate line > 0, % of samples        | 0 [0-0]                | 63 [60-66]             | 46 [43-51]             | -                     
+gate line max                      | 0 [0-0]                | 7 [6-8]                | 7 [7-8]                | -                     
+bill line max                      | 10 [9-11]              | 4 [4-4]                | 4 [4-4]                | -                     
+kitchen queue max                  | 8 [6-9]                | 8 [6-10]               | 7 [6-9]                | -                     
+takings, Rs a minute               | 3729 [3662-3829]       | 3838 [3806-3912]       | 3817 [3764-3924]       | -                     
+food wait, s                       | 10.1 [9.6-10.5]        | 10.1 [9.8-10.3]        | 10.1 [9.7-10.7]        | -                     
+arrivals a minute                  | 11.5 [11.4-11.6]       | 12.9 [12.8-13.1]       | 12.7 [12.4-12.9]       | -                     
+riders driven past (60-905 s)      | 0 [0-0]                | 24 [22-25]             | 10 [10-10]             | -                     
+a meter row overflowing, %         | 80 [72-87]             | 99 [98-100]            | 99 [98-100]            | -                     
+  today: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit cashiers 100% | overflowing row cashiers 76%, cooks 3%, waiters 1% | Rs/min per seed 3762, 3662, 3829, 3662
+  GA pkg: drive-pasts sent 39 (97 riders), cued 35, dropped 0 | today's meter limit cashiers 100% | overflowing row cashiers 97%, cooks 1%, seats 1%, waiters 0% | Rs/min per seed 3810, 3806, 3912, 3822
+  GA no rush: drive-pasts sent 16 (40 riders), cued 15, dropped 0 | today's meter limit cashiers 100% | overflowing row cashiers 97%, cooks 1%, seats 0%, waiters 0% | Rs/min per seed 3774, 3804, 3924, 3764
+=== FULLG
+measure                            | today (n=4)            | GA pkg (n=4)           | no rush (n=4)          | P3 only (n=2)          | P3+pkg (n=4)          
+every seat taken, % of samples     | 0 [0-0]                | 0 [0-1]                | 0 [0-0]                | 0 [0-0]                | 1 [0-3]               
+gate line > 0, % of samples        | 0 [0-0]                | 0 [0-0]                | 0 [0-0]                | 0 [0-0]                | 1 [0-2]               
+gate line max                      | 0 [0-0]                | 0 [0-1]                | 0 [0-0]                | 0 [0-0]                | 1 [0-2]               
+bill line max                      | 6 [5-6]                | 8 [7-8]                | 7 [7-8]                | 6 [6-7]                | 8 [8-8]               
+kitchen queue max                  | 13 [12-15]             | 14 [12-16]             | 14 [12-15]             | 14 [13-14]             | 17 [13-20]            
+takings, Rs a minute               | 6545 [6202-6751]       | 6883 [6583-7212]       | 6546 [6219-6874]       | 6992 [6982-7003]       | 7026 [6702-7176]      
+food wait, s                       | 15.2 [13.7-17.4]       | 17.2 [16.0-18.1]       | 15.1 [14.3-15.9]       | 17.1 [17.0-17.3]       | 19.6 [17.3-22.3]      
+arrivals a minute                  | 20.3 [20.0-20.5]       | 21.6 [21.2-22.4]       | 20.4 [20.2-20.7]       | 22.1 [22.0-22.2]       | 22.7 [22.0-23.2]      
+riders driven past (60-905 s)      | 0 [0-0]                | 0 [0-0]                | 0 [0-0]                | 0 [0-0]                | 1 [0-2]               
+a meter row overflowing, %         | 53 [45-61]             | 69 [64-74]             | 56 [54-58]             | 73 [72-74]             | 85 [76-89]            
+  today: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit road 100% | overflowing row cooks 30%, waiters 23% | Rs/min per seed 6549, 6676, 6751, 6202
+  GA pkg: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit road 100% | overflowing row waiters 39%, cooks 26%, cashiers 4% | Rs/min per seed 6807, 6932, 7212, 6583
+  no rush: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit road 100% | overflowing row waiters 31%, cooks 25%, cashiers 1% | Rs/min per seed 6641, 6452, 6874, 6219
+  P3 only: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit road 99%, waiters 1% | overflowing row waiters 44%, cooks 28%, cashiers 1% | Rs/min per seed 6982, 7003
+  P3+pkg: drive-pasts sent 2 (4 riders), cued 2, dropped 0 | today's meter limit road 95%, seats 5%, waiters 0% | overflowing row waiters 53%, cooks 23%, cashiers 9% | Rs/min per seed 7091, 7176, 7136, 6702
+=== FULLG2
+measure                            | pkg sign2 (n=2)        | P3 only sign2 (n=2)    | P3+pkg sign2 (n=2)    
+every seat taken, % of samples     | 0 [0-0]                | 0 [0-0]                | 1 [1-2]               
+gate line > 0, % of samples        | 0 [0-0]                | 0 [0-0]                | 0 [0-1]               
+gate line max                      | 0 [0-0]                | 0 [0-0]                | 0 [0-1]               
+bill line max                      | 8 [8-8]                | 8 [8-8]                | 8 [7-8]               
+kitchen queue max                  | 14 [13-15]             | 14 [12-15]             | 16 [16-17]            
+takings, Rs a minute               | 6980 [6952-7008]       | 6955 [6865-7044]       | 7256 [7248-7265]      
+food wait, s                       | 17.5 [17.3-17.6]       | 18.1 [17.4-18.8]       | 21.6 [21.0-22.2]      
+arrivals a minute                  | 22.4 [22.3-22.4]       | 22.2 [21.7-22.7]       | 22.7 [22.3-23.0]      
+riders driven past (60-905 s)      | 1 [0-2]                | 0 [0-0]                | 4 [0-7]               
+a meter row overflowing, %         | 77 [74-79]             | 76 [75-77]             | 91 [85-96]            
+  pkg sign2: drive-pasts sent 1 (2 riders), cued 0, dropped 0 | today's meter limit road 100% | overflowing row waiters 42%, cooks 28%, cashiers 7% | Rs/min per seed 6952, 7008
+  P3 only sign2: drive-pasts sent 0 (0 riders), cued 0, dropped 0 | today's meter limit cashiers 98%, seats 2%, waiters 1% | overflowing row waiters 49%, cooks 23%, cashiers 3% | Rs/min per seed 7044, 6865
+  P3+pkg sign2: drive-pasts sent 3 (7 riders), cued 3, dropped 0 | today's meter limit cashiers 90%, waiters 10% | overflowing row waiters 58%, cooks 29%, cashiers 4% | Rs/min per seed 7265, 7248

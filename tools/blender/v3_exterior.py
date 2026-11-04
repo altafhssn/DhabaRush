@@ -78,6 +78,8 @@ PARK_BOARD = (3.8, 17.55)
 WALKWAY_X = (1.75, 5.85)
 PEEPAL = (-6.8, 20.4)
 MILESTONE = (-5.6, 16.9)
+GUMTI = (-6.35, 18.45)                        # paan gumti
+MILESTONE_TEXT = []                           # the street build's milestone_text Asset (lot_corner)
 TERR_Y = 2.82                                # terrace roof top (= wall cap top)
 PAR_H = 0.48                                 # parapet height above the terrace
 
@@ -472,10 +474,13 @@ def cart_geo(b):
     b.rbox((0.5, 0.4, 0.5), (0.4, 0.0, 0.9), DADO, bevel=0.02)                      # crusher
     b.wheel(0.22, 0.05, (0.4, -0.23, 0.98), STEEL, seg=12)
     b.rod((0.4, -0.27, 0.98), (0.4, -0.27, 1.3), 0.02, DARK_STEEL, seg=4)
+    # core-and-feel W3-LOOK (lead decision 9): the juice glasses use WALL_GREEN (#9ED98B, pale green)
+    # and the lemons NOTE (#86D07A, lime green), like the door nimbu-mirchi (W1-FIX-other):
+    # palette_nh48.png repaints LEAF_LIGHT and LIME (foliage swatches) khaki, these two it keeps.
     for k in range(4):                                                               # glasses of juice
-        b.tube((-0.65 + k * 0.12, -0.25, 0.65), (-0.65 + k * 0.12, -0.25, 0.79), 0.035, LEAF_LIGHT, r1=0.04, seg=8)
-    b.ico(0.08, (-0.3, 0.25, 0.72), LIME, subdiv=0)                                  # lemons
-    b.ico(0.08, (-0.15, 0.28, 0.72), LIME, subdiv=0)
+        b.tube((-0.65 + k * 0.12, -0.25, 0.65), (-0.65 + k * 0.12, -0.25, 0.79), 0.035, WALL_GREEN, r1=0.04, seg=8)
+    b.ico(0.08, (-0.3, 0.25, 0.72), NOTE, subdiv=0)                                  # lemons
+    b.ico(0.08, (-0.15, 0.28, 0.72), NOTE, subdiv=0)
     return b
 
 
@@ -900,10 +905,12 @@ def parapet_lights(fs):
 
 # ------------------------------------------------------------------ street_v3
 def build_street_v3(mat):
-    """Returns (street_v3 object, FairySet 'street')."""
+    """Returns (street_v3 object, FairySet 'street', milestone_text object). milestone_text is
+    the milestone's baked "NH 44 / DELHI / 120 km" (world coords), exported as its own node."""
     a = Asset("street_v3")
     fs = FairySet("street", seed=19)
     rng = random.Random(33)
+    MILESTONE_TEXT[:] = [Asset("milestone_text")]
     for fn in (ground, highway, near_side, courtyard, west_yard, east_side, truck_parking, lot_corner, power_lines,
                background):
         if fn in (ground, highway, power_lines):
@@ -913,7 +920,9 @@ def build_street_v3(mat):
         else:
             fn(a, fs, rng)
         _prof(a, fn.__name__)
-    return a.finish(mat, 30), fs
+    mt = MILESTONE_TEXT[0].finish(mat, 30)
+    MILESTONE_TEXT[:] = []
+    return a.finish(mat, 30), fs, mt
 
 
 XA, XB = -40.0, 60.0
@@ -1099,7 +1108,11 @@ def courtyard(a, fs, rng):
                  (BLUE, NEON_PINK, RED, PAINT_YELLOW, GREEN)[i % 5], rot=45)
 
     low_wall_x(9.2, 15.2, 8.15)
-    low_wall_z(0.35, 8.0, 15.2)
+    # east wall with the AC family hall's door gap z 3.5..4.6 (Layout3.HALL_DOOR_Z; core-and-feel
+    # C6.1): open in both layouts, two gate pillars at (15.2, 3.29) and (15.2, 4.81)
+    low_wall_z(0.35, 3.5, 15.2)
+    low_wall_z(4.6, 8.0, 15.2)
+    a.grect(15.05, 3.5, 15.4, 4.6, 0.001, MORTAR)                                    # threshold
 
     def pillar(x, z, h=0.85):
         gbox(a, x - 0.21, x + 0.21, 0.0, h, z - 0.21, z + 0.21, BRICK_RED, bevel=0.02)
@@ -1107,7 +1120,7 @@ def courtyard(a, fs, rng):
         gdec(a, x, h * 0.55, z + 0.213, 0.2, 0.2, "+z", KURTA, rot=45)
         gdec(a, x + 0.213, h * 0.55, z, 0.2, 0.2, "+x", KURTA, rot=45)
         a.place(lambda b: mini_pot(b, (0, 0, 0)), loc=B(x, h + 0.08, z))
-    for (x, z) in ((15.2, 8.15), (12.2, 8.15), (15.2, 4.1)):
+    for (x, z) in ((15.2, 8.15), (12.2, 8.15), (15.2, 3.29), (15.2, 4.81)):
         pillar(x, z)
     # bamboo poles for the overhead lights (on the boundary walls, outside the seats), plus
     # one on the store's low x = 9 wall just past the side gate's front post (WEST_POLE)
@@ -1238,8 +1251,12 @@ def neem_tree(a, fs, x, z, k=1.0, key="neem"):
 
 
 def east_side(a, fs, rng):
-    """Strip in front of the courtyard (z 8.3..9.15) and the land east of it: hand pump with
-    a bucket, scooter, puncture corner with grey tyres, a neem tree outside the courtyard."""
+    """Strip in front of the courtyard (z 8.3..9.15): chair stack, the PUNCTURE corner (moved here
+    from the hidden plot east of the courtyard, core-and-feel C8.3, 2026-11-01: compressor, grey
+    tyre stack, two tyres leaning on the low wall, tubes hanging under the PUNCTURE board, all in
+    x 11.0..13.8, z 8.35..9.1) and the hand pump with a bucket. The land east of the courtyard
+    (x 15.4..21.8, z 0.3..7.9) is kept empty for the AC family hall (family_hall.glb); its two trees
+    went and the red scooter now stands outside the hall's south wall."""
     # hand pump on a concrete platform + puddle + bucket (front strip)
     hx, hz = 14.4, 8.75
     gbox(a, hx - 0.32, hx + 0.32, 0.0, 0.1, hz - 0.3, hz + 0.3, CONCRETE)
@@ -1251,30 +1268,29 @@ def east_side(a, fs, rng):
     gtube(a, (hx - 0.03, 0.72, hz + 0.08), (hx - 0.2, 0.68, hz + 0.25), 0.035, DADO, seg=5)
     gtube(a, (hx - 0.24, 0.1, hz + 0.24), (hx - 0.24, 0.38, hz + 0.24), 0.13, BLUE, r1=0.16, seg=10)
     gtube(a, (hx - 0.24, 0.33, hz + 0.24), (hx - 0.24, 0.35, hz + 0.24), 0.155, WHITE, seg=10, caps=False)
-    at(a, 12.4, 8.75, 0, lambda b: scooter_geo(b, RED))
+    at(a, 16.85, 8.75, 0, lambda b: scooter_geo(b, RED))
     at(a, 10.2, 8.72, 0, lambda b: chair_stack_geo(b, 4, BLUE))
-    # puncture corner east of the courtyard (x >= 15.6)
-    gbox(a, 16.1, 16.75, 0.0, 0.5, 6.4, 6.85, RED, bevel=0.03)                          # compressor
-    gtube(a, (16.2, 0.55, 6.62), (16.65, 0.55, 6.62), 0.17, DARK_STEEL, seg=10)
-    gtube(a, (16.42, 0.5, 6.62), (16.42, 0.82, 6.62), 0.035, DARK_STEEL, seg=5)
+    # puncture corner on the front strip (x 11.0..13.8, z 8.35..9.1)
+    gbox(a, 11.05, 11.7, 0.0, 0.5, 8.5, 8.95, RED, bevel=0.03)                          # compressor
+    gtube(a, (11.15, 0.55, 8.72), (11.6, 0.55, 8.72), 0.17, DARK_STEEL, seg=10)
+    gtube(a, (11.37, 0.5, 8.72), (11.37, 0.82, 8.72), 0.035, DARK_STEEL, seg=5)
+    wire(a, [(11.6, 0.4, 8.95), (11.75, 0.1, 9.05), (12.0, 0.03, 9.05)], r=0.018, color=TYRE)   # air hose
     for k in range(4):                                                                 # grey tyre stack
         y = k * 0.17
-        gtube(a, (17.3, y, 7.4), (17.3, y + 0.16, 7.4), 0.34, DARK_STEEL, seg=12)
-        gdisc(a, 17.3, y + 0.162, 7.4, 0.25, SLATE, n=12)
-        gdisc(a, 17.3, y + 0.164, 7.4, 0.15, CONCRETE, n=10)
-    for k in range(2):                                                                 # tyres leaning
-        x = 16.1 + k * 0.45
-        gtube(a, (x, 0.35, 7.85), (x, 0.35, 8.03), 0.34, DARK_STEEL, seg=12)
-        gdisc(a, x, 0.35, 8.035, 0.22, SLATE, n=12, facing="+z")
-        gdisc(a, x, 0.35, 8.04, 0.12, STEEL, n=10, facing="+z")
-    gtube(a, (16.9, 0.0, 8.6), (16.9, 1.3, 8.6), 0.03, DARK_STEEL, seg=4)
-    gtube(a, (17.9, 0.0, 8.6), (17.9, 1.3, 8.6), 0.03, DARK_STEEL, seg=4)
-    framed_board(a, (17.4, 1.18, 8.62), 1.2, 0.36, "puncture")
+        gtube(a, (13.4, y, 8.73), (13.4, y + 0.16, 8.73), 0.34, DARK_STEEL, seg=12)
+        gdisc(a, 13.4, y + 0.162, 8.73, 0.25, SLATE, n=12)
+        gdisc(a, 13.4, y + 0.164, 8.73, 0.15, CONCRETE, n=10)
+    for k in range(2):                                                                 # tyres leaning on the wall
+        x = 12.05 + k * 0.5
+        gtube(a, (x, 0.35, 8.4), (x, 0.35, 8.58), 0.34, DARK_STEEL, seg=12)
+        gdisc(a, x, 0.35, 8.585, 0.22, SLATE, n=12, facing="+z")
+        gdisc(a, x, 0.35, 8.59, 0.12, STEEL, n=10, facing="+z")
+    gtube(a, (11.85, 0.0, 8.95), (11.85, 1.55, 8.95), 0.03, DARK_STEEL, seg=4)          # board poles
+    gtube(a, (12.95, 0.0, 8.95), (12.95, 1.55, 8.95), 0.03, DARK_STEEL, seg=4)
+    framed_board(a, (12.4, 1.38, 8.97), 1.2, 0.36, "puncture")
+    gtube(a, (11.85, 1.08, 8.99), (12.95, 1.08, 8.99), 0.018, WOOD, seg=4)              # tube bar
     for k in range(3):                                                                 # hanging tubes
-        gtube(a, (16.9 + 0.25 * k, 0.95, 6.0), (16.9 + 0.25 * k, 0.96, 6.0), 0.12, DARK_STEEL, seg=10, caps=False)
-    gbox(a, 16.7, 17.8, 0.0, 1.1, 5.92, 5.98, WOOD)
-    tree(a, 18.2, 2.2, 1.15, cols=(NEEM, NEEM_LT, FOLIAGE))
-    tree(a, 20.5, 7.0, 1.0)
+        gtube(a, (12.1 + 0.3 * k, 0.92, 9.0), (12.1 + 0.3 * k, 0.93, 9.0), 0.12, DARK_STEEL, seg=10, caps=False)
 
 
 def tree(a, x, z, k=1.0, cols=(FOLIAGE, LIME_DARK, LIME)):
@@ -1383,20 +1399,24 @@ def lot_corner(a, fs, rng):
         ang = 2 * math.pi * 4.5 * t
         pts.append((px + 0.46 * math.cos(ang), 0.5 + 1.9 * t, pz + 0.46 * math.sin(ang)))
     fs.string("peepal_trunk", pts, spacing=0.2, r=0.04, colors=FAIRY_GOLDS)
-    # paan gumti in front of the peepal (faces +Z, toward the camera)
-    gx, gz, gyaw = -6.35, 18.45, 90
+    # paan gumti in front of the peepal (faces +X, toward the camera)
+    gx, gz, gyaw = GUMTI[0], GUMTI[1], 90
     at(a, gx, gz, gyaw, gumti_geo)
     edge = local_pts([(-0.75, 2.0, 1.12), (0.0, 2.0, 1.12), (0.75, 2.0, 1.12)], gx, gz, gyaw)
     fs.string("gumti", swag_line(edge, sag_per_m=0.08), spacing=0.17, r=0.04, chase=True)
-    # milestone NH 44 (faces +X so the camera reads it): white body, yellow top
+    # milestone NH 44: white body, yellow top. Core-and-feel 2026-11-01: turned to face +Z (the
+    # camera reads +X and +Z faces alike) so its face plane is z MILESTONE.z + 0.11 = 17.01 and
+    # Layout3.MILESTONE_LABEL (-5.6, 0.62, 17.02) sits 1 cm in front of it; the baked text is its
+    # own top-level node `milestone_text` (code hides it on NH 48 and adds a Label3D there).
     mx, mz = MILESTONE
-    R, U = (0, 0, -1), (0, 1, 0)
-    gbox(a, mx - 0.11, mx + 0.11, 0.0, 0.6, mz - 0.24, mz + 0.24, WHITEWASH, bevel=0.015)
-    gtube(a, (mx - 0.11, 0.6, mz), (mx + 0.11, 0.6, mz), 0.24, PAINT_YELLOW, seg=16)
-    gbox(a, mx - 0.13, mx + 0.13, -0.02, 0.08, mz - 0.27, mz + 0.27, CONCRETE)
-    ptext(a, "NH 44", (mx + 0.11, 0.69, mz), R, U, 0.36, 0.11, INK, off=0.008, bold=0.04)
-    ptext(a, "DELHI", (mx + 0.11, 0.45, mz), R, U, 0.38, 0.1, INK, off=0.006, bold=0.035)
-    ptext(a, "120 km", (mx + 0.11, 0.3, mz), R, U, 0.38, 0.09, INK, off=0.006, bold=0.03)
+    R, U = (1, 0, 0), (0, 1, 0)
+    gbox(a, mx - 0.24, mx + 0.24, 0.0, 0.6, mz - 0.11, mz + 0.11, WHITEWASH, bevel=0.015)
+    gtube(a, (mx, 0.6, mz - 0.11), (mx, 0.6, mz + 0.11), 0.24, PAINT_YELLOW, seg=16)
+    gbox(a, mx - 0.27, mx + 0.27, -0.02, 0.08, mz - 0.13, mz + 0.13, CONCRETE)
+    mt = MILESTONE_TEXT[0] if MILESTONE_TEXT else a
+    ptext(mt, "NH 44", (mx, 0.69, mz + 0.11), R, U, 0.36, 0.11, INK, off=0.008, bold=0.04)
+    ptext(mt, "DELHI", (mx, 0.45, mz + 0.11), R, U, 0.38, 0.1, INK, off=0.006, bold=0.035)
+    ptext(mt, "120 km", (mx, 0.3, mz + 0.11), R, U, 0.38, 0.09, INK, off=0.006, bold=0.03)
     # sugarcane-juice cart right of the lot
     at(a, 13.0, 18.25, 0, cart_geo)
     for k in range(3):                                                                 # stools
@@ -1420,8 +1440,11 @@ def epole(a, x, z, h=6.0):
 
 
 def power_lines(a):
-    far = [(-24.0, 17.25), (-9.4, 17.25), (18.4, 17.25), (32.0, 17.25)]
-    near = [(-23.0, 10.12), (-8.6, 10.12), (18.8, 10.12), (33.0, 10.12)]
+    # core-and-feel 2026-11-01: the east poles moved from x 18.8 / 18.4 to 26.0 / 25.6: the near one
+    # (with the transformer) stood in front of the AC family hall's glass door and its wires drew
+    # across the hall from the game camera (and ambient walkers on z 10.15 walked through it)
+    far = [(-24.0, 17.25), (-9.4, 17.25), (25.6, 17.25), (32.0, 17.25)]
+    near = [(-23.0, 10.12), (-8.6, 10.12), (26.0, 10.12), (33.0, 10.12)]
     fp = [epole(a, x, z) for (x, z) in far]
     np_ = [epole(a, x, z, 5.6) for (x, z) in near]
     for P in (fp, np_):
@@ -1462,9 +1485,12 @@ def background(a, rng):
     for k in range(5):                                                                 # bells string
         gball(a, (tx - 0.5 + k * 0.25, 1.92, tz + 0.95), 0.04, GOLD, seg=6, rings=3)
     # trees (kept off the yards, courtyard and the lot)
+    # (core-and-feel 2026-11-01: three trees went: (-10.5, 19.2), whose crown hid the NH 48 camel
+    # cart's corner of the lot; (23.0, 1.0), whose crown cut into the AC family hall's north-east
+    # corner; (21.5, 23.5), whose crown covered the camel cart's recommended spot in the lot's
+    # overflow strip)
     for (x, z, k) in ((-3.0, -9.5, 1.3), (3.5, -8.4, 1.1), (9.0, -10.5, 1.4), (16.5, -8.0, 1.2), (-9.0, -10.0, 1.1),
-                      (-10.2, -4.6, 1.2), (-9.4, 7.4, 1.0), (-10.5, 19.2, 1.0), (21.5, 23.5, 1.1), (-14.0, 21.4, 1.2),
-                      (23.0, 1.0, 1.2), (-15.0, 6.0, 1.3)):
+                      (-10.2, -4.6, 1.2), (-9.4, 7.4, 1.0), (-14.0, 21.4, 1.2), (-15.0, 6.0, 1.3)):
         tree(a, x, z, k)
     for (x, z) in ((6.0, -9.0), (20.0, -4.0), (-13.0, -2.0)):
         gico(a, (x, 0.5, z), 0.9, GOLD, scale=(1.0, 0.75, 1.0), subdiv=1)
@@ -1486,12 +1512,537 @@ def build_world_ext(mat):
     street_v3] as multi-node world groups (main mesh first, then fairy bulbs + wire)."""
     fs_d = FairySet("dhaba", seed=7)
     dh = build_dhaba_v3(mat, extra=lambda a: ext_dhaba(a, fs_d))
-    st, fs_s = build_street_v3(mat)
+    st, fs_s, mt = build_street_v3(mat)
     groups = []
-    for (obj, fs) in ((dh, fs_d), (st, fs_s)):
+    for (obj, fs, more) in ((dh, fs_d, []), (st, fs_s, [mt])):
         names, objs = fs.parts(mat)
-        g = Group(obj.name, [obj.name] + names, [obj] + objs, 30)
+        g = Group(obj.name, [obj.name] + [m.name for m in more] + names, [obj] + more + objs, 30)
         g.kind = "world"
         g.fairy = fs.count
         groups.append(g)
     return [build_tandoor_lock(mat), build_dog(mat)], groups
+
+
+# ------------------------------------------------------------------ core-and-feel world art (2026-11-01)
+# docs/core-and-feel/build-plan.md section 4.1 (W1-ART1). Frozen points of plan 2.3 (Layout3), baked
+# here; movable points are where code places a prop (origin on the ground unless noted).
+HALL = (15.4, 21.8, 0.3, 7.9)                 # HALL_MIN / HALL_MAX (x0, x1, z0, z1)
+HALL_DOOR = (3.5, 4.6)                        # HALL_DOOR_Z: gap in the courtyard's east low wall
+HALL_TABLES_P = ((17.25, 2.1), (17.25, 6.1), (20.15, 2.1))
+HALL_DECOR_P = (20.15, 6.1)                   # obstacle rect x 19.55..20.75, z 5.5..6.7
+HALL_SIGN_P = (18.6, 2.35, 0.47)              # Label3D point on the north-wall board (W2-WORLD)
+HALL_N_WALL = (0.15, 0.45)                    # north wall z (tall, y 2.8); Layout3.HALL_WALLS
+HALL_E_WALL = (21.65, 21.95)                  # east low wall x
+HALL_S_WALL = (7.75, 8.05)                    # south low wall z; glass door x 18.4..19.4
+HALL_DOOR_X = (18.4, 19.4)
+HALL_WALL_H, HALL_LOW_H = 2.8, 0.5
+SHAADI_GATE_P = (3.8, 0.0, 9.15)              # SHAADI_GATE (frozen); gateway posts at x 2.89 / 4.71
+
+
+def build_family_hall(mat):
+    """C6.1 AC family hall, WORLD-COORD (origin = world origin), shown by code in the family layout:
+    tiled floor x 15.35..21.65, z 0.45..7.75 (flush, y <= 0.002: walk points stay at y 0), a tall
+    north wall (z 0.15..0.45, y 2.8, cream with a wood dado) carrying two split ACs and the blank
+    maroon sign board at HALL_SIGN (field face z 0.4665; Label3D "AC FAMILY HALL / एसी फ़ैमिली हॉल" at
+    z 0.47), low (0.5 m) east and south walls with a closed glass door (x 18.4..19.4; open frame
+    with shine streaks so the hall stays visible), and the decor at HALL_DECOR (water cooler, a
+    garlanded framed photo on a side table, two potted plants) inside x 19.55..20.75, z 5.5..6.7.
+    Fairy lights: fairy_bulb_hall + fairy_wire_hall along the north wall top. The west side is the
+    courtyard's east low wall in street_v3 (door gap z 3.5..4.6 between gate pillars)."""
+    a = Asset("family_hall")
+    fs = FairySet("hall", seed=41)
+    # ---- floor: cream / tan checker like the kitchen annex, a maroon border band, threshold
+    fx0, fx1, fz0, fz1 = 15.35, HALL_E_WALL[0], HALL_N_WALL[1], HALL_S_WALL[0]
+    a.grect(fx0, fz0, fx1, fz1, 0.001, TILE_A)
+    nx, nz = 8, 9
+    tw, td = (fx1 - fx0) / nx, (fz1 - fz0) / nz
+    for i in range(nx):
+        for j in range(nz):
+            if (i + j) % 2:
+                a.grect(fx0 + i * tw, fz0 + j * td, fx0 + (i + 1) * tw, fz0 + (j + 1) * td, 0.0015, TILE_B)
+    B_ = 0.12
+    for (x0, z0, x1, z1) in ((fx0, fz0, fx1, fz0 + B_), (fx1 - B_, fz0, fx1, fz1), (fx0, fz1 - B_, fx1, fz1)):
+        a.grect(x0, z0, x1, z1, 0.002, JACKET)
+    a.grect(15.05, HALL_DOOR[0], 15.42, HALL_DOOR[1], 0.0022, MORTAR)                   # threshold
+    # ---- north wall (tall), inner face z 0.45 faces +Z
+    nz0, nz1 = HALL_N_WALL
+    gbox(a, 15.4, HALL_E_WALL[1], 0.0, HALL_WALL_H, nz0, nz1, WALL_CREAM)
+    gbox(a, 15.36, HALL_E_WALL[1] + 0.04, HALL_WALL_H, HALL_WALL_H + 0.09, nz0 - 0.04, nz1 + 0.04, CONCRETE)
+    gbox(a, 15.38, HALL_E_WALL[1] + 0.02, HALL_WALL_H + 0.09, HALL_WALL_H + 0.11, nz0 - 0.02, nz1 + 0.02, KERB)
+    F = nz1 + 0.002
+    wx0, wx1 = 15.4, HALL_E_WALL[0]
+    wc, ww = (wx0 + wx1) / 2, wx1 - wx0
+    gdec(a, wc, 0.45, F, ww, 0.9, "+z", WOOD)                                           # wood dado
+    gdec(a, wc, 0.92, F + 0.002, ww, 0.05, "+z", GOLD)
+    gdec(a, wc, 0.05, F + 0.002, ww, 0.1, "+z", TRUNK)
+    gdec(a, wc, 2.72, F + 0.002, ww, 0.06, "+z", JACKET)                                 # cornice line
+    for k in range(12):                                                                  # dado panels
+        x = wx0 + (k + 0.5) * ww / 12
+        gdec(a, x, 0.47, F + 0.003, ww / 12 - 0.12, 0.62, "+z", TILE_B)
+    # two split ACs (white, a vent slot, a status light) with their pipes running into the wall
+    for ax in (16.35, 20.85):
+        gbox(a, ax - 0.48, ax + 0.48, 2.17, 2.47, nz1, nz1 + 0.24, WHITE, bevel=0.04)
+        gdec(a, ax, 2.235, nz1 + 0.243, 0.84, 0.05, "+z", DARK_STEEL)
+        gdec(a, ax, 2.4, nz1 + 0.243, 0.7, 0.02, "+z", STEEL)
+        gdisc(a, ax + 0.36, 2.33, nz1 + 0.244, 0.018, NEON_CYAN, n=6, facing="+z")
+        gdec(a, ax, 2.31, nz1 + 0.244, 0.18, 0.05, "+z", CONCRETE)
+        gtube(a, (ax + 0.5, 2.25, nz1 + 0.06), (ax + 0.62, 2.25, nz1 + 0.06), 0.022, WHITE, seg=5)
+        gtube(a, (ax + 0.62, 2.25, nz1 + 0.06), (ax + 0.62, 1.4, nz1 + 0.06), 0.022, WHITE, seg=5)
+    # blank sign board (W2-WORLD adds the Label3D at HALL_SIGN): gold frame, maroon field
+    sx, sy, sz = HALL_SIGN_P
+    gbox(a, sx - 1.25, sx + 1.25, sy - 0.31, sy + 0.31, nz1, nz1 + 0.012, GOLD, bevel=0.005)
+    gdec(a, sx, sy, nz1 + 0.0145, 2.4, 0.52, "+z", MAROON)
+    gdec(a, sx, sy - 0.235, nz1 + 0.0155, 2.3, 0.015, "+z", GOLD)
+    for dx in (-1.13, 1.13):
+        gdisc(a, sx + dx, sy, nz1 + 0.0155, 0.04, PAINT_YELLOW, n=8, facing="+z")
+    # two framed pictures under the ACs (a hill and sun; a lotus pond)
+    for (px, kind) in ((16.35, 0), (20.85, 1)):
+        c = Vector((px, 1.5, F + 0.004))
+        R, U = (1, 0, 0), (0, 1, 0)
+        pdec(a, c, R, U, 0.74, 0.54, GOLD_DARK, 0.0)
+        pdec(a, c, R, U, 0.64, 0.44, GLASS if kind == 0 else DADO, 0.002)
+        if kind == 0:
+            ppoly(a, c + Vector((0, -0.22, 0)), R, U, [(-0.32, 0.0), (-0.08, 0.26), (0.1, 0.1), (0.32, 0.3), (0.32, 0.0)],
+                  LIME_DARK, 0.004)
+            pdisc(a, c + Vector((0.14, 0.1, 0)), R, U, 0.07, MARKER_TOP, n=10, off=0.005)
+        else:
+            for k, dx in enumerate((-0.15, 0.0, 0.15)):
+                pdisc(a, c + Vector((dx, -0.05, 0)), R, U, 0.07, PINK if k != 1 else NEON_PINK, n=8, off=0.004,
+                      sy=0.6)
+            pdec(a, c + Vector((0, -0.16, 0)), R, U, 0.6, 0.05, NOTE_DARK, 0.004)
+    # ---- low east wall (outer face +X faces the camera) and south wall with the glass door
+    ex0, ex1 = HALL_E_WALL
+    gbox(a, ex0, ex1, 0.0, 0.12, nz1, HALL_S_WALL[1], TRUNK)
+    gbox(a, ex0 + 0.02, ex1 - 0.02, 0.12, HALL_LOW_H - 0.07, nz1, HALL_S_WALL[1], WALL_CREAM)
+    gbox(a, ex0 - 0.03, ex1 + 0.03, HALL_LOW_H - 0.07, HALL_LOW_H, nz1 - 0.02, HALL_S_WALL[1] + 0.03, PAVER)
+    gdec(a, ex1 - 0.018, 0.3, (nz1 + HALL_S_WALL[1]) / 2, HALL_S_WALL[1] - nz1, 0.03, "+x", GOLD)
+    sz0, sz1 = HALL_S_WALL
+    for (x0, x1) in ((15.35, HALL_DOOR_X[0]), (HALL_DOOR_X[1], ex0)):
+        gbox(a, x0, x1, 0.0, 0.12, sz0, sz1, TRUNK)
+        gbox(a, x0, x1, 0.12, HALL_LOW_H - 0.07, sz0 + 0.02, sz1 - 0.02, WALL_CREAM)
+        gbox(a, x0 - 0.02, x1 + 0.02, HALL_LOW_H - 0.07, HALL_LOW_H, sz0 - 0.03, sz1 + 0.03, PAVER)
+        gdec(a, (x0 + x1) / 2, 0.3, sz1 - 0.018, x1 - x0, 0.03, "+z", GOLD)
+    # SE corner pillar with a pot (like the courtyard's)
+    cx_, cz_ = ex0 + 0.15, sz1 - 0.15
+    gbox(a, cx_ - 0.2, cx_ + 0.2, 0.0, 0.8, cz_ - 0.2, cz_ + 0.2, WALL_CREAM, bevel=0.02)
+    gbox(a, cx_ - 0.24, cx_ + 0.24, 0.8, 0.88, cz_ - 0.24, cz_ + 0.24, PAVER, bevel=0.015)
+    gdec(a, cx_, 0.45, cz_ + 0.203, 0.18, 0.18, "+z", JACKET, rot=45)
+    gdec(a, cx_ + 0.203, 0.45, cz_, 0.18, 0.18, "+x", JACKET, rot=45)
+    a.place(lambda b: mini_pot(b, (0, 0, 0)), loc=B(cx_, 0.88, cz_))
+    # closed glass door: steel frame, two leaves with brass pull bars, a frosted band with a blue
+    # snowflake, diagonal shine streaks on otherwise open panes (the hall stays visible behind it)
+    dx0, dx1 = HALL_DOOR_X
+    dz = (sz0 + sz1) / 2
+    DH = 2.1
+    for x in (dx0 + 0.035, dx1 - 0.035, (dx0 + dx1) / 2):
+        gbox(a, x - 0.035, x + 0.035, 0.0, DH, dz - 0.04, dz + 0.04, STEEL)
+    gbox(a, dx0, dx1, DH - 0.07, DH, dz - 0.05, dz + 0.05, STEEL)
+    gbox(a, dx0, dx1, 0.0, 0.16, dz - 0.03, dz + 0.03, DARK_STEEL)                         # kick plates
+    gbox(a, dx0 - 0.05, dx1 + 0.05, DH, DH + 0.24, dz - 0.06, dz + 0.06, JACKET, bevel=0.01)  # transom
+    gdec(a, (dx0 + dx1) / 2, DH + 0.12, dz + 0.062, 0.98, 0.04, "+z", GOLD)
+    lw = (dx1 - dx0) / 2
+    for k in (0, 1):
+        lx = dx0 + lw * (k + 0.5)
+        gdec(a, lx, 1.3, dz + 0.002, lw - 0.08, 0.22, "+z", GLASS)                          # frosted band
+        gdisc(a, lx, 1.3, dz + 0.004, 0.07, BLUE, n=6, facing="+z", rot=0.0)
+        gdisc(a, lx, 1.3, dz + 0.006, 0.035, WHITE, n=6, facing="+z", rot=0.5)
+        bx = lx + (0.13 if k == 0 else -0.13)
+        gtube(a, (bx, 0.75, dz + 0.07), (bx, 1.15, dz + 0.07), 0.016, GOLD, seg=5)            # pull bar
+        for (y0, d) in ((0.5, 0.0), (1.6, 0.08)):                                         # shine streaks
+            pts = [(lx - 0.16 + d, y0, dz + 0.003), (lx - 0.08 + d, y0, dz + 0.003),
+                   (lx + 0.12 + d, y0 + 0.36, dz + 0.003), (lx + 0.04 + d, y0 + 0.36, dz + 0.003)]
+            a.face([B(*p) for p in pts], WHITE, normal=(0, -1, 0))
+    # ---- decor at HALL_DECOR (inside the obstacle rect)
+    hx, hz = HALL_DECOR_P
+    # water cooler (steel, blue top, two taps, a chained steel glass)
+    wx, wz = hx - 0.28, hz - 0.3
+    gbox(a, wx - 0.22, wx + 0.22, 0.0, 0.92, wz - 0.2, wz + 0.2, STEEL, bevel=0.03)
+    gbox(a, wx - 0.23, wx + 0.23, 0.78, 0.95, wz - 0.21, wz + 0.21, WALL_BLUE, bevel=0.02)
+    gdec(a, wx, 0.55, wz + 0.202, 0.3, 0.22, "+z", DADO)
+    for dx in (-0.08, 0.08):
+        gbox(a, wx + dx - 0.025, wx + dx + 0.025, 0.42, 0.47, wz + 0.2, wz + 0.27, DARK_STEEL)
+    gbox(a, wx - 0.16, wx + 0.16, 0.2, 0.24, wz + 0.2, wz + 0.32, DARK_STEEL)                # drip tray
+    gtube(a, (wx + 0.12, 0.95, wz), (wx + 0.12, 1.04, wz), 0.035, STEEL, r1=0.04, seg=8)
+    # framed photo of the founder on a small side table, garlanded, a diya
+    tx, tz = hx + 0.3, hz - 0.3
+    gbox(a, tx - 0.24, tx + 0.24, 0.55, 0.6, tz - 0.2, tz + 0.2, WOOD, bevel=0.012)
+    for sx_ in (-1, 1):
+        for sz_ in (-1, 1):
+            gbox(a, tx + sx_ * 0.19 - 0.025, tx + sx_ * 0.19 + 0.025, 0.0, 0.55, tz + sz_ * 0.15 - 0.025,
+                 tz + sz_ * 0.15 + 0.025, TRUNK)
+    pc = Vector((tx, 0.88, tz + 0.02))
+    Rv = Vector((0.94, 0.0, -0.34)).normalized()                                       # turned to the camera
+    Uv = Vector((0.0, 0.97, -0.24))
+    Uv = (Uv - Rv * Uv.dot(Rv)).normalized()
+    pdec(a, pc, Rv, Uv, 0.36, 0.48, GOLD_DARK, 0.0)
+    pdec(a, pc, Rv, Uv, 0.28, 0.4, KHAKI, 0.003)
+    pdisc(a, pc + Uv * 0.06, Rv, Uv, 0.07, TRUNK, n=8, off=0.005)
+    pdec(a, pc - Uv * 0.1, Rv, Uv, 0.18, 0.14, TRUNK, 0.005)
+    gtube(a, (tx, 0.6, tz - 0.1), (tx - 0.04, 0.66, tz - 0.08), 0.04, DARK_STEEL, seg=4)     # stand foot
+    nv = _n(Rv, Uv)
+    for i in range(9):                                                                   # garland
+        t = math.pi * (0.1 + 0.8 * i / 8)
+        p = pc + Rv * (0.2 * math.cos(t)) + Uv * (0.26 - 0.32 * math.sin(t)) + nv * 0.03
+        flower(a, B(p.x, p.y, p.z), 0.03, (MARIGOLD, PAINT_YELLOW, RED)[i % 3])
+    gtube(a, (tx + 0.16, 0.6, tz + 0.1), (tx + 0.16, 0.63, tz + 0.1), 0.04, CLAY, r1=0.05, seg=6)  # diya
+    gico(a, (tx + 0.16, 0.67, tz + 0.1), 0.02, FIRE, scale=(1, 1.6, 1))
+    # two potted plants (front corners of the rect)
+    for (px, pz, k) in ((hx - 0.38, hz + 0.33, 1.0), (hx + 0.38, hz + 0.36, 0.85)):
+        gtube(a, (px, 0.0, pz), (px, 0.32 * k, pz), 0.13 * k, CLAY, r1=0.17 * k, seg=8)
+        gtube(a, (px, 0.3 * k, pz), (px, 0.35 * k, pz), 0.18 * k, BRICK, seg=8, caps=False)
+        gdisc(a, px, 0.33 * k, pz, 0.16 * k, MUD, n=8)
+        for (dx, dy, dz_, r, col) in ((0, 0.62, 0, 0.2, LEAF), (0.12, 0.5, 0.06, 0.15, FOLIAGE),
+                                      (-0.1, 0.52, -0.05, 0.15, LEAF_LIGHT), (0.02, 0.8, 0.02, 0.13, LIME_DARK)):
+            gico(a, (px + dx * k, dy * k, pz + dz_ * k), r * k, col, scale=(1, 0.9, 1), subdiv=0)
+    # ---- fairy lights along the north wall top (inner edge)
+    xs = [15.5 + k * (21.75 - 15.5) / 6 for k in range(7)]
+    fs.string("hall", swag_line([(x, HALL_WALL_H - 0.02, nz1 + 0.06) for x in xs], sag_per_m=0.09), spacing=0.3,
+              r=0.045)
+    names, objs = fs.parts(mat)
+    o = a.finish(mat, 30)
+    g = Group("family_hall", ["family_hall"] + names, [o] + objs, 30)
+    g.kind = "world"
+    g.fairy = fs.count
+    return g
+
+
+def _flower_line(a, pts, r, colors, step):
+    """Marigold beads every `step` m along the Godot polyline pts."""
+    for i, p in enumerate(resample(pts, step, 0.5)):
+        flower(a, B(p.x, p.y, p.z), r, colors[i % len(colors)])
+
+
+def build_deco_baraat(mat):
+    """C6.4 Shaadi gate, WORLD-COORD (origin = world origin), shown by code during the baraat window
+    and for good once owned. A marigold arch over the door: it springs from the gateway posts' gold
+    caps (post centres x 2.89 / 4.71 on z 9.0, y 2.5: the posts are the arch's poles; under the
+    tin awning they are hidden from the game camera, so the flowers go where it looks) and rises to
+    y 3.3 over SHAADI_GATE (3.8, 0, 9.15), above the awning and the name board, so the board's text
+    (y 2.2..2.5) stays clear; a rose-and-marigold medallion at its crown; short ladis hanging from
+    it no lower than y 2.42 (the awning's back edge is y 2.38). Marigold curtains on the near wall
+    either side: strands from swagged ropes (post -> a bamboo pole on the wall pillars at x 1.4 /
+    7.6), left x 1.6..2.6, right x 6.5..7.45 (off the pillar at 6.85): on screen the seats board
+    (x 5.12..5.88, z 9.48..8.72, in front of the curtain plane z 9.14) stays clear, and the door gap
+    x 3.0..4.6 stays walkable. Fairy lights: fairy_bulb_baraat."""
+    a = Asset("deco_baraat")
+    fs = FairySet("baraat", seed=53)
+    Z = 8.96                       # arch plane: + 0.04 = the gateway posts' centre line z 9.0
+    GOLDS = (MARIGOLD, PAINT_YELLOW, MARIGOLD_DARK, MARIGOLD, RED)
+    # The gateway posts (x 2.78..3.0 / 4.6..4.82, gold caps to y 2.5) are the arch's poles: under the
+    # tin awning they are hidden from the game camera anyway, so the flowers go where it looks.
+    # arch: half-ellipse centre (3.8, 2.5), half-width 0.91 (post centres 2.89 / 4.71), rise 0.8 ->
+    # crown y 3.3, red cloth-wrapped bamboo under two rows of marigolds
+    cx, cy, hw, rise = 3.8, 2.5, 0.91, 0.8
+    arc = [Vector((cx - hw * math.cos(math.pi * i / 16), cy + rise * math.sin(math.pi * i / 16), Z + 0.04))
+           for i in range(17)]
+    for i in range(16):
+        gtube(a, tuple(arc[i]), tuple(arc[i + 1]), 0.045, RED, seg=5, caps=False)
+    outer = [Vector((cx - (hw + 0.07) * math.cos(math.pi * i / 16), cy + (rise + 0.07) * math.sin(math.pi * i / 16),
+                     Z + 0.08)) for i in range(17)]
+    inner = [Vector((cx - (hw - 0.07) * math.cos(math.pi * i / 16), cy + (rise - 0.07) * math.sin(math.pi * i / 16),
+                     Z + 0.08)) for i in range(17)]
+    _flower_line(a, outer, 0.05, GOLDS, 0.1)
+    _flower_line(a, inner, 0.045, (PAINT_YELLOW, MARIGOLD, PINK), 0.11)
+    # crown medallion: red disc, marigold ring, pink rose centre
+    mc = (cx, cy + rise + 0.02, Z + 0.16)
+    gdisc(a, mc[0], mc[1], mc[2], 0.24, RED, n=12, facing="+z")
+    for k in range(12):
+        t = 2 * math.pi * k / 12
+        flower(a, B(mc[0] + 0.2 * math.cos(t), mc[1] + 0.2 * math.sin(t), mc[2] + 0.02), 0.045, (MARIGOLD, PAINT_YELLOW)[k % 2])
+    gdisc(a, mc[0], mc[1], mc[2] + 0.01, 0.1, NEON_PINK, n=10, facing="+z")
+    gdisc(a, mc[0], mc[1], mc[2] + 0.02, 0.05, PAINT_YELLOW, n=8, facing="+z")
+    # ladis hanging from the inner arch into the doorway (bottom >= 2.42: the awning's back edge is at
+    # y 2.38 and slopes down toward the road)
+    for t in (0.2, 0.32, 0.44, 0.56, 0.68, 0.8):
+        p = Vector((cx - (hw - 0.07) * math.cos(math.pi * t), cy + (rise - 0.07) * math.sin(math.pi * t), Z + 0.08))
+        n_ = max(1, int((p.y - 2.42) / 0.09))
+        for j in range(1, n_ + 1):
+            flower(a, B(p.x, p.y - j * 0.09, p.z), 0.036, (MARIGOLD, RED, PAINT_YELLOW)[j % 3])
+    # curtains: swagged marigold ropes from the staves to bamboo poles on the wall pillars
+    ZC = 9.14                      # curtain plane, just in front of the wall face (z 9.15 cap edge 9.2)
+    # right side: strands only where the game camera sees them clear of the seats board (screen
+    # x > the board's right end: x >= 6.5 on this plane) and off the pillar at x 6.85 (6.6..7.1)
+    for (px, x_post, strands, y0) in ((1.4, 2.78, [1.62 + 0.15 * k for k in range(7)], 0.93),
+                                      (7.6, 4.82, [6.5, 7.17, 7.31, 7.45], 0.5)):
+        gtube(a, (px, y0, ZC - 0.02), (px, 2.25, ZC - 0.02), 0.035, BAMBOO, seg=6)
+        gball(a, (px, 2.25, ZC - 0.02), 0.04, BAMBOO, seg=6, rings=3)
+        rope = gsag((x_post, 2.2, ZC), (px, 2.15, ZC), 0.22, 14)
+        wire(a, rope, r=0.012, color=ROPE)
+        _flower_line(a, rope, 0.04, GOLDS, 0.13)
+        for sx_ in strands:
+            # rope height at sx_ (linear search on the polyline)
+            yb = min(rope, key=lambda q: abs(q.x - sx_)).y
+            n_ = int((yb - 0.62) / 0.12)
+            for j in range(1, n_ + 1):
+                col = (MARIGOLD, PAINT_YELLOW, MARIGOLD_DARK, RED)[(j + int(sx_ * 10)) % 4]
+                flower(a, B(sx_, yb - j * 0.12, ZC), 0.04, col)
+        fs.string("baraat", [Vector(q) + Vector((0, -0.03, 0.03)) for q in rope], spacing=0.26, r=0.042, wire=False)
+    fs.string("baraat", [Vector(q) + Vector((0, 0.0, 0.07)) for q in outer], spacing=0.2, r=0.045, wire=False)
+    names, objs = fs.parts(mat)
+    o = a.finish(mat, 30)
+    g = Group("deco_baraat", ["deco_baraat"] + names, [o] + objs, 30)
+    g.kind = "world"
+    g.fairy = fs.count
+    return g
+
+
+HOARD_W, HOARD_H, HOARD_Y0 = 2.6, 1.3, 2.0       # main board 2.6 x 1.3 at y 2.0..3.3
+HOARD_POLE_X, HOARD_POLE_H = 1.0, 3.2
+HOARD_L2 = (1.8, 0.34, 1.55)                     # level-2 strip w, h, bottom y
+HOARD_FACE = 0.045                               # board face plane: Godot local z +0.045
+
+
+def _star(a, c, r_out, r_in, depth, front, side, rot=0.0):
+    """5-point star prism facing -Y (Godot +Z), centre c (Blender)."""
+    cx, cy, cz = c
+    pts = []
+    for k in range(10):
+        t = math.pi / 2 + rot + math.pi * k / 5
+        rr = r_out if k % 2 == 0 else r_in
+        pts.append((cx + rr * math.cos(t), cz + rr * math.sin(t)))
+    f_front = [a.bm.verts.new((x, cy - depth / 2, z)) for (x, z) in pts]
+    f_back = [a.bm.verts.new((x, cy + depth / 2, z)) for (x, z) in pts]
+    cfv = a.bm.verts.new((cx, cy - depth / 2, cz))
+    cbv = a.bm.verts.new((cx, cy + depth / 2, cz))
+    uvf, uvs = swatch_uv(front), swatch_uv(side)
+    made = []
+    for i in range(10):
+        j = (i + 1) % 10
+        made.append((a.bm.faces.new([cfv, f_front[j], f_front[i]]), uvf))
+        made.append((a.bm.faces.new([cbv, f_back[i], f_back[j]]), uvs))
+        made.append((a.bm.faces.new([f_front[i], f_front[j], f_back[j], f_back[i]]), uvs))
+    for f, uv in made:
+        for loop in f.loops:
+            loop[a.uv].uv = uv
+    return a
+
+
+def build_hoarding(mat):
+    """C5.3 highway hoarding (signboard levels), faces Godot +Z, origin on the ground between the
+    two poles. Nodes (all with their origin at the model origin, so each is shown or hidden as a
+    whole by level):
+      hoarding_l1      poles, footings, braces and the main board 2.6 x 1.3 at y 2.0..3.3: red frame,
+                       yellow field, a cream text panel 2.24 x 0.88 centred (0, 2.65) at z 0.048; child
+                       empty text_l1 at (0, 2.65, 0.050), 2 mm in front of that panel, for the Label3D
+                       "DHABA RUSH · 1 KM / ← ढाबा रश होटल" (the arrow points west: the hoarding stands
+                       east of the dhaba since W3-LOOK)
+      hoarding_l2      a cream strip 1.8 x 0.34 (y 1.55..1.89) hung under the board; child empty
+                       text_l2 at (0, 1.72, 0.047) ("PARKING · 24 HRS" / "AC FAMILY HALL")
+      hoarding_l3      an empty whose child mesh fairy_bulb_hoarding is the bulb frame round the board
+      hoarding_l4      a second small board 1.2 x 0.45 on top (y 3.38..3.83), painted kulhad + roti
+      hoarding_star_1  gold star left of it (levels 5-6), hoarding_star_2 right of it
+    Labels: dark ink (maroon/brown) reads best on the cream panels."""
+    keys = ("hoarding_l1", "hoarding_l2", "hoarding_l4", "hoarding_star_1", "hoarding_star_2")
+    P = Parts("hoarding", {k: (0, 0, 0) for k in keys})
+    l1, l2, l4, s1, s2 = (P[k] for k in keys)
+    fy = -HOARD_FACE                                  # Blender y of the board face
+    yc = HOARD_Y0 + HOARD_H / 2
+    # ---- l1: poles, footings, braces, board
+    for sx in (-1, 1):
+        x = sx * HOARD_POLE_X
+        l1.tube((x, 0.06, 0.0), (x, 0.06, HOARD_POLE_H), 0.065, DARK_STEEL, seg=6)
+        l1.rbox((0.34, 0.34, 0.14), (x, 0.06, 0.07), CONCRETE, bevel=0.02)
+        l1.beam((x, 0.06, 1.2), (x * 0.25, 0.06, HOARD_Y0 + 0.05), 0.04, DARK_STEEL)
+        for (z, col) in ((0.3, PAINT_YELLOW), (0.6, INK), (0.9, PAINT_YELLOW)):
+            l1.tube((x, 0.06, z), (x, 0.06, z + 0.3), 0.068, col, seg=6, caps=False)
+    l1.rbox((HOARD_W, 0.08, HOARD_H), (0, 0.0, yc), DARK_STEEL, bevel=0.015)
+    l1.decal((0, fy - 0.001, yc), HOARD_W, HOARD_H, "-y", RED)
+    l1.decal((0, fy - 0.002, yc), HOARD_W - 0.14, HOARD_H - 0.14, "-y", PAINT_YELLOW)
+    l1.decal((0, fy - 0.003, yc), HOARD_W - 0.36, HOARD_H - 0.42, "-y", CREAM)
+    for k in range(10):                                                               # painted margin dots
+        l1.decal((-HOARD_W / 2 + 0.25 + k * (HOARD_W - 0.5) / 9, fy - 0.003, HOARD_Y0 + 0.12), 0.07, 0.07, "-y",
+                 (RED, GREEN, BLUE, NEON_PINK)[k % 4], rot=45)
+    # ---- l2: strip hung under the board
+    w2, h2, y2 = HOARD_L2
+    for sx in (-1, 1):
+        l2.rod((sx * (w2 / 2 - 0.12), fy + 0.01, y2 + h2), (sx * (w2 / 2 - 0.12), fy + 0.01, HOARD_Y0 + 0.02), 0.014,
+               DARK_STEEL, seg=4)
+    l2.rbox((w2, 0.04, h2), (0, fy + 0.02, y2 + h2 / 2), JACKET, bevel=0.01)
+    l2.decal((0, fy - 0.001, y2 + h2 / 2), w2 - 0.08, h2 - 0.08, "-y", CREAM)
+    # ---- l4: small board on top with a painted kulhad and roti
+    yb4, w4, h4 = HOARD_Y0 + HOARD_H + 0.08, 1.2, 0.45
+    for sx in (-1, 1):
+        l4.block((0.05, 0.05, 0.12), (sx * 0.42, 0.0, HOARD_Y0 + HOARD_H - 0.02), DARK_STEEL, nb=False)
+    l4.rbox((w4, 0.06, h4), (0, 0.0, yb4 + h4 / 2), DARK_STEEL, bevel=0.012)
+    l4.decal((0, fy + 0.006, yb4 + h4 / 2), w4, h4, "-y", GOLD)
+    l4.decal((0, fy + 0.005, yb4 + h4 / 2), w4 - 0.08, h4 - 0.08, "-y", MAROON)
+    kc = (-0.22, fy + 0.004, yb4 + 0.17)                                              # kulhad
+    l4.face([(kc[0] - 0.09, kc[1], kc[2] - 0.1), (kc[0] + 0.09, kc[1], kc[2] - 0.1), (kc[0] + 0.12, kc[1], kc[2] + 0.07),
+             (kc[0] - 0.12, kc[1], kc[2] + 0.07)], CLAY, normal=(0, -1, 0))
+    l4.decal((kc[0], kc[1] - 0.001, kc[2] + 0.05), 0.24, 0.035, "-y", BRICK)
+    for k, (dx, dz) in enumerate(((-0.05, 0.14), (0.02, 0.2), (-0.02, 0.27))):        # steam
+        disc(l4, (kc[0] + dx, kc[1] - 0.001, kc[2] + dz), 0.035 - 0.006 * k, WHITE, n=6)
+    disc(l4, (0.24, fy + 0.003, yb4 + h4 / 2), 0.15, ROTI, n=10)                       # roti
+    for (dx, dz) in ((-0.05, 0.04), (0.06, -0.03), (0.0, -0.07)):
+        disc(l4, (0.24 + dx, fy + 0.002, yb4 + h4 / 2 + dz), 0.025, CHAI, n=6)
+    # ---- stars (levels 5-6) on the top edge, either side of the small board
+    for (S, x) in ((s1, -0.98), (s2, 0.98)):
+        S.block((0.05, 0.05, 0.12), (x, 0.0, HOARD_Y0 + HOARD_H - 0.02), DARK_STEEL, nb=False)
+        _star(S, (x, 0.0, HOARD_Y0 + HOARD_H + 0.26), 0.22, 0.09, 0.05, GOLD, GOLD_DARK)
+    g = P.finish(mat, 30)
+    # ---- l3: bulb frame round the main board (an empty hoarding_l3 with the bulb mesh as child)
+    fs = FairySet("hoarding", seed=61)
+    x0, x1 = -HOARD_W / 2 - 0.02, HOARD_W / 2 + 0.02
+    z0, z1 = HOARD_Y0 - 0.02, HOARD_Y0 + HOARD_H + 0.02
+    gz = HOARD_FACE + 0.035                                                           # Godot z, in front
+    fs.string("hoarding", [(x0, z0, gz), (x1, z0, gz), (x1, z1, gz), (x0, z1, gz), (x0, z0, gz)], spacing=0.26,
+              r=0.045, wire=False, start=0.0)
+    names, objs = fs.parts(mat)
+    g.names += names
+    g.objs += objs
+    g.extras.append(("hoarding_l3", (0.0, 0.0, 0.0)))
+    # text_l1 sits 2 mm in front of l1's cream panel (decal at fy - 0.003, Godot z 0.048); at fy - 0.002 it lay
+    # 1 mm behind the panel and the panel hid its Label3D (W1-FIX-other). text_l2: 1 mm in front of its strip.
+    g.extras.append(("text_l1", (0.0, -(HOARD_FACE + 0.005), yc)))
+    g.extras.append(("text_l2", (0.0, -(HOARD_FACE + 0.002), y2 + h2 / 2)))
+    g.parents = {"fairy_bulb_hoarding": "hoarding_l3", "text_l1": "hoarding_l1", "text_l2": "hoarding_l2"}
+    return g
+
+
+def build_dog_sit(mat):
+    """C8.3 sitting street dog (the sleeping dog's swatches), faces Godot +Z, origin on the ground
+    under its middle. Nodes: body, head (pivot at the neck: code turns it about Y toward walkers),
+    tail (pivot at the root: code wags it about Y, the tail sweeps the ground)."""
+    P = Parts("dog_sit", {"body": (0, 0, 0), "head": (0, -0.07, 0.4), "tail": (0, 0.2, 0.08)})
+    b, h, t = P["body"], P["head"], P["tail"]
+    # haunches + hind legs folded, chest up, two straight front legs with white paws
+    b.ell((0, 0.09, 0.13), (0.14, 0.16, 0.13), DOG, seg=10, rings=6)
+    for s in (-1, 1):
+        b.ell((s * 0.12, 0.04, 0.08), (0.05, 0.14, 0.075), DOG, seg=8, rings=5)          # thighs
+        b.ell((s * 0.11, -0.06, 0.025), (0.04, 0.07, 0.025), WHITE, seg=6, rings=3)       # hind paws
+    chest = frame((0, -0.45, 1.0), (0, -1, 0))
+    b.ell((0, -0.02, 0.26), (0.18, 0.1, 0.105), DOG, frame=chest, seg=10, rings=6)
+    b.ell((0, -0.1, 0.27), (0.11, 0.05, 0.07), WHITE, frame=chest, seg=8, rings=5)         # chest patch
+    for s in (-1, 1):
+        b.tube((s * 0.05, -0.09, 0.24), (s * 0.055, -0.12, 0.03), 0.032, DOG, r1=0.026, seg=6)
+        b.ell((s * 0.055, -0.14, 0.02), (0.035, 0.05, 0.022), WHITE, seg=6, rings=3)      # front paws
+    b.ell((0, -0.07, 0.38), (0.06, 0.06, 0.06), DOG, seg=8, rings=5)                     # neck
+    # head (built in model space; Parts moves its origin to the neck)
+    hc = Vector((0, -0.11, 0.46))
+    h.ell(tuple(hc), (0.085, 0.09, 0.075), DOG, seg=10, rings=6)
+    h.ell((0, -0.2, 0.44), (0.045, 0.06, 0.038), DOG, seg=8, rings=5)                   # snout
+    h.ell((0, -0.19, 0.425), (0.04, 0.05, 0.02), WHITE, seg=6, rings=3)                  # muzzle
+    h.ell((0, -0.258, 0.45), (0.02, 0.016, 0.016), HAIR, seg=6, rings=3)                 # nose
+    for s in (-1, 1):
+        h.ell((s * 0.04, -0.175, 0.485), (0.014, 0.008, 0.014), HAIR, seg=6, rings=3)     # eyes
+        h.cyl(0.035, 0.08, (s * 0.05, -0.09, 0.52), TRUNK, seg=4, r2=0.004, rot=(-12, s * 18, 0))  # ears up
+    # tail (root at the rump, curled forward along the ground)
+    limb(t, [(0, 0.2, 0.08), (0.06, 0.27, 0.035), (0.16, 0.24, 0.025), (0.22, 0.12, 0.025)],
+         [0.03, 0.026, 0.022, 0.018], DOG, seg=6, joint_seg=6, joint_rings=4)
+    t.ell((0.235, 0.08, 0.025), (0.03, 0.04, 0.02), WHITE, seg=6, rings=3)
+    return P.finish(mat, 40)
+
+
+def camel_geo(b):
+    """Seated camel (kush pose), Blender local, facing +X, centre of its body at the origin's x."""
+    CAM, CAM_D = DOG, DUST_DARK
+    b.ell((0, 0, 0.42), (0.55, 0.3, 0.28), CAM, seg=12, rings=6)                       # body
+    b.ell((-0.05, 0, 0.72), (0.27, 0.22, 0.2), CAM, seg=10, rings=6)                   # hump
+    b.ell((-0.05, 0, 0.62), (0.32, 0.33, 0.12), RED, seg=12, rings=4)                  # saddle cloth
+    b.ell((-0.05, 0, 0.6), (0.33, 0.335, 0.03), PAINT_YELLOW, seg=12, rings=3)         # its border
+    for (x, s) in ((0.35, -1), (0.35, 1), (-0.35, -1), (-0.35, 1)):                    # folded legs
+        b.ell((x, s * 0.26, 0.1), (0.24, 0.08, 0.09), CAM_D, seg=8, rings=4)
+    neck = [(0.45, 0, 0.5), (0.68, 0, 0.62), (0.8, 0, 0.88), (0.86, 0, 1.08)]
+    limb(b, neck, [0.13, 0.1, 0.085, 0.075], CAM, seg=8, joint_seg=8, joint_rings=4)
+    b.ell((0.98, 0, 1.12), (0.18, 0.085, 0.09), CAM, frame=frame((1, 0, -0.25), (0, 0, 1)), seg=10, rings=5)
+    b.ell((1.14, 0, 1.08), (0.05, 0.06, 0.05), CAM_D, seg=6, rings=4)                  # muzzle
+    for s in (-1, 1):
+        b.ell((0.94, s * 0.075, 1.17), (0.02, 0.012, 0.016), HAIR, seg=6, rings=3)       # eyes
+        b.cyl(0.025, 0.06, (0.86, s * 0.06, 1.18), CAM_D, seg=4, r2=0.006, rot=(s * -20, 0, 0))   # ears
+    for k in range(9):                                                                 # bead necklace
+        t = 2 * math.pi * k / 9
+        flower(b, (0.72 + 0.11 * math.cos(t) * 0.5, 0.11 * math.sin(t), 0.7 + 0.11 * math.cos(t)), 0.03,
+               (MARIGOLD, RED, PAINT_YELLOW)[k % 3])
+    b.rod((1.12, 0.04, 1.1), (0.9, 0.05, 0.62), 0.008, RED, seg=3)                      # nose rope
+    return b
+
+
+CAMEL_S = 1.3                                  # a seated camel stands taller than a chibi traveller
+
+
+def build_camel_cart(mat):
+    """C6.3 NH 48 camel cart: a flat wooden cart on two tyre wheels with sacks, a rolled durrie and
+    a matka, its shafts resting on a seated camel (static) with a red saddle cloth. Faces Godot +X,
+    origin at the cart centre on the ground. About 4.3 m long (x -0.88..+3.4, the camel's nose at
+    the +X end), 1.48 m wide over the wheels, 1.6 m tall at the camel's head."""
+    a = Asset("camel_cart")
+    # cart platform, side rails, wheels, axle
+    a.rbox((1.75, 1.2, 0.08), (0, 0, 0.66), WOOD, bevel=0.015)
+    for s in (-1, 1):
+        a.box((1.75, 0.05, 0.12), (0, s * 0.58, 0.76), TRUNK)
+        for x in (-0.6, 0.0, 0.6):
+            a.block((0.05, 0.05, 0.14), (x, s * 0.58, 0.7), TRUNK, nb=False)
+        a.wheel(0.42, 0.14, (0.0, s * 0.67, 0.42), seg=12)
+        a.wheel(0.18, 0.16, (0.0, s * 0.67, 0.42), STEEL, seg=8)
+    a.rod((0.0, -0.74, 0.42), (0.0, 0.74, 0.42), 0.04, DARK_STEEL, seg=6)
+    a.box((1.6, 0.9, 0.04), (0, 0, 0.6), TRUNK)
+    # load: jute sacks, a rolled striped durrie, a clay matka
+    for (x, y, s, z) in ((-0.5, -0.25, 1.0, 0.84), (-0.5, 0.25, 0.95, 0.84), (0.05, -0.2, 0.9, 0.84),
+                         (-0.25, 0.0, 0.85, 0.98)):
+        a.ico(0.24 * s, (x, y, z), ROPE, subdiv=1, scale=(1.15, 0.85, 0.7))
+    a.tube((0.45, -0.45, 0.82), (0.45, 0.45, 0.82), 0.12, RED, seg=8)
+    for y in (-0.25, 0.0, 0.25):
+        a.tube((0.45, y - 0.03, 0.82), (0.45, y + 0.03, 0.82), 0.123, PAINT_YELLOW, seg=8, caps=False)
+    a.place(lambda b: matka_geo(b, 0.17, RED), loc=(0.6, 0.3, 0.7))
+    # shafts from the platform to the camel's flanks
+    for s in (-1, 1):
+        a.tube((0.82, s * 0.4, 0.64), (1.55, s * 0.42, 0.5), 0.035, TRUNK, seg=5)
+        a.tube((-0.88, s * 0.4, 0.66), (-0.82, s * 0.4, 0.66), 0.04, TRUNK, seg=5)
+    a.place(camel_geo, loc=(1.78, 0.0, 0.0), s=CAMEL_S)
+    return a.finish(mat, 30)
+
+
+def build_bus_baraat(mat):
+    """C6.4 baraat bus: the state bus body (bus_geo) in white with a broad maroon band and marigold
+    stripes; on the roof (what the game camera sees most) a maroon wedding cloth with a gold border
+    and marigold motifs inside the rack, marigold swags along both rack rails; marigold swags along
+    the window strip on both sides; a blank cream side banner with a marigold frame on both sides
+    between the wheels (for a Label3D: centre Godot local (0.3, 0.92, +-1.114) facing +-Z, field
+    2.5 x 0.3); balloon bunches tied to the mirror arms and the rear corners. Everything stays
+    inside the plain bus's bounds (Traffic measures vehicles from them) and under its roof rack
+    (build_assets prints the check)."""
+    b = Asset("bus_baraat")
+    bus_geo(b, body=WHITE, s1=MAROON, s2=MARIGOLD, luggage=False)
+    # roof: wedding cloth inside the rack (rack rails x -2.4..2.0, y +-0.9, z 2.56)
+    b.rbox((4.2, 1.66, 0.05), (-0.2, 0.0, 2.485), MAROON, bevel=0.02)
+    b.decal((-0.2, 0.0, 2.5115), 4.0, 1.46, "+z", GOLD)
+    b.decal((-0.2, 0.0, 2.512), 3.86, 1.32, "+z", MAROON)
+    for k in range(5):
+        b.decal((-1.8 + k * 0.8, 0.0, 2.5125), 0.36, 0.36, "+z", (MARIGOLD, PAINT_YELLOW)[k % 2], rot=45)
+        b.decal((-1.8 + k * 0.8, 0.0, 2.513), 0.16, 0.16, "+z", NEON_PINK, rot=45)
+    for s_ in (-1, 1):                                                   # swags along the rack rails
+        for i in range(2):
+            x0, x1 = -2.4 + i * 2.2, -2.4 + (i + 1) * 2.2
+            pts = sag((x0, s_ * 0.93, 2.56), (x1, s_ * 0.93, 2.56), 0.06, 7)
+            for j, p in enumerate(pts[1:-1]):
+                flower(b, p, 0.045, (MARIGOLD, PAINT_YELLOW, MARIGOLD_DARK)[j % 3])
+    H = 1.105
+    for s in (-1, 1):
+        side = "+y" if s > 0 else "-y"
+        Y = s * H
+        # banner: marigold frame, maroon line, cream field (between the wheels)
+        b.decal((0.3, Y + s * 0.006, 0.92), 2.66, 0.42, side, MARIGOLD)
+        b.decal((0.3, Y + s * 0.007, 0.92), 2.56, 0.34, side, MAROON)
+        b.decal((0.3, Y + s * 0.008, 0.92), 2.5, 0.3, side, CREAM)
+        # marigold swags along the top of the window strip
+        for i in range(3):
+            x0, x1 = -2.9 + i * 1.9, -2.9 + (i + 1) * 1.9
+            pts = sag((x0, Y + s * 0.035, 2.1), (x1, Y + s * 0.035, 2.1), 0.22, 7)
+            for j, p in enumerate(pts[1:-1]):
+                flower(b, p, 0.042, (MARIGOLD, PAINT_YELLOW, RED)[j % 3])
+    # balloon bunches: on the mirror arms (front) and at the rear corners, outside the body
+    for (x, s, front) in ((3.4, -1, True), (3.4, 1, True), (-3.29, -1, False), (-3.29, 1, False)):
+        bunch = (((0.0, 0.0, 0.0, RED), (-0.05, -0.06, 0.12, PAINT_YELLOW), (0.04, 0.05, 0.2, NEON_PINK)) if front
+                 else ((0.0, 0.0, 0.0, PAINT_YELLOW), (0.0, -0.12, 0.1, RED), (0.0, 0.1, 0.18, NEON_PINK)))
+        yc_ = 1.16 if front else 1.0
+        for (dx, dy, dz, col) in bunch:
+            b.ico(0.08, (x + dx, s * (yc_ + dy), 2.1 + dz), col, subdiv=0, scale=(1, 1, 1.25))
+        b.rod((x, s * yc_, 2.02), (x, s * yc_, 1.75 if front else 1.6), 0.008, WHITE, seg=3)
+    return b.finish(mat)
+
+
+def build_core_feel_ext(mat):
+    """(singles, groups) of the W1-ART1 world art (core-and-feel)."""
+    singles = [build_camel_cart(mat), build_bus_baraat(mat)]
+    groups = [build_family_hall(mat), build_deco_baraat(mat), build_hoarding(mat), build_dog_sit(mat)]
+    return singles, groups

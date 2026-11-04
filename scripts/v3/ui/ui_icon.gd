@@ -379,6 +379,16 @@ static func paint(ci: CanvasItem, n: String, r: Rect2, tint: Color = Color.WHITE
 		"table_set": _table_set(ci, o, s)
 		"table_plus": _table_plus(ci, o, s)
 		"house": _house(ci, o, s, tint)
+		# Core and feel (W2-HUD): the readout's stage glyphs reuse existing
+		# art; four new ones for the chip goals and the event button.
+		"seats": _table_set(ci, o, s)
+		"cooks": _cooks(ci, o, s)
+		"waiters": _waiter(ci, o, s)
+		"cashiers": _galla(ci, o, s)
+		"signboard": _signboard(ci, o, s)
+		"family_hall": _family_hall(ci, o, s)
+		"highway": _highway(ci, o, s)
+		"baraat": _baraat(ci, o, s)
 		_:
 			ci.draw_circle(_p(o, s, 0.5, 0.5), s * 0.3, tint, true, -1.0, true)
 
@@ -959,3 +969,76 @@ static func _table_plus(ci: CanvasItem, o: Vector2, s: float) -> void:
 	var lw: float = s * 0.07
 	thick(ci, c + Vector2(0, -s * 0.09), c + Vector2(0, s * 0.09), Color.WHITE, lw)
 	thick(ci, c + Vector2(-s * 0.09, 0), c + Vector2(s * 0.09, 0), Color.WHITE, lw)
+
+
+# ---------------------------------------------------------------- core and feel (W2-HUD)
+## COOKS (the kitchen stage): a kadai on a flame. Original drawing.
+static func _cooks(ci: CanvasItem, o: Vector2, s: float) -> void:
+	_flame(ci, _p(o, s, 0.5, 0.86), s * 0.14)
+	var pan := PackedVector2Array()
+	for i in 13:
+		var a: float = lerpf(0.0, PI, float(i) / 12.0)
+		pan.append(_p(o, s, 0.5, 0.42) + Vector2(cos(a) * s * 0.4, sin(a) * s * 0.3))
+	fill(ci, pan, Color(0.22, 0.2, 0.2))
+	fill(ci, ellipse_pts(_p(o, s, 0.5, 0.42), s * 0.4, s * 0.07, 20), Color(0.95, 0.6, 0.2))
+	for x in [0.38, 0.5, 0.62]:
+		ci.draw_circle(_p(o, s, float(x), 0.4), s * 0.045, Color(1.0, 0.85, 0.42), true, -1.0, true)
+	thick(ci, _p(o, s, 0.06, 0.42), _p(o, s, 0.12, 0.42), Color(0.22, 0.2, 0.2), s * 0.07)
+	thick(ci, _p(o, s, 0.88, 0.42), _p(o, s, 0.94, 0.42), Color(0.22, 0.2, 0.2), s * 0.07)
+
+
+## HIGHWAY SIGNBOARD: a saffron board with two text lines on two posts.
+static func _signboard(ci: CanvasItem, o: Vector2, s: float) -> void:
+	var post := Color(0.45, 0.28, 0.14)
+	thick(ci, _p(o, s, 0.28, 0.5), _p(o, s, 0.28, 0.92), post, s * 0.08)
+	thick(ci, _p(o, s, 0.72, 0.5), _p(o, s, 0.72, 0.92), post, s * 0.08)
+	var board := Rect2(_p(o, s, 0.08, 0.1), Vector2(s * 0.84, s * 0.48))
+	fill(ci, rrect_pts(Rect2(board.position + Vector2(0, s * 0.04), board.size), s * 0.06), UiKit.SAFFRON.darkened(0.35))
+	fill(ci, rrect_pts(board, s * 0.06), UiKit.SAFFRON)
+	outline(ci, rrect_pts(board.grow(-s * 0.04), s * 0.04), Color(1, 1, 1, 0.9), maxf(1.0, s * 0.03))
+	thick(ci, _p(o, s, 0.22, 0.26), _p(o, s, 0.78, 0.26), UiKit.MAROON, s * 0.07)
+	thick(ci, _p(o, s, 0.3, 0.42), _p(o, s, 0.7, 0.42), Color.WHITE, s * 0.06)
+
+
+## AC FAMILY HALL: a cream hall with a maroon roof band, a teal door and a
+## grey AC box on the wall.
+static func _family_hall(ci: CanvasItem, o: Vector2, s: float) -> void:
+	fill(ci, rrect_pts(Rect2(_p(o, s, 0.08, 0.34), Vector2(s * 0.84, s * 0.56)), s * 0.04), Color(1.0, 0.93, 0.78))
+	fill(ci, _pts(o, s, [0.02, 0.36, 0.5, 0.12, 0.98, 0.36]), UiKit.MAROON)
+	fill(ci, rrect_pts(Rect2(_p(o, s, 0.4, 0.58), Vector2(s * 0.2, s * 0.32)), s * 0.03), UiKit.TEAL)
+	fill(ci, rrect_pts(Rect2(_p(o, s, 0.14, 0.48), Vector2(s * 0.18, s * 0.16)), s * 0.02), Color(0.56, 0.85, 0.86))
+	var ac := Rect2(_p(o, s, 0.64, 0.44), Vector2(s * 0.24, s * 0.12))
+	fill(ci, rrect_pts(ac, s * 0.02), Color(0.86, 0.88, 0.9))
+	for k in 3:
+		var y: float = ac.position.y + ac.size.y * (float(k) + 1.0) / 4.0
+		ci.draw_line(Vector2(ac.position.x + s * 0.02, y), Vector2(ac.end.x - s * 0.02, y), Color(0.5, 0.52, 0.56), maxf(1.0, s * 0.015), true)
+
+
+## A new highway: a road in perspective with a centre line and a milestone.
+static func _highway(ci: CanvasItem, o: Vector2, s: float) -> void:
+	fill(ci, _pts(o, s, [0.42, 0.12, 0.58, 0.12, 0.92, 0.92, 0.08, 0.92]), Color(0.3, 0.29, 0.3))
+	for k in 3:
+		var y0: float = 0.2 + 0.25 * float(k)
+		var y1: float = y0 + 0.12
+		thick(ci, _p(o, s, 0.5, y0), _p(o, s, 0.5, y1), Color(1.0, 0.86, 0.5), s * (0.03 + 0.02 * float(k)))
+	var m := Rect2(_p(o, s, 0.74, 0.34), Vector2(s * 0.2, s * 0.3))
+	fill(ci, rrect_pts(m, s * 0.08), Color.WHITE)
+	fill(ci, rrect_pts(Rect2(m.position, Vector2(m.size.x, m.size.y * 0.42)), s * 0.08), UiKit.MARIGOLD)
+
+
+## BARAAT: a marigold wedding arch (the Shaadi gate) with hanging garlands.
+static func _baraat(ci: CanvasItem, o: Vector2, s: float) -> void:
+	var c: Vector2 = _p(o, s, 0.5, 0.56)
+	var r: float = s * 0.36
+	var pole := Color(1.0, 0.86, 0.5)
+	thick(ci, c + Vector2(-r, 0.0), c + Vector2(-r, s * 0.36), pole, s * 0.08)
+	thick(ci, c + Vector2(r, 0.0), c + Vector2(r, s * 0.36), pole, s * 0.08)
+	ci.draw_arc(c, r, PI, TAU, 24, UiKit.MARIGOLD, s * 0.1, true)
+	for i in 7:
+		var a: float = PI + PI * float(i) / 6.0
+		var col: Color = Color(1.0, 0.45, 0.1) if i % 2 == 0 else Color(1.0, 0.8, 0.2)
+		ci.draw_circle(c + Vector2(cos(a), sin(a)) * r, s * 0.07, col, true, -1.0, true)
+	for x in [-0.18, 0.0, 0.18]:
+		var top: Vector2 = c + Vector2(s * float(x), -sqrt(maxf(0.0, r * r - pow(s * float(x), 2.0))))
+		thick(ci, top, top + Vector2(0.0, s * 0.18), Color(1.0, 0.62, 0.15), s * 0.035)
+		ci.draw_circle(top + Vector2(0.0, s * 0.2), s * 0.04, Color(1.0, 0.45, 0.1), true, -1.0, true)

@@ -11,6 +11,7 @@ children of the glb root, origin of the model at the feet, facing Godot +Z:
     leg_r  pivot at the right hip (-0.085*s, 0.30*s, 0)
 
 (Godot coordinates; s = the character's height scale, about 0.94-1.08.)
+trav_elder also has `stick` (his walking stick), a child of arm_l with the same pivot.
 
 Munshi-ji busts (munshi_*) have body / head / arm_l / arm_r only: body pivot at the waist
 (the model origin), head at the neck (0, 0.66, 0), arms at the shoulders (+-0.38, 0.56, 0).
@@ -203,6 +204,200 @@ def build_travellers(mat):
             h.cyl(0.055, 0.1, (x, y + 0.03, 0.97), HAIR, seg=5, r2=0.0, rot=(-25 if y < 0 else 25, x * 120, 0))
     out.append(chibi("trav_student", 0.94,
                      Look(skin=SKIN1, top=DADO, legs=DENIM, shoes=WHITE), student, hair="short").finish(mat, CHAR_SMOOTH))
+    out += _build_fans_and_guests(mat)
+    return out
+
+
+# ------------------------------------------------------------------ core-and-feel travellers
+# (docs/core-and-feel/build-plan.md 4.2) The four counter fans (C3.5) and the two baraat
+# guests (C6.4). Every one is an adult and reads by silhouette and colour at home zoom: the
+# elder's stick and grey fringe, the sardar's peaked navy dastaar and red-check shirt, the
+# farmer's tall red-and-yellow safa, the techie's ponytail, glasses and laptop-bag strap, and
+# the guests' bright festive clothes. The guests are dressed as guests, not as the couple: no
+# sehra, no turra or kalgi on the safa, no garland, no bridal red.
+def _dastaar(h, color, band, y=0.02):
+    """Peaked Sikh turban: a round wrap, a flatter crown and two folds crossing over the
+    forehead in a point, a thin under-band (patka) of `band` showing at the brow."""
+    h.ell((0, y, 0.935), (0.215, 0.212, 0.14), color, seg=10, rings=6)
+    h.ell((0, y + 0.01, 1.02), (0.17, 0.175, 0.085), color, seg=8, rings=5)
+    for sx in (-1, 1):
+        h.ell((sx * 0.05, -0.128, 0.985), (0.1, 0.05, 0.08), color,
+              frame=Matrix.Rotation(math.radians(sx * 28), 3, "Y"), seg=8, rings=4)
+    h.ell((0, -0.166, 0.9), (0.12, 0.022, 0.018), band, seg=8, rings=3)
+
+
+def _safa(h, color, band, tail=None):
+    """Round wound safa (no turra, no kalgi): a wrap, a crown, two tilted wound bands of
+    `band` and a front fold; `tail` = colour of a short end hanging at the back (or None)."""
+    h.ell((0, 0.015, 0.94), (0.222, 0.218, 0.142), color, seg=10, rings=6)
+    h.ell((0, 0.01, 1.025), (0.185, 0.185, 0.095), color, seg=10, rings=5)
+    for (z, tilt, r) in ((0.9, 8.0, 0.227), (0.972, -9.0, 0.223)):
+        d = Vector((0, math.sin(math.radians(tilt)), math.cos(math.radians(tilt)))) * 0.03
+        c = Vector((0, 0.012, z))
+        h.tube(c - d / 2, c + d / 2, r, band, r1=r - 0.004, seg=12, caps=False)
+    h.ell((0, -0.13, 0.985), (0.075, 0.06, 0.085), color, seg=8, rings=4)
+    if tail is not None:
+        h.rbox((0.085, 0.025, 0.2), (0.04, 0.214, 0.83), tail, rot=(8, 0, 4), bevel=0.01)
+
+
+def _gamchha(b, x, color, stripe, y_half=0.135):
+    """Cloth over one shoulder (Blender x of its centre line): top fold, front and back
+    falls, two stripes near the front end."""
+    b.rbox((0.085, 2 * y_half + 0.02, 0.035), (x, 0, 0.62), color, bevel=0.012)
+    b.rbox((0.085, 0.03, 0.2), (x, -y_half, 0.52), color, bevel=0.012)
+    b.rbox((0.085, 0.03, 0.17), (x, y_half, 0.535), color, bevel=0.012)
+    for z in (0.465, 0.495):
+        b.rbox((0.087, 0.032, 0.016), (x, -y_half - 0.001, z), stripe, bevel=0.005)
+
+
+def _build_fans_and_guests(mat):
+    out = []
+
+    # -- trav_elder (kadai fan): an old man in a cream kurta to the knee over a white dhoti, a
+    #    khaki shawl round the shoulders, bald crown with a grey fringe, grey moustache and
+    #    brows, a wooden walking stick in his left hand. The stick is its own node `stick`, a
+    #    child of arm_l with the shoulder pivot (it swings with the arm), so the rig can hide it
+    #    while he sits: it reaches the ground from the hand, and seated it would pass down
+    #    through the charpai / bench (W1-FIX-other).
+    def elder(P, L):
+        P.order.append("stick")
+        P.pivots["stick"] = Vector(P.pivots["arm_l"])
+        P.parts["stick"] = Asset(P.name + "__stick")
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.33), (0, 0, 0.14), 0.186, KURTA, r1=0.202, seg=12, caps=False)        # kurta skirt
+        b.rbox((0.012, 0.012, 0.15), (0.0, -0.131, 0.5), ROPE, bevel=0.004)                  # placket
+        pts = []                                                                           # shawl round
+        for k in range(5):                                                                 # the shoulders
+            t = math.pi * k / 4
+            pts.append((0.16 * math.cos(t), 0.12 * math.sin(t) - 0.01, 0.6 - 0.03 * math.sin(t)))
+        limb(b, pts, [0.048] * 5, KHAKI, seg=6, joint_seg=6, joint_rings=4, end_ball=True)
+        for sx in (-1, 1):                                                                 # front falls
+            b.rbox((0.09, 0.03, 0.3), (sx * 0.105, -0.141, 0.46), KHAKI, rot=(-4, 0, 0), bevel=0.014)
+            b.rbox((0.092, 0.032, 0.024), (sx * 0.105, -0.147, 0.325), GOLD_DARK, rot=(-4, 0, 0), bevel=0.008)
+        h.ell((0, 0.06, 0.85), (0.2, 0.17, 0.115), CONCRETE, seg=10, rings=5)               # grey fringe
+        h.rbox((0.14, 0.036, 0.03), (0, -0.177, 0.777), SMOKE, bevel=0.014)                 # moustache
+        for sx in (-1, 1):
+            h.ell((sx * 0.075, -0.17, 0.765), (0.03, 0.02, 0.028), SMOKE, seg=6, rings=3)
+            h.rbox((0.075, 0.024, 0.022), (sx * 0.07, -0.164, 0.895), SMOKE, rot=(0, -sx * 10, 0), bevel=0.008)
+        g = P["stick"]                                                                     # walking stick
+        g.rod((0.266, -0.04, 0.0), (0.252, -0.02, 0.36), 0.015, TRUNK, seg=5)
+        g.tube((0.252, -0.02, 0.352), (0.252, -0.095, 0.374), 0.017, TRUNK, seg=5)
+    g_elder = chibi("trav_elder", 0.98,
+                    Look(skin=SKIN_M, top=KURTA, sleeve=KURTA, forearm=KURTA, legs=WHITE, hips=KURTA,
+                         shoes=TRUNK, torso=(0.35, 0.25, 0.33)), elder, hair="none").finish(mat, CHAR_SMOOTH)
+    g_elder.parents = {"stick": "arm_l"}
+    out.append(g_elder)
+
+    # -- trav_sardar (tandoor fan): a Sikh trucker, peaked navy dastaar over a saffron patka,
+    #    full black beard, red check shirt (navy lines on the front and the left side), steel
+    #    kara, grey trousers, black boots
+    def sardar(P, L):
+        b, h = P["body"], P["head"]
+        tw, td, th = L.torso
+        fy, fx = -td / 2 - 0.003, tw / 2 + 0.003
+        for x in (-0.1, -0.05, 0.0, 0.05, 0.1):
+            b.decal((x, fy, 0.44), 0.016, 0.2, "-y", NAVY)
+        for z in (0.36, 0.41, 0.46, 0.51):
+            b.decal((0, fy - 0.001, z), 0.24, 0.016, "-y", NAVY)
+        for y in (-0.04, 0.01, 0.06):
+            b.decal((fx, y, 0.44), 0.016, 0.2, "+x", NAVY)
+        for z in (0.36, 0.41, 0.46, 0.51):
+            b.decal((fx + 0.001, 0.0, z), 0.13, 0.016, "+x", NAVY)
+        b.rbox((0.18, 0.08, 0.045), (0, -0.066, 0.607), RED, bevel=0.015)                    # collar
+        P["arm_r"].tube((-0.246, -0.012, 0.36), (-0.247, -0.012, 0.384), 0.052, STEEL, seg=8)   # kara
+        h.ell((0, -0.075, 0.73), (0.172, 0.135, 0.13), HAIR, seg=10, rings=6)               # beard
+        h.ell((0, -0.122, 0.655), (0.1, 0.075, 0.07), HAIR, seg=8, rings=4)
+        h.ell((0, -0.174, 0.79), (0.095, 0.03, 0.026), HAIR, seg=8, rings=4)                # moustache
+        _dastaar(h, NAVY, SAFFRON)
+    out.append(chibi("trav_sardar", 1.08,
+                     Look(skin=SKIN1, top=RED, sleeve=RED, legs=GRAVEL, shoes=HAIR, torso=(0.38, 0.27, 0.34)),
+                     sardar, hair="none").finish(mat, CHAR_SMOOTH))
+
+    # -- trav_farmer (lassi fan): a Haryanvi farmer in a white kurta and dhoti, a tall red safa
+    #    wound with yellow bands and a short tail at the back, a green-and-white gamchha on the
+    #    left shoulder, a big moustache
+    def farmer(P, L):
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.33), (0, 0, 0.15), 0.188, WHITE, r1=0.2, seg=12, caps=False)          # kurta skirt
+        b.rbox((0.012, 0.012, 0.15), (0.0, -0.136, 0.5), ROPE, bevel=0.004)                  # placket
+        _gamchha(b, 0.115, GREEN, WHITE, y_half=0.14)
+        h.ell((0, -0.17, 0.778), (0.1, 0.034, 0.03), HAIR, seg=8, rings=4)                  # moustache
+        for sx in (-1, 1):
+            h.ell((sx * 0.105, -0.155, 0.792), (0.04, 0.024, 0.026), HAIR, seg=6, rings=3)
+        _safa(h, RED, PAINT_YELLOW, tail=RED)
+    out.append(chibi("trav_farmer", 1.0,
+                     Look(skin=SKIN2, top=WHITE, sleeve=WHITE, forearm=WHITE, legs=WHITE, hips=WHITE, shoes=TRUNK,
+                          torso=(0.37, 0.27, 0.34)), farmer, hair="none").finish(mat, CHAR_SMOOTH))
+
+    # -- trav_techie (chai fan): a young woman in a teal kurti with a white yoke and hem over
+    #    blue jeans, black-rimmed glasses, a high ponytail, a dark laptop bag at her left hip on
+    #    a strap across the chest, white sneakers, small gold earrings
+    def techie(P, L):
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.33), (0, 0, 0.16), 0.18, TEAL, r1=0.196, seg=10, caps=False)          # kurti hem
+        b.tube((0, 0, 0.16), (0, 0, 0.18), 0.1965, WHITE, r1=0.1955, seg=10, caps=False)
+        b.rbox((0.13, 0.012, 0.1), (0, -0.124, 0.53), WHITE, bevel=0.01)                     # yoke
+        b.beam((-0.105, -0.127, 0.585), (0.15, -0.127, 0.34), 0.012, TARP, 0.034)          # bag strap
+        b.beam((0.15, -0.127, 0.34), (0.172, 0.03, 0.3), 0.012, TARP, 0.034)
+        b.rbox((0.06, 0.2, 0.17), (0.17, 0.11, 0.22), TARP, bevel=0.02)                     # laptop bag
+        b.rbox((0.064, 0.2, 0.026), (0.172, 0.11, 0.293), TANK, bevel=0.008)                # flap edge
+        for sx in (-1, 1):                                                                 # glasses
+            h.rbox((0.074, 0.012, 0.054), (sx * 0.068, -0.17, 0.846), INK_DARK, bevel=0.01)
+            h.rbox((0.054, 0.008, 0.036), (sx * 0.068, -0.176, 0.846), GLASS, bevel=0.008)
+            h.ell((sx * 0.068, -0.18, 0.845), (0.015, 0.005, 0.019), HAIR, seg=6, rings=3)
+            h.beam((sx * 0.105, -0.168, 0.852), (sx * 0.183, -0.03, 0.845), 0.012, INK_DARK)
+            h.ball(0.016, (sx * 0.19, -0.005, 0.765), GOLD, seg=6, rings=3)                # earrings
+        h.rbox((0.04, 0.01, 0.012), (0, -0.177, 0.858), INK_DARK, bevel=0.004)             # bridge
+        h.ball(0.058, (0, 0.2, 0.93), HAIR, seg=8, rings=5)                                # ponytail
+        h.tube((0, 0.192, 0.944), (0, 0.222, 0.958), 0.04, NEON_PINK, seg=8)                # scrunchie
+        h.tube((0, 0.235, 0.92), (0, 0.265, 0.73), 0.048, HAIR, r1=0.02, seg=8)
+    out.append(chibi("trav_techie", 0.97,
+                     Look(skin=SKIN_L, top=TEAL, sleeve=TEAL, legs=DENIM, hips=TEAL, shoes=WHITE,
+                          torso=(0.33, 0.24, 0.33)), techie, hair="short").finish(mat, CHAR_SMOOTH))
+
+    # -- trav_baraati_m (baraat guest): a turquoise kurta to the knee with a gold placket and
+    #    buttons, white churidar, gold juttis, a plain pink safa (no turra, no kalgi, no sehra:
+    #    a guest, not the groom), a moustache, a gold watch
+    def baraati_m(P, L):
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.33), (0, 0, 0.14), 0.19, TRUCK_TEAL, r1=0.205, seg=12, caps=False)    # kurta skirt
+        b.rbox((0.04, 0.012, 0.25), (0, -0.136, 0.47), GOLD, bevel=0.006)                   # placket
+        for z in (0.56, 0.5, 0.44):
+            b.ball(0.012, (0, -0.145, z), GOLD_DARK, seg=5, rings=3)
+        b.rbox((0.17, 0.07, 0.05), (0, -0.07, 0.61), GOLD, bevel=0.02)                      # band collar
+        h.rbox((0.13, 0.032, 0.026), (0, -0.176, 0.776), HAIR, bevel=0.012)                 # moustache
+        _safa(h, PINK, NEON_PINK)
+        P["arm_l"].tube((0.245, -0.012, 0.37), (0.246, -0.012, 0.39), 0.05, GOLD, seg=8)   # watch
+    out.append(chibi("trav_baraati_m", 1.04,
+                     Look(skin=SKIN1, top=TRUCK_TEAL, sleeve=TRUCK_TEAL, forearm=TRUCK_TEAL, legs=WHITE,
+                          hips=TRUCK_TEAL, shoes=GOLD_DARK, torso=(0.37, 0.26, 0.34)), baraati_m,
+                     hair="none").finish(mat, CHAR_SMOOTH))
+
+    # -- trav_baraati_f (baraat guest): a purple lehenga with gold borders, a mustard choli, a
+    #    green dupatta across the chest and down the back, gold bangles and jhumkas, a bun with a
+    #    white gajra, a small maroon bindi (no bridal red, no veil over the head)
+    def baraati_f(P, L):
+        b, h = P["body"], P["head"]
+        b.tube((0, 0, 0.36), (0, 0, 0.035), 0.165, PURPLE, r1=0.235, seg=12)                 # lehenga
+        b.tube((0, 0, 0.035), (0, 0, 0.085), 0.24, GOLD, r1=0.229, seg=12, caps=False)
+        b.tube((0, 0, 0.19), (0, 0, 0.205), 0.2075, GOLD, r1=0.206, seg=12, caps=False)
+        b.rbox((0.36, 0.265, 0.07), (0, 0, 0.47), GREEN, rot=(0, -30, 0), bevel=0.025)       # dupatta
+        b.rbox((0.12, 0.04, 0.36), (0.11, 0.138, 0.43), GREEN, rot=(8, 0, 0), bevel=0.018)
+        b.rbox((0.122, 0.042, 0.03), (0.11, 0.145, 0.27), GOLD, rot=(8, 0, 0), bevel=0.01)
+        for sx, k in ((1, "arm_l"), (-1, "arm_r")):                                       # bangles
+            for j in range(2):
+                z = 0.36 + 0.018 * j
+                P[k].tube((sx * 0.245, -0.01, z), (sx * 0.246, -0.011, z + 0.013), 0.05, GOLD, seg=8, caps=False)
+        h.ball(0.075, (0, 0.18, 0.82), HAIR, seg=8, rings=6)                               # bun
+        for k in range(6):
+            t = 2 * math.pi * k / 6
+            h.ball(0.022, (0.075 * math.cos(t), 0.2, 0.82 + 0.075 * math.sin(t)), WHITE, seg=5, rings=3)
+        h.ell((0, -0.178, 0.885), (0.013, 0.006, 0.013), MAROON, seg=6, rings=3)           # bindi
+        for sx in (-1, 1):
+            h.ell((sx * 0.19, -0.005, 0.755), (0.017, 0.017, 0.028), GOLD, seg=6, rings=3)  # jhumkas
+    out.append(chibi("trav_baraati_f", 0.96,
+                     Look(skin=SKIN_M, top=DAL, legs=PURPLE, hips=PURPLE, shoes=GOLD_DARK,
+                          torso=(0.33, 0.24, 0.33)), baraati_f, hair="long").finish(mat, CHAR_SMOOTH))
     return out
 
 
@@ -252,6 +447,32 @@ def build_staff(mat):
         h.tube((0, 0.0, 0.915), (0, 0.0, 0.955), 0.197, RED, seg=12, caps=False)        # headband
     out.append(chibi("bablu", 0.98,
                      Look(skin=SKIN2, top=PURPLE, legs=KHAKI, shoes=WHITE), bablu, hair="short").finish(mat, CHAR_SMOOTH))
+
+    # -- Balwant (tandoor cook 1, core-and-feel C8.1): a burly Punjabi cook, maroon peaked
+    #    dastaar over a white patka, full black beard, white kurta with the sleeves rolled to the
+    #    elbow, a dark cook's apron, white pyjama; a roti on a round cloth gaddi under his right
+    #    palm (flat when the arm hangs; the rig's "slap" thrust turns it to face the drum)
+    def balwant(P, L):
+        b, h = P["body"], P["head"]
+        b.rbox((0.31, 0.03, 0.37), (0, -0.157, 0.325), TARP, bevel=0.012)                      # apron
+        b.rbox((0.18, 0.03, 0.12), (0, -0.147, 0.55), TARP, bevel=0.012)                       # bib
+        for sx in (-1, 1):
+            b.rbox((0.026, 0.2, 0.026), (sx * 0.08, -0.045, 0.6), TARP, rot=(-20, 0, 0), bevel=0.006)
+        b.decal((0.05, -0.1735, 0.36), 0.1, 0.07, "-y", DARK_STEEL)                             # pocket
+        for sx, k in ((1, "arm_l"), (-1, "arm_r")):                                          # rolled sleeves
+            P[k].tube((sx * 0.232, 0.0, 0.475), (sx * 0.236, 0.0, 0.44), 0.064, WHITE, seg=8)
+        h.ell((0, -0.075, 0.73), (0.172, 0.135, 0.13), HAIR, seg=10, rings=6)                 # beard
+        h.ell((0, -0.122, 0.655), (0.1, 0.075, 0.07), HAIR, seg=8, rings=4)
+        h.ell((0, -0.174, 0.79), (0.095, 0.03, 0.026), HAIR, seg=8, rings=4)                  # moustache
+        _dastaar(h, JACKET, WHITE)
+        g = P["arm_r"]                                                                       # gaddi + roti
+        x, y = -0.247, -0.02
+        g.tube((x, y, 0.248), (x, y, 0.268), 0.064, CREAM, seg=8)
+        disc(g, (x, y, 0.2685), 0.056, ROTI, n=8, facing="+z")
+        disc(g, (x, y, 0.2475), 0.056, ROTI, n=8, facing="+z")
+    out.append(chibi("balwant", 1.06,
+                     Look(skin=SKIN1, top=WHITE, sleeve=WHITE, legs=WHITE, hips=WHITE, shoes=TRUNK,
+                          torso=(0.4, 0.28, 0.35)), balwant, hair="none").finish(mat, CHAR_SMOOTH))
     return out
 
 
@@ -406,12 +627,15 @@ def build_menu_helpers(mat):
                      Look(skin=SKIN_M, top=WALL_BLUE, legs=WHITE, hips=WALL_BLUE, shoes=MAROON,
                           torso=(0.33, 0.24, 0.33)), neetu, hair="long").finish(mat, CHAR_SMOOTH))
 
-    # -- Bittu (lassi): lanky teenager, teal tee with a white chest band, white Gandhi topi,
-    #    navy trousers, white canvas shoes; a kulhad of lassi in hand
+    # -- Bittu (lassi): a young man (core-and-feel C8.4: adult build at scale 1.0, stubble and a
+    #    thin moustache, no "teenager" proportions), teal tee with a white chest band, white
+    #    Gandhi topi, navy trousers, white canvas shoes; a kulhad of lassi in hand
     def bittu(P, L):
         b, h = P["body"], P["head"]
-        b.rbox((0.352, 0.252, 0.045), (0, 0, 0.5), WHITE, bevel=0.015)                  # chest band
-        b.rbox((0.07, 0.015, 0.05), (-0.08, -0.128, 0.42), WHITE, bevel=0.008)          # pocket
+        b.rbox((0.372, 0.262, 0.045), (0, 0, 0.5), WHITE, bevel=0.015)                  # chest band
+        b.rbox((0.07, 0.015, 0.05), (-0.08, -0.133, 0.42), WHITE, bevel=0.008)          # pocket
+        h.ell((0, -0.03, 0.74), (0.172, 0.15, 0.08), SKIN2, seg=10, rings=4)            # stubble
+        h.rbox((0.11, 0.026, 0.02), (0, -0.177, 0.778), HAIR, bevel=0.009)              # moustache
         h.rbox((0.34, 0.2, 0.09), (0, 0.02, 1.0), WHITE, bevel=0.03)                    # topi
         h.rbox((0.3, 0.012, 0.06), (0, 0.02, 1.05), CREAM, bevel=0.01)
         h.rbox((0.342, 0.205, 0.022), (0, 0.02, 0.962), CREAM, bevel=0.01)
@@ -419,8 +643,8 @@ def build_menu_helpers(mat):
         x, y, z = -0.247, -0.05, 0.3
         g.tube((x, y, z), (x, y, z + 0.08), 0.03, CLAY, r1=0.042, seg=8)
         g.ell((x, y, z + 0.08), (0.036, 0.036, 0.014), CREAM, seg=8, rings=3)
-    out.append(chibi("bittu", 0.92,
-                     Look(skin=SKIN1, top=DADO, legs=NAVY, shoes=WHITE, torso=(0.33, 0.23, 0.35)), bittu,
+    out.append(chibi("bittu", 1.0,
+                     Look(skin=SKIN1, top=DADO, legs=NAVY, shoes=WHITE, torso=(0.36, 0.25, 0.34)), bittu,
                      hair="short").finish(mat, CHAR_SMOOTH))
 
     # -- Kallu (kadai): big and dark, orange half-sleeve shirt, black trousers, green
@@ -459,12 +683,14 @@ def build_menu_helpers(mat):
 
 
 # ------------------------------------------------------------------ waiters
-# Raju (start), Pappu and Sonu (hires). Same six nodes as every chibi plus an empty node
+# Raju (start), Pappu, Lakhan and Gopal (hires; Gopal only in the family layout), and Sonu
+# (chai cook 3; Lakhan's fallback). Same six nodes as every chibi plus an empty node
 # `tray_socket` (child of the root): where the round steel `tray` model sits when the waiter
 # carries it with both hands in front. It assumes a "carry" arm pose of about -1.2 rad on
 # arm_l / arm_r (x axis, like the rig's "serve" pose) so the hands come up under the rim.
-#   tray_socket = (0, 0.55 * s, 0.32 * s) Godot, s = 1.02 (raju), 1.0 (pappu), 0.95 (sonu)
-WAITER_SCALES = {"raju": 1.02, "pappu": 1.0, "sonu": 0.95}
+#   tray_socket = (0, 0.55 * s, 0.32 * s) Godot, s = WAITER_SCALES[name]
+# (core-and-feel C8.4: Sonu is an adult at scale 1.0; Lakhan and Gopal are new.)
+WAITER_SCALES = {"raju": 1.02, "pappu": 1.0, "sonu": 1.0, "lakhan": 1.02, "gopal": 1.01}
 
 
 def _tray_socket(s):
@@ -521,26 +747,71 @@ def build_waiters(mat):
     g.extras.append(_tray_socket(WAITER_SCALES["pappu"]))
     out.append(g)
 
-    # -- Sonu: young and lean, royal-blue shirt, white bib apron, backwards red cap,
-    #    red-and-white gamchha on the left shoulder, khaki trousers, white canvas shoes
+    # -- Sonu (chai cook 3; Lakhan's fallback waiter model): a grown man (C8.4: scale 1.0, a
+    #    moustache, an adult torso), royal-blue shirt under a white cook's apron (bib, neck straps,
+    #    down to the knee, a front pocket), backwards red cap, red-and-white gamchha on the left
+    #    shoulder, khaki trousers, white canvas shoes
     def sonu(P, L):
         b, h = P["body"], P["head"]
-        b.rbox((0.3, 0.03, 0.3), (0, -0.14, 0.37), WHITE, bevel=0.015)                # apron
-        b.rbox((0.17, 0.03, 0.11), (0, -0.138, 0.54), WHITE, bevel=0.012)             # bib
+        b.rbox((0.3, 0.03, 0.38), (0, -0.142, 0.33), WHITE, bevel=0.015)              # apron
+        b.rbox((0.17, 0.03, 0.11), (0, -0.14, 0.55), WHITE, bevel=0.012)              # bib
         for sx in (-1, 1):
             b.rbox((0.025, 0.2, 0.025), (sx * 0.075, -0.04, 0.6), WHITE, rot=(-20, 0, 0), bevel=0.006)
-        b.rbox((0.085, 0.29, 0.03), (0.12, 0.0, 0.628), RED, bevel=0.01)              # gamchha
-        b.rbox((0.085, 0.03, 0.2), (0.12, -0.138, 0.53), RED, bevel=0.01)
-        b.rbox((0.087, 0.032, 0.025), (0.12, -0.139, 0.47), WHITE, bevel=0.006)
+        b.rbox((0.12, 0.012, 0.07), (-0.04, -0.16, 0.3), CREAM, bevel=0.008)          # apron pocket
+        b.rbox((0.085, 0.29, 0.03), (0.125, 0.0, 0.628), RED, bevel=0.01)             # gamchha
+        b.rbox((0.085, 0.03, 0.2), (0.125, -0.143, 0.53), RED, bevel=0.01)
+        b.rbox((0.087, 0.032, 0.025), (0.125, -0.144, 0.47), WHITE, bevel=0.006)
+        h.rbox((0.12, 0.03, 0.024), (0, -0.176, 0.775), HAIR, bevel=0.012)            # moustache
         h.ell((0, 0.025, 0.95), (0.205, 0.198, 0.12), RED, seg=10, rings=6)           # cap
         h.rbox((0.17, 0.12, 0.025), (0, 0.2, 0.9), RED, rot=(-18, 0, 0), bevel=0.01)  # brim (back)
         h.ball(0.022, (0, 0.03, 1.07), WHITE, seg=6, rings=3)
         h.rbox((0.06, 0.05, 0.03), (0, -0.16, 0.94), WHITE, bevel=0.01)               # cap badge
     P = chibi("sonu", WAITER_SCALES["sonu"],
-              Look(skin=SKIN2, top=BLUE, legs=KHAKI, shoes=WHITE, torso=(0.34, 0.24, 0.34)), sonu,
+              Look(skin=SKIN2, top=BLUE, legs=KHAKI, shoes=WHITE, torso=(0.36, 0.25, 0.34)), sonu,
               hair="short")
     g = P.finish(mat, CHAR_SMOOTH)
     g.extras.append(_tray_socket(WAITER_SCALES["sonu"]))
+    out.append(g)
+
+    # -- Lakhan (waiter 3, C8.4): mustard-yellow half-sleeve shirt with an ochre collar and
+    #    pocket, khaki trousers, a brown belt, short hair, stubble, a black wristwatch. No apron
+    #    and no cap, so he never reads as Sonu (blue, white apron, red cap)
+    def lakhan(P, L):
+        b, h = P["body"], P["head"]
+        b.rbox((0.19, 0.08, 0.045), (0, -0.066, 0.607), GOLD_DARK, bevel=0.015)       # collar
+        b.rbox((0.012, 0.012, 0.21), (0, -0.131, 0.46), GOLD_DARK, bevel=0.004)       # placket
+        b.rbox((0.075, 0.015, 0.065), (0.09, -0.127, 0.52), GOLD_DARK, bevel=0.01)    # pocket
+        b.rbox((0.344, 0.26, 0.03), (0, 0, 0.3), TRUNK, bevel=0.01)                   # belt
+        b.rbox((0.045, 0.012, 0.028), (0, -0.131, 0.3), GOLD, bevel=0.004)
+        h.ell((0, -0.03, 0.74), (0.172, 0.15, 0.08), SKIN2, seg=10, rings=4)          # stubble
+        h.rbox((0.11, 0.026, 0.02), (0, -0.177, 0.778), SKIN2, bevel=0.009)
+        P["arm_l"].tube((0.245, -0.012, 0.37), (0.246, -0.012, 0.39), 0.05, TYRE, seg=8)   # watch
+    P = chibi("lakhan", WAITER_SCALES["lakhan"],
+              Look(skin=SKIN_M, top=DAL, legs=KHAKI, shoes=HAIR, torso=(0.37, 0.26, 0.34)), lakhan,
+              hair="short")
+    g = P.finish(mat, CHAR_SMOOTH)
+    g.extras.append(_tray_socket(WAITER_SCALES["lakhan"]))
+    out.append(g)
+
+    # -- Gopal (waiter 4, family hall, C6.1): an older waiter, white half-sleeve shirt, khaki
+    #    trousers, a green-and-white cloth over the left shoulder, a thick moustache, black hair
+    #    going grey at the temples, a pen in the shirt pocket
+    def gopal(P, L):
+        b, h = P["body"], P["head"]
+        b.ell((0, -0.07, 0.42), (0.165, 0.1, 0.12), L.top, seg=10, rings=6)            # belly
+        b.rbox((0.19, 0.08, 0.045), (0, -0.066, 0.607), WHITE, bevel=0.015)           # collar
+        b.rbox((0.075, 0.012, 0.012), (-0.1, -0.138, 0.52), DARK_STEEL, bevel=0.004)  # pocket edge
+        b.rbox((0.014, 0.014, 0.06), (-0.115, -0.139, 0.545), BLUE, bevel=0.004)      # pen
+        b.rbox((0.36, 0.26, 0.03), (0, 0, 0.3), TRUNK, bevel=0.01)                    # belt
+        _gamchha(b, 0.12, GREEN, WHITE, y_half=0.14)
+        h.rbox((0.15, 0.036, 0.03), (0, -0.177, 0.777), HAIR, bevel=0.014)            # moustache
+        for sx in (-1, 1):
+            h.ell((sx * 0.172, 0.02, 0.87), (0.04, 0.09, 0.06), CONCRETE, seg=6, rings=4)   # grey temples
+    P = chibi("gopal", WAITER_SCALES["gopal"],
+              Look(skin=SKIN1, top=WHITE, legs=KHAKI, shoes=TRUNK, torso=(0.37, 0.26, 0.34)), gopal,
+              hair="side")
+    g = P.finish(mat, CHAR_SMOOTH)
+    g.extras.append(_tray_socket(WAITER_SCALES["gopal"]))
     out.append(g)
     return out
 

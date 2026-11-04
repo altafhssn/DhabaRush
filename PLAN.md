@@ -3,6 +3,8 @@
 Version 1 · 2026-10-18 · Target: India soft launch on Android + iOS by **Sun 13 Dec 2026** (8 weeks).
 Design: [docs/GDD.md](docs/GDD.md). Research behind the numbers: [docs/research-plan-inputs.md](docs/research-plan-inputs.md). `~` = single-source figure.
 
+> **2 Nov 2026:** the monetization row and the content plan below are history. The core-and-feel build turned interstitials off for the soft launch, set the products to VIP ₹299, Remove Ads ₹149 and a Starter Pack ₹49 (placeholders), and added the Family Dhaba, NH 48, Aaj ka special and the weekend baraat: see [docs/core-and-feel/change-list.md](docs/core-and-feel/change-list.md) and the owner tasks in [docs/core-and-feel/owner-tasks.md](docs/core-and-feel/owner-tasks.md).
+
 ## 1. The bet
 
 An idle tycoon about an Indian highway dhaba. No idle/tycoon dhaba exists on either store (checked 18 Oct 2026); the closest hits are Travel Center Tycoon (10M+), Truck Masters India (10M+) and Pizza Ready! (400M lifetime). Local themes top India's download charts, India installs cost ~$0.05–0.30, so India is the cheap retention lab; the money comes later from Tier-1 iOS rewarded ads. Ship a lean MVP, measure D1/D7, then add the sort/merge cooking layer and routes.

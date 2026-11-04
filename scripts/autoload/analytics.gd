@@ -21,8 +21,13 @@ extends Node
 ##    Saved "denied": GameAnalytics is never initialised.
 ##  - No answer yet (first launch): GameAnalytics is not initialised and
 ##    events are held in memory only (at most PENDING_MAX). The consent card
-##    (scripts/v3/ui/consent_card.gd) opens once the game scene is up. ALLOW
-##    starts GameAnalytics and sends the held events; NO THANKS drops them.
+##    (scripts/v3/ui/consent_card.gd) opens once the game lets it (core and
+##    feel C4.4, the launch pop-up budget): UiRoot.can_interrupt("consent"),
+##    i.e. nothing else open, no other launch pop-up this launch, chai at
+##    Lv 10+ and, in the tutorial, its calm free step after the seats beat
+##    (~1:50). ALLOW starts GameAnalytics and sends the held events; NO THANKS
+##    drops them. A player who quits before that sends nothing (the held
+##    events are dropped with the process).
 ##  - Order with Google's ad consent (decided 27 Oct 2026): Ads asks Google's
 ##    UMP for a consent update at every launch, and Google's own form (EEA /
 ##    UK / CH only) goes first. The card waits while Google's form loads or
@@ -64,12 +69,15 @@ const CONSENT_VERSION := 1
 const UNKNOWN := "unknown"
 const GRANTED := "granted"
 const DENIED := "denied"
-## Events held in memory before the first answer (the card shows within
-## seconds, so a real first session holds a few dozen at most).
+## Events held in memory before the first answer (C4.4: the card shows at
+## ~1:50 of the first session, after about 60-90 events).
 const PENDING_MAX := 400
-## The card opens this long (real seconds) after the game scene is ready, so
-## the dhaba is already drawn behind its dim.
+## The card opens no sooner than this long (real seconds) after the game
+## scene is ready, so the dhaba is already drawn behind its dim (C4.4: the
+## game's own wait, _ui_allows(), usually holds it much longer).
 const CARD_DELAY_S := 0.8
+## How often the card flow re-asks the game whether it may open (real s).
+const UI_POLL_S := 0.25
 ## Longest wait for Google's consent update before the card opens anyway.
 const UMP_UPDATE_WAIT_S := 4.0
 ## Above Munshi-ji's box (30) and the tutorial hand (32), under the Android
@@ -91,6 +99,11 @@ var _card_layer: CanvasLayer = null
 var _card_flow: bool = false
 var _force_card: bool = false
 var _gid_warned: bool = false
+## C4.4: popup_suppressed {kind: consent} sent this launch (the budget was
+## already used by another launch pop-up).
+var _suppressed_sent: bool = false
+## This launch's card flow wants the card (_card_wanted() at _ready).
+var _card_launch: bool = false
 ## --sdk-test only: a fake GameAnalytics object _start_ga() uses instead of
 ## the engine singleton (no keys, desktop or plugin checks).
 var _test_ga_object: Object = null
@@ -122,7 +135,8 @@ func _ready() -> void:
 		print("[analytics] GameAnalytics not started: consent %s" % _consent)
 	if OS.is_debug_build() and OS.get_cmdline_user_args().has("--sdk-test"):
 		_start_sdk_test.call_deferred()
-	if _card_wanted():
+	_card_launch = _card_wanted()
+	if _card_launch:
 		_run_card_flow.call_deferred()
 
 
@@ -271,6 +285,15 @@ func is_card_open() -> bool:
 	return _card != null and is_instance_valid(_card) and bool(_card.call("is_open"))
 
 
+## Lead decision 6(c): the consent card still wants this launch's pop-up: it
+## is open, or this launch's card flow waits for an answer. UiRoot then keeps
+## WELCOME BACK and the eco note off the launch pop-up budget.
+func card_pending() -> bool:
+	if is_card_open():
+		return true
+	return _card_launch and _config_on and (_consent == UNKNOWN or _force_card)
+
+
 func backend_name() -> String:
 	return _backend_name
 
@@ -412,7 +435,8 @@ func _card_wanted() -> bool:
 
 
 ## First launch: wait for the game scene, then for Google's consent flow,
-## then open the card (unless an answer arrived meanwhile, e.g. Settings).
+## then for the game (C4.4: UiRoot.can_interrupt("consent")), then open the
+## card (unless an answer arrived meanwhile, e.g. Settings).
 func _run_card_flow() -> void:
 	if _card_flow:
 		return
@@ -421,18 +445,76 @@ func _run_card_flow() -> void:
 		await get_tree().process_frame
 	await get_tree().create_timer(CARD_DELAY_S, true, false, true).timeout
 	var t0: int = Time.get_ticks_msec()
-	var last: String = ""
+	var game_said: bool = false
 	while true:
-		var why: String = card_block_reason(float(Time.get_ticks_msec() - t0) / 1000.0)
-		if why == "":
+		var last: String = ""
+		while true:
+			var why: String = card_block_reason(float(Time.get_ticks_msec() - t0) / 1000.0)
+			if why == "":
+				break
+			if why != last:
+				print("[analytics] consent card waits: %s" % why)
+				last = why
+			await get_tree().create_timer(0.1, true, false, true).timeout
+		# C4.4: the game's own gate (the launch pop-up budget).
+		while not _ui_allows():
+			if not game_said:
+				print("[analytics] consent card waits: game")
+				game_said = true
+			if _ui_block_reason() == "budget" and not _suppressed_sent:
+				_suppressed_sent = true
+				event("popup_suppressed", {"kind": "consent"})
+			if _consent != UNKNOWN and not _force_card:
+				break
+			await get_tree().create_timer(UI_POLL_S, true, false, true).timeout
+		if _consent != UNKNOWN and not _force_card:
 			break
-		if why != last:
-			print("[analytics] consent card waits: %s" % why)
-			last = why
-		await get_tree().create_timer(0.1, true, false, true).timeout
+		# An ad or Google's form may have opened meanwhile: ask again.
+		if card_block_reason(UMP_UPDATE_WAIT_S) == "" and _ui_allows():
+			break
 	_card_flow = false
 	if _consent == UNKNOWN or _force_card:
+		_note_ui("consent")
 		show_consent_card()
+
+
+## C4.4: the game lets the consent card open now (UiRoot.can_interrupt;
+## false while there is no game UI).
+func _ui_allows() -> bool:
+	var ui: Variant = _ui()
+	if ui == null:
+		return false
+	if not (ui as Object).has_method("can_interrupt"):
+		return true
+	return bool((ui as Object).call("can_interrupt", "consent"))
+
+
+## Why the game holds the card ("" = it may open; "budget" = another launch
+## pop-up already showed this launch).
+func _ui_block_reason() -> String:
+	var ui: Variant = _ui()
+	if ui == null:
+		return "no_ui"
+	if not (ui as Object).has_method("interrupt_block_reason"):
+		return ""
+	return str((ui as Object).call("interrupt_block_reason", "consent"))
+
+
+func _note_ui(kind: String) -> void:
+	var ui: Variant = _ui()
+	if ui != null and (ui as Object).has_method("note_interrupt"):
+		(ui as Object).call("note_interrupt", kind)
+
+
+## Refs.ui (the game's UiRoot) when it is in the tree, else null.
+func _ui() -> Variant:
+	var refs: Node = get_node_or_null("/root/Refs")
+	if refs == null:
+		return null
+	var u: Variant = refs.get("ui")
+	if u == null or not is_instance_valid(u) or not (u is Node) or not (u as Node).is_inside_tree():
+		return null
+	return u
 
 
 func _on_card_answered(allow: bool) -> void:

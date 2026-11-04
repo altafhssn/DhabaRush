@@ -1,0 +1,103 @@
+{
+  "_comment": "content10h design_systems (3 Nov 2026): the systems-angle design for docs/content-10h/designs/systems.md. Run it with the extended copy of the prototype (scratchpad c10/design-systems/content10h.py; the project's tools/sim/content10h.py is unchanged and ignores the copy's keys guests_per_tpm, in_rewards, offline_x2, tier_new, earn.all_dishes and ladder_limit). The overlay is the WHOLE plan (all phases): 8 highways, the Highway Hotel on each, Izzat, slot mastery, one festival in sessions mode. Phase 1 (pre-launch) = --set content.ladder_limit=4 --set content.hotel.enabled=false --set 'content.izzat.perks.warm_welcome.costs=[]' --set 'content.festivals=[]'. Phase 2 = ladder_limit 4 with the hotel. Money in ref units (x10 on screen). No economy number outside content is changed: the offline rule stays 1/4 of the takings for up to 2 h, x2 with the ad.",
+  "content": {
+    "_ladder_comment": "Each move: prices x1.5 (location mult, measured from NH 44; x2 renovation on top). cost_mult = the highway's cost dial (every post-tutorial cost). Move cost = about 7 minutes of the takings when the move opens without the hotel (phase 1), about 4-7 with it. Move rule: all 16 dishes and the hotel done (hotel_done holds on a highway with no hotel). Hotel overrides: opening, room and tier costs x max(1, cost_mult / mult), rounded, so hotel costs follow the dhaba's cost dial and hotel rates follow its prices. Results: docs/content-10h/designs/systems.md.",
+    "highways": [
+      {"id": "nh44", "cost_mult": 1.0},
+      {"id": "nh48", "requires": "hotel_done+all_dishes", "cost_mult": 1.0},
+      {"id": "nh19", "name": "NH 19", "region": "UP · BIHAR", "mult": 2.25, "cost": 40000.0,
+       "requires": "hotel_done+all_dishes", "rebuild": true, "cost_mult": 4.0,
+       "hotel": {"cost": 5400.0, "room_costs": [360.0, 540.0, 810.0, 1170.0, 1620.0, 2160.0], "level_cost_base": 450.0}},
+      {"id": "nh44s", "name": "NH 44 SOUTH", "region": "TAMIL NADU", "mult": 3.375, "cost": 60000.0,
+       "requires": "hotel_done+all_dishes", "rebuild": true, "cost_mult": 5.5,
+       "hotel": {"cost": 4900.0, "room_costs": [325.0, 490.0, 735.0, 1060.0, 1465.0, 1955.0], "level_cost_base": 410.0}},
+      {"id": "nh66", "name": "NH 66", "region": "KONKAN COAST", "mult": 5.0625, "cost": 120000.0,
+       "requires": "hotel_done+all_dishes", "rebuild": true, "cost_mult": 12.0,
+       "hotel": {"cost": 7200.0, "room_costs": [480.0, 720.0, 1080.0, 1560.0, 2160.0, 2880.0], "level_cost_base": 600.0}},
+      {"id": "nh16", "name": "NH 16", "region": "ODISHA COAST", "mult": 7.59375, "cost": 200000.0,
+       "requires": "hotel_done+all_dishes", "rebuild": true, "cost_mult": 18.0,
+       "hotel": {"cost": 7200.0, "room_costs": [480.0, 720.0, 1080.0, 1560.0, 2160.0, 2880.0], "level_cost_base": 600.0}},
+      {"id": "nh3", "name": "NH 3", "region": "MANALI TO LEH", "mult": 11.390625, "cost": 330000.0,
+       "requires": "hotel_done+all_dishes", "rebuild": true, "cost_mult": 27.0,
+       "hotel": {"cost": 7200.0, "room_costs": [480.0, 720.0, 1080.0, 1560.0, 2160.0, 2880.0], "level_cost_base": 600.0}},
+      {"id": "nh27", "name": "NH 27", "region": "ASSAM", "mult": 17.0859375, "cost": 550000.0,
+       "requires": "hotel_done+all_dishes", "rebuild": true, "cost_mult": 40.0,
+       "hotel": {"cost": 7200.0, "room_costs": [480.0, 720.0, 1080.0, 1560.0, 2160.0, 2880.0], "level_cost_base": 600.0}}
+    ],
+    "hotel": {
+      "_comment": "Highway Hotel (phase 2): opens when every counter is at L50 (12 dishes) in the family layout, so it runs beside the climb to L100. 2 rooms come with it, 8 in all; 5 room tiers (charpai, cot, fan, cooler, AC); the first room to reach a tier on a highway is NEW. A night's guests = 0.35 x the travellers a minute (signboard included), filling the best rooms first. Paid at dawn, once per 600 s day cycle of play. Done = 8 rooms at tier 5. Its income counts in every rate path: rewards (in_rewards) and the offline rule (1/4 for up to 2 h, x2 with the ad).",
+      "enabled": true,
+      "unlock": "renovated+counters_level:50",
+      "cost": 3000.0,
+      "scale_with_mult": true,
+      "rooms_start": 2,
+      "rooms_max": 8,
+      "room_costs": [200.0, 300.0, 450.0, 650.0, 900.0, 1200.0],
+      "room_cost_growth": 1.5,
+      "room_level_max": 5,
+      "level_cost_base": 250.0,
+      "level_cost_growth": 1.6,
+      "rate_base": 150.0,
+      "rate_growth": 1.5,
+      "occupancy": 0.85,
+      "guests_per_tpm": 0.35,
+      "night_s": null,
+      "pay": "dawn",
+      "done": "rooms_all+room_level:5",
+      "offline_share": 0.25,
+      "offline_cap_hours": 2.0,
+      "offline_x2": true,
+      "in_rewards": true,
+      "tier_new": true,
+      "bias": 1.0
+    },
+    "izzat": {
+      "_comment": "Izzat: permanent, never reset by a move. Earned once per key (highway + milestone, dish slot + tier, weekend, festival). Perks never run out: Good name has 30 levels (cost +1 Izzat a level), the endless sink. No offline perk.",
+      "enabled": true,
+      "start": 0,
+      "earn": {
+        "stage_done": {"roadside": 3, "family": 0, "hotel": 5},
+        "all_dishes": 3,
+        "promotion": {"renovation": 2, "hotel": 2, "move": 3},
+        "dish_unlock": 0,
+        "star": 1,
+        "baraat_step": [1, 2, 3]
+      },
+      "perks": {
+        "old_staff": {"name": "Old staff: start each new dhaba with one more waiter", "effect": "start_waiters", "per_level": 1,
+                      "costs": [5, 10], "applies_on": ["move", "renovation"]},
+        "savings": {"name": "Savings: start each new dhaba with 500 x its price multiplier a level", "effect": "start_cash", "per_level": 500.0,
+                    "costs": [3, 5, 8, 12], "applies_on": ["move", "renovation"]},
+        "good_name": {"name": "Good name: +3 % on every price a level (30 levels)", "effect": "price_mult", "per_level": 0.03,
+                      "costs": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]},
+        "quick_hands": {"name": "Quick hands: cooks 4 % faster a level", "effect": "cook_speed", "per_level": 0.04,
+                        "costs": [3, 4, 5, 6, 8, 10]},
+        "fast_feet": {"name": "Fast feet: waiters 4 % faster a level", "effect": "waiter_speed", "per_level": 0.04,
+                      "costs": [3, 4, 5, 6, 8, 10]},
+        "known_face": {"name": "Known face: start each new highway with the signboard one level up", "effect": "signboard_start", "per_level": 1,
+                       "costs": [6, 12]},
+        "warm_welcome": {"name": "Warm welcome: the hotel pays 8 % more a level (phase 2)", "effect": "hotel_rate", "per_level": 0.08,
+                         "costs": [4, 6, 8, 10, 12]}
+      },
+      "policy": "cheapest"
+    },
+    "mastery": {
+      "_comment": "Recipe stars: one track per counter menu slot (16), counted across highways (scope slot), so leaving a highway strands nothing. Stars at 100, 200, 400 ... 12,800 serves (x2), 8 per slot, 128 in all. Each star: +1 Izzat and +1.5 % on that slot's dish price; +1 % on the counter per set level (the lowest star count of its 4 slots).",
+      "enabled": true,
+      "thresholds": [100, 200, 400, 800, 1600, 3200, 6400, 12800],
+      "scope": "slot",
+      "dish_price_per_star": 0.015,
+      "set_bonus": 0.01,
+      "global_per_stars": 0,
+      "global_mult": 0.0
+    },
+    "sessions": {
+      "per_day": 3, "minutes": 20.0, "starts_h": [8.0, 13.0, 21.0], "install_weekday": 1,
+      "offline_ad": true, "special_share": 0.08, "baraat": true, "guest_rate": 2.4
+    },
+    "festivals": [
+      {"name": "festival week (phase 2-3; one of about 6 a year, placed on day 10 for the 15-day check)", "day": 9, "days": 7, "izzat": 8, "cash_minutes": 20.0}
+    ]
+  },
+  "complete": true
+}

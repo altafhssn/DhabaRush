@@ -40,14 +40,17 @@ const POOL := 10
 const BUS_DB := {"Music": 3.0, "SFX": 3.0, "UI": 3.0}
 ## Bus of each sound id (base id; variants follow it). Anything else: SFX.
 const BUS_OF := {"tap": "UI", "button_thunk": "UI", "deny": "UI", "typewriter": "UI", "marker_pop": "UI",
-	"reward_count": "UI", "claim": "UI", "build_done": "UI", "menu_unlock": "UI", "ready": "UI", "upgrade": "UI"}
+	"reward_count": "UI", "claim": "UI", "build_done": "UI", "menu_unlock": "UI", "ready": "UI", "upgrade": "UI",
+	# core-and-feel world sounds (2026-11-01): the night TV, the baraat bus, the sitting dog
+	"tv_cheer": "SFX", "baraat_band": "SFX", "dog_bark": "SFX"}
 
 ## Minimum seconds between two plays of the same sound (stops coin spam).
 const COOLDOWN := {"serve": 0.1, "horn": 2.5, "tap": 0.05, "angry": 0.5,
 	"bill_whoosh": 0.12, "sale_chime": 0.08, "typewriter": 0.05, "button_thunk": 0.04,
 	"reward_count": 0.03, "build_done": 0.5, "marker_pop": 0.2, "claim": 0.3,
 	"churn": 1.2, "egg_crack": 1.2, "handi_bubble": 1.5, "chai_pour": 1.5, "tandoor_slap": 1.2,
-	"menu_unlock": 0.5, "kadai_sizzle": 1.2, "upgrade": 0.08, "ready": 0.3}
+	"menu_unlock": 0.5, "kadai_sizzle": 1.2, "upgrade": 0.08, "ready": 0.3,
+	"tv_cheer": 30.0, "baraat_band": 20.0, "dog_bark": 20.0}
 ## Feel track: "button_thunk" is skipped this soon after one of COVERS
 ## (play() / play_pitched() keys).
 const COVERS := ["upgrade", "upgrade_p"]
@@ -76,6 +79,9 @@ const VOLUME_DB := {
 	"claim": -2.7, "build_done": -0.8, "menu_unlock": -3.0, "ready": -2.9, "upgrade": -2.9,
 	# hooks for other tracks (generated, not played yet)
 	"angry": -13.9,
+	# core-and-feel world sounds (measure.py LUFS-M max -17.4 / -11.5 / -17.1; targets in game
+	# -30 quiet distant TV, -19 band arriving, -24 a dog down the road)
+	"tv_cheer": -15.6, "baraat_band": -10.5, "dog_bark": -9.9,
 	# beds
 	"music_loop": -14.1, "amb_day": -21.7, "amb_night": -19.4}
 ## Volume (dB) for play_pitched() (waiter pickups, the deny buzz, reward
@@ -87,7 +93,7 @@ const PITCHED_DB := {"pop": -5.0, "deny": -4.9, "reward_count": -7.0, "upgrade":
 const PITCH_JITTER_MAX := {"sale_chime": 0.012, "serve": 0.025, "claim": 0.0, "build_done": 0.0,
 	"menu_unlock": 0.0, "ready": 0.01, "marker_pop": 0.015, "upgrade": 0.012, "horn": 0.03,
 	"horn_truck": 0.03, "horn_auto": 0.03, "bike": 0.03,
-	"reward_count": 0.0}
+	"reward_count": 0.0, "baraat_band": 0.0}
 ## Variants per id: [file id, weight]. (The horns are not variants any more:
 ## Traffic picks the vehicle's own horn, see HORN_IDS.)
 const VARIANTS := {

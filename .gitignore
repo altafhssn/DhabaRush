@@ -13,3 +13,7 @@ keystore/
 *.p12
 *.pem
 release.env
+
+# Python caches
+__pycache__/
+*.pyc

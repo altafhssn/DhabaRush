@@ -1,0 +1,13 @@
+01 truck  ground/rim vs world: cash 3.13/11.43  NEXT 4.88/6.75  meter 1.56/1.68  STAFF 8.24/9.12
+01 khata  ground/rim vs world: cash 1.15/6.40  NEXT 1.94/1.94  meter 5.18/5.40  STAFF 1.11/4.38
+01 tin    ground/rim vs world: cash 7.50/8.26  NEXT 1.56/1.56  meter 1.37/1.23  STAFF 1.18/1.18
+02 truck  ground/rim vs world: cash 1.22/2.57  NEXT 1.66/1.75  meter 1.06/1.07  STAFF 2.33/2.74
+02 khata  ground/rim vs world: cash 4.40/1.58  NEXT 6.46/6.28  meter 10.33/10.28  STAFF 3.79/1.42
+02 tin    ground/rim vs world: cash 1.73/1.86  NEXT 5.38/4.67  meter 1.68/2.00  STAFF 4.29/4.07
+delta E (ground vs world; rim vs world)
+01 truck  cash 44  NEXT 91  meter 49  STAFF 94   mean 69
+01 khata  cash 28  NEXT 46  meter 60  STAFF 29   mean 41
+01 tin    cash 88  NEXT 30  meter 11  STAFF 39   mean 42
+02 truck  cash 74  NEXT 22  meter 16  STAFF 31   mean 36
+02 khata  cash 71  NEXT 63  meter 86  STAFF 66   mean 72
+02 tin    cash 17  NEXT 93  meter 62  STAFF 58   mean 57

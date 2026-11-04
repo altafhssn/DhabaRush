@@ -1,0 +1,429 @@
+override traffic.ramp_capacity_k = 1.05
+economy version 4, difficulty dial 1.0
+
+================================================================================================
+MENU CHECK [nh44] - effective price / cook factors per unlock state (newest dish 40%; must average 1.0, never drop a price across an unlock; unlock levels in level_milestones [25, 50, 100])
+================================================================================================
+  chai     n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  chai     n=2  price 0.8333 1.2500                  cook 0.943 1.085                mean 1.000000 / 1.000000  unlock x1.083  OK
+  chai     n=3  price 0.6452 0.9677 1.2903           cook 1.015 1.168 0.863          mean 1.000000 / 1.000000  unlock x1.006  OK
+  chai     n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.926 1.065 0.787 1.111    mean 1.000000 / 1.000000  unlock x1.083  OK
+  tandoor  n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  tandoor  n=2  price 0.8333 1.2500                  cook 0.962 1.058                mean 1.000000 / 1.000000  unlock x1.083  OK
+  tandoor  n=3  price 0.6452 0.9677 1.2903           cook 0.885 0.973 1.106          mean 1.000000 / 1.000000  unlock x1.006  OK
+  tandoor  n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.870 0.957 1.087 1.043    mean 1.000000 / 1.000000  unlock x1.083  OK
+  lassi    n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  lassi    n=2  price 0.8333 1.2500                  cook 1.087 0.870                mean 1.000000 / 1.000000  unlock x1.083  OK
+  lassi    n=3  price 0.6452 0.9677 1.2903           cook 1.020 0.816 1.122          mean 1.000000 / 1.000000  unlock x1.006  OK
+  lassi    n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.926 0.741 1.019 1.157    mean 1.000000 / 1.000000  unlock x1.083  OK
+  kadai    n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  kadai    n=2  price 0.8333 1.2500                  cook 0.943 1.085                mean 1.000000 / 1.000000  unlock x1.083  OK
+  kadai    n=3  price 0.6452 0.9677 1.2903           cook 0.889 1.022 1.067          mean 1.000000 / 1.000000  unlock x1.006  OK
+  kadai    n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.901 1.036 1.081 0.991    mean 1.000000 / 1.000000  unlock x1.083  OK
+  MENU CHECK: 16 states, failures: 0
+
+================================================================================================
+MENU CHECK [nh48] - effective price / cook factors per unlock state (newest dish 40%; must average 1.0, never drop a price across an unlock; unlock levels in level_milestones [25, 50, 100])
+================================================================================================
+  chai     n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  chai     n=2  price 0.8333 1.2500                  cook 0.943 1.085                mean 1.000000 / 1.000000  unlock x1.083  OK
+  chai     n=3  price 0.6452 0.9677 1.2903           cook 1.015 1.168 0.863          mean 1.000000 / 1.000000  unlock x1.006  OK
+  chai     n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.926 1.065 0.787 1.111    mean 1.000000 / 1.000000  unlock x1.083  OK
+  tandoor  n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  tandoor  n=2  price 0.8333 1.2500                  cook 0.962 1.058                mean 1.000000 / 1.000000  unlock x1.083  OK
+  tandoor  n=3  price 0.6452 0.9677 1.2903           cook 0.885 0.973 1.106          mean 1.000000 / 1.000000  unlock x1.006  OK
+  tandoor  n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.870 0.957 1.087 1.043    mean 1.000000 / 1.000000  unlock x1.083  OK
+  lassi    n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  lassi    n=2  price 0.8333 1.2500                  cook 1.087 0.870                mean 1.000000 / 1.000000  unlock x1.083  OK
+  lassi    n=3  price 0.6452 0.9677 1.2903           cook 1.020 0.816 1.122          mean 1.000000 / 1.000000  unlock x1.006  OK
+  lassi    n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.926 0.741 1.019 1.157    mean 1.000000 / 1.000000  unlock x1.083  OK
+  kadai    n=1  price 1.0000                         cook 1.000                      mean 1.000000 / 1.000000            OK
+  kadai    n=2  price 0.8333 1.2500                  cook 0.943 1.085                mean 1.000000 / 1.000000  unlock x1.083  OK
+  kadai    n=3  price 0.6452 0.9677 1.2903           cook 0.889 1.022 1.067          mean 1.000000 / 1.000000  unlock x1.006  OK
+  kadai    n=4  price 0.5376 0.8065 1.0753 1.2903    cook 0.901 1.036 1.081 0.991    mean 1.000000 / 1.000000  unlock x1.083  OK
+  MENU CHECK: 16 states, failures: 0
+==============================================================================
+PART A - reference replay, first 162 s (300 seeds). Money in REF units (x10 on screen).
+==============================================================================
+     t |     ref | sim p50 |     p10 |     p90 | p50-ref
+--------------------------------------------------------
+  36.0 |  100.00 |  100.00 |  100.00 |  100.00 |   +0.00
+  37.0 |  101.00 |  101.00 |  101.00 |  101.00 |   +0.00
+  46.0 |   98.50 |   98.50 |   98.50 |   98.50 |   +0.00
+  48.0 |   93.35 |   93.35 |   93.35 |   93.35 |   +0.00
+  50.0 |   82.41 |   82.41 |   82.41 |   82.41 |   +0.00
+  51.0 |   76.61 |   76.61 |   76.61 |   76.61 |   +0.00
+  62.0 |   76.61 |   76.61 |   76.61 |   76.61 |   +0.00
+  63.0 |   78.24 |   78.24 |   78.24 |   78.24 |   +0.00
+  65.0 |  100.00 |  100.00 |  100.00 |  100.00 |   +0.00
+  66.0 |   50.00 |   50.00 |   50.00 |   50.00 |   +0.00
+  68.0 |   51.63 |   51.63 |   51.63 |   51.63 |   +0.00
+  73.0 |   53.26 |   54.89 |   54.89 |   54.89 |   +1.63
+  74.0 |   54.89 |   54.89 |   54.89 |   54.89 |   +0.00
+  77.0 |   58.15 |   54.89 |   54.89 |   54.89 |   -3.26
+  84.0 |   61.41 |   61.41 |   59.78 |   61.41 |   +0.00
+  89.0 |   63.04 |   64.67 |   61.41 |   64.67 |   +1.63
+  97.0 |   67.93 |   67.93 |   63.04 |   67.93 |   +0.00
+ 101.0 |   71.19 |   69.56 |   64.67 |   71.19 |   -1.63
+ 105.0 |   72.82 |   71.19 |   64.67 |   74.45 |   -1.63
+ 108.0 |   68.82 |   68.82 |   62.30 |   70.45 |   +0.00
+ 110.0 |   72.08 |   70.45 |   63.93 |   73.71 |   -1.63
+ 117.0 |   75.34 |   73.71 |   65.56 |   76.97 |   -1.63
+ 121.0 |   76.97 |   75.34 |   67.19 |   80.23 |   -1.63
+ 123.0 |   66.97 |   66.97 |   57.19 |   70.23 |   -0.00
+ 127.0 |   64.19 |   62.56 |   52.78 |   67.45 |   -1.63
+ 130.0 |   65.82 |   63.37 |   54.41 |   70.71 |   -2.45
+ 133.0 |   51.02 |   49.39 |   39.61 |   55.91 |   -1.63
+ 134.0 |   52.72 |   51.02 |   41.24 |   57.54 |   -1.70
+ 139.0 |   54.49 |  100.79 |   42.87 |  107.45 |  +46.30  (ref HUD still counting up the claim; Game credits at the tap)
+ 141.0 |  104.26 |  101.10 |   43.15 |  110.43 |   -3.16
+ 147.0 |  107.80 |  104.36 |   46.48 |  113.69 |   -3.44
+ 149.0 |  207.80 |  204.65 |  148.18 |  215.39 |   -3.16
+ 154.0 |  211.34 |  207.55 |  151.37 |  217.93 |   -3.79
+ 158.0 |  213.11 |  209.50 |  197.67 |  219.91 |   -3.61
+ 161.0 |   14.88 |   13.29 |    3.47 |  143.71 |   -1.59
+--------------------------------------------------------
+mean |p50 - ref| = 1.20   max = 3.79   (one sale = 1.63-1.77)
+
+HUD /min (ref lags one level on Level Up; ours is computed after the purchase):
+  t= 45.0  ref  30/min   sim  30/min
+  t= 51.0  ref  47/min   sim  49/min
+  t= 63.0  ref  49/min   sim  49/min
+  t=123.0  ref  50/min   sim  50/min
+  t=127.0  ref  52/min   sim  54/min
+  t=130.0  ref  54/min   sim  54/min
+  t=161.0  ref  54/min   sim  84/min
+
+first sale              ref 36.70 s     sim  36.60 s
+sales 62-160.5 s        ref 32          sim p50 30 (p10 23, p90 37) = 18.1/min
+'serve 20' progress     ref 7 @80 s, 18 @116 s   sim p50 6 @80 s, 16 @116 s
+'serve 20' complete     ref ~128.7 s    sim p50  121.6 s (p10 107.5, p90 134.7)
+claim (+48)             ref 138.9 s     sim p50  138.9 s (282/300 runs claimed by 162 s)
+avg galla line (70+ s)  ref 1.5-2       sim p50 0.40 waiting, 1.12 incl. the payer (per galla)
+avg galla wait in line  ref '5 s'       sim p50 3.3 s (time queued before billing)
+tandoor built @160.5 s  ref yes         sim 267/300 runs
+purchase failures: 33 (first: 160.50 could not build tandoor (cash 199.16))
+
+================================================================================================
+PART B - seated free play after the tutorial (expected values), 100 min, ads on, greedy bot that saves for the next station once it costs <= 4 min of real income
+Core and feel: chai price ramp L13->L40; signboard +1.5/min a level, 250 x 1.6^L, 4/6 levels, payback <= max(10 min, best LEVEL UP); trays at waiter L[15, 30] x0.4; promotions on (2); realized 0.92
+================================================================================================
+  time |      cash |   HUD/min |  real/min |  arr | binds          | chai tand lass kada | W T G | claims
+  2:00 |     1,549 |    844.27 |    491.65 | 13.0 | station:tandoor |   12    1    -    - | 2 3 2 |     2
+  4:00 |     17.26 |     2,491 |     1,604 | 17.9 | max            |   26   29   12    - | 2 3 2 |     4
+  6:00 |    594.06 |     3,181 |     2,826 | 24.3 | waiters        |   31   41   25    - | 2 3 2 |     7
+  8:00 |    294.91 |     4,211 |     2,741 | 17.9 | max            |   40   56   40    - | 3 3 2 |     8
+ 10:00 |    272.57 |     4,628 |     3,947 | 17.9 | max            |   40   56   40   15 | 3 3 2 |    11
+ 12:00 |      1.41 |     5,825 |     5,363 | 17.9 | max            |   40   56   42   36 | 3 3 2 |    12
+ 14:00 |    162.39 |     6,174 |     5,726 | 17.9 | max            |   40   56   49   43 | 3 3 2 |    12
+ 16:00 |    469.14 |    12,877 |    12,044 | 26.9 | max            |   52   56   59   54 | 3 3 2 |    15
+ 18:00 |     2,856 |    13,353 |     8,331 | 17.9 | max            |   55   57   64   58 | 3 3 2 |    16
+ 20:00 |     2,219 |    14,176 |     8,846 | 17.9 | max            |   63   61   71   65 | 3 3 2 |    18
+ 22:00 |    377.38 |    14,633 |     9,128 | 17.9 | max            |   66   65   74   69 | 3 3 2 |    18
+ 24:00 |    776.96 |    16,522 |     9,748 | 17.9 | max            |   74   73   83   77 | 3 5 2 |    21
+ 26:00 |    375.21 |    17,014 |    15,059 | 26.9 | max            |   78   78   86   81 | 3 5 2 |    22
+ 28:00 |    601.74 |    20,843 |    11,233 | 19.3 | max            |   84   82   92   86 | 3 5 2 |    24 | s0 sign 1
+ 30:00 |    940.95 |    21,243 |    11,462 | 19.3 | max            |   86   86   94   89 | 3 5 2 |    24 | s0 sign 1
+ 32:00 |     5,955 |    23,938 |    12,633 | 19.3 | max            |   90   90  100   93 | 3 5 2 |    26 | s0 sign 1
+ 34:00 |     2,766 |    24,353 |    12,886 | 19.3 | max            |   94   94  100   97 | 3 5 2 |    26 | s0 sign 1
+ 36:00 |     8,338 |    29,959 |    24,240 | 29.0 | max            |  101  102  107  100 | 3 5 2 |    27 | s0 sign 1
+ 38:00 |    52,831 |    30,260 |    16,341 | 19.3 | max            |  101  104  108  102 | 3 5 2 |    30 | s0 sign 1
+ 40:00 |    90,013 |    30,260 |    16,341 | 19.3 | max            |  101  104  108  102 | 3 5 2 |    31 | s0 sign 1
+ 42:00 |     34.71 |     7,404 |     7,642 | 19.2 | max            |   31   21   25   21 | 2 3 2 |    33 | s1 sign 1 W[11, 3]
+ 44:00 |    876.57 |    10,207 |    10,963 | 19.3 | max            |   40   34   41   35 | 2 3 2 |    33 | s1 sign 1 W[11, 3]
+ 46:00 |     43.24 |    23,585 |    24,241 | 28.4 | waiters        |   50   50   51   50 | 3 4 2 |    36 | s1 sign 1 W[11, 8, 9]
+ 48:00 |    824.55 |    25,787 |    18,019 | 19.3 | max            |   57   53   64   59 | 3 4 2 |    36 | s1 sign 1 W[11, 8, 9]
+ 50:00 |     1,300 |    27,519 |    19,247 | 19.3 | max            |   65   61   73   66 | 3 4 2 |    36 | s1 sign 1 W[11, 8, 9]
+ 52:00 |     78.97 |    29,219 |    20,423 | 19.3 | max            |   71   69   78   74 | 3 4 2 |    36 | s1 sign 1 W[11, 8, 9]
+ 54:00 |     3,325 |    30,573 |    21,407 | 19.3 | max            |   78   78   86   79 | 3 4 2 |    36 | s1 sign 1 W[11, 8, 9]
+ 56:00 |     4,983 |    32,161 |    33,753 | 29.0 | max            |   84   82   93   86 | 3 4 2 |    36 | s1 sign 1 W[11, 9, 9]
+ 58:00 |    621.57 |    35,797 |    25,266 | 19.3 | max            |   90   90  100   93 | 3 4 2 |    36 | s1 sign 1 W[11, 9, 9]
+ 60:00 |    125.65 |    44,671 |    31,021 | 19.3 | max            |   98   97  100  100 | 3 4 2 |    36 | s1 sign 1 W[11, 9, 9]
+ 62:00 |    60,106 |    45,690 |    31,954 | 19.3 | max            |  100  100  100  100 | 3 4 2 |    36 | s1 sign 1 W[11, 9, 9]
+ 64:00 |    1.24 L |    45,759 |    32,008 | 19.3 | max            |  101  100  101  100 | 3 4 2 |    37 | s1 sign 1 W[11, 9, 9]
+ 66:00 |    2.04 L |    45,818 |    48,080 | 29.0 | max            |  101  100  102  100 | 4 4 2 |    39 | s1 sign 1 W[11, 9, 9, 1]
+ 68:00 |     4,613 |     4,548 |     2,946 | 13.0 | station:tandoor |   16   25    1    - | 2 3 1 |    39 | s2 sign 0 W[1, 1]
+ 70:00 |    10,494 |     4,548 |     2,948 | 13.0 | station:tandoor |   16   25    1    - | 2 3 1 |    39 | s2 sign 0 W[1, 1]
+ 72:00 |    254.01 |    15,258 |    16,297 | 19.2 | max            |   40   34   40   35 | 4 3 2 |    41 | s2 sign 1 W[1, 1, 1, 1]
+ 74:00 |    706.60 |    23,530 |    25,441 | 19.3 | max            |   50   53   57   52 | 4 3 2 |    41 | s2 sign 1 W[1, 1, 1, 1]
+ 76:00 |     1,813 |    41,529 |    43,544 | 29.0 | max            |   65   61   73   67 | 4 3 2 |    43 | s2 sign 1 W[1, 1, 1, 2]
+ 78:00 |     1,384 |    46,910 |    32,786 | 19.3 | max            |   81   78   86   83 | 4 4 2 |    46 | s2 sign 1 W[6, 1, 1, 2]
+ 80:00 |     4,716 |    49,764 |    34,791 | 19.3 | max            |   89   86   95   91 | 4 4 2 |    46 | s2 sign 1 W[6, 1, 1, 2]
+ 82:00 |     2,627 |    68,727 |    48,082 | 19.3 | max            |  101  100  102  100 | 4 4 2 |    47 | s2 sign 1 W[6, 1, 1, 2]
+ 84:00 |    869.45 |    70,854 |    56,686 | 22.1 | max            |  103  104  110  104 | 4 4 2 |    47 | s2 sign 3 W[6, 1, 1, 2]
+ 86:00 |    168.97 |    76,801 |    81,117 | 30.3 | gallas         |  109  109  116  111 | 4 4 2 |    49 | s2 sign 3 W[6, 4, 4, 4]
+ 88:00 |    10,530 |    79,241 |    60,982 | 22.1 | max            |  116  113  122  116 | 4 4 2 |    49 | s2 sign 3 W[6, 4, 4, 4]
+ 90:00 |     7,130 |    83,499 |    64,255 | 22.1 | max            |  124  123  131  125 | 4 4 2 |    50 | s2 sign 3 W[6, 4, 4, 4]
+ 92:00 |    12,480 |    85,645 |    69,998 | 23.5 | max            |  129  127  134  130 | 4 4 2 |    52 | s2 sign 4 W[6, 4, 4, 4]
+ 94:00 |    18,652 |    88,170 |    72,089 | 23.5 | max            |  134  132  141  135 | 4 5 2 |    55 | s2 sign 4 W[6, 9, 4, 4]
+ 96:00 |    22,681 |    90,528 |    1.11 L | 35.2 | max            |  139  137  146  140 | 4 5 2 |    58 | s2 sign 4 W[9, 10, 10, 10]
+ 98:00 |    28,159 |    97,717 |    80,728 | 23.5 | max            |  144  142  150  144 | 4 5 2 |    58 | s2 sign 4 W[9, 10, 10, 10]
+100:00 |    22,869 |    99,557 |    83,916 | 24.0 | max            |  147  146  150  149 | 4 5 2 |    59 | s2 sign 5 W[9, 10, 10, 10]
+
+ROUND 2 CHECKPOINTS (display rupees; t = minutes after the tutorial; real = takings/min actually paid; HUD = ramp target x bill; cap = 0.3.2 capacity rate):
+    t |      cash |  real/min |   HUD/min |   cap/min |  sales cum | rewards cum |       ads     chest     tasks | earned cum |     bill | levels
+  1.0 |     1,057 |    491.65 |    534.40 |    844.27 |     491.65 |         530 |         0         0       530 |      1,022 |    37.70 | chai12 tand1 W2 T3 G2
+  2.0 |     1,549 |    491.65 |    534.40 |    844.27 |     983.29 |         530 |         0         0       530 |      1,513 |    37.70 | chai12 tand1 W2 T3 G2
+  3.0 |     37.15 |     1,015 |     1,103 |     1,605 |      1,573 |         730 |         0         0       730 |      2,303 |    58.84 | chai12 tand9 lass1 W2 T3 G2
+  5.0 |     90.11 |     2,109 |     2,292 |     2,686 |      4,115 |       3,130 |     1,500         0     1,630 |      7,245 |    96.46 | chai31 tand35 lass17 W2 T3 G2
+  7.5 |    136.03 |     2,627 |     2,856 |     4,047 |     10,196 |       4,540 |     1,500         0     3,040 |     14,736 |   146.46 | chai40 tand53 lass34 W2 T3 G2
+ 10.0 |    272.57 |     3,947 |     4,290 |     4,628 |     17,338 |      16,380 |     4,400     4,500     7,480 |     33,718 |   220.01 | chai40 tand56 lass40 kada15 W3 T3 G2
+ 12.5 |     65.15 |     5,454 |     5,928 |     5,907 |     28,729 |      22,940 |    10,000     4,500     8,440 |     51,669 |   304.01 | chai40 tand56 lass43 kada38 W3 T3 G2
+ 15.0 |     87.06 |     8,660 |     9,413 |     9,826 |     43,032 |      22,940 |    10,000     4,500     8,440 |     65,972 |   345.68 | chai40 tand56 lass50 kada45 W3 T3 G2
+ 20.0 |     2,219 |     8,846 |     9,615 |    14,176 |     86,623 |      57,380 |    32,500     4,500    20,380 |     1.44 L |   493.07 | chai63 tand61 lass71 kada65 W3 T3 G2
+ 25.0 |     4,098 |    14,487 |    15,746 |    16,650 |     1.33 L |      90,480 |    42,500    19,500    28,480 |     2.23 L |   547.46 | chai76 tand73 lass84 kada78 W3 T5 G2
+ 30.0 |    940.95 |    11,462 |    12,459 |    21,243 |     1.93 L |      1.10 L |    54,500    19,500    35,780 |     3.03 L |   593.27 | chai86 tand86 lass94 kada89 sign1 W3 T5 G2
+ 40.0 |    90,013 |    16,341 |    17,762 |    30,260 |     3.43 L |      2.09 L |    93,500    45,500    69,880 |     5.52 L |   845.79 | chai101 tand104 lass108 kada102 sign1 W3 T5 G2
+ 45.0 |     19.00 |    16,238 |    17,650 |    16,867 |     3.92 L |      2.22 L |    93,500    45,500    82,770 |     6.14 L |   611.07 | s1 chai40 tand41 lass48 kada42 sign1 W3 T4 G2
+ 50.0 |     1,300 |    19,247 |    20,920 |    27,519 |     4.84 L |      2.22 L |    93,500    45,500    82,770 |     7.06 L |   996.20 | s1 chai65 tand61 lass73 kada66 sign1 W3 T4 G2
+ 60.0 |    125.65 |    31,021 |    33,719 |    44,671 |     7.22 L |      2.22 L |    93,500    45,500    82,770 |     9.43 L |    1,606 | s1 chai98 tand97 lass100 kada100 sign1 W3 T4 G2
+ 70.0 |    10,494 |     2,948 |     3,204 |     4,548 |     9.87 L |      2.38 L |    93,500    45,500    98,970 |    12.24 L |   226.03 | s2 chai16 tand25 lass1 sign0 W2 T3 G1
+ 75.0 |     1,236 |    40,108 |    43,595 |    38,870 |    10.62 L |      2.74 L |    93,500    57,500    1.23 L |    13.36 L |    1,408 | s2 chai57 tand57 lass66 kada59 sign1 W4 T3 G2
+ 80.0 |     4,716 |    34,791 |    37,817 |    49,764 |    12.37 L |      2.98 L |    93,500    57,500    1.47 L |    15.35 L |    1,801 | s2 chai89 tand86 lass95 kada91 sign1 W4 T4 G2
+ 90.0 |     7,130 |    64,255 |    69,842 |    83,499 |    18.01 L |      4.43 L |    93,500    1.57 L    1.92 L |    22.44 L |    2,910 | s2 chai124 tand123 lass131 kada125 sign3 W4 T4 G2
+100.0 |    22,869 |    83,916 |    91,213 |    99,557 |    25.86 L |      6.06 L |    93,500    1.57 L    3.55 L |    31.92 L |    3,502 | s2 chai147 tand146 lass150 kada149 sign5 W4 T5 G2
+
+Prices at the checkpoints (station mean bill per item, display rupees):
+    5.0 min: chai L31 36.20, tandoor L35 43.70, lassi L17 66
+   10.0 min: chai L40 39.40, tandoor L56 71, lassi L40 115.70, kadai L15 192
+   20.0 min: chai L63 59, tandoor L61 74.40, lassi L71 202.80, kadai L65 578
+   30.0 min: chai L86 66.80, tandoor L86 91.30, lassi L94 241.70, kadai L89 699.70
+   45.0 min: chai L40 78.80, tandoor L41 93.60, lassi L48 252.20, kadai L42 709.80
+   60.0 min: chai L98 141.60, tandoor L97 197.40, lassi L100 654.80, kadai L100 1,964
+   90.0 min: chai L124 310.50, tandoor L123 453.60, lassi L131 1,186, kadai L125 3,440
+
+OFFLINE OFFERS on return (base / x2 with ad; '-' = no popup):
+  rule v032:
+    at  5.0 min (basis 1,736/min, cash 90.11):   1m: 868.10 / 1,736 |   5m: 4,340 / 8,681 |  15m: 13,022 / 26,043 |  30m: 26,043 / 52,086 | 120m: 1.04 L / 2.08 L
+    at 10.0 min (basis 3,960/min, cash 272.57):   1m: 1,980 / 3,960 |   5m: 9,900 / 19,801 |  15m: 29,702 / 59,403 |  30m: 59,403 / 1.19 L | 120m: 2.38 L / 4.75 L
+    at 20.0 min (basis 8,875/min, cash 2,219):   1m: 4,438 / 8,875 |   5m: 22,188 / 44,376 |  15m: 66,564 / 1.33 L |  30m: 1.33 L / 2.66 L | 120m: 5.33 L / 10.65 L
+    at 30.0 min (basis 11,569/min, cash 940.95):   1m: 5,784 / 11,569 |   5m: 28,922 / 57,844 |  15m: 86,765 / 1.74 L |  30m: 1.74 L / 3.47 L | 120m: 6.94 L / 13.88 L
+    at 60.0 min (basis 31,311/min, cash 125.65):   1m: 15,655 / 31,311 |   5m: 78,276 / 1.57 L |  15m: 2.35 L / 4.70 L |  30m: 4.70 L / 9.39 L | 120m: 18.79 L / 37.57 L
+  rule eco:
+    at  5.0 min (basis 1,736/min, cash 90.11):   1m: - |   5m: - |  15m: 6,511 / (no x2) |  30m: 13,022 / 26,043 | 120m: 52,086 / 1.04 L
+    at 10.0 min (basis 3,960/min, cash 272.57):   1m: - |   5m: - |  15m: 14,851 / (no x2) |  30m: 29,702 / 59,403 | 120m: 1.19 L / 2.38 L
+    at 20.0 min (basis 8,875/min, cash 2,219):   1m: - |   5m: - |  15m: 33,282 / (no x2) |  30m: 66,564 / 1.33 L | 120m: 2.66 L / 5.33 L
+    at 30.0 min (basis 11,569/min, cash 940.95):   1m: - |   5m: - |  15m: 43,383 / (no x2) |  30m: 86,765 / 1.74 L | 120m: 3.47 L / 6.94 L
+    at 60.0 min (basis 31,311/min, cash 125.65):   1m: - |   5m: - |  15m: 1.17 L / (no x2) |  30m: 2.35 L / 4.70 L | 120m: 9.39 L / 18.79 L
+
+UNLOCKS (min:sec after the tutorial):
+  lassi    affordable  2:18.50  built  2:18.50
+  kadai    affordable  9:23.00  built  9:23.00
+  tandoor.L25 NAAN              3:51.50
+  chai.L25 COFFEE               4:00.00
+  lassi.L25 CHAAS               5:54.50
+  tandoor.L50 KEEMA PARATHA     6:18.50
+  kadai.L25 DAL MAKHANI        11:01.00
+  lassi.L50 MANGO LASSI        14:03.00
+  kadai.L50 KADAI PANEER       15:55.00
+  chai.L50 GREEN TEA           15:55.50
+  lassi.L100 PATIALA LASSI     32:00.00
+  kadai.L100 PINDI CHOLE       35:34.00
+  chai.L100 KESAR DOODH        35:47.50
+  tandoor.L100 AMRITSARI KULCHA 35:48.00
+  s1 chai.L25 COFFEE           40:47.00
+  s1 lassi.L25 CHAAS           41:41.00
+  s1 kadai.L25 DAL MAKHANI     42:17.50
+  s1 tandoor.L25 NAAN          42:18.50
+  s1 lassi.L50 MANGO LASSI     45:13.00
+  s1 kadai.L50 KADAI PANEER    45:50.00
+  s1 tandoor.L50 KEEMA PARATHA 45:51.50
+  s1 chai.L50 GREEN TEA        45:53.50
+  s1 lassi.L100 PATIALA LASSI  57:43.50
+  s1 kadai.L100 PINDI CHOLE    59:53.00
+  s1 chai.L100 KESAR DOODH     60:03.00
+  s1 tandoor.L100 AMRITSARI KULCHA 60:06.50
+  s2 tandoor.L25 TANDOORI ROTI 67:17.00
+  s2 chai.L25 GUR KI CHAI      71:01.50
+  s2 lassi.L25 CHAACH          71:26.00
+  s2 kadai.L25 GATTE KI SABZI  71:26.00
+  s2 lassi.L50 KESAR LASSI     72:51.50
+  s2 kadai.L50 KER SANGRI      73:24.00
+  s2 tandoor.L50 BAATI         73:25.50
+  s2 chai.L50 SHIKANJI         73:27.50
+  s2 lassi.L100 RABRI          80:20.00
+  s2 kadai.L100 LAAL MAAS      81:36.00
+  s2 chai.L100 KESARIYA THANDAI 81:43.00
+  s2 tandoor.L100 LACCHA PARATHA 81:45.00
+SUMMARY {"afford": {"lassi": 138.5, "kadai": 563.0}, "unlock": {"tandoor.L25 NAAN": 231.5, "chai.L25 COFFEE": 240.0, "lassi.L25 CHAAS": 354.5, "tandoor.L50 KEEMA PARATHA": 378.5, "kadai.L25 DAL MAKHANI": 661.0, "lassi.L50 MANGO LASSI": 843.0, "kadai.L50 KADAI PANEER": 955.0, "chai.L50 GREEN TEA": 955.5, "lassi.L100 PATIALA LASSI": 1920.0, "kadai.L100 PINDI CHOLE": 2134.0, "chai.L100 KESAR DOODH": 2147.5, "tandoor.L100 AMRITSARI KULCHA": 2148.0, "s1 chai.L25 COFFEE": 2447.0, "s1 lassi.L25 CHAAS": 2501.0, "s1 kadai.L25 DAL MAKHANI": 2537.5, "s1 tandoor.L25 NAAN": 2538.5, "s1 lassi.L50 MANGO LASSI": 2713.0, "s1 kadai.L50 KADAI PANEER": 2750.0, "s1 tandoor.L50 KEEMA PARATHA": 2751.5, "s1 chai.L50 GREEN TEA": 2753.5, "s1 lassi.L100 PATIALA LASSI": 3463.5, "s1 kadai.L100 PINDI CHOLE": 3593.0, "s1 chai.L100 KESAR DOODH": 3603.0, "s1 tandoor.L100 AMRITSARI KULCHA": 3606.5, "s2 tandoor.L25 TANDOORI ROTI": 4037.0, "s2 chai.L25 GUR KI CHAI": 4261.5, "s2 lassi.L25 CHAACH": 4286.0, "s2 kadai.L25 GATTE KI SABZI": 4286.0, "s2 lassi.L50 KESAR LASSI": 4371.5, "s2 kadai.L50 KER SANGRI": 4404.0, "s2 tandoor.L50 BAATI": 4405.5, "s2 chai.L50 SHIKANJI": 4407.5, "s2 lassi.L100 RABRI": 4820.0, "s2 kadai.L100 LAAL MAAS": 4896.0, "s2 chai.L100 KESARIYA THANDAI": 4903.0, "s2 tandoor.L100 LACCHA PARATHA": 4905.0}, "checks": [{"min": 1, "cash": 1057, "real": 492, "hud": 534, "sales": 492, "rew": 530, "ads": 0, "bill": 37.7, "off": 509, "prices": {"chai": 17.7, "tandoor": 20.0}, "levels": {"chai": 12, "tandoor": 1}}, {"min": 2, "cash": 1549, "real": 492, "hud": 534, "sales": 983, "rew": 530, "ads": 0, "bill": 37.7, "off": 509, "prices": {"chai": 17.7, "tandoor": 20.0}, "levels": {"chai": 12, "tandoor": 1}}, {"min": 3, "cash": 37, "real": 1015, "hud": 1103, "sales": 1573, "rew": 730, "ads": 0, "bill": 58.8, "off": 1059, "prices": {"chai": 17.7, "tandoor": 23.2, "lassi": 50.0}, "levels": {"chai": 12, "tandoor": 9, "lassi": 1}}, {"min": 5, "cash": 90, "real": 2109, "hud": 2292, "sales": 4115, "rew": 3130, "ads": 1500, "bill": 96.5, "off": 1736, "prices": {"chai": 36.2, "tandoor": 43.7, "lassi": 66.0}, "levels": {"chai": 31, "tandoor": 35, "lassi": 17}}, {"min": 7.5, "cash": 136, "real": 2627, "hud": 2856, "sales": 10196, "rew": 4540, "ads": 1500, "bill": 146.5, "off": 2636, "prices": {"chai": 39.4, "tandoor": 69.0, "lassi": 107.9}, "levels": {"chai": 40, "tandoor": 53, "lassi": 34}}, {"min": 10, "cash": 273, "real": 3947, "hud": 4290, "sales": 17338, "rew": 16380, "ads": 4400, "bill": 220.0, "off": 3960, "prices": {"chai": 39.4, "tandoor": 71.0, "lassi": 115.7, "kadai": 192.0}, "levels": {"chai": 40, "tandoor": 56, "lassi": 40, "kadai": 15}}, {"min": 12.5, "cash": 65, "real": 5454, "hud": 5928, "sales": 28729, "rew": 22940, "ads": 10000, "bill": 304.0, "off": 5472, "prices": {"chai": 39.4, "tandoor": 71.0, "lassi": 119.6, "kadai": 339.3}, "levels": {"chai": 40, "tandoor": 56, "lassi": 43, "kadai": 38}}, {"min": 15, "cash": 87, "real": 8660, "hud": 9413, "sales": 43032, "rew": 22940, "ads": 10000, "bill": 345.7, "off": 6222, "prices": {"chai": 39.4, "tandoor": 71.0, "lassi": 167.3, "kadai": 366.6}, "levels": {"chai": 40, "tandoor": 56, "lassi": 50, "kadai": 45}}, {"min": 20, "cash": 2219, "real": 8846, "hud": 9615, "sales": 86623, "rew": 57380, "ads": 32500, "bill": 493.1, "off": 8875, "prices": {"chai": 59.0, "tandoor": 74.4, "lassi": 202.8, "kadai": 578.0}, "levels": {"chai": 63, "tandoor": 61, "lassi": 71, "kadai": 65}}, {"min": 25, "cash": 4098, "real": 14487, "hud": 15746, "sales": 132980, "rew": 90480, "ads": 42500, "bill": 547.5, "off": 9854, "prices": {"chai": 63.4, "tandoor": 82.5, "lassi": 224.8, "kadai": 643.9}, "levels": {"chai": 76, "tandoor": 73, "lassi": 84, "kadai": 78}}, {"min": 30, "cash": 941, "real": 11462, "hud": 12459, "sales": 193067, "rew": 109780, "ads": 54500, "bill": 593.3, "off": 11569, "prices": {"chai": 66.8, "tandoor": 91.3, "lassi": 241.7, "kadai": 699.7}, "levels": {"chai": 86, "tandoor": 86, "lassi": 94, "kadai": 89}}, {"min": 40, "cash": 90013, "real": 16341, "hud": 17762, "sales": 342934, "rew": 208880, "ads": 93500, "bill": 845.8, "off": 16493, "prices": {"chai": 93.4, "tandoor": 134.5, "lassi": 344.9, "kadai": 995.2}, "levels": {"chai": 101, "tandoor": 104, "lassi": 108, "kadai": 102}}, {"min": 45, "cash": 19, "real": 16238, "hud": 17650, "sales": 392479, "rew": 221770, "ads": 93500, "bill": 611.1, "off": 11916, "prices": {"chai": 78.8, "tandoor": 93.6, "lassi": 252.2, "kadai": 709.8}, "levels": {"chai": 40, "tandoor": 41, "lassi": 48, "kadai": 42}}, {"min": 50, "cash": 1300, "real": 19247, "hud": 20920, "sales": 484321, "rew": 221770, "ads": 93500, "bill": 996.2, "off": 19426, "prices": {"chai": 119.4, "tandoor": 148.8, "lassi": 412.4, "kadai": 1166.2}, "levels": {"chai": 65, "tandoor": 61, "lassi": 73, "kadai": 66}}, {"min": 60, "cash": 126, "real": 31021, "hud": 33719, "sales": 721646, "rew": 221770, "ads": 93500, "bill": 1605.7, "off": 31311, "prices": {"chai": 141.6, "tandoor": 197.4, "lassi": 654.8, "kadai": 1964.2}, "levels": {"chai": 98, "tandoor": 97, "lassi": 100, "kadai": 100}}, {"min": 70, "cash": 10494, "real": 2948, "hud": 3204, "sales": 986525, "rew": 237970, "ads": 93500, "bill": 226.0, "off": 3051, "prices": {"chai": 61.2, "tandoor": 115.5, "lassi": 150.0}, "levels": {"chai": 16, "tandoor": 25, "lassi": 1}}, {"min": 75, "cash": 1236, "real": 40108, "hud": 43595, "sales": 1061566, "rew": 274270, "ads": 93500, "bill": 1408.3, "off": 27461, "prices": {"chai": 171.0, "tandoor": 215.1, "lassi": 583.2, "kadai": 1642.8}, "levels": {"chai": 57, "tandoor": 57, "lassi": 66, "kadai": 59}}, {"min": 80, "cash": 4716, "real": 34791, "hud": 37817, "sales": 1236848, "rew": 298470, "ads": 93500, "bill": 1800.8, "off": 35116, "prices": {"chai": 203.4, "tandoor": 273.9, "lassi": 730.2, "kadai": 2129.4}, "levels": {"chai": 89, "tandoor": 86, "lassi": 95, "kadai": 91}}, {"min": 90, "cash": 7130, "real": 64255, "hud": 69842, "sales": 1800662, "rew": 443170, "ads": 93500, "bill": 2910.1, "off": 65477, "prices": {"chai": 310.5, "tandoor": 453.6, "lassi": 1186.5, "kadai": 3440.4}, "levels": {"chai": 124, "tandoor": 123, "lassi": 131, "kadai": 125}}, {"min": 100, "cash": 22869, "real": 83916, "hud": 91213, "sales": 2586291, "rew": 606170, "ads": 93500, "bill": 3502.3, "off": 89310, "prices": {"chai": 340.8, "tandoor": 514.2, "lassi": 1705.2, "kadai": 3915.0}, "levels": {"chai": 147, "tandoor": 146, "lassi": 150, "kadai": 149}}], "promo": {"enabled": true, "stage": 2, "location": "nh48", "marks": {"end0": 2148.5, "unlock0": 2148.5, "promo0": 2437.0, "end1": 3607.0, "unlock1": 3607.0, "promo1": 4025.5, "end2": 4905.5}, "waiter_levels": {"0": [7, 7, 7], "1": [11, 9, 9, 1]}, "sign_buys": [{"t": 1602.0, "stage": 0, "level": 1, "cost": 250.0}, {"t": 4286.0, "stage": 2, "level": 1, "cost": 250.0}, {"t": 4955.5, "stage": 2, "level": 2, "cost": 400.0}, {"t": 4983.5, "stage": 2, "level": 3, "cost": 640.0}, {"t": 5413.0, "stage": 2, "level": 4, "cost": 1024.0}, {"t": 5995.5, "stage": 2, "level": 5, "cost": 1638.4}], "binds": {"0": {"station": 0.071, "max": 0.879, "waiters": 0.037, "gallas": 0.014}, "1": {"waiters": 0.061, "gallas": 0.018, "max": 0.918, "station": 0.004}, "2": {"waiters": 0.002, "gallas": 0.095, "station": 0.09, "max": 0.813}}, "rebuilds": [{"t": 4031.0, "stage": 2, "station": "tandoor"}, {"t": 4034.5, "stage": 2, "station": "lassi"}, {"t": 4214.5, "stage": 2, "station": "kadai"}], "starter": null}}
+
+================================================================================================
+PROMO - renovation 10000 x2, move nh48 25000 x1.5; signboard on; trays [15, 30]; realized 0.92; ads on
+================================================================================================
+  renovation unlocks (all 16 dishes)       35:48.50
+  renovated (Family Dhaba)                 40:37.00   waiter levels [7, 7, 7], signboard 1
+  family run: every counter L100 again     60:07.00
+  NH 48 unlocks                            60:07.00
+  moved to NH 48                           67:05.50   waiter levels [11, 9, 9, 1], signboard 1
+  NH 48: all 16 dishes                     81:45.50
+PROMO marks: {"end0": "35:48.50", "unlock0": "35:48.50", "promo0": "40:37.00", "wl0": [7, 7, 7], "end1": "60:07.00", "unlock1": "60:07.00", "promo1": "67:05.50", "wl1": [11, 9, 9, 1], "end2": "81:45.50"}
+  signboard buys (time, stage, level, cost): (26:42.00, s0, L1, 2,500), (71:26.00, s2, L1, 2,500), (82:35.50, s2, L2, 4,000), (83:03.50, s2, L3, 6,400), (90:13.00, s2, L4, 10,240), (99:55.50, s2, L5, 16,384)
+  binds per stage: s0 max 88%, station 7%, waiters 4%, gallas 1%; s1 max 92%, waiters 6%, gallas 2%, station 0%; s2 max 81%, gallas 9%, station 9%, waiters 0%
+  rebuilt after the move: tandoor 67:11.00 (2,000), lassi 67:14.50 (1,700), kadai 70:14.50 (10,000)
+  end: stage 2 (nh48) mult x3.00 signboard 5 levels chai147 tandoor146 lassi150 kadai149 waiters [9, 10, 10, 10] tables 5 gallas 2 real/min 83,916
+
+Timeline (station affordable / built, staff, milestones):
+   2:18.50  AFFORDABLE lassi (1,700)
+   2:18.50  BUILD lassi
+   2:40.50  hire tandoor
+   3:51.50  tandoor reached L25: NAAN on the menu
+   4:00.00  chai reached L25: COFFEE on the menu
+   5:54.50  lassi reached L25: CHAAS on the menu
+   6:18.50  tandoor reached L50: KEEMA PARATHA on the menu
+   8:00.00  hire waiter 3
+   9:23.00  AFFORDABLE kadai (10,000)
+   9:23.00  BUILD kadai
+  11:01.00  kadai reached L25: DAL MAKHANI on the menu
+  14:03.00  lassi reached L50: MANGO LASSI on the menu
+  14:43.50  hire kadai
+  15:55.00  kadai reached L50: KADAI PANEER on the menu
+  15:55.50  chai reached L50: GREEN TEA on the menu
+  26:42.00  SIGNBOARD level 1 (2,500), cap 21.0/min
+  32:00.00  lassi reached L100: PATIALA LASSI on the menu
+  35:34.00  kadai reached L100: PINDI CHOLE on the menu
+  35:47.50  chai reached L100: KESAR DOODH on the menu
+  35:48.00  tandoor reached L100: AMRITSARI KULCHA on the menu
+  35:48.50  ALL DISHES (stage 0)
+  35:48.50  UNLOCKED renovation (1.00 L)
+  40:00.00  AD CAP reached (max_per_session 10): no more wall ads this session
+  40:37.00  PROMOTED renovation 1: cost 1.00 L mult x2.00 location nh44 waiters before [7, 7, 7]
+  40:47.00  s1 chai reached L25: COFFEE on the menu
+  41:15.00  hire waiter 2
+  41:41.00  s1 lassi reached L25: CHAAS on the menu
+  42:17.50  s1 kadai reached L25: DAL MAKHANI on the menu
+  42:18.50  s1 tandoor reached L25: NAAN on the menu
+  44:16.00  hire waiter 3
+  44:36.00  hire kadai
+  45:13.00  s1 lassi reached L50: MANGO LASSI on the menu
+  45:50.00  s1 kadai reached L50: KADAI PANEER on the menu
+  45:51.50  s1 tandoor reached L50: KEEMA PARATHA on the menu
+  45:53.50  s1 chai reached L50: GREEN TEA on the menu
+  57:43.50  s1 lassi reached L100: PATIALA LASSI on the menu
+  59:53.00  s1 kadai reached L100: PINDI CHOLE on the menu
+  60:03.00  s1 chai reached L100: KESAR DOODH on the menu
+  60:06.50  s1 tandoor reached L100: AMRITSARI KULCHA on the menu
+  60:07.00  ALL DISHES (stage 1)
+  60:07.00  UNLOCKED move (2.50 L)
+  65:56.50  hire waiter 4
+  67:05.50  PROMOTED move 2: cost 2.50 L mult x3.00 location nh48 waiters before [11, 9, 9, 1]
+  67:07.00  hire waiter 2
+  67:11.00  REBUILD tandoor (2,000) at nh48
+  67:14.50  REBUILD lassi (1,700) at nh48
+  67:17.00  s2 tandoor reached L25: TANDOORI ROTI on the menu
+  70:14.50  hire waiter 3 (for kadai)
+  70:14.50  REBUILD kadai (10,000) at nh48
+  71:01.50  s2 chai reached L25: GUR KI CHAI on the menu
+  71:25.50  hire waiter 4
+  71:26.00  SIGNBOARD level 1 (2,500), cap 21.0/min
+  71:26.00  s2 lassi reached L25: CHAACH on the menu
+  71:26.00  s2 kadai reached L25: GATTE KI SABZI on the menu
+  72:51.50  s2 lassi reached L50: KESAR LASSI on the menu
+  73:24.00  s2 kadai reached L50: KER SANGRI on the menu
+  73:25.50  s2 tandoor reached L50: BAATI on the menu
+  73:27.50  s2 chai reached L50: SHIKANJI on the menu
+  74:30.50  hire kadai
+  80:20.00  s2 lassi reached L100: RABRI on the menu
+  81:36.00  s2 kadai reached L100: LAAL MAAS on the menu
+  81:43.00  s2 chai reached L100: KESARIYA THANDAI on the menu
+  81:45.00  s2 tandoor reached L100: LACCHA PARATHA on the menu
+  81:45.50  ALL DISHES (stage 2)
+  82:35.50  SIGNBOARD level 2 (4,000), cap 22.5/min
+  83:03.50  SIGNBOARD level 3 (6,400), cap 24.0/min
+  84:31.00  proc tandoor
+  84:31.00  hire tandoor
+  90:13.00  SIGNBOARD level 4 (10,240), cap 25.5/min
+  99:55.50  SIGNBOARD level 5 (16,384), cap 27.0/min
+  task claims: 58; lifetime earned 31.92 L (display)
+
+KAAM cards handed out (sequence order; 'drop' = stale when its turn came, never shown):
+   0:00.50  drop build_tandoor
+   0:00.50  drop waiter_hire2
+   0:00.50  drop add_table
+   0:00.50  card galla1_l5
+   2:40.50  drop build_lassi
+   2:40.50  card tandoor_l25
+   3:52.00  card lassi_l25
+   4:00.50  card tandoor_serve20
+   5:07.00  card tandoor_l50
+   5:55.00  card lassi_serve30
+   6:19.00  card seat_50
+   8:45.00  drop waiter1_l5
+   8:45.00  drop waiter_hire3
+   8:45.00  card build_kadai
+   9:06.50  card tandoor_naan20
+   9:23.50  card kadai_l25
+  11:01.50  card kadai_l50
+  15:55.50  card chai_proc3
+  15:56.00  card lassi_chaas20
+  15:56.50  drop galla2_l5
+  15:56.50  drop lassi_l50
+  15:56.50  card kadai_serve30
+  16:30.00  card billed_60
+  18:43.00  card chai_coffee20
+  19:45.00  card kadai_dal20
+  22:23.00  card chai_hire2
+  22:23.50  card tables_5
+  22:26.00  card chai_l100
+  25:58.00  drop tandoor_hire2
+  25:58.00  card tandoor_keema20
+  26:24.00  card lassi_hire2
+  26:24.50  card lassi_mango20
+  31:07.00  card chai_green_tea20
+  31:40.50  card kadai_paneer20
+  35:48.00  drop kadai_hire2
+  35:48.00  card gen_1 (earned 7700)
+  36:14.00  card gen_2 (served lassi 30)
+  37:01.00  card gen_3 (served_dish kadai.chole 30)
+  37:31.50  card gen_4 (level kadai 110)
+  38:56.50  card gen_5 (seated 40)
+  41:15.00  card gen_6 (galla_level 8)
+  41:20.00  card gen_7 (billed 50)
+  44:12.50  card gen_8 (waiter_level 8)
+  44:16.00  card gen_9 (tables 4)
+  44:16.50  card gen_10 (waiters 4)
+  63:16.50  card gen_11 (earned 10000)
+  65:56.50  card gen_12 (served chai 40)
+  65:57.00  card gen_13 (served_dish tandoor.kulcha 40)
+  71:25.50  card gen_14 (level kadai 10)
+  71:26.00  card gen_15 (seated 55)
+  74:19.00  card gen_16 (galla_level 6)
+  74:21.50  card gen_17 (billed 75)
+  77:32.50  card gen_18 (waiter_level 6)
+  77:35.00  card gen_19 (tables 4)
+  77:35.50  card gen_21 (earned 10000)
+  80:20.00  card gen_22 (served lassi 50)
+  84:47.50  card gen_23 (served_dish kadai.laal_maas 50)
+  85:49.00  card gen_24 (level chai 120)
+  89:52.00  card gen_25 (seated 70)
+  90:25.00  card gen_26 (galla_level 19)
+  90:28.50  card gen_27 (billed 100)
+  92:53.00  card gen_28 (waiter_level 9)
+  92:55.50  card gen_29 (tables 5)
+  92:56.00  card gen_31 (earned 23000)
+  94:15.00  card gen_32 (served chai 60)
+  94:46.50  card gen_33 (served_dish tandoor.laccha_paratha 60)
+  95:19.00  card gen_34 (level chai 150)
+  99:20.00  card gen_35 (seated 85)
+
+Each build (arrivals = ramp target; real = 0.92 x target x expected bill; HUD = sum of station price x capacity x demand share):
+   2:18.50 lassi  W2 T3: arrivals 14.2 (station:tandoor) -> 14.2 (station:tandoor) | bill 37.70 -> 55.64 | real/min 491.65 -> 725.66 | HUD 844.27 -> 1,209 | waiter trip 6.45 -> 6.24 s
+           busy right after (1 new cook): chai 20%, lassi 33%, tandoor 94%, waiters 74%
+           60 s later: lassi L1, real/min 1,096 (2.2x the pre-build rate)
+   9:23.00 kadai  W3 T3: arrivals 19.5 (max) -> 19.5 (max) | bill 152.79 -> 196.68 | real/min 2,741 -> 3,528 | HUD 4,211 -> 4,278 | waiter trip 5.18 -> 5.70 s
+           busy right after (1 new cook): chai 28%, lassi 45%, tandoor 29%, kadai 72%, waiters 62%
+           60 s later: kadai L19, real/min 4,067 (1.5x the pre-build rate)
+
+Order mix now: chai+tandoor 20%, chai+kadai 25%, lassi+tandoor 25%, lassi+kadai 31%
+Busy share at 26.0/min: chai 39%, lassi 60%, tandoor 38%, kadai 48%, waiters 71%
+
+BILL CHECK (expected bill change when each station is built, at the moment it becomes affordable; must be >= +15%):
+  lassi  affordable  2:18.50, built  2:18.50: bill +47.6%, HUD +43.1%  OK   (lassi L1 50 vs chai L12 17.70)
+  kadai  affordable  9:23.00, built  9:23.00: bill +28.7%, HUD +1.6%  OK   (kadai L1 150 vs tandoor L56 71)
+  bill check failures: 0
+  wall ads watched after the tutorial: 9 (max_per_session 10 incl. the tutorial's, capped at 40:00.00)
+
+GARUSH rush x1.5 phase 0.7-0.85 cycle 600 s: 15.0% of 12000 samples in a rush
+GARUSH floor binds: all 13.1%, in rushes 36.2%, off-peak 9.0%
+GARUSH rush: busiest stage load median 0.97, >=0.90 100% of samples
+GARUSH off-peak: busiest stage load median 0.69, >=0.90 12% of samples
+GARUSH all: busiest stage load >=0.90 25% of samples

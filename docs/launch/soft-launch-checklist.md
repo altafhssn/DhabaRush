@@ -6,6 +6,7 @@ One plan from **Mon 26 Oct 2026** to the India Android soft launch, target **Tue
 - Game version 0.3.7 (code 307). Package `com.littletagartstudios.dhabarush`.
 - Nothing here has been uploaded, published, exported or committed.
 - Every account, key, payment and upload step is yours (section B). Claude never creates accounts, keys or passwords, and a release bundle is built only after you say yes.
+- **2 Nov 2026: the core-and-feel build** ([../core-and-feel/change-list.md](../core-and-feel/change-list.md)) changed the products and prices (B2), the AdMob blocking list (B3), the phone test (B8), the listing (B9), the Hindi review (B14) and the store media (B15, E1, E2). Interstitials are off for the soft launch. Every owner task from that build, with why and how: [../core-and-feel/owner-tasks.md](../core-and-feel/owner-tasks.md).
 
 ---
 
@@ -143,21 +144,20 @@ One message with the numbers is enough. "Go with the recommendations" also works
 
 - Settings → Payments profile → create. Legal name, address, PAN, bank account. GSTIN if registered (ask a CA).
 - For an app that sells items, Play shows this address on the listing. Use a business address if you have one.
-- **After the first upload (B7):** Monetize with Play → Products → In-app products → Create:
-  - `vip_x2`, ₹299
-  - `remove_ads`, ₹199
-  - Activate both. Don't create `sikke_small`.
-  - Names and descriptions: [sdk.md §11](sdk.md) item 9.
-- Settings → License testing → add your Gmail and anyone who will test purchases.
+- **After the first upload (B7):** Monetize with Play → Products → One-time products → Create the three products in the table of [sdk.md §11](sdk.md) item 9 (ids, titles, descriptions, prices, Play type):
+  - `starter_pack` (new, 15,000 dhaba cash, one time), `remove_ads` (₹149 now) and `vip_x2` (renamed "VIP: ×2 dhaba income").
+  - Every price there is a placeholder: you set the real ones.
+  - Activate all three. Don't create `sikke_small`.
+- Settings → License testing → add your Gmail, a second Gmail for the second test phone, and anyone who will test purchases. One account can buy Remove Ads plus either the Starter Pack or VIP, never both (after any purchase the game offers neither again), so the phone test (B8, section E) buys the Starter Pack on one account and VIP on the other.
 
 ### B3. AdMob (Fri 30 Oct · 45 min)
 
 - admob.google.com → sign in with the studio account → India, time zone → accept.
 - Apps → Add app → Android → "Is it on a store?" No → name "Dhaba Rush".
-- Ad units → Add → Rewarded, named `rewarded_main`. Again: Interstitial, `interstitial_main`.
+- Ad units → Add → Rewarded, named `rewarded_main`. Again: Interstitial, `interstitial_main` (interstitials are off in this build; the unit is only used if you switch them on later).
 - Send Claude the app id and the two unit ids. They are not secret. They go into the production build only (decision 7).
 - Privacy & messaging → European regulations → create and publish (defaults are fine).
-- Blocking controls → Sensitive categories → block gambling and betting, dating, alcohol ([play-console.md §13](../legal/play-console.md)).
+- Blocking controls → Sensitive categories → block **Gambling & betting** (covers rummy, poker and fantasy apps), **Dating**, **Alcohol** and **Get rich quick** (C7.3; [sdk.md §11](sdk.md) item 8, [play-console.md §13](../legal/play-console.md)). After launch, check Blocking controls → Ad review center weekly for rummy or betting ads that got through.
 - Settings → Test devices → add your phones.
 - Payments: payment details and US tax info before launch. A CA confirms which form; this plan is not tax advice.
 - **On launch day:** Apps → Dhaba Rush → App settings → link the Play listing. Then AdMob checks app-ads.txt.
@@ -211,7 +211,8 @@ One message with the numbers is enough. "Go with the recommendations" also works
 - Run Claude's one-page test sheet. It covers:
   - ads, consent, purchases: [sdk.md §8](sdk.md) A and B
   - icon, splash, back gesture, resume: [release.md §6](release.md)
-  - "Play offline": airplane mode, cold start, 5 minutes
+  - "Works without internet": airplane mode, cold start, 5 minutes (phone test J)
+  - the core-and-feel checks only a screen can show: the TV screen, the meter, the BARAAT button, the spend notes, the tray fly and BIGGER TRAY!, the "+X/min" float, the quick card over STATS, the Munshi-ji reaction chip, the tutorial's tag ring and meter pulse, the hoarding view, the hall on a tall phone, the NH 48 cart, Munshi-ji's "All 16 dishes!" camera stop (phone test N)
   - vibration: is the 12 ms tick felt? How does a held LEVEL UP feel?
   - the listening checklist, part 2 (B12)
 - Screen-record anything odd. Plug in USB if you want Claude to read the log.
@@ -219,8 +220,8 @@ One message with the numbers is enough. "Go with the recommendations" also works
 ### B9. Listing, forms, closed test (forms Thu 5 Nov · review Fri 6 Nov · 3–4 h)
 
 - **Listing:** Grow → Store presence → Main store listing.
-  - Paste [play-listing.md](../store/play-listing.md) §1a. Add translation → Hindi (India) → §1b.
-  - Upload the graphics from `export/store/play/` in numbered order.
+  - Paste [play-listing.md](../store/play-listing.md) §1a. Add translation → Hindi (India) → §1b. The text was rewritten for the core-and-feel build on 2 Nov.
+  - Upload the graphics from `export/store/play/` in numbered order, once they are recaptured from the build testers get ([../store/README.md §6](../store/README.md#6-store-media-rules-c93); B15).
   - (The tractor fix is done.)
 - **Store settings:** Game → Simulation, tags, contact details.
 - **App content** (about 2 h): every form in [play-console.md](../legal/play-console.md). Data safety has **six** data types: the table there is right, the "five" above it is a typo.
@@ -253,7 +254,8 @@ One message with the numbers is enough. "Go with the recommendations" also works
 
 ### B12. Listening checklist (part 1 by Sun 1 Nov · part 2 in B8 · 30 + 30 min)
 
-- [../polish/audio.md §2](../polish/audio.md), 20 points.
+- [../polish/audio.md §2](../polish/audio.md), 24 points. Points 21–24 are new with the core-and-feel build: the night TV, the baraat band and the dog (audio.md §3, "World sounds"), and the music on a phone.
+- C8.5: listen to the music on a phone (points 1, 12, 17–20 and 24), not only on the Mac. The four MP3s predate the new sounds, so points 21–23 are for the phone build (part 2).
 - **Part 1, now:** the four MP3s on the phone speaker, then on earphones. Points 3, 4, 17–20 and the reel.
 - **Part 2, on the phone build:** points 1–16.
 - Reply with the point numbers and what's wrong. Each fix is one number.
@@ -264,24 +266,38 @@ One message with the numbers is enough. "Go with the recommendations" also works
 - The brief's dates: contract Mon 2 Nov, sketches Thu 5 Nov, icons Thu 12 Nov, feature graphic and key art Thu 19 Nov.
 - Launch ships with today's icon A either way. The new art goes into a Play icon test after launch.
 
-### B14. Hindi native review (reviewer found by Fri 6 Nov · back by Mon 16 Nov)
+### B14. Hindi native review (reviewer found by Fri 6 Nov · sheet out once the English is final · back about 10 days later)
 
 - Claude makes one review sheet:
   - [hindi.md §4](hindi.md): 11 items
   - the 7 new lines: the quit question, "This task fills up as you play.", the naan line
   - the Hindi listing, title and 8 captions
   - the policy's Hindi summary
-- About 3–4 hours of the reviewer's time.
+  - **core and feel (C8.5):** every new or changed string of that build (the meter, the waiter card, the renovation and NH 48, the special, the baraat, the starter pack, Munshi-ji's new lines and reactions, the Rajasthani menu), the rewritten Hindi listing and captions 3 and 8. New lines are marked priority 1. Read the tone of `react_any_1` and `react_any_2` closely.
+- The sheet is regenerated once, in the Hindi pass that starts when you tell Claude the English is final (not at the end of the core-and-feel build; [owner-tasks §3](../core-and-feel/owner-tasks.md#3-native-hindi-review-and-the-music-on-a-phone-c85)). The sheet in `docs/hindi-review/` now is from 27 Oct and has none of the core-and-feel strings: do not send it. Do not regenerate the new sheet after it is sent: a re-run renumbers the IDs.
+- About 3–4 hours of the reviewer's time, more with the core-and-feel strings.
 
 ### B15. YouTube channel and promo video (by Fri 6 Nov · 1 h)
 
 - Create a "Dhaba Rush" YouTube channel on the studio account.
-- Record the promo from the internal-test build with Android's screen recorder ([promo-video.md §3](../store/promo-video.md)).
+- Record the promo from the internal-test build with Android's screen recorder ([promo-video.md §3](../store/promo-video.md)), from the core-and-feel build, following [../store/README.md §6](../store/README.md#6-store-media-rules-c93).
 - Upload it unlisted, ads off. Paste the link in Main store listing → Video.
 
 ### B16. Google Ads (by Fri 11 Dec · 45 min)
 
 - Steps in section E1.
+
+### B17. Owner tasks from the core-and-feel build (2 Nov 2026)
+
+The full list, each with why and how, is [../core-and-feel/owner-tasks.md](../core-and-feel/owner-tasks.md). Where they sit in this plan:
+
+- AdMob blocking controls (C7.3): B3.
+- Play Console products and prices (C7.4): B2.
+- Native Hindi review and listening to the music on a phone (C8.5): B14, B12.
+- The phone test, offline and download size (change-list group 1): B8.
+- Open the project in the Godot editor once before the next build, so the new models, textures and sounds get their import files: before B7.
+- Approve the recapture of the screenshots, feature graphic and Shorts (C9.3): B9, B15, E2.
+- The version number of the build: B7 (decision 11).
 
 ---
 
@@ -429,6 +445,7 @@ One message with the numbers is enough. "Go with the recommendations" also works
   - 5 headlines (30 characters) and 5 descriptions (90) in English and Hindi
   - the feature graphic plus 1200 × 628 and 1200 × 1200 crops
   - videos: the promo and two Shorts, as YouTube links
+  - every asset follows [../store/README.md §6](../store/README.md#6-store-media-rules-c93): frames from the current build, no real brands, no earnings wording ("earn", "money", "kamaai"), no prices that differ from the game
 
 **Schedule:** Wed 16 Dec – Tue 29 Dec, 14 days × USD 5 = USD 70.
 - Fri 18 Dec: is it delivering? Cost per install so far?
@@ -446,7 +463,7 @@ One message with the numbers is enough. "Go with the recommendations" also works
 **Rules:**
 - 3 a week: Mon, Wed, Fri, around 7 pm IST. Alternate English and Hindi captions.
 - 15–30 s. Gameplay in the first second. The game's own sound. No faces, no film music.
-- Only what the game really has. No tractors, no sikke.
+- Only what the game really has. No tractors, no sikke. The full rule block: [../store/README.md §6](../store/README.md#6-store-media-rules-c93). Before posting a Short, check it against the build testers can install; the six from 27 Oct show the 0.3.7 HUD (re-record with your approval).
 
 **Who does what:**
 - Claude prepares each week's clips, captions, titles and hashtags by the Friday before.
@@ -461,8 +478,8 @@ One message with the numbers is enough. "Go with the recommendations" also works
 | Week | Shorts |
 |---|---|
 | W1 · 9–15 Nov | "I built a highway dhaba" (promo cut) · Day vs night · Chai pour close-up |
-| W2 · 16–22 Nov | LEVEL UP spam with the rising pitch · Every dish on the menu (16 unlocks) · POV: you're the waiter |
-| W3 · 23–29 Nov | ₹0 to ₹1 lakh time-lapse · Munshi-ji rates your dhaba · A lorry backs into the parking |
+| W2 · 16–22 Nov | LEVEL UP spam with the rising pitch · Every dish on the menu (16 unlocks) · Every order in one trip (a waiter's tray run) |
+| W3 · 23–29 Nov | From one chai counter to a full dhaba (time-lapse) · Munshi-ji rates your dhaba · A lorry backs into the parking |
 | W4 · 30 Nov–6 Dec | Low-poly tandoor, Blender to game · The dhaba's music: harmonium, tabla, bansuri · English or Hindi? |
 | W5 · 7–13 Dec | "On Google Play 15 Dec" countdown · two re-cuts of the best format so far |
 | W6 · 14–20 Dec | Launch-day Short · Day 1 vs day 100 · Answer a viewer's comment |

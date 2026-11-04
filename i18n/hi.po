@@ -43,9 +43,10 @@ msgstr "नमस्ते सेठ जी! मैं मुंशी जी, �
 msgid "Here comes our first traveller!"
 msgstr "लो, आ गया हमारा पहला मुसाफ़िर!"
 
-#. l3: phrased so Pinky's gender never shows (verb agrees with chai)
-msgid "[k]Pinky[/k], our cook, makes his chai. [k]Raju[/k], our waiter, carries it."
-msgstr "चाय बनेगी कुक [k]पिंकी[/k] के हाथों, पहुँचाएगा वेटर [k]राजू[/k]।"
+#. l3: the player's job (C4.2); subjunctive पकाए / परोसे, so Pinky's gender never shows; no 'है,' (Rect2i quirk, hindi.md); at most ~62 characters, so it is typed 0.12 s before the autopilot's 2.8 s dwell (main3 AUTO_DWELL)
+#. REVIEW C4.2
+msgid "[k]Pinky[/k] cooks, [k]Raju[/k] serves. Your job: fix what's slow."
+msgstr "[k]पिंकी[/k] पकाए, [k]राजू[/k] परोसे। आपका काम: जो धीमा हो, उसे ठीक करें।"
 
 #. l4: galla = the cash box
 msgid "All done! Now he pays at the [k]CASH COUNTER[/k], our galla."
@@ -79,29 +80,33 @@ msgstr "दो कैशियर, आधा इंतज़ार! आपका
 msgid "Food is waiting! [k]Raju[/k] can't carry it all."
 msgstr "खाना रुका पड़ा है! अकेला [k]राजू[/k] सब नहीं ले जा पा रहा।"
 
-#. lw2
-msgid "Tap [k]STAFF[/k] and [k]HIRE[/k] a second waiter."
-msgstr "[k]स्टाफ़[/k] पर टैप करें और दूसरा वेटर [k]रखें[/k]।"
+#. lw2: वेटर = the new waiter's tag '+ वेटर', रखें = the HIRE button of his card (C3.1)
+#. REVIEW C3.1
+msgid "Tap the new [k]WAITER[/k], then [k]HIRE[/k]."
+msgstr "नए [k]वेटर[/k] पर टैप करें, फिर उसे [k]रखें[/k]।"
 
 #. lw3
 msgid "Two waiters: food reaches the tables faster."
 msgstr "दो वेटर: टेबल पर खाना जल्दी आएगा।"
 
-#. lt1
-msgid "Every seat is taken, and travellers are leaving!"
-msgstr "सारी सीटें भरी हैं! मुसाफ़िर बिना खाए लौट रहे हैं!"
+#. lt1: the door line waits for a seat now; nobody leaves (C2.1)
+#. REVIEW C2.1
+msgid "Every seat is taken! Travellers wait at the gate."
+msgstr "सारी सीटें भरी हैं! मुसाफ़िर गेट पर इंतज़ार कर रहे हैं।"
 
 #. lt2: the tag says '+ टेबल'
 msgid "Tap the new [k]TABLE[/k]: four more seats."
 msgstr "नई [k]टेबल[/k] पर टैप करें: चार सीटें और।"
 
-#. l14
-msgid "Good news: a company pays us to show its ads!"
-msgstr "ख़ुशख़बरी! एक कंपनी अपने ऐड दिखाने के हमें पैसे देगी!"
+#. l14: no 'pays us', no 'cash' (C7.5); ऐड = the bubble's 'ऐड देखें'
+#. REVIEW C7.5
+msgid "Good news: watch a short [k]AD[/k] for a bonus!"
+msgstr "ख़ुशख़बरी! एक छोटा [k]ऐड[/k] देखें और बोनस पाएँ!"
 
-#. l15: the bubble says 'ऐड देखें'
-msgid "Whenever the [k]AD[/k] bubble pops up, tap it for free cash."
-msgstr "जब भी [k]ऐड[/k] वाला बुलबुला दिखे, टैप करें और मुफ़्त कैश पाएँ।"
+#. l15: the bubble says 'ऐड देखें' (C7.5)
+#. REVIEW C7.5
+msgid "When the [k]AD[/k] bubble pops up, tap it for a bonus."
+msgstr "जब [k]ऐड[/k] वाला बुलबुला दिखे, उस पर टैप करें और बोनस पाएँ।"
 
 #. l16: बनाएँ = the BUILD button
 msgid "We can afford a [n]TANDOOR[/n] now. Tap [k]BUILD[/k]."
@@ -119,13 +124,15 @@ msgstr "अब हम [n]लस्सी[/n] काउंटर लगा सक
 msgid "We can afford a [n]KADAI[/n] now! Tap [k]BUILD[/k]."
 msgstr "अब हम [n]कड़ाही[/n] लगा सकते हैं! [k]बनाएँ[/k] पर टैप करें।"
 
-#. free play
-msgid "Lassi needs 2 waiters. Tap [k]STAFF[/k] and [k]HIRE[/k] one."
-msgstr "लस्सी के लिए 2 वेटर चाहिए। [k]स्टाफ़[/k] पर टैप करें और एक [k]रखें[/k]।"
+#. free play (menu_need_waiters_lassi): वेटर = the '+ वेटर' tag, रखें = HIRE (C3.1)
+#. REVIEW C3.1
+msgid "Lassi needs 2 waiters. Tap the new [k]WAITER[/k] and [k]HIRE[/k]."
+msgstr "लस्सी के लिए 2 वेटर चाहिए। नए [k]वेटर[/k] पर टैप करें और उसे [k]रखें[/k]।"
 
-#. free play
-msgid "Kadai needs 3 waiters. Tap [k]STAFF[/k] and [k]HIRE[/k] one."
-msgstr "कड़ाही के लिए 3 वेटर चाहिए। [k]स्टाफ़[/k] पर टैप करें और एक [k]रखें[/k]।"
+#. free play (menu_need_waiters): वेटर = the '+ वेटर' tag, रखें = HIRE (C3.1)
+#. REVIEW C3.1
+msgid "Kadai needs 3 waiters. Tap the new [k]WAITER[/k] and [k]HIRE[/k]."
+msgstr "कड़ाही के लिए 3 वेटर चाहिए। नए [k]वेटर[/k] पर टैप करें और उसे [k]रखें[/k]।"
 
 #. free play; phrased so neither Pinky's nor the dish's gender shows
 msgid "Pinky, our chai cook, now makes [n]{dish}[/n]. Chai prices rise!"
@@ -146,6 +153,80 @@ msgstr "कड़ाही कुक शेरा के मेन्यू म�
 #. once, after an old save moved to the new prices
 msgid "New prices! Your levels, staff and dishes are all kept."
 msgstr "नए दाम! आपके लेवल, स्टाफ़ और डिश, सब वैसे ही हैं।"
+
+#. react_waiters: chip (no box): one or two lines of 20 px in 460 px; after the player's own fix of the waiters (C4.3)
+#. REVIEW C4.3
+msgid "Shabaash! Food moves faster now."
+msgstr "शाबाश! अब खाना तेज़ी से टेबल तक जा रहा है।"
+
+#. react_seats: chip (no box): one or two lines of 20 px in 460 px (C4.3)
+#. REVIEW C4.3
+msgid "More charpais, more customers. Waah!"
+msgstr "ज़्यादा चारपाई, ज़्यादा ग्राहक। वाह!"
+
+#. react_cashiers: chip (no box): one or two lines of 20 px in 460 px (C4.3)
+#. REVIEW C4.3
+msgid "The galla is quick now. Badhiya!"
+msgstr "अब गल्ला फटाफट चल रहा है। बढ़िया!"
+
+#. react_kitchen: chip (no box): one or two lines of 20 px in 460 px (C4.3)
+#. REVIEW C4.3
+msgid "The kitchen keeps up now. First class!"
+msgstr "अब रसोई काम संभाल रही है। फ़र्स्ट क्लास!"
+
+#. react_road: chip (no box): one or two lines of 20 px in 460 px; drivers call a dhaba a 'hotel' (C4.3, C8.2); lorry = ट्रक
+#. REVIEW C4.3
+#. REVIEW C8.2
+msgid "More lorries stopping. Best hotel on the highway!"
+msgstr "ज़्यादा ट्रक रुक रहे हैं। हाईवे का सबसे बढ़िया होटल!"
+
+#. react_any_1: chip (no box): one or two lines of 20 px in 460 px; generic pool (C4.3)
+#. REVIEW C4.3
+#. REVIEW tone
+msgid "Ekdum sahi, boss! Good fix."
+msgstr "एकदम सही, सेठ जी! बढ़िया सुधार।"
+
+#. react_any_2: chip (no box): one or two lines of 20 px in 460 px; generic pool; the Rajdhani = the fast train, so राजधानी एक्सप्रेस (C4.3, C8.2)
+#. REVIEW C4.3
+#. REVIEW C8.2
+#. REVIEW tone
+msgid "Our hotel runs like the Rajdhani now, boss!"
+msgstr "सेठ जी, अपना होटल अब राजधानी एक्सप्रेस जैसा दौड़ रहा है!"
+
+#. reno_tease: chip (no box): one or two lines of 20 px in 460 px, ~90 s after the tutorial; बनाएँ = the BUILD button (C5.2)
+#. REVIEW C5.2
+msgid "One day this becomes a [n]FAMILY DHABA[/n]. See [k]BUILD[/k]."
+msgstr "एक दिन यह [n]फ़ैमिली ढाबा[/n] बनेगा। [k]बनाएँ[/k] में देखें।"
+
+#. reno_ready: dialogue with a camera fly to the hall site (C6.1)
+#. REVIEW C6.1
+msgid "All 16 dishes! The [n]FAMILY DHABA[/n] waits in [k]BUILD[/k]."
+msgstr "मेन्यू में सभी 16 डिश! [n]फ़ैमिली ढाबा[/n] [k]बनाएँ[/k] में इंतज़ार कर रहा है।"
+
+#. reno_done: dialogue after the renovation reveal (C6.1)
+#. REVIEW C6.1
+msgid "The AC family hall is open! It's far: hire more waiters."
+msgstr "एसी फ़ैमिली हॉल खुल गया! वह दूर है: और वेटर रखें।"
+
+#. move_ready: dialogue (C6.3)
+#. REVIEW C6.3
+msgid "A new highway is calling, boss! See [k]BUILD[/k]."
+msgstr "सेठ जी, नया हाईवे बुला रहा है! [k]बनाएँ[/k] में देखें।"
+
+#. move_done: dialogue after the move reveal (C6.3); NH 48 stays in Latin letters, as on the milestone; no 'है,' (Rect2i quirk)
+#. REVIEW C6.3
+msgid "Welcome to NH 48, boss! New road, Rajasthani dishes."
+msgstr "NH 48 पर आपका स्वागत, सेठ जी! नई सड़क, राजस्थानी पकवान।"
+
+#. event_start: chip (no box): one or two lines of 20 px in 460 px, once per weekend; बारात = the HUD button's caption (C6.4)
+#. REVIEW C6.4
+msgid "A baraat is coming this weekend! Tap [k]BARAAT[/k]."
+msgstr "इस वीकेंड बारात आ रही है! [k]बारात[/k] पर टैप करें।"
+
+#. delegation_on: chip (no box): one or two lines of 20 px in 460 px; Munshi-ji now claims finished task cards (C6.5)
+#. REVIEW C6.5
+msgid "Boss, I'll claim finished task cards for you from now on."
+msgstr "सेठ जी, अब से पूरे हुए कामों का इनाम मैं आपके लिए ले लूँगा।"
 
 # ======================================================================
 # HUD (scripts/v3/ui/hud.gd, ui_root.gd)
@@ -227,6 +308,71 @@ msgstr "पैसे जोड़ें %s / %s"
 #. a dish milestone or a level milestone, 'LEVEL UP KADAI · 18/25'
 msgid "LEVEL UP {name} · {lv}/{target}"
 msgstr "{name} लेवल अप · {lv}/{target}"
+
+#. NEXT chip: 'NEXT: %s' (renovation ready or saving); also the BUILD row and the promo popup title (C6.1)
+#. REVIEW C6.1
+msgid "FAMILY DHABA"
+msgstr "फ़ैमिली ढाबा"
+
+#. NEXT chip line 2 (282 px, 25 to 20 px) (C6.1)
+#. REVIEW C6.1
+msgid "Ready! Tap to renovate"
+msgstr "तैयार! टैप करें, नया रूप दें"
+
+#. NEXT chip line 2 while saving for the Family Dhaba or NH 48, and the promo popup's cash reason: the cash still missing (C6.1, C6.3)
+#. REVIEW C6.1
+msgid "Save {money}"
+msgstr "{money} और जोड़ें"
+
+#. location name in 'NEXT: %s' (data/economy_v3.json locations.nh48.name); highway numbers stay Latin, as on the milestone (C6.3)
+#. REVIEW C6.3
+msgid "NH 48"
+msgstr "NH 48"
+
+#. location name (data/economy_v3.json locations.nh44.name; the first highway, never a move target today) (C6.3)
+#. REVIEW C6.3
+msgid "NH 44"
+msgstr "NH 44"
+
+#. NEXT chip line 2 when NH 48 is affordable (C6.3)
+#. REVIEW C6.3
+msgid "A new highway is ready"
+msgstr "नया हाईवे तैयार है"
+
+#. NEXT chip 'NEXT: %s'; the readout's fix label; glossary: signboard = साइनबोर्ड (C5.3)
+#. REVIEW C5.3
+msgid "SIGNBOARD"
+msgstr "साइनबोर्ड"
+
+#. NEXT chip line 2 when the road limits and the signboard pays back (C5.3); same phrasing as the meter caption
+#. REVIEW C5.3
+msgid "The road is the limit now"
+msgstr "अब सड़क ही लिमिट है"
+
+#. NEXT chip seats PROBLEM line 2: what one more table adds (C2.1)
+#. REVIEW C2.1
+msgid "+{money}/min with one more table"
+msgstr "एक और टेबल से +{money}/मिनट"
+
+#. HUD event button caption under the baraat glyph (96 px at 21 px); Munshi-ji's event_start keyword (C6.4)
+#. REVIEW C6.4
+msgid "BARAAT"
+msgstr "बारात"
+
+#. toast after Munshi-ji claimed a finished task card by himself (C6.5)
+#. REVIEW C6.5
+msgid "Munshi-ji claimed it for you"
+msgstr "मुंशी जी ने आपके लिए इनाम ले लिया"
+
+#. float under the money pill when a purchase raises the rate; BUILD signboard row gain; STATS ONE MORE TABLE value (C3.3, C5.3, C2.1)
+#. REVIEW C3.3
+msgid "+{money}/min"
+msgstr "+{money}/मिनट"
+
+#. float over a waiter whose tray grows (C3.4)
+#. REVIEW C3.4
+msgid "BIGGER TRAY!"
+msgstr "बड़ी ट्रे!"
 
 #. price tag over the next ghost table (16 px)
 msgid "ADD TABLE"
@@ -321,9 +467,15 @@ msgstr "लो"
 msgid "REMOVE ADS"
 msgstr "ऐड हटाएँ"
 
-#. after Remove Ads was bought
-msgid "No ads. Thank you!"
-msgstr "अब कोई ऐड नहीं। शुक्रिया!"
+#. after Remove Ads was bought (C7.4: 'no forced ads')
+#. REVIEW C7.4
+msgid "No forced ads. Thank you!"
+msgstr "कोई ज़बरदस्ती का ऐड नहीं। शुक्रिया!"
+
+#. small line under REMOVE ADS (C7.4); same promise as the store listing's 'बोनस वीडियो आपकी मर्ज़ी से'
+#. REVIEW C7.4
+msgid "One-time, forever. Optional bonus videos stay."
+msgstr "एक बार, हमेशा के लिए। बोनस वीडियो आपकी मर्ज़ी से।"
 
 msgid "SKIP TUTORIAL"
 msgstr "ट्यूटोरियल छोड़ें"
@@ -391,6 +543,26 @@ msgstr "इनाम पाने के लिए ऐड आख़िर तक
 #. toast: the ad SDK failed to show the ad
 msgid "The ad could not play. Please try again."
 msgstr "ऐड नहीं चल पाया। कृपया फिर कोशिश करें।"
+
+#. toast: WATCH AD tapped while the phone is offline (C7.2)
+#. REVIEW C7.2
+msgid "No internet: bonus videos come back when you are online."
+msgstr "इंटरनेट नहीं है: ऑनलाइन होते ही बोनस वीडियो फिर मिलेंगे।"
+
+#. toast: the reward of an ad that was on screen when the app closed, paid on the next launch; never ₹ (C7.2, C7.5)
+#. REVIEW C7.2
+msgid "Bonus from your last video: +{money} dhaba cash"
+msgstr "पिछले वीडियो का बोनस: +{money} ढाबा कैश"
+
+#. toast: the starter pack's dhaba cash, paid once after the tutorial; never ₹ (C7.4, C7.5)
+#. REVIEW C7.4
+msgid "Starter Pack: +{money} dhaba cash"
+msgstr "स्टार्टर पैक: +{money} ढाबा कैश"
+
+#. toast: the offline pay when WELCOME BACK gives way to another launch pop-up (C4.4); आपके पीछे = while you were away
+#. REVIEW C4.4
+msgid "Welcome back: +{money} dhaba cash while you were away"
+msgstr "फिर से स्वागत है: आपके पीछे +{money} ढाबा कैश की कमाई"
 
 #. toast: slow payment (e.g. UPI, cash) still processing; the item is granted automatically later
 msgid "Payment pending. You will get it as soon as the payment goes through."
@@ -745,6 +917,36 @@ msgstr "वेटर %d रखें"
 msgid "Food waits {now} → about {after}."
 msgstr "खाने का इंतज़ार {now} → लगभग {after}।"
 
+#. waiter HIRE card and quick card, two lines (C2.4)
+#. REVIEW C2.4
+msgid "One waiter carries about {per} orders a minute. Your dhaba needs about {need} a minute."
+msgstr "एक वेटर हर मिनट लगभग {per} ऑर्डर ले जाता है। आपके ढाबे को हर मिनट लगभग {need} चाहिए।"
+
+#. the same when the waiters keep up (C2.4)
+#. REVIEW C2.4
+msgid "Your waiters carry about {cap} orders a minute. Enough for now."
+msgstr "आपके वेटर हर मिनट लगभग {cap} ऑर्डर ले जाते हैं। अभी के लिए काफ़ी।"
+
+#. waiter row: the next tray level (C3.4)
+#. REVIEW C3.4
+msgid "Bigger tray at Lv {n}"
+msgstr "लेवल {n} पर बड़ी ट्रे"
+
+#. waiter row: orders per trip now; may be joined with the line above by ' · ' (C3.4)
+#. REVIEW C3.4
+msgid "Tray: {k} orders a trip"
+msgstr "ट्रे: एक चक्कर में {k} ऑर्डर"
+
+#. STAFF › WAITERS, Munshi-ji's row under his name plaque (C6.5); he is plural-respectful (लेते हैं), as in the store listing
+#. REVIEW C6.5
+msgid "Claims finished task cards for you"
+msgstr "पूरे हुए कामों का इनाम आपके लिए लेते हैं"
+
+#. the same row: claims made so far / needed to unlock (196 px at 19 px) (C6.5)
+#. REVIEW C6.5
+msgid "{n}/{total} claims"
+msgstr "{n}/{total} इनाम"
+
 # ======================================================================
 # Counter sheet (scripts/v3/ui/station_sheet.gd)
 # ======================================================================
@@ -881,6 +1083,46 @@ msgstr "%s से काम नहीं संभल रहा।"
 msgid "UPGRADE %s ›"
 msgstr "%s अपग्रेड करें ›"
 
+#. grey ribbon on COOKS / SPEED (and BUILD's signboard gain) when that buy will not raise the takings now; same दिक़्क़त as the NEXT chip's PROBLEM (C2.5)
+#. REVIEW C2.5
+msgid "Not the bottleneck now"
+msgstr "अभी दिक़्क़त यहाँ नहीं"
+
+#. limit banner button (the readout's fix label) (C2.5)
+#. REVIEW C2.5
+msgid "HIRE WAITER"
+msgstr "वेटर रखें"
+
+#. limit banner button (C2.5)
+#. REVIEW C2.5
+msgid "UPGRADE WAITER"
+msgstr "वेटर अपग्रेड करें"
+
+#. limit banner button (C2.5)
+#. REVIEW C2.5
+msgid "BUILD TABLE"
+msgstr "टेबल बनाएँ"
+
+#. limit banner button (C2.5)
+#. REVIEW C2.5
+msgid "HIRE CASHIER"
+msgstr "कैशियर रखें"
+
+#. limit banner button (C2.5)
+#. REVIEW C2.5
+msgid "UPGRADE CASHIER"
+msgstr "कैशियर अपग्रेड करें"
+
+#. limit banner button (C2.5)
+#. REVIEW C2.5
+msgid "SPEED UP"
+msgstr "स्पीड बढ़ाएँ"
+
+#. tag on today's special dish (98 px, 14 to 11 px) (C6.2)
+#. REVIEW C6.2
+msgid "×2 TODAY"
+msgstr "आज ×2"
+
 # ======================================================================
 # BUILD / STATS panel (scripts/v3/ui/daftar.gd)
 # ======================================================================
@@ -986,9 +1228,10 @@ msgstr "बिल की औसत लाइन"
 msgid "AVG CASHIER WAIT"
 msgstr "बिल का औसत इंतज़ार"
 
-#. STATS row: travellers who left without eating
-msgid "TRAVELLERS LOST"
-msgstr "लौटे मुसाफ़िर"
+#. STATS row: what one more table would add (replaces TRAVELLERS LOST: nobody leaves now) (C2.1)
+#. REVIEW C2.1
+msgid "ONE MORE TABLE"
+msgstr "एक और टेबल"
 
 #. station card column
 msgid "PRICE"
@@ -1001,6 +1244,61 @@ msgstr "मैक्स कमाई"
 #. station card column (per minute)
 msgid "MAX SERVED"
 msgstr "मैक्स परोसा"
+
+#. BUILD row title (356 px, 24 to 18 px) (C5.3)
+#. REVIEW C5.3
+msgid "HIGHWAY SIGNBOARD"
+msgstr "हाईवे साइनबोर्ड"
+
+#. BUILD row, 2 lines at 17 px in 345 px (C5.3); lorry = ट्रक
+#. REVIEW C5.3
+msgid "A painted board up the highway. More lorries stop."
+msgstr "हाईवे पर आगे पेंट किया हुआ बोर्ड। ज़्यादा ट्रक रुकेंगे।"
+
+#. BUILD signboard row (C5.3)
+#. REVIEW C5.3
+msgid "Level {n}/{max}"
+msgstr "लेवल {n}/{max}"
+
+#. BUILD signboard row, lock reason (C5.3); same form as 'AFTER %s'
+#. REVIEW C5.3
+msgid "AFTER KADAI"
+msgstr "कड़ाही के बाद"
+
+#. BUILD signboard row at its last level (C5.3)
+#. REVIEW C5.3
+msgid "BIGGEST BOARD ON THE HIGHWAY"
+msgstr "हाईवे का सबसे बड़ा बोर्ड"
+
+#. BUILD row, 2 lines (C6.1)
+#. REVIEW C6.1
+msgid "AC family hall, 3 more tables, a 4th waiter. Prices ×2 forever."
+msgstr "एसी फ़ैमिली हॉल, 3 और टेबल, चौथा वेटर। दाम हमेशा के लिए ×2।"
+
+#. BUILD renovation row: dishes on the menu (C5.2)
+#. REVIEW C5.2
+msgid "Dishes {n}/{total}"
+msgstr "डिश {n}/{total}"
+
+#. BUILD renovation / NH 48 row button: opens the promo popup (C5.2)
+#. REVIEW C5.2
+msgid "SEE"
+msgstr "देखें"
+
+#. BUILD row title and promo popup title; RAJASTHAN = राजस्थान, NH 48 stays Latin (C6.3)
+#. REVIEW C6.3
+msgid "NH 48 · RAJASTHAN"
+msgstr "NH 48 · राजस्थान"
+
+#. BUILD row, 2 lines (C6.3)
+#. REVIEW C6.3
+msgid "A second dhaba with a Rajasthani menu. Prices ×3 forever."
+msgstr "राजस्थानी मेन्यू वाला दूसरा ढाबा। दाम हमेशा के लिए ×3।"
+
+#. BUILD NH 48 row (C6.3)
+#. REVIEW C6.3
+msgid "Counters at Lv 100: {n}/4"
+msgstr "लेवल 100 पर काउंटर: {n}/4"
 
 # ======================================================================
 # Popups: offline earnings, VIP offer (scripts/v3/ui/offline_popup.gd, vip_popup.gd)
@@ -1034,21 +1332,24 @@ msgstr "ले लें"
 msgid "COLLECT x2"
 msgstr "x2 ले लें"
 
-#. VIP / FREE CASH popup caption
-msgid "Watch one short ad, get +%s now."
-msgstr "एक छोटा ऐड देखें, अभी +%s पाएँ।"
+#. VIP / FREE BONUS popup caption; %s = dhaba cash, never ₹ (C7.5)
+#. REVIEW C7.5
+msgid "Watch a short ad for a +%s bonus."
+msgstr "एक छोटा ऐड देखें, +%s बोनस पाएँ।"
 
-#. popup title (ad reward only)
-msgid "FREE CASH"
-msgstr "मुफ़्त कैश"
+#. popup title (ad reward only; replaces FREE CASH) (C7.5)
+#. REVIEW C7.5
+msgid "FREE BONUS"
+msgstr "मुफ़्त बोनस"
 
 #. popup title (VIP kept in Latin letters, as Indian apps write it)
 msgid "VIP OFFER"
 msgstr "VIP ऑफ़र"
 
-#. pill on the VIP offer
-msgid "FOREVER"
-msgstr "हमेशा के लिए"
+#. pill on the VIP offer (236 px at 18 px) (C7.4)
+#. REVIEW C7.4
+msgid "ONE-TIME · FOREVER"
+msgstr "एक बार · हमेशा के लिए"
 
 #. VIP offer headline (44 px, one line if it fits)
 msgid "×2 ALL INCOME"
@@ -1077,6 +1378,27 @@ msgstr "चालू है"
 #. button with a play icon
 msgid "WATCH AD"
 msgstr "ऐड देखें"
+
+#. popup title of the one-time starter offer (C7.4)
+#. REVIEW C7.4
+msgid "STARTER PACK"
+msgstr "स्टार्टर पैक"
+
+#. starter offer headline: a fixed amount of dhaba cash; never ₹ next to the price (C7.4, C7.5)
+#. REVIEW C7.4
+#. REVIEW C7.5
+msgid "+{money} dhaba cash, one time"
+msgstr "+{money} ढाबा कैश, सिर्फ़ एक बार"
+
+#. pill on the starter offer (C7.4)
+#. REVIEW C7.4
+msgid "ONE-TIME OFFER"
+msgstr "एक बार का ऑफ़र"
+
+#. starter purchase button: 'BUY · ₹49' (store price) (C7.4)
+#. REVIEW C7.4
+msgid "BUY"
+msgstr "खरीदें"
 
 # ======================================================================
 # Game data: counters, dishes, people, task cards (data/economy_v3.json, scripts/autoload/game.gd)
@@ -1325,10 +1647,11 @@ msgctxt "name"
 msgid "Kamla"
 msgstr "कमला"
 
-#. kadai cook
+#. kadai cook (renamed from Kallu, C8.4)
+#. REVIEW C8.4
 msgctxt "name"
-msgid "Kallu"
-msgstr "कल्लू"
+msgid "Kishan"
+msgstr "किशन"
 
 #. cashier
 msgctxt "name"
@@ -1360,6 +1683,12 @@ msgctxt "name"
 msgid "Golu"
 msgstr "गोलू"
 
+#. waiter 4 (the Family Dhaba's 4th waiter) (C6.1)
+#. REVIEW C6.1
+msgctxt "name"
+msgid "Gopal"
+msgstr "गोपाल"
+
 #. task card, 2 lines max
 msgid "Upgrade the {station} to level {n}"
 msgstr "{station} को लेवल {n} तक अपग्रेड करें"
@@ -1368,9 +1697,10 @@ msgstr "{station} को लेवल {n} तक अपग्रेड करे
 msgid "Serve {n} travellers at the {station}"
 msgstr "{station} पर {n} मुसाफ़िरों को परोसें"
 
-#. task card
-msgid "Earn {money} for the dhaba"
-msgstr "ढाबे के लिए {money} कमाएँ"
+#. task card (C7.5: no real-money reading; galla = the cash box)
+#. REVIEW C7.5
+msgid "Collect {money} at the galla"
+msgstr "गल्ले में {money} जमा करें"
 
 #. task card
 msgid "Bill {n} travellers at the cash counter"
@@ -1495,3 +1825,568 @@ msgstr "{n} प्लेट कड़ाही पनीर बनाएँ"
 #. task card
 msgid "Serve {n} bowls of Pindi chole"
 msgstr "{n} कटोरी पिंडी छोले परोसें"
+
+# ======================================================================
+# Family Dhaba, NH 48 (scripts/v3/ui/promo_popup.gd; the carry-over lists RENO_* / MOVE_* / PROMO_REASON_TEXT in scripts/autoload/game.gd)
+# Core and feel C5.2, C6.1, C6.3 (W3-STR, 2 Nov 2026). The title is FAMILY DHABA or NH 48 · RAJASTHAN (BUILD / STATS section).
+# ======================================================================
+
+#. promo popup subtitle (650 px at 22 px) (C6.1)
+#. REVIEW C6.1
+msgid "Renovate the dhaba"
+msgstr "ढाबे को नया रूप दें"
+
+#. promo popup subtitle (C6.3)
+#. REVIEW C6.3
+msgid "Open a new dhaba on a new highway"
+msgstr "नए हाईवे पर नया ढाबा खोलें"
+
+#. promo popup section head: what you keep (C6.1)
+#. REVIEW C6.1
+msgid "KEEPS"
+msgstr "बना रहेगा"
+
+#. promo popup section head: what starts again (C6.1)
+#. REVIEW C6.1
+msgid "RESETS"
+msgstr "फिर से शुरू"
+
+#. promo popup section head: what is new (C6.1)
+#. REVIEW C6.1
+msgid "ADDS"
+msgstr "नया जुड़ेगा"
+
+#. promo popup band; {a} {b} = 1, 2, 3 (C5.2)
+#. REVIEW C5.2
+msgid "PRICES ×{a} → ×{b} FOREVER"
+msgstr "दाम ×{a} → ×{b} हमेशा के लिए"
+
+#. promo popup button (400 px at 30 px) (C6.1)
+#. REVIEW C6.1
+msgid "RENOVATE"
+msgstr "नया रूप दें"
+
+#. promo popup button (C6.3)
+#. REVIEW C6.3
+msgid "MOVE TO NH 48"
+msgstr "NH 48 पर चलें"
+
+#. promo popup button before the unlock (C5.2)
+#. REVIEW C5.2
+msgid "LOCKED"
+msgstr "लॉक है"
+
+#. KEEPS item (one line at 18 px in 560 px) (C6.1)
+#. REVIEW C6.1
+msgid "Every dish on the menu"
+msgstr "मेन्यू की हर डिश"
+
+#. KEEPS item; {mult} = 2 or 3 (C6.1, C6.3)
+#. REVIEW C6.1
+msgid "PRICES ×{mult} FOREVER"
+msgstr "दाम ×{mult} हमेशा के लिए"
+
+#. KEEPS item: the names move, the headcount resets (C6.1)
+#. REVIEW C6.1
+msgid "Raju, Pinky and the team come with you"
+msgstr "राजू, पिंकी और पूरी टीम आपके साथ"
+
+#. KEEPS item (C6.1)
+#. REVIEW C6.1
+msgid "Your cash"
+msgstr "आपका कैश"
+
+#. KEEPS item (C6.1)
+#. REVIEW C6.1
+msgid "Your signboard"
+msgstr "आपका साइनबोर्ड"
+
+#. KEEPS item; ‘ऐड हटाएँ’ = the REMOVE ADS button in Settings (C6.1)
+#. REVIEW C6.1
+msgid "VIP and No Ads"
+msgstr "VIP और ‘ऐड हटाएँ’"
+
+#. KEEPS item (C6.1)
+#. REVIEW C6.1
+msgid "Tasks and the chest"
+msgstr "काम और पेटी"
+
+#. KEEPS item (C6.1)
+#. REVIEW C6.1
+msgid "Munshi-ji's help"
+msgstr "मुंशी जी की मदद"
+
+#. RESETS item (C6.1, C6.3)
+#. REVIEW C6.1
+msgid "Counter levels go back to 1"
+msgstr "काउंटर फिर से लेवल 1 पर"
+
+#. RESETS item (C6.1, C6.3)
+#. REVIEW C6.1
+msgid "You start with 1 waiter, 1 cashier and 1 cook per counter"
+msgstr "शुरुआत: 1 वेटर, 1 कैशियर और हर काउंटर पर 1 कुक"
+
+#. RESETS item (C6.1)
+#. REVIEW C6.1
+msgid "Tables go back to 3: 2 in the dhaba, 1 in the new hall"
+msgstr "टेबल फिर से 3: 2 ढाबे में, 1 नए हॉल में"
+
+#. ADDS item (C6.1)
+#. REVIEW C6.1
+msgid "AC family hall: 3 more tables"
+msgstr "एसी फ़ैमिली हॉल: 3 और टेबल"
+
+#. ADDS item (C6.1)
+#. REVIEW C6.1
+msgid "A 4th waiter"
+msgstr "चौथा वेटर"
+
+#. ADDS item (C6.1)
+#. REVIEW C6.1
+msgid "Signboard up to level 6"
+msgstr "साइनबोर्ड लेवल 6 तक"
+
+#. promo popup, the honest line under the lists (19 px italic) (C6.1)
+#. REVIEW C6.1
+msgid "Takings start lower and pass today's within about 10 minutes."
+msgstr "कमाई पहले कम होगी और लगभग 10 मिनट में आज से आगे निकल जाएगी।"
+
+#. lock reason (C5.2)
+#. REVIEW C5.2
+msgid "Opens when all 16 dishes are on the menu"
+msgstr "मेन्यू में सभी 16 डिश आने पर खुलेगा"
+
+#. lock reason (C6.3)
+#. REVIEW C6.3
+msgid "Opens after the Family Dhaba, with every counter at Lv 100"
+msgstr "फ़ैमिली ढाबे के बाद खुलेगा, जब हर काउंटर लेवल 100 पर हो"
+
+#. KEEPS item of the move (C6.3)
+#. REVIEW C6.3
+msgid "The AC family hall"
+msgstr "एसी फ़ैमिली हॉल"
+
+#. RESETS item of the move (C6.3)
+#. REVIEW C6.3
+msgid "A Rajasthani menu: 16 dishes to unlock"
+msgstr "राजस्थानी मेन्यू: अनलॉक करने को 16 डिश"
+
+#. RESETS item of the move (C6.3)
+#. REVIEW C6.3
+msgid "Tandoor, lassi and kadai to build again"
+msgstr "तंदूर, लस्सी और कड़ाही फिर से बनाने हैं"
+
+#. RESETS item of the move (C6.3)
+#. REVIEW C6.3
+msgid "Tables go back to 3"
+msgstr "टेबल फिर से 3"
+
+#. RESETS item of the move (C6.3)
+#. REVIEW C6.3
+msgid "The signboard starts again"
+msgstr "साइनबोर्ड फिर से शुरू"
+
+#. ADDS item of the move (C6.3)
+#. REVIEW C6.3
+msgid "A second dhaba on the Jaipur highway, with a Rajasthani menu."
+msgstr "जयपुर हाईवे पर दूसरा ढाबा, राजस्थानी मेन्यू के साथ।"
+
+# ======================================================================
+# Bottleneck meter, road caption, world tags, today's special (scripts/v3/ui/bottleneck_meter.gd, world_note_tag.gd, menu_pop.gd, offline_popup.gd; scripts/v3/core/readout.gd)
+# Core and feel C2.6, C2.7, C3.5, C6.2 (W3-STR, 2 Nov 2026).
+# ======================================================================
+
+#. readout row label (74 px, 15 to 11 px); TABLE / SEATS = टेबल / सीटें (C2.6)
+#. REVIEW C2.6
+msgid "SEATS"
+msgstr "सीटें"
+
+#. readout caption (210 px, 15 to 10 px, then an ellipsis): travellers a minute from the road, all of them seated (C2.7)
+#. REVIEW C2.7
+msgid "Road: {n}/min · all seated"
+msgstr "सड़क: {n}/मिनट · सब बैठे"
+
+#. readout caption flash (3 s) and the world tag at the gate when a vehicle drives on for want of seats; lorry = ट्रक (C2.7)
+#. REVIEW C2.7
+msgid "A lorry drove past: seats full"
+msgstr "एक ट्रक आगे निकल गया: सीटें फ़ुल"
+
+#. the same for a bus (C2.7)
+#. REVIEW C2.7
+msgid "A bus drove past: seats full"
+msgstr "एक बस आगे निकल गई: सीटें फ़ुल"
+
+#. the same for a car (C2.7)
+#. REVIEW C2.7
+msgid "A car drove past: seats full"
+msgstr "एक कार आगे निकल गई: सीटें फ़ुल"
+
+#. the same for an auto-rickshaw (C2.7)
+#. REVIEW C2.7
+msgid "An auto drove past: seats full"
+msgstr "एक ऑटो आगे निकल गया: सीटें फ़ुल"
+
+#. the same for the weekend baraat bus (C2.7, C6.4)
+#. REVIEW C2.7
+msgid "The baraat drove past: seats full"
+msgstr "बारात आगे निकल गई: सीटें फ़ुल"
+
+#. readout caption when the road is the limit (fewer travellers than the dhaba can serve); साइनबोर्ड = the BUILD row (C2.7)
+#. REVIEW C2.7
+msgid "Road is the limit · SIGNBOARD ›"
+msgstr "सड़क ही लिमिट है · साइनबोर्ड ›"
+
+#. the same before the signboard opens (C2.7)
+#. REVIEW C2.7
+msgid "Road is the limit · LEVEL UP ›"
+msgstr "सड़क ही लिमिट है · लेवल अप ›"
+
+#. world tag over a counter while its new dish is served (C3.5); नई डिश keeps the dish's gender out
+#. REVIEW C3.5
+msgid "NEW: {dish}"
+msgstr "नई डिश: {dish}"
+
+#. world tag over the special's counter; the NEW ON THE MENU card and the WELCOME BACK band (C6.2); glossary: Aaj ka special
+#. REVIEW C6.2
+msgid "AAJ KA SPECIAL"
+msgstr "आज का स्पेशल"
+
+#. special announcement card line (234 px, 24 to 16 px); {dish} = the dish name (C6.2)
+#. REVIEW C6.2
+msgid "{dish} ×2 today"
+msgstr "{dish} आज ×2"
+
+#. WELCOME BACK band (532 px at 20 px); agrees with दाम, so the dish's gender never shows (C6.2)
+#. REVIEW C6.2
+msgid "{dish} sells at double price today!"
+msgstr "आज {dish} का दाम दोगुना है!"
+
+# ======================================================================
+# Weekend baraat (scripts/v3/ui/event_panel.gd, event_button.gd)
+# Core and feel C6.4 (W3-STR, 2 Nov 2026).
+# ======================================================================
+
+#. event panel title (480 px at 46 px) (C6.4)
+#. REVIEW C6.4
+msgid "BARAAT SPECIAL"
+msgstr "बारात स्पेशल"
+
+#. event panel, under the title (C6.4)
+#. REVIEW C6.4
+msgid "This weekend only"
+msgstr "सिर्फ़ इस वीकेंड"
+
+#. event panel intro (C6.4)
+#. REVIEW C6.4
+msgid "A wedding party is on the road! Serve the guests from the baraat bus."
+msgstr "सड़क पर बारात निकली है! बारात की बस के मेहमानों को खाना परोसें।"
+
+#. event step (350 px at 24 px); same verb as the task cards (परोसें) (C6.4)
+#. REVIEW C6.4
+msgid "Serve {n} guests"
+msgstr "{n} मेहमानों को परोसें"
+
+#. event reward row (440 px at 17 px) (C6.4)
+#. REVIEW C6.4
+msgid "SHAADI GATE: a wedding gate for your dhaba, forever"
+msgstr "शादी का गेट: हमेशा आपके ढाबे पर सजेगा"
+
+#. event panel countdown; same short forms as the offline popup (घं / मि) (C6.4)
+#. REVIEW C6.4
+msgid "Ends in {h}h {m}m"
+msgstr "{h} घं {m} मि में ख़त्म"
+
+#. event step state (C6.4)
+#. REVIEW C6.4
+msgid "DONE"
+msgstr "पूरा"
+
+#. event: the Shaadi gate is yours (C6.4)
+#. REVIEW C6.4
+msgid "OWNED"
+msgstr "मिल गया"
+
+# ======================================================================
+# NH 48 menu (data/economy_v3.json locations.nh48.stations: names, card names, dish lines, BUILD rows, task cards)
+# Core and feel C6.3 (W3-STR, 2 Nov 2026). Dish lines are 2 lines at 18 px; jokes stay gentle; names are data name_hi.
+# ======================================================================
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "MASALA CHAI"
+msgstr "मसाला चाय"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "GUR KI CHAI"
+msgstr "गुड़ की चाय"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "SHIKANJI"
+msgstr "शिकंजी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "KESARIYA THANDAI"
+msgstr "केसरिया ठंडाई"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "MISSI ROTI"
+msgstr "मिस्सी रोटी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "TANDOORI ROTI"
+msgstr "तंदूरी रोटी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "BAATI"
+msgstr "बाटी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "LACCHA PARATHA"
+msgstr "लच्छा पराठा"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "MAKHANIYA LASSI"
+msgstr "मक्खनिया लस्सी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "CHAACH"
+msgstr "छाछ"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "KESAR LASSI"
+msgstr "केसर लस्सी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "RABRI"
+msgstr "रबड़ी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "DAL BAATI CHURMA"
+msgstr "दाल बाटी चूरमा"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "GATTE KI SABZI"
+msgstr "गट्टे की सब्ज़ी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "KER SANGRI"
+msgstr "केर सांगरी"
+
+#. dish (data name_hi; a proper noun for the native reviewer)
+#. REVIEW C6.3
+msgid "LAAL MAAS"
+msgstr "लाल मांस"
+
+#. first dish's card name
+#. REVIEW C6.3
+msgid "Kulhad Masala Chai"
+msgstr "कुल्हड़ मसाला चाय"
+
+#. first dish's card name
+#. REVIEW C6.3
+msgid "Missi Roti"
+msgstr "मिस्सी रोटी"
+
+#. first dish's card name
+#. REVIEW C6.3
+msgid "Makhaniya Lassi"
+msgstr "मक्खनिया लस्सी"
+
+#. first dish's card name
+#. REVIEW C6.3
+msgid "Dal Baati Churma"
+msgstr "दाल बाटी चूरमा"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Adrak and elaichi, poured into a kulhad that smells of rain."
+msgstr "अदरक और इलायची, कुल्हड़ में, बारिश जैसी सोंधी ख़ुशबू के साथ।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Sweetened with jaggery, the way the village likes it."
+msgstr "गुड़ की मिठास, जैसी गाँव को पसंद है।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Lemon, salt and kala namak against the Rajasthan heat."
+msgstr "नींबू, नमक और काला नमक: राजस्थान की गर्मी का तोड़।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Saffron, almonds and cold milk for a long drive."
+msgstr "केसर, बादाम और ठंडा दूध, लंबे सफ़र के लिए।"
+
+#. dish line (agrees with रोटी)
+#. REVIEW C6.3
+msgid "Besan and spices, slapped hot on the tandoor wall."
+msgstr "बेसन और मसाले, तंदूर की गरम दीवार पर थापी हुई।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Charred roti with fiery lahsun chutney on the side."
+msgstr "करारी सिकी रोटी, साथ में तीखी लहसुन की चटनी।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Wheat balls baked in the tandoor's coals, cracked open with ghee."
+msgstr "गेहूँ के गोले, तंदूर के अंगारों में सिके, घी के साथ तोड़कर।"
+
+#. dish line (agrees with पराठा)
+#. REVIEW C6.3
+msgid "Layer upon flaky layer, crisp from the tandoor."
+msgstr "परत पर परत, तंदूर से निकला करारा।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Jodhpur style: thick lassi with a cap of fresh malai."
+msgstr "जोधपुरी अंदाज़: गाढ़ी लस्सी, ऊपर ताज़ी मलाई की परत।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Thin, salty buttermilk with roasted jeera."
+msgstr "पतली, नमकीन छाछ, भुने जीरे के साथ।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Saffron-gold lassi, sweet and cold."
+msgstr "केसर से सुनहरी लस्सी, मीठी और ठंडी।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Milk boiled down for hours into sweet, thick layers."
+msgstr "घंटों औटाया दूध, मीठी गाढ़ी परतों में।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Rajasthan's pride: dal, baati and sweet churma on one plate."
+msgstr "राजस्थान की शान: दाल, बाटी और मीठा चूरमा एक ही थाली में।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Gram-flour dumplings in a tangy curd gravy."
+msgstr "बेसन के गट्टे, खट्टी दही की ग्रेवी में।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Ker berries and sangri beans, sun-dried and cooked with spice."
+msgstr "धूप में सूखे केर और सांगरी, मसालों के साथ पके।"
+
+#. dish line
+#. REVIEW C6.3
+msgid "Fiery red mutton curry from the old royal kitchens."
+msgstr "पुरानी शाही रसोई से आई तीखी लाल मटन करी।"
+
+#. BUILD row (tandoor)
+#. REVIEW C6.3
+msgid "Missi rotis and baatis off the clay oven for every hungry driver."
+msgstr "मिट्टी के तंदूर से मिस्सी रोटी और बाटी, हर भूखे ड्राइवर के लिए।"
+
+#. BUILD row (lassi)
+#. REVIEW C6.3
+msgid "Jodhpur's makhaniya lassi from a clay pot, with a cap of malai."
+msgstr "मटके से जोधपुर की मक्खनिया लस्सी, ऊपर मलाई की परत।"
+
+#. BUILD row (kadai); 'iron' left out like the NH 44 line (लोहे की is a known Rect2i trigger)
+#. REVIEW C6.3
+msgid "A big iron kadai for dal baati, gatte and laal maas."
+msgstr "दाल बाटी, गट्टे और लाल मांस के लिए एक बड़ी कड़ाही।"
+
+#. task card
+#. REVIEW C6.3
+msgid "Pour {n} kulhads of masala chai"
+msgstr "{n} कुल्हड़ मसाला चाय डालें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Pour {n} glasses of gur ki chai"
+msgstr "{n} गिलास गुड़ की चाय डालें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Stir {n} glasses of shikanji"
+msgstr "{n} गिलास शिकंजी घोलें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Serve {n} glasses of thandai"
+msgstr "{n} गिलास ठंडाई परोसें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Bake {n} missi rotis in the tandoor"
+msgstr "तंदूर में {n} मिस्सी रोटियाँ सेंकें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Bake {n} tandoori rotis"
+msgstr "{n} तंदूरी रोटियाँ सेंकें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Bake {n} plates of baati"
+msgstr "{n} प्लेट बाटी सेंकें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Bake {n} laccha parathas"
+msgstr "{n} लच्छा पराठे सेंकें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Make {n} glasses of makhaniya lassi"
+msgstr "{n} गिलास मक्खनिया लस्सी बनाएँ"
+
+#. task card
+#. REVIEW C6.3
+msgid "Pour {n} glasses of chaach"
+msgstr "{n} गिलास छाछ डालें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Blend {n} kesar lassis"
+msgstr "{n} गिलास केसर लस्सी बनाएँ"
+
+#. task card
+#. REVIEW C6.3
+msgid "Serve {n} bowls of rabri"
+msgstr "{n} कटोरी रबड़ी परोसें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Cook {n} plates of dal baati in the kadai"
+msgstr "कड़ाही में {n} प्लेट दाल बाटी पकाएँ"
+
+#. task card
+#. REVIEW C6.3
+msgid "Serve {n} bowls of gatte ki sabzi"
+msgstr "{n} कटोरी गट्टे की सब्ज़ी परोसें"
+
+#. task card
+#. REVIEW C6.3
+msgid "Cook {n} plates of ker sangri"
+msgstr "{n} प्लेट केर सांगरी पकाएँ"
+
+#. task card
+#. REVIEW C6.3
+msgid "Serve {n} bowls of laal maas"
+msgstr "{n} कटोरी लाल मांस परोसें"
+
+#. seating.info (plan 5.1; data only: not shown in the 0.3.x UI) (C2.1)
+#. REVIEW C2.1
+msgid "More tables, more travellers. When every seat is taken, travellers wait at the gate and passing lorries drive on."
+msgstr "ज़्यादा टेबल, ज़्यादा मुसाफ़िर। सारी सीटें भरी हों तो मुसाफ़िर गेट पर इंतज़ार करते हैं और गुज़रते ट्रक आगे निकल जाते हैं।"

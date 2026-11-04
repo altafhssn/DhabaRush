@@ -32,6 +32,21 @@ extends UiFullPanel
 ## Anchors (UiRoot.anchor): staff_tab_<role>, staff_hire_<role> (the open
 ## tab's HIRE), staff_hire_cooks_<station>, staff_upgrade_<role>_<i>,
 ## staff_close.
+##
+## Core and feel (W2-PANELS):
+##  - C2.4: the WAITERS HIRE card says what one waiter carries against what
+##    the dhaba needs (StaffRows.waiter_need_text(), from Game.waiter_need()),
+##    in at most two lines; "[ui] waiter card: <text>" when it changes.
+##  - C2.5: STAFF › COOKS rows carry the grey "Not the bottleneck now" pill
+##    when a cook at that counter will not raise the takings now
+##    (Game.station_help(id, "cook")).
+##  - C3.4: each waiter row has a tray line ("Bigger tray at Lv 15" /
+##    "Tray: 2 orders a trip").
+##  - C6.5: after the tutorial, STAFF › WAITERS starts with the Munshi-ji row
+##    (Game.delegation_state("munshi_claims")): "MUNSHI-JI · Claims finished
+##    task cards for you", a progress bar "12/20 claims" until it unlocks,
+##    then an ON / OFF switch (Game.delegate_set; action / gate id
+##    "munshi_toggle"). Anchor: munshi_toggle().
 
 signal tab_changed(tab: String)
 
@@ -45,6 +60,23 @@ const STATUS_H := 52.0
 const HIRE_Y := 366.0
 const GAP := 14.0
 const STATS_EVERY := 2
+## C2.4: the HIRE card's effect paragraph (2 lines) and its font sizes.
+const EFFECT_W := 350.0
+const EFFECT_PX := [19, 18, 17, 16, 15]
+## C6.5: the Munshi-ji row (above the HIRE card on WAITERS).
+const MUNSHI_KEY := "munshi_claims"
+const MUNSHI_H := 88.0
+const MUNSHI_GAP := 16.0
+const MUNSHI_ICON := 64.0
+const MUNSHI_TEXT_X := 94.0
+const MUNSHI_RIGHT_W := 196.0
+const MUNSHI_SEG := Vector2(96, 58)
+const MUNSHI_BAR_H := 18.0
+const MUNSHI_OFF := Color(0.6, 0.57, 0.53)
+## C6.5 msgids (plan 5.3).
+const MUNSHI_TITLE := "MUNSHI-JI"
+const MUNSHI_LINE := "Claims finished task cards for you"
+const MUNSHI_PROGRESS := "{n}/{total} claims"
 
 var tab: String = "waiters"
 
@@ -62,6 +94,10 @@ var _new: Dictionary = {}
 var _sig: String = ""
 var _poll_n: int = 0
 var _pulse_hire: bool = false
+## C6.5: {card, bar_bg, bar_fill, progress, on_btn, off_btn, sig} or {}.
+var _munshi: Dictionary = {}
+## C2.4: the last waiter HIRE text printed ("[ui] waiter card").
+var _logged_card: String = ""
 
 
 func _configure() -> void:
@@ -132,6 +168,10 @@ func _connect_game() -> void:
 	UiKit.gconnect("galla_changed", _on_game_changed)
 	UiKit.gconnect("station_changed", _on_game_changed)
 	UiKit.gconnect("building_built", _on_game_changed)
+	# C3.4 tray line, C6.5 Munshi-ji row.
+	UiKit.gconnect("waiter_tray_changed", _on_game_changed)
+	UiKit.gconnect("delegation_changed", _on_game_changed)
+	UiKit.gconnect("task_claimed", _on_claims_changed)
 
 
 # ================================================================ open / tabs
@@ -152,11 +192,14 @@ func open_tab(p_tab: String, opts: Dictionary = {}) -> void:
 func _before_open() -> void:
 	_poll_n = 0
 	_new.clear()
+	_logged_card = ""
 	_rebuild()
 
 
 func _staged_controls() -> Array:
 	var staged: Array = [_tab_row, _status]
+	if not _munshi.is_empty():
+		staged.append(_munshi["card"])
 	if not _hire.is_empty():
 		staged.append(_hire["card"])
 	if _max_note != null:
@@ -218,6 +261,15 @@ func cook_hire_button(station: String) -> UiButton:
 	return null
 
 
+## C6.5: the Munshi-ji ON / OFF switch's button that turns it the other way
+## (null while the row or the switch is not shown).
+func munshi_toggle() -> UiButton:
+	if _munshi.is_empty() or not (_munshi.get("on_btn") is UiButton):
+		return null
+	var on: bool = bool(Game.delegation_state(MUNSHI_KEY).get("on", true))
+	return _munshi["off_btn"] if on else _munshi["on_btn"]
+
+
 ## Person i's UPGRADE on the open tab (role must match it).
 func upgrade_button(role: String, i: int) -> UiButton:
 	if role != tab:
@@ -231,14 +283,18 @@ func upgrade_button(role: String, i: int) -> UiButton:
 
 # ================================================================ rows
 func _signature() -> String:
-	return "%s|%d|%d|%s|%s|%s" % [tab, StaffRows.count("waiters"), Game.galla_count(),
-			",".join(Game.built_station_ids()), str(StaffRows.can_hire("waiters")), str(Game.can_hire_galla())]
+	return "%s|%d|%d|%s|%s|%s|%s" % [tab, StaffRows.count("waiters"), Game.galla_count(),
+			",".join(Game.built_station_ids()), str(StaffRows.can_hire("waiters")), str(Game.can_hire_galla()),
+			_munshi_mode()]
 
 
 func _clear() -> void:
 	for r in _rows:
 		((r as Dictionary)["card"] as Node).queue_free()
 	_rows.clear()
+	if not _munshi.is_empty():
+		(_munshi["card"] as Node).queue_free()
+		_munshi = {}
 	if not _hire.is_empty():
 		(_hire["card"] as Node).queue_free()
 		_hire = {}
@@ -261,6 +317,9 @@ func _rebuild() -> void:
 			_rows.append(_make_cook_row(sid, y))
 			y += StaffRows.COOK_ROW_H + GAP
 	else:
+		if _munshi_mode() != "":
+			_make_munshi(y)
+			y += MUNSHI_H + MUNSHI_GAP
 		if StaffRows.can_hire(tab):
 			_make_hire(y)
 			y += StaffRows.HIRE_H + 22.0
@@ -291,7 +350,8 @@ func _make_hire(y: float) -> void:
 	var title: String = tr("HIRE {role} {n}").format({"role": StaffRows.noun(tab), "n": StaffRows.count(tab) + 1})
 	UiKit.label_in(card, title, Vector2(118, 16), Vector2(350, 40), StaffRows.fit_px(title, [26, 25, 24, 22], 346.0),
 			UiKit.TEAL_DARK, HORIZONTAL_ALIGNMENT_LEFT)
-	var eff: Label = UiKit.para(card, "", Vector2(118, 58), 350.0, 19, UiKit.INK, 2)
+	var eff: Label = UiKit.para(card, "", Vector2(118, 58), EFFECT_W, int(EFFECT_PX[0]), UiKit.INK, 2)
+	eff.name = "Effect"
 	var btn: UiButton = StaffRows.buy_button(card, "HIRE", (StaffRows.HIRE_H - StaffRows.BTN_SIZE.y) * 0.5 - 2.0)
 	btn.name = "HireButton"
 	btn.tapped.connect(_on_hire)
@@ -306,6 +366,124 @@ func _make_max_note(y: float) -> void:
 	_max_note = n
 
 
+# ================================================================ Munshi-ji (C6.5)
+## "" (no row: another tab, the tutorial, no delegation module), "locked"
+## (the progress bar) or "unlocked" (the ON / OFF switch).
+func _munshi_mode() -> String:
+	if tab != "waiters" or not Game.is_tutorial_done():
+		return ""
+	var st: Dictionary = Game.delegation_state(MUNSHI_KEY)
+	if st.is_empty():
+		return ""
+	return "unlocked" if bool(st.get("unlocked", false)) else "locked"
+
+
+## The Munshi-ji row: glyph, "MUNSHI-JI", "Claims finished task cards for
+## you", then a progress bar with "12/20 claims" (locked) or the ON / OFF
+## switch (unlocked).
+func _make_munshi(y: float) -> void:
+	var card: Panel = _row_card(y, MUNSHI_H)
+	card.name = "Munshi"
+	var ic := UiIcon.new("munshi", Vector2(MUNSHI_ICON, MUNSHI_ICON), Color.WHITE, UiKit.MARIGOLD_PALE)
+	ic.pad = 0.08
+	ic.position = Vector2(16, (MUNSHI_H - MUNSHI_ICON) * 0.5 - 2.0)
+	card.add_child(ic)
+	var right_x: float = 690.0 - MUNSHI_RIGHT_W - 18.0
+	var text_w: float = right_x - MUNSHI_TEXT_X - 10.0
+	var title: String = UiKit.t(MUNSHI_TITLE)
+	UiKit.label_in(card, title, Vector2(MUNSHI_TEXT_X, 8), Vector2(text_w, 36),
+			StaffRows.fit_px(title, [23, 22, 21, 20], text_w), UiKit.TEAL_DARK, HORIZONTAL_ALIGNMENT_LEFT)
+	var line: String = UiKit.t(MUNSHI_LINE)
+	var lp: int = StaffRows.fit_lines_px(line, [18, 17, 16, 15], text_w, 1)
+	var ll: Label = UiKit.label_in(card, line, Vector2(MUNSHI_TEXT_X, 44), Vector2(text_w, 30), lp, UiKit.INK_SOFT,
+			HORIZONTAL_ALIGNMENT_LEFT, 0, UiKit.INK, "body")
+	ll.clip_text = true
+	var m: Dictionary = {"card": card, "mode": _munshi_mode()}
+	if str(m["mode"]) == "unlocked":
+		var seg_y: float = (MUNSHI_H - MUNSHI_SEG.y) * 0.5 - 2.0
+		var on_b: UiButton = _munshi_seg("ON", Vector2(right_x, seg_y))
+		var off_b: UiButton = _munshi_seg("OFF", Vector2(right_x + MUNSHI_RIGHT_W - MUNSHI_SEG.x, seg_y))
+		card.add_child(on_b)
+		card.add_child(off_b)
+		on_b.name = "MunshiOn"
+		off_b.name = "MunshiOff"
+		on_b.tapped.connect(_on_munshi_toggle.bind(true))
+		off_b.tapped.connect(_on_munshi_toggle.bind(false))
+		m["on_btn"] = on_b
+		m["off_btn"] = off_b
+	else:
+		var prog: Label = UiKit.label_in(card, "", Vector2(right_x, 10), Vector2(MUNSHI_RIGHT_W, 30), 19, UiKit.TEAL_DARK)
+		prog.name = "Progress"
+		var bg: Panel = UiKit.panel(Color(0, 0, 0, 0.1), MUNSHI_BAR_H * 0.5)
+		bg.name = "Bar"
+		card.add_child(bg)
+		UiKit.place(bg, Vector2(right_x, 48), Vector2(MUNSHI_RIGHT_W, MUNSHI_BAR_H))
+		var fill: Panel = UiKit.panel(UiKit.TEAL, MUNSHI_BAR_H * 0.5)
+		bg.add_child(fill)
+		UiKit.place(fill, Vector2.ZERO, Vector2(MUNSHI_BAR_H, MUNSHI_BAR_H))
+		m["progress"] = prog
+		m["bar_bg"] = bg
+		m["bar_fill"] = fill
+	_munshi = m
+	_refresh_munshi()
+
+
+func _munshi_seg(caption: String, pos: Vector2) -> UiButton:
+	var b := UiButton.new(caption, UiKit.TEAL, MUNSHI_SEG)
+	b.set_font_sizes(20)
+	b.radius = 14.0
+	b.lip_px = 5.0
+	b.press_sound = "tap"
+	b.position = pos
+	return b
+
+
+## Progress "12/20 claims" and its bar, or which side of the switch is lit.
+func _refresh_munshi() -> void:
+	if _munshi.is_empty():
+		return
+	var st: Dictionary = Game.delegation_state(MUNSHI_KEY)
+	if _munshi.has("on_btn"):
+		var on: bool = bool(st.get("on", true))
+		var on_b: UiButton = _munshi["on_btn"]
+		var off_b: UiButton = _munshi["off_btn"]
+		on_b.set_face(UiKit.TEAL if on else TAB_OFF, UiKit.TEAL_DARK if on else TAB_OFF.darkened(0.18))
+		on_b.set_caption_color(Color.WHITE if on else UiKit.TEAL_DARK, Color(0, 0, 0, 0), 7 if on else 0)
+		off_b.set_face(MUNSHI_OFF if not on else TAB_OFF, MUNSHI_OFF.darkened(0.3) if not on else TAB_OFF.darkened(0.18))
+		off_b.set_caption_color(Color.WHITE if not on else UiKit.INK_SOFT, Color(0, 0, 0, 0), 7 if not on else 0)
+		return
+	var need: int = maxi(1, int(st.get("needed", 20)))
+	var n: int = clampi(int(st.get("progress", 0)), 0, need)
+	var t: String = UiKit.t(MUNSHI_PROGRESS).format({"n": n, "total": need})
+	var prog: Label = _munshi["progress"]
+	if prog.text != t:
+		prog.text = t
+		prog.add_theme_font_size_override("font_size", StaffRows.fit_px(t, [19, 18, 17, 16], MUNSHI_RIGHT_W))
+	var fill: Panel = _munshi["bar_fill"]
+	var w: float = maxf(MUNSHI_BAR_H, MUNSHI_RIGHT_W * float(n) / float(need))
+	fill.size = Vector2(w, MUNSHI_BAR_H)
+
+
+func _on_munshi_toggle(on: bool) -> void:
+	var id: String = "munshi_toggle"
+	if _munshi.is_empty() or not _allowed(id):
+		return
+	var b: UiButton = _munshi.get("on_btn" if on else "off_btn") as UiButton
+	var was: bool = bool(Game.delegation_state(MUNSHI_KEY).get("on", true))
+	if was == on:
+		return
+	Game.delegate_set(MUNSHI_KEY, on)
+	if b != null:
+		b.juice()
+	_refresh_munshi()
+	action.emit(id)
+
+
+func _on_claims_changed(_v: Variant = null) -> void:
+	if visible:
+		_refresh_munshi()
+
+
 func _make_person_row(i: int, y: float) -> Dictionary:
 	var card: Panel = _row_card(y, StaffRows.ROW_H)
 	var lvl: Label = StaffRows.level_pill(card, Fmt.level(1), Vector2(16, 9))
@@ -318,6 +496,13 @@ func _make_person_row(i: int, y: float) -> Dictionary:
 			HORIZONTAL_ALIGNMENT_LEFT, 0, UiKit.INK, "body")
 	var nl: Label = UiKit.label_in(card, "", Vector2(100, 74), Vector2(370, 26), 17, StaffRows.NEW_COL, HORIZONTAL_ALIGNMENT_LEFT)
 	nl.visible = false
+	# C3.4: "Bigger tray at Lv 15" / "Tray: 2 orders a trip" in the same slot
+	# (the NEW line wins while it shows).
+	var tray: Label = UiKit.label_in(card, "", Vector2(100, 74), Vector2(370, 26), 17, StaffRows.TRAY_COL,
+			HORIZONTAL_ALIGNMENT_LEFT)
+	tray.name = "Tray"
+	tray.clip_text = true
+	tray.visible = false
 	var nd: Dictionary = _new.get(tab, {})
 	if not nd.is_empty() and int(nd.get("index", -1)) == i:
 		nl.text = str(nd.get("text", "NEW"))
@@ -329,7 +514,7 @@ func _make_person_row(i: int, y: float) -> Dictionary:
 		sb.border_color = UiKit.MARIGOLD
 	var btn: UiButton = StaffRows.buy_button(card, "UPGRADE", (StaffRows.ROW_H - StaffRows.BTN_SIZE.y) * 0.5 - 2.0)
 	btn.tapped.connect(_on_upgrade.bind(i))
-	return {"card": card, "kind": "person", "index": i, "btn": btn, "lvl": lvl, "desc": desc, "new": nl}
+	return {"card": card, "kind": "person", "index": i, "btn": btn, "lvl": lvl, "desc": desc, "new": nl, "tray": tray}
 
 
 func _make_cook_row(sid: String, y: float) -> Dictionary:
@@ -349,10 +534,13 @@ func _make_cook_row(sid: String, y: float) -> Dictionary:
 	ribbon.position = Vector2(470, -15)
 	UiKit.label_in(ribbon, StaffRows.RIBBON, Vector2(0, -6), Vector2(122, 42), 16, UiKit.MAROON_DARK)
 	ribbon.visible = false
+	# C2.5: the grey "Not the bottleneck now" pill over the title (left of
+	# BEST NOW, so both can show).
+	var grey: Panel = StaffRows.grey_ribbon(card, Vector2(100, -StaffRows.GREY_RIBBON_H * 0.5), 250.0)
 	var btn: UiButton = StaffRows.buy_button(card, "HIRE COOK", (StaffRows.COOK_ROW_H - StaffRows.BTN_SIZE.y) * 0.5 - 2.0)
 	btn.tapped.connect(_on_cook_hire.bind(sid))
 	return {"card": card, "kind": "cook", "station": sid, "btn": btn, "lvl": lvl, "title": title, "desc": desc,
-			"ribbon": ribbon, "sb": card.get_theme_stylebox("panel")}
+			"ribbon": ribbon, "grey": grey, "sb": card.get_theme_stylebox("panel")}
 
 
 # ================================================================ refresh
@@ -364,6 +552,7 @@ func refresh() -> void:
 			if tab == "waiters":
 				(d["lvl"] as Label).text = Fmt.level(UiKit.gint("waiter_level", [i], 1))
 				(d["desc"] as Label).text = tr("Walks %d%% faster each level") % int(roundf((StaffRows.speed_step() - 1.0) * 100.0))
+				_refresh_tray(d)
 			else:
 				(d["lvl"] as Label).text = Fmt.level(Game.galla_level(i))
 				(d["desc"] as Label).text = tr("Bills {a} → {b} a minute").format(
@@ -376,7 +565,32 @@ func refresh() -> void:
 			var tl: Label = d["title"]
 			tl.text = t
 			tl.add_theme_font_size_override("font_size", StaffRows.fit_px(t, [23, 22, 21, 20], 366.0))
+			_refresh_cook_ribbon(d)
+	_refresh_munshi()
 	_refresh_buttons()
+
+
+## C3.4: a waiter row's tray line (hidden while the row's NEW line shows).
+func _refresh_tray(d: Dictionary) -> void:
+	var tl: Label = d.get("tray") as Label
+	if tl == null:
+		return
+	var t: String = StaffRows.tray_line(int(d["index"])) if tab == "waiters" else ""
+	if tl.text != t:
+		tl.text = t
+		tl.add_theme_font_size_override("font_size", StaffRows.fit_px(t, [17, 16, 15, 14], 366.0))
+	var nl: Label = d.get("new") as Label
+	tl.visible = t != "" and not (nl != null and nl.visible)
+
+
+## C2.5: the cook row's grey pill while a cook at that counter will not
+## raise the takings (not on a counter whose cooks are all hired).
+func _refresh_cook_ribbon(d: Dictionary) -> void:
+	var g: Control = d.get("grey") as Control
+	if g == null:
+		return
+	var sid: String = str(d["station"])
+	g.visible = not Game.hire_maxed(sid) and StaffRows.help_ribbon(sid, "cook") != ""
 
 
 func _refresh_buttons() -> void:
@@ -443,8 +657,14 @@ func _refresh_live(st: Dictionary) -> void:
 	var best_role: String = str(best.get("role", ""))
 	if not _hire.is_empty():
 		var el: Label = _hire["effect"]
-		if el.text != str(eff["text"]):
-			el.text = str(eff["text"])
+		var et: String = str(eff["text"])
+		if el.text != et:
+			el.text = et
+			# C2.4: two lines at most (the font steps down for long Hindi).
+			el.add_theme_font_size_override("font_size", StaffRows.fit_lines_px(et, EFFECT_PX, EFFECT_W, 2))
+		if tab == "waiters" and et != _logged_card:
+			_logged_card = et
+			StaffRows.log_waiter_card(et)
 		var hot: bool = best_role == tab
 		var sb: StyleBoxFlat = _hire["sb"]
 		sb.set_border_width_all(3 if hot else 0)
@@ -461,6 +681,8 @@ func _refresh_live(st: Dictionary) -> void:
 		csb.set_border_width_all(3 if on else 0)
 		csb.border_width_bottom = 5
 		csb.border_color = UiKit.MARIGOLD if on else UiKit.CARD.darkened(0.16)
+		_refresh_cook_ribbon(d)
+	_refresh_munshi()
 
 
 func _on_poll() -> void:
@@ -493,7 +715,7 @@ func _on_hire() -> void:
 		return
 	var b: UiButton = _hire["btn"]
 	var eff: Dictionary = StaffRows.hire_effect(tab)
-	var ok: bool = UiKit.gbool("buy_waiter_hire", [], false) if tab == "waiters" else Game.buy_galla_hire()
+	var ok: bool = UiKit.gbool("buy_waiter_hire" if tab == "waiters" else "buy_galla_hire", ["staff"], false)
 	if not ok:
 		b.deny()
 		return
@@ -524,7 +746,7 @@ func _on_upgrade(i: int) -> void:
 	if not _allowed(id):
 		return
 	var b: UiButton = upgrade_button(tab, i)
-	var ok: bool = UiKit.gbool("buy_waiter_upgrade", [i], false) if tab == "waiters" else Game.buy_galla_upgrade(i)
+	var ok: bool = UiKit.gbool("buy_waiter_upgrade" if tab == "waiters" else "buy_galla_upgrade", [i, "staff"], false)
 	if ok:
 		refresh()
 		if b != null:

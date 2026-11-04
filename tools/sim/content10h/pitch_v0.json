@@ -1,0 +1,86 @@
+{
+  "_comment": "content10h pitch_v0 (3 Nov 2026): first cut of the 10-hour content pitch, plausible and UNTUNED numbers for tools/sim/content10h.py (design prototype for docs/content-10h; not used by the game or the gates). Six highways (NH 44, NH 48 and four more, each made the NH 48 way: family layout from the start, menus a 1.0 factor), a Highway Hotel stage after the family stage on every highway, Izzat with six perks, dish-mastery stars. Sizing rules (docs/content-10h/research/sim.md section 7): each new highway keeps NH 48's price-to-cost ratio (cost_mult = mult / 1.5); NH 48 keeps today's 25,000, then 75,000 and double each move (a first guess at about 10 minutes of the takings when the previous hotel is done, the rule the NH 48 cost follows today); a full hotel was sized to add about a quarter of the dhaba's takings when it opens. All money in ref units (x10 on screen).",
+  "content": {
+    "highways": [
+      {"id": "nh44", "cost_mult": 1.0},
+      {"id": "nh48", "requires": "hotel_done", "cost_mult": 1.0},
+      {"id": "nh19", "name": "GT ROAD", "region": "UP / BIHAR", "mult": 2.25, "cost": 75000.0,
+       "requires": "hotel_done", "rebuild": true, "cost_mult": 1.5},
+      {"id": "nh66", "name": "NH 66", "region": "KONKAN COAST", "mult": 3.4, "cost": 150000.0,
+       "requires": "hotel_done", "rebuild": true, "cost_mult": 2.25},
+      {"id": "nh16", "name": "NH 16", "region": "EAST COAST", "mult": 5.0, "cost": 300000.0,
+       "requires": "hotel_done", "rebuild": true, "cost_mult": 3.4},
+      {"id": "nh44s", "name": "NH 44 SOUTH", "region": "DECCAN TO KANYAKUMARI", "mult": 7.5, "cost": 600000.0,
+       "requires": "hotel_done", "rebuild": true, "cost_mult": 5.0}
+    ],
+    "hotel": {
+      "_comment": "Opens when the family stage has all 16 dishes; 2 rooms come with it, 8 in all, each to level 8; a room pays rate_base x 1.3^(L-1) a night (x the highway's price mult), 85 % full; one night = one day cycle of play (600 s). Done = every room built and at level 8, which opens the next move.",
+      "enabled": true,
+      "unlock": "renovated+all_dishes",
+      "cost": 12500.0,
+      "scale_with_mult": true,
+      "rooms_start": 2,
+      "rooms_max": 8,
+      "room_costs": [200.0, 300.0, 450.0, 700.0, 1000.0, 1500.0],
+      "room_cost_growth": 1.5,
+      "room_level_max": 8,
+      "level_cost_base": 150.0,
+      "level_cost_growth": 1.4,
+      "rate_base": 150.0,
+      "rate_growth": 1.3,
+      "occupancy": 0.85,
+      "night_s": null,
+      "pay": "dawn",
+      "done": "rooms_all+room_level:8",
+      "offline_share": 0.25,
+      "offline_cap_hours": 8.0,
+      "bias": 1.0
+    },
+    "izzat": {
+      "enabled": true,
+      "start": 0,
+      "earn": {
+        "stage_done": {"roadside": 2, "family": 3, "hotel": 4},
+        "promotion": {"renovation": 1, "hotel": 1, "move": 3},
+        "dish_unlock": 0,
+        "star": 1,
+        "baraat_step": [1, 1, 2]
+      },
+      "perks": {
+        "quick_hands": {"name": "Quick hands (cooks 5 % faster a level)", "effect": "cook_speed", "per_level": 0.05,
+                        "costs": [3, 5, 8, 12, 16]},
+        "fast_feet": {"name": "Fast feet (waiters 5 % faster a level)", "effect": "waiter_speed", "per_level": 0.05,
+                      "costs": [3, 5, 8, 12, 16]},
+        "good_name": {"name": "Good name (prices +5 % a level)", "effect": "price_mult", "per_level": 0.05,
+                      "costs": [4, 7, 11, 16, 22]},
+        "old_staff": {"name": "Old staff (start with one more waiter a level)", "effect": "start_waiters", "per_level": 1,
+                      "costs": [5, 10], "applies_on": ["move", "renovation"]},
+        "savings": {"name": "Savings (start with 500 x the price mult a level)", "effect": "start_cash", "per_level": 500.0,
+                    "costs": [2, 4, 6], "applies_on": ["move", "renovation"]},
+        "night_shift": {"name": "Night shift (+1 h offline cap a level)", "effect": "offline_hours", "per_level": 1.0,
+                        "costs": [3, 6, 9]}
+      },
+      "policy": "cheapest"
+    },
+    "mastery": {
+      "enabled": true,
+      "thresholds": [500, 2000, 10000],
+      "scope": "highway",
+      "dish_price_per_star": 0.02,
+      "set_bonus": 0.03,
+      "global_per_stars": 0,
+      "global_mult": 0.0
+    },
+    "sessions": {
+      "per_day": 3,
+      "minutes": 20.0,
+      "starts_h": [8.0, 13.0, 21.0],
+      "install_weekday": 1,
+      "offline_ad": true,
+      "special_share": 0.08,
+      "baraat": true,
+      "guest_rate": 2.4
+    },
+    "festivals": []
+  }
+}

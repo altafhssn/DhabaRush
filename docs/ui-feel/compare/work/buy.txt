@@ -1,0 +1,4 @@
+today  fix [245 159  75] quiet [245 159  75] row [255 243 209] | dE fix-row 51  fix-quiet 0  lum fix:row 1.91
+truck  fix [255 138  31] quiet [255 245 223] row [255 245 223] | dE fix-row 75  fix-quiet 75  lum fix:row 2.18
+khata  fix [235 198 110] quiet [247 237 213] row [247 237 213] | dE fix-row 38  fix-quiet 38  lum fix:row 1.40
+tin    fix [255 210  63] quiet [247 244 238] row [247 244 238] | dE fix-row 71  fix-quiet 71  lum fix:row 1.32

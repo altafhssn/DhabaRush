@@ -1,0 +1,144 @@
+/* Today's HUD kit for the gameplay frames (Dhaba Rush, 3 Nov 2026).
+   Authored in canvas px: .cv is 720 x 1280 with zoom .5 inside a 360 x 640 CSS page,
+   so render.sh (2x) gives 1 canvas px = 1 PNG px. Colours are UiKit's palette
+   (scripts/v3/ui/ui_kit.gd) and samples of SH/home_mid/t012.0.png. */
+@font-face { font-family: "Baloo 2"; src: url("file:///Users/almeer/Documents/HighwayDhaba/assets/fonts/Baloo2.ttf"); font-weight: 400 800; }
+@font-face { font-family: "NotoDeva"; src: url("file:///Users/almeer/Documents/HighwayDhaba/assets/fonts/NotoSansDevanagari.ttf"); font-weight: 100 900; }
+
+:root {
+  --ink: #3b2414; --ink-soft: #6e5747; --pill: rgba(51, 18, 26, .9);
+  --saffron: #f28c29; --saffron-top: #f6a654; --saffron-lip: #b4601c;
+  --marigold: #ffb627; --marigold-pale: #ffdb80;
+  --teal: #0d7d87; --teal-dark: #08545e; --teal-light: #8fd9db;
+  --maroon: #8f1c3b; --gain: #3d9e4a; --gain-light: #94e680;
+  --bad: #d93d2e; --bad-dark: #8d281e; --cream: #fff2d6; --card: #fffdf8; --body: #f0e6d4;
+  --claim: #ffae3a; --claim-text: #78300d; --warn: #f0871f;
+  --ghost: rgba(5, 46, 56, .88); --ghost-cyan: #5cedff;
+  --bar-grey: #b9b0a8; --bar-amber: #f5a524; --bar-red: #e5392b;
+}
+html, body { margin: 0; padding: 0; }
+body { width: 360px; height: 640px; overflow: hidden; position: relative;
+  background-color: #d9a46c; background-repeat: no-repeat; background-size: 360px 640px; }
+.cv { position: absolute; left: 0; top: 0; width: 720px; height: 1280px; zoom: .5; overflow: hidden;
+  font-family: "Baloo 2", "NotoDeva", sans-serif; font-weight: 800; color: var(--ink); line-height: 1; }
+.cv * { box-sizing: border-box; }
+.a { position: absolute; }
+.full { position: absolute; left: 0; top: 0; width: 720px; height: 1280px; }
+.nowrap { white-space: nowrap; }
+.ol { text-shadow: 2px 0 #3a2314, -2px 0 #3a2314, 0 2px #3a2314, 0 -2px #3a2314,
+  1.5px 1.5px #3a2314, -1.5px 1.5px #3a2314, 1.5px -1.5px #3a2314, -1.5px -1.5px #3a2314; }
+.olr { text-shadow: 2px 0 #6e0f0a, -2px 0 #6e0f0a, 0 2px #6e0f0a, 0 -2px #6e0f0a,
+  1.5px 1.5px #6e0f0a, -1.5px 1.5px #6e0f0a, 1.5px -1.5px #6e0f0a, -1.5px -1.5px #6e0f0a; }
+.deva { font-family: "NotoDeva", "Baloo 2", sans-serif; }
+
+/* ------------------------------------------------ frame label + look tag */
+.flabel { left: 12px; top: 22px; height: 40px; padding: 0 14px; border-radius: 12px; background: rgba(20, 12, 10, .78);
+  color: #fff; font-size: 19px; line-height: 40px; white-space: nowrap; }
+.flabel b { color: var(--marigold); }
+.looktag { right: 12px; top: 22px; height: 40px; padding: 0 14px; border-radius: 12px; background: rgba(255, 255, 255, .88);
+  border: 2px dashed #8a5a3a; color: #7a3d1a; font-size: 18px; line-height: 36px; white-space: nowrap; }
+
+/* ------------------------------------------------ cash pill (Hud: 175 x 78 at 12,110) */
+.pill { left: 12px; top: 110px; width: 175px; height: 78px; border-radius: 18px; background: var(--pill); }
+.pill .note { left: 12px; top: 7px; width: 43px; height: 30px; }
+.pill .amt { left: 60px; top: 5px; font-size: 30px; line-height: 34px; color: #fff; white-space: nowrap; }
+.pill .trend { left: 19px; top: 44px; width: 28px; height: 28px; }
+.pill .rate { left: 56px; top: 42px; white-space: nowrap; line-height: 32px; }
+.pill .rate b { color: var(--gain-light); font-size: 25px; font-style: italic; }
+.pill .rate i { color: #fff; font-size: 19px; font-weight: 500; }
+
+/* ------------------------------------------------ NEXT chip (NextChip: 304-708, top 112, H 76, lip 4, r 20) */
+.chip { left: 304px; top: 112px; width: 404px; height: 76px; }
+.chip .lip { left: 0; top: 4px; width: 404px; height: 72px; border-radius: 20px; background: var(--teal-dark); }
+.chip .face { left: 0; top: 0; width: 404px; height: 72px; border-radius: 20px; background: var(--cream); border: 3px solid var(--teal); }
+.chip .ic { left: 8px; top: 7px; width: 58px; height: 58px; border-radius: 50%; background: var(--teal-light); overflow: visible; }
+.chip .l1 { left: 78px; top: 9px; font-size: 20px; line-height: 24px; color: var(--teal-dark); white-space: nowrap; }
+.chip .l2 { left: 78px; top: 33px; font-size: 25px; line-height: 34px; color: var(--ink); white-space: nowrap; }
+.chip .gain { right: 40px; top: 36px; font-size: 22px; line-height: 30px; color: var(--gain); white-space: nowrap; }
+.chip .chev { right: 14px; top: 16px; font-size: 38px; line-height: 40px; color: var(--teal-dark); }
+.chip.problem .lip { background: var(--bad-dark); }
+.chip.problem .face { background: var(--bad); border: 0; box-shadow: 0 0 10px 5px rgba(217, 61, 46, .55); }
+.chip.problem .ic { background: #fff; }
+.chip.problem .l1, .chip.problem .l2, .chip.problem .chev { color: #fff; }
+.chip.problem .gain { color: var(--gain-light); text-shadow: 0 1px 0 rgba(80, 10, 5, .6); }
+
+/* ------------------------------------------------ task strip (12-708, 206-284) */
+.task { left: 12px; top: 206px; width: 696px; height: 78px; border-radius: 16px; background: var(--teal);
+  border: 3px solid var(--teal-dark); box-shadow: inset 0 0 0 2px rgba(143, 217, 219, .55); }
+.task .tlabel { left: 14px; top: 22px; color: #fff; font-size: 22px; line-height: 30px; }
+.task .card { left: 82px; top: 6px; width: 538px; height: 60px; border-radius: 13px; background: var(--card); }
+.task .card.claim { background: var(--claim); border: 3px solid #ffd07a; }
+.task .count { left: 626px; top: 9px; width: 58px; height: 54px; border-radius: 12px; background: var(--teal-dark);
+  color: #fff; font-size: 20px; line-height: 54px; text-align: center; }
+.task .txt { left: 12px; top: 8px; font-size: 19px; line-height: 24px; color: var(--ink); font-weight: 600; white-space: nowrap; }
+.task .bar { left: 12px; top: 36px; width: 382px; height: 16px; border-radius: 8px; background: var(--teal-dark); overflow: hidden; }
+.task .bar i { position: absolute; left: 0; top: 0; height: 16px; border-radius: 8px; background: var(--teal-light); }
+.task .bar span { position: absolute; left: 0; right: 0; top: 0; text-align: center; color: #fff; font-size: 11px; line-height: 16px; }
+.task .rew { right: 12px; top: 18px; color: #8f8a85; font-size: 22px; line-height: 26px; white-space: nowrap; }
+.task .rew img { width: 30px; height: 21px; vertical-align: -3px; margin-right: 6px; opacity: .75; }
+
+/* ------------------------------------------------ the new meter (G6): 12,296-312,456 */
+.meter { left: 12px; top: 296px; width: 300px; height: 160px; border-radius: 14px; background: rgba(51, 18, 26, .85);
+  border: 2px solid rgba(255, 222, 170, .38); }
+.meter .row { left: 2px; width: 292px; height: 34px; }
+.meter .row.mark::before { content: ""; position: absolute; left: 2px; top: 2px; right: 0; bottom: 2px; border-radius: 9px;
+  background: rgba(255, 255, 255, .15); }
+.meter .row img { position: absolute; left: 4px; top: 5px; width: 24px; height: 24px; }
+.meter .row .lab { position: absolute; left: 36px; top: 3px; width: 92px; color: #fff; font-size: 20px; line-height: 28px; white-space: nowrap; }
+.meter .row .sub { position: absolute; left: 36px; top: 24px; color: #ffcf9a; font-size: 14px; line-height: 14px; }
+.meter .row .track { position: absolute; left: 132px; top: 11px; width: 100px; height: 12px; border-radius: 6px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+.meter .row .track i { position: absolute; left: 0; top: 0; height: 12px; border-radius: 6px; }
+.meter .row .val { position: absolute; left: 238px; top: 5px; width: 54px; color: #cfc4bb; font-size: 18px; line-height: 24px; white-space: nowrap; }
+.meter .row .pillr { position: absolute; left: 238px; top: 5px; height: 24px; padding: 0 7px; border-radius: 12px; background: var(--bar-red);
+  color: #fff; font-size: 18px; line-height: 25px; }
+.meter .row .chev { position: absolute; left: 282px; top: 1px; color: var(--marigold); font-size: 28px; line-height: 30px; }
+.meter .cap { left: 4px; top: 140px; width: 288px; height: 18px; border-radius: 6px; color: #f6e9dc; font-size: 18px; line-height: 19px;
+  text-align: center; white-space: nowrap; overflow: hidden; }
+.meter .cap.rush { background: var(--saffron); color: #fff; }
+.grey { background: var(--bar-grey); } .amber { background: var(--bar-amber); } .red { background: var(--bar-red); }
+
+/* ------------------------------------------------ STAFF / BUILD / gear */
+.sq { width: 100px; height: 100px; }
+.sq .lip { left: 0; top: 6px; width: 100px; height: 96px; border-radius: 20px; background: #c9b48c; box-shadow: 0 4px 6px rgba(40, 20, 10, .35); }
+.sq .face { left: 0; top: 0; width: 100px; height: 96px; border-radius: 20px; background: #fff3d6; }
+.sq .lbl { left: -20px; width: 140px; top: 106px; text-align: center; color: #fff; font-size: 21px; line-height: 26px; }
+.badge { width: 30px; height: 30px; border-radius: 50%; color: #fff; font-size: 20px; line-height: 31px; text-align: center;
+  box-shadow: 0 0 0 3px #fff; }
+.badge.green { background: #3a9e46; } .badge.red { background: #e23b2e; }
+.gear { left: 655px; top: 1050px; width: 49px; height: 49px; }
+
+/* ------------------------------------------------ world tags */
+.wtag { border-radius: 12px; background: var(--ghost); border: 3px solid var(--ghost-cyan); color: #fff; white-space: nowrap; }
+.wtag.red { border-color: #e5392b; }
+.wtag.mari { border-color: var(--marigold); }
+.ptr { position: absolute; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; }
+.onway { height: 22px; padding: 0 9px; border-radius: 11px; background: rgba(30, 16, 12, .8); color: #fff; font-size: 16px; line-height: 23px;
+  white-space: nowrap; text-align: center; }
+
+/* level plate (G17): small brass plate */
+.lplate { height: 28px; padding: 0 8px 0 6px; border-radius: 7px; white-space: nowrap;
+  background: linear-gradient(180deg, #f7d27a, #d9a23e 55%, #b98328); border: 2px solid #7a4d17;
+  box-shadow: 0 2px 3px rgba(40, 20, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .55);
+  color: #4a2a08; font-size: 16px; line-height: 25px; display: flex; align-items: center; gap: 5px; }
+.lplate .ring { width: 18px; height: 18px; border-radius: 50%; }
+
+/* bubbles over diners */
+.bub { height: 38px; border-radius: 10px; background: #fff; border: 2px solid #5a463a; box-shadow: 0 2px 2px rgba(0, 0, 0, .25); }
+.bub::after { content: ""; position: absolute; left: 50%; bottom: -9px; margin-left: -7px; border-left: 7px solid transparent;
+  border-right: 7px solid transparent; border-top: 9px solid #5a463a; }
+.bub::before { content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -5px; border-left: 5px solid transparent;
+  border-right: 5px solid transparent; border-top: 7px solid #fff; z-index: 1; }
+
+/* Munshi-ji chip */
+.munshi { height: 60px; border-radius: 30px; background: #fff3d6; border: 3px solid #e9b85a; box-shadow: 0 4px 8px rgba(40, 20, 10, .35);
+  color: var(--ink); font-size: 20px; line-height: 24px; display: flex; align-items: center; gap: 10px; padding: 0 18px 0 8px; }
+.munshi img { width: 44px; height: 44px; border-radius: 50%; }
+
+/* orange UiButton */
+.btn { border-radius: 16px; background: var(--saffron-lip); }
+.btn .bf { position: absolute; left: 0; top: 0; right: 0; bottom: 6px; border-radius: 16px; background: var(--saffron); overflow: hidden; }
+.btn .bf::before { content: ""; position: absolute; left: 6px; right: 6px; top: 5px; height: 40%; border-radius: 12px; background: var(--saffron-top); }
+.btn .cap { position: absolute; left: 0; right: 0; text-align: center; color: #fff; z-index: 2; white-space: nowrap; }
+.btn.teal { background: #06454c; } .btn.teal .bf { background: var(--teal); } .btn.teal .bf::before { background: #2a959e; }
+.btn.muted { background: #9c958c; } .btn.muted .bf { background: #c9c2b8; } .btn.muted .bf::before { background: #d8d2c9; }
+.note-s { display: inline-block; width: 32px; height: 22px; vertical-align: -3px; }

@@ -48,7 +48,9 @@ var _price_w: float = 0.0
 var _cap_w: float = 0.0
 var _content_key: String = ""
 
-## Stations whose tag already chimed "ready" this session.
+## "<highway>:<station>" whose tag already chimed "ready" this session. Keyed
+## by highway: a move (C6.3) un-builds the counters and the scene reload
+## keeps statics, so each highway's pads get their own first chime.
 static var _chimed: Dictionary = {}
 
 
@@ -110,8 +112,9 @@ func _update_content() -> void:
 	var cost_text: String = Fmt.price(cost)
 	var need: String = tr("needs waiter %d") % maxi(Game.requires_waiters(id), Game.waiter_count() + 1) if blocked else ""
 	var key: String = "%s|%s|%s|%s|%s" % [id, cost_text, str(blocked), str(afford), need]
-	if afford and not _chimed.has(id):
-		_chimed[id] = true
+	var memo_key: String = Game.location_id() + ":" + id
+	if afford and not _chimed.has(memo_key):
+		_chimed[memo_key] = true
 		Sfx.play("ready")
 	if key == _content_key:
 		return

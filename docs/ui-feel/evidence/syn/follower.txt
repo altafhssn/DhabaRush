@@ -1,0 +1,21 @@
+== group means (seeds)
+fol_pkg (n=4): full 3% | seats 51% | door mean 0.01 max 2 (>0 1%) | bill line max 4 | kitchen q max 14 | sent 2.8 cued 2.8 riders 6.5 | takings Rs 878/min (seeds 898, 897, 884, 834) | food wait 12.8 s | arr 17.2/min | busy cook 69% waiters 80% cashiers 86% | full bar 30%
+fol_nr (n=2): full 3% | seats 50% | door mean 0.03 max 4 (>0 1%) | bill line max 3 | kitchen q max 11 | sent 0.5 cued 0.5 riders 1.0 | takings Rs 902/min (seeds 903, 901) | food wait 12.4 s | arr 17.2/min | busy cook 69% waiters 80% cashiers 86% | full bar 18%
+idle394_pkg (n=2): full 36% | seats 76% | door mean 0.38 max 4 (>0 21%) | bill line max 2 | kitchen q max 14 | sent 5.5 cued 5.5 riders 13.5 | takings Rs 492/min (seeds 494, 490) | food wait 30.4 s | arr 13.9/min | busy cook 95% waiters 80% cashiers 85% | full bar 100%
+new_pick_today (n=2): full 1% | seats 50% | door mean 0.00 max 2 (>0 0%) | bill line max 3 | kitchen q max 11 | sent 0.0 cued 0.0 riders 0.0 | takings Rs 900/min (seeds 857, 944) | food wait 12.6 s | arr 17.1/min | busy cook 68% waiters 81% cashiers 87% | full bar 9%
+new_chip_today (n=4): full 1% | seats 46% | door mean 0.00 max 1 (>0 0%) | bill line max 2 | kitchen q max 13 | sent 0.0 cued 0.0 riders 0.0 | takings Rs 659/min (seeds 656, 683, 639, 659) | food wait 17.3 s | arr 12.7/min | busy cook 89% waiters 66% cashiers 79% | full bar 100%
+new_idle394_today (n=1): full 5% | seats 48% | door mean 0.03 max 3 (>0 2%) | bill line max 2 | kitchen q max 13 | sent 0.0 cued 0.0 riders 0.0 | takings Rs 449/min (seeds 449) | food wait 19.1 s | arr 12.2/min | busy cook 87% waiters 68% cashiers 78% | full bar 100%
+fol_pkg_s1.log: moments 6 (world 2, claims 2, ads 2, tips 0) | nudges 6 | follower buys 18 | gaps >= 2 min 73%, longest 228 s | goal/HUD changes 10, longest unchanged 381 s
+fol_pkg_s2.log: moments 6 (world 2, claims 2, ads 2, tips 0) | nudges 6 | follower buys 18 | gaps >= 2 min 75%, longest 228 s | goal/HUD changes 12, longest unchanged 309 s
+fol_pkg_s3.log: moments 6 (world 2, claims 2, ads 2, tips 0) | nudges 6 | follower buys 17 | gaps >= 2 min 67%, longest 228 s | goal/HUD changes 12, longest unchanged 332 s
+fol_pkg_s4.log: moments 6 (world 2, claims 2, ads 2, tips 0) | nudges 6 | follower buys 17 | gaps >= 2 min 69%, longest 228 s | goal/HUD changes 14, longest unchanged 248 s
+idle394_pkg_s1.log: moments 2 (world 0, claims 0, ads 2, tips 0) | nudges 5 | follower buys 0 | gaps >= 2 min 80%, longest 253 s | goal/HUD changes 7, longest unchanged 211 s
+idle394_pkg_s2.log: moments 2 (world 0, claims 0, ads 2, tips 0) | nudges 5 | follower buys 0 | gaps >= 2 min 80%, longest 253 s | goal/HUD changes 7, longest unchanged 211 s
+new_idle394_today_s1.log: moments 2 (world 0, claims 0, ads 2, tips 0) | nudges 5 | follower buys 0 | gaps >= 2 min 80%, longest 253 s | goal/HUD changes 2, longest unchanged 424 s
+new_chip_today_s1.log: moments 7 (world 2, claims 3, ads 2, tips 0) | nudges 6 | follower buys 16 | gaps >= 2 min 62%, longest 216 s | goal/HUD changes 18, longest unchanged 106 s
+new_chip_today_s2.log: moments 7 (world 2, claims 3, ads 2, tips 0) | nudges 6 | follower buys 15 | gaps >= 2 min 61%, longest 187 s | goal/HUD changes 17, longest unchanged 113 s
+new_chip_today_s3.log: moments 7 (world 2, claims 3, ads 2, tips 0) | nudges 6 | follower buys 15 | gaps >= 2 min 61%, longest 186 s | goal/HUD changes 17, longest unchanged 121 s
+new_chip_today_s4.log: moments 7 (world 2, claims 3, ads 2, tips 0) | nudges 6 | follower buys 16 | gaps >= 2 min 61%, longest 198 s | goal/HUD changes 17, longest unchanged 106 s
+new_pick_today_s1.log: moments 6 (world 2, claims 2, ads 2, tips 0) | nudges 6 | follower buys 18 | gaps >= 2 min 69%, longest 228 s | goal/HUD changes 5, longest unchanged 372 s
+new_pick_today_s2.log: moments 6 (world 2, claims 2, ads 2, tips 0) | nudges 6 | follower buys 19 | gaps >= 2 min 73%, longest 228 s | goal/HUD changes 3, longest unchanged 437 s
+MEAN over 13: moments 5.4 (world 1.5, claims 1.8, ads 2.0, tips 0.0) | nudges 5.8 | buys 13.0 | gaps >= 2 min 70% | longest 224 s | HUD changes 10.8, longest unchanged 259 s

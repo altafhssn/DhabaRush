@@ -80,6 +80,54 @@ extends Node
 ##     HUD keeps that button through the line, so its burst is seen).
 ##   - The gear, and STAFF / BUILD when a beat was skipped, come with the
 ##     tutorial's end (Game's own reveal rules).
+##   Core and feel (W3-TUT, build plan revision 2). Supersedes the waiter,
+##   seats and ad parts above where they differ:
+##   - C2.6: the bottleneck meter is revealed as the waiter beat starts
+##     (Game.reveal_hud("meter") on entering waiter_lines, ~1:17; the HUD
+##     prints "[hud] meter revealed at <t>"); lesson_stage() says which row
+##     it pulses: "waiters" from waiter_lines to waiter_done, "seats" from
+##     seats_lines to seats_done, else "".
+##   - C3.1: the waiter is hired in the world. LW2 ("Tap the new WAITER,
+##     then HIRE.") unlocks UiRoot's "+ WAITER" tag over the ghost waiter and
+##     rings it; tap_staff points the hand at the tag; the tag opens the
+##     2-tap card (panel "quick:waiters") by the oldest waiting plate; the
+##     hand goes on its HIRE. A card hire skips close_waiters (UiRoot closes
+##     the card itself): the camera holds on the pass WAITER_HIRE_HOLD s
+##     while the new waiter takes the oldest plate, then flies home for LW3
+##     ("[tutorial] waiter beat: hired via card"). STAFF, the rack and the
+##     waiters still open STAFF › WAITERS, and that path is unchanged.
+##   - C2.3: plates held on the plate stool count as waiting plates.
+##   - C4.1: the seats lesson always fires. SEATS_FILL_AT s into the free
+##     step with no door line and the player idle,
+##     Sim.fill_for_seats_beat(SEATS_FILL_DOOR) fills every free seat and
+##     stands travellers at the gate (the line waits: C2.1); the door-line
+##     trigger then plays LT1 / LT2 within free + 8 s ("[tutorial] seats
+##     beat: filled <n>"). A gate line that drains first (diners leave, or a
+##     panel was open) is filled again once the player is idle, up to
+##     SEATS_FILLS fills (W3-FIX). No prewarm nudges and no "no_door_line"
+##     skip any more: tutorial_seats_skipped {why: "fill_failed"} only from
+##     SEATS_FAILSAFE_AT on, with no door line, once the fill placed nobody
+##     or every fill is spent (or at the SEATS_GIVEUP_AT backstop); the
+##     "tables_max" skip stays.
+##   - C7.2: with no rewarded ad ready at the ad beat, L14, L15 and the
+##     bubble are left out ("[tutorial] ad beat skipped: no ad"): ad_deal
+##     goes straight to the BUILD beat, which says L16 itself.
+##   - The meter's taps (meter_row, meter_road), event_button and home_hall
+##     are never in a beat's allow list (they work only where "*" is).
+## W4-FIX (final review):
+##   - Munshi-ji's top-up before the waiter, table and tandoor purchases
+##     (_gift_once, tutorial keys "gift_waiter" / "gift_table" /
+##     "gift_tandoor") is given at most once per beat and save: re-entering
+##     the beat (the card closed, the cash spent in a sheet) does not grant
+##     it again. The Sim keeps selling, so the purchase stays reachable.
+##   - waiter_lines and ad_deal close a panel the player opened during their
+##     waits before the lines (LW1 / LW2, L14) play; ad_deal also blocks the
+##     HUD buttons during its wait (up to 1 s + AD_READY_WAIT on a relaunch).
+##   - The free step does not count the analytics consent card as idle, so
+##     the nudge hand and the fallback ad chain wait for its answer.
+##   - Closing FREE BONUS without the video is a decline (rewarded ads are
+##     opt-in): the beat moves on to L15 / L16 and the BUILD beat ("[tutorial]
+##     ad beat: FREE BONUS closed without the video").
 ##
 ## hold_spawns is on from the start until the transfer (nobody else walks in
 ## between the first sale and the transfer — critic). Pause dialogues are
@@ -301,27 +349,44 @@ const WAITER_VIEW_OFFSET := Vector3(1.6, 0.0, 1.6)
 const WAITER_INJECT := 3
 const WAITER_PLATES := 2
 const WAITER_PLATES_TIMEOUT := 9.0
+## C3.1: after a hire from the 2-tap card the camera stays on the pass this
+## long (the new waiter pops in and takes the oldest plate), then flies home
+## (0.5 s before LW3, so the pass stays in view about 1.7 s). 1.2 s is what
+## the STAFF path spent on its X, so free play starts when it did.
+const WAITER_HIRE_HOLD := 1.2
 ## The ad bubble: fingertip on the bubble's lower right, so the glove leaves
 ## "+1,000 / ▶ WATCH AD" readable.
 const BUBBLE_HAND_REL := Vector2(0.8, 0.8)
 ## Seats beat (A9): camera target relative to the next ghost table (the table
 ## at about screen y 548, its ADD TABLE tag's top below the TASKS bar at
 ## y ~400; the spec's (1.6, 0, 1.6) put the tag under the bar); a door
-## line must last SEATS_DOOR_S; SEATS_NUDGE_AT s into free play with no
-## trigger, Sim.prewarm(free seats + SEATS_NUDGE_EXTRA) (round 2 step 2:
-## a fixed 6 left no door line in about half the runs when more than 4
-## seats were free); then, while there is still no door line, a top-up
-## every SEATS_RENUDGE_S that also counts half the seated diners (they can
-## leave as the nudged travellers walk in), SEATS_NUDGES nudges in all;
-## skipped at SEATS_SKIP_AT with no door line.
+## line must last SEATS_DOOR_S.
+## Core and feel C4.1 (replaces the 45 s prewarm nudges, which left the
+## beat at free + 50 s on the 30 fps seeds 41 and 46: 5 of 8 seats were
+## still free when the free step began and the arrivals never outran them
+## before the nudge): SEATS_FILL_AT s into the free step with no door line
+## and the player idle (IDLE_BEFORE_CHAIN: the trigger needs that too),
+## Sim.fill_for_seats_beat(SEATS_FILL_DOOR) seats a traveller on every free
+## seat and stands SEATS_FILL_DOOR more at the gate (fixed models, no rng
+## draw); the trigger then fires 2 s later. W3-FIX: the gate line can drain
+## before that (earlier diners leave and the travellers at the gate take
+## their seats, often while a panel is open), so with no door line the fill
+## runs again once the player is idle, SEATS_REFILL_S after the last one,
+## SEATS_FILLS times a session at most. From SEATS_FAILSAFE_AT on, with no
+## door line, the beat is skipped (tutorial_seats_skipped {why:
+## "fill_failed"}) only when the fill placed nobody (no Sim hook) or every
+## fill is spent and SEATS_REFILL_S has passed since the last; a door line
+## always waits for the player's calm. SEATS_GIVEUP_AT (wave 2's last skip
+## time) is the backstop for a player who is never idle.
 ## SEATS_SHOW_S = how long the new table is shown before home.
 const SEATS_VIEW_OFFSET := Vector3(0.8, 0.0, 0.8)
 const SEATS_DOOR_S := 2.0
-const SEATS_NUDGE_AT := 45.0
-const SEATS_NUDGE_EXTRA := 2
-const SEATS_RENUDGE_S := 20.0
-const SEATS_NUDGES := 3
-const SEATS_SKIP_AT := 110.0
+const SEATS_FILL_AT := 3.0
+const SEATS_FILL_DOOR := 3
+const SEATS_FILLS := 3
+const SEATS_REFILL_S := 2.0
+const SEATS_FAILSAFE_AT := 20.0
+const SEATS_GIVEUP_AT := 110.0
 const SEATS_SHOW_S := 2.0
 ## The bubble view (S_BUBBLE) is flown to unless the wall-ad anchor already
 ## projects inside this rect (the 104x156 bubble is then not clamped).
@@ -329,6 +394,9 @@ const BUBBLE_SAFE := Rect2(70.0, 560.0, 580.0, 390.0)
 ## Anchors that appear with a short delay (world tags poll at 0.2 s and pop
 ## in): resolved for up to this long.
 const ANCHOR_WAIT := 1.0
+## C7.2 (W3-FIX): on a relaunch at the ad beat, the longest wait (s) for the
+## first rewarded load before the beat is left out.
+const AD_READY_WAIT := 8.0
 ## Soft launch analytics: every beat in its canonical order. tutorial_step
 ## carries its 1-based index "i" (GameAnalytics design id
 ## tutorial:step:<ii>_<step>, so the funnel sorts in play order) and "t", the
@@ -407,6 +475,19 @@ var _seats_t: float = 0.0
 var _door_t: float = 0.0
 var _tables0: int = 0
 var _claim_pending: bool = false
+## C4.1: seats-beat fills this session, the _seats_t of the last one and
+## how many travellers it placed (-1 = none yet).
+var _seats_fills: int = 0
+var _seats_fill_t: float = 0.0
+var _seats_fill_n: int = -1
+## C3.1: the waiter beat's hire came from the 2-tap card (waiter_done holds
+## on the pass before it flies home).
+var _hired_via_card: bool = false
+## C7.2: the ad beat was left out (no rewarded ad): the BUILD beat says L16.
+var _ad_skipped: bool = false
+## W3-FIX (C7.2): resumed at "ad_deal": the beat waits for the first
+## rewarded load (AD_READY_WAIT) before it decides there is no ad.
+var _ad_wait_load: bool = false
 
 
 func _ready() -> void:
@@ -490,6 +571,22 @@ func hand() -> HandPointer:
 	return _hand
 
 
+## Core and feel C2.6: the bottleneck meter's row the tutorial's lesson is
+## about ("waiters" from waiter_lines to waiter_done, "seats" from
+## seats_lines to seats_done, else ""). While it is not "", the meter pulses
+## that row (and nothing else) and stays up in dialogue mode (W2-HUD reads it
+## by name).
+func lesson_stage() -> String:
+	if not is_active():
+		return ""
+	match _step:
+		S_WAITER_LINES, S_TAP_STAFF, S_HIRE_WAITER, S_CLOSE_WAITERS, S_WAITER_DONE:
+			return "waiters"
+		S_SEATS_LINES, S_TAP_TABLE, S_ADD_TABLE, S_SEATS_DONE:
+			return "seats"
+	return ""
+
+
 # ================================================================ flow control
 func _goto(step: String) -> void:
 	if _step == S_LEVEL and step != S_LEVEL:
@@ -537,6 +634,9 @@ func _resume(cp: String) -> void:
 	if CHECKPOINTS.find(cp) >= CHECKPOINTS.find("hired"):
 		# The cashier beat is behind: STAFF stays on the HUD.
 		_reveal_staff()
+	if CHECKPOINTS.find(cp) >= CHECKPOINTS.find("free"):
+		# C2.6: the waiter beat is behind: the meter stays on the HUD.
+		_reveal_meter()
 	match cp:
 		"intro":
 			_goto(S_INTRO)
@@ -565,6 +665,7 @@ func _resume(cp: String) -> void:
 			_reveal(REVEAL_FULL)
 			_hold_spawns(false)
 			_ad_delay = 1.0
+			_ad_wait_load = true
 			_goto(S_AD_DEAL)
 		"build":
 			_reveal(REVEAL_FULL)
@@ -935,11 +1036,14 @@ func _enter_wrap() -> void:
 ## Waiter beat, problem first (round 2 step 2, ui-proposal §3.7): fly to the
 ## tray rack and the chai pass, seat WAITER_INJECT travellers at once, wait
 ## for their plates to wait on the pass (orange rings), then LW1–LW2.
+## Core and feel C2.6: the bottleneck meter comes in as the beat starts
+## (its WAITERS row pulses: lesson_stage()).
 func _enter_waiter_lines() -> void:
 	var g := _gen
 	_checkpoint("waiter")
 	_resume_once = false
 	_reveal_staff()
+	_reveal_meter()
 	if Game.waiter_count() >= 2:
 		_goto(S_WAITER_DONE)
 		return
@@ -960,13 +1064,22 @@ func _enter_waiter_lines() -> void:
 		t += 0.1
 	print("[tutorial] waiter beat: %s orders injected, %d plates waiting after %.1f s" % [str(n), _plates_waiting(), t])
 	Analytics.event("tutorial_waiter_problem", {"plates": _plates_waiting(), "wait_s": snappedf(t, 0.1)})
+	if not _open_panels.is_empty():
+		# W4-FIX: STAFF (ringed by L10) or the meter's card opened during the
+		# plate wait: LW1 shows the plates on the pass and LW2 rings the
+		# "+ WAITER" tag, which UiRoot hides while a panel is open, so the
+		# screen is reset first (as seats_done does).
+		print("[tutorial] waiter beat: closed %s before LW1" % str(_open_panels.keys()))
+		_call(Refs.ui, "close_all")
 	await _say(["lw1", "lw2"])
 	if g != _gen:
 		return
 	_goto(S_TAP_STAFF)
 
 
-## The hand on STAFF (the rack or a waiter opens STAFF › WAITERS too).
+## Core and feel C3.1: the hand on the new waiter's "+ WAITER" tag over the
+## ghost by the rack (it opens the 2-tap card). STAFF, the rack or a waiter
+## still open STAFF › WAITERS, and that path goes on as before.
 func _enter_tap_staff() -> void:
 	var g := _gen
 	_dialogue.set_highlight([])
@@ -974,34 +1087,46 @@ func _enter_tap_staff() -> void:
 	if Game.waiter_count() >= 2:
 		_goto(S_WAITER_DONE)
 		return
-	if _panel_open("staff"):
+	if _panel_open("staff") or _panel_open("quick_waiters"):
 		_goto(S_HIRE_WAITER)
 		return
-	_allow_taps(["waiters"])
+	_unlock_waiter_tag(true)
 	_allow_buttons(["*"])
-	print("[tutorial] tap STAFF: %d plates still waiting" % _plates_waiting())
+	print("[tutorial] tap the WAITER tag: %d plates still waiting" % _plates_waiting())
 	await _wait(HAND_DELAY)
 	if g != _gen:
 		return
-	_hand.point_at(_anchor(["staff_button"], true))
+	var a: Control = await _anchor_soon(["waiter_tag"])
+	if g != _gen:
+		return
+	if a != null:
+		_hand.point_at(a, TAG_HAND_REL)
+	else:
+		_hand.point_at(Layout3.waiter_home(Game.waiter_count()) + Vector3(0.0, HireSlot.WAITER_TAG_Y, 0.0))
 
 
-## STAFF › WAITERS is open (switched there if STAFF opened on another tab):
-## top the cash up to the hire cost (visible gift), hand on HIRE.
+## The 2-tap card (or STAFF › WAITERS, switched there if STAFF opened on
+## another tab) is open: top the cash up to the hire cost (visible gift,
+## once: _gift_once), hand on its HIRE.
 func _enter_hire_waiter() -> void:
 	var g := _gen
-	Game.grant_cash_floor(Game.waiter_hire_cost())
+	_gift_once("waiter", Game.waiter_hire_cost())
 	_allow_taps(["none"])
+	var card: bool = _panel_open("quick_waiters")
 	if Game.waiter_count() >= 2:
-		_goto(S_CLOSE_WAITERS)
+		_goto(S_WAITER_DONE if card else S_CLOSE_WAITERS)
 		return
-	_staff_tab("waiters")
+	if not card:
+		_staff_tab("waiters")
 	_allow_buttons(["waiter_hire", "panel_close"])
 	await _wait(HAND_DELAY)
 	if g != _gen:
 		return
 	_marker_off()
-	_hand.point_at(_anchor(["staff_hire_waiters", "waiter_hire_button"]))
+	if card and _panel_open("quick_waiters"):
+		_hand.point_at(_anchor(["quick_buy_button", "waiter_hire_button"]))
+	else:
+		_hand.point_at(_anchor(["staff_hire_waiters", "waiter_hire_button"]))
 
 
 func _enter_close_waiters() -> void:
@@ -1017,12 +1142,21 @@ func _enter_close_waiters() -> void:
 
 
 ## Two waiters: back home, LW3, then free play (round 2 step 2: no L12; the
-## task strip comes with the first claimable task, _tick_tasks).
+## task strip comes with the first claimable task, _tick_tasks). C3.1: after
+## a card hire the camera first holds on the pass for WAITER_HIRE_HOLD s
+## while the new waiter pops in and takes the oldest plate.
 func _enter_waiter_done() -> void:
 	var g := _gen
 	_allow_taps(["none"])
 	_allow_buttons(["*"])
 	_lock_input(true)
+	_unlock_waiter_tag(false)
+	_reveal_meter()
+	if _hired_via_card:
+		_hired_via_card = false
+		await _wait(WAITER_HIRE_HOLD)
+		if g != _gen:
+			return
 	var cam := _cam()
 	if cam != null:
 		cam.fly_home()
@@ -1096,10 +1230,10 @@ func _enter_tap_table() -> void:
 
 
 ## The table's 2-tap card (or BUILD › TABLES) is open: top the cash up to the
-## table cost, hand on its BUILD.
+## table cost (once: _gift_once), hand on its BUILD.
 func _enter_add_table() -> void:
 	var g := _gen
-	Game.grant_cash_floor(Game.table_cost())
+	_gift_once("table", Game.table_cost())
 	_allow_taps(["none"])
 	if Game.table_count() > _tables0:
 		_goto(S_SEATS_DONE)
@@ -1143,15 +1277,48 @@ func _enter_seats_done() -> void:
 		_goto(S_FREE)
 
 
+## C7.2: with no rewarded ad ready (offline, no fill, consent), L14, L15 and
+## the bubble are left out and the BUILD beat follows at once (it says L16).
+## W3-FIX: on a relaunch at this checkpoint the check comes 1 s after the
+## launch, while the first rewarded load (AdMob: UMP, initialize, load) is
+## usually still in flight: it waits up to AD_READY_WAIT s for that load,
+## only while it is pending (no failure yet), so no fill / offline / consent
+## still skip at once and the fresh path is unchanged.
 func _enter_ad_deal() -> void:
 	var g := _gen
 	_checkpoint("ad_deal")
 	_allow_taps(["none"])
+	# W4-FIX: no HUD button during the wait (on a relaunch 1 s plus up to
+	# AD_READY_WAIT): STAFF opened here put L14 to L16 and the bubble's hand
+	# over the full-screen panel. "*" comes back before L14 / the BUILD beat.
+	_allow_buttons([])
 	await _wait(_ad_delay)
 	if g != _gen:
 		return
 	_ad_delay = CLAIM_TO_LINE
 	_lock_input(true)
+	if _ad_wait_load:
+		_ad_wait_load = false
+		var t := 0.0
+		while not Ads.is_rewarded_ready("wall_ad") and t < AD_READY_WAIT \
+				and Ads.rewarded_block_reason() == "loading" and Ads.last_load_failure() == "":
+			await _wait(0.1)
+			if g != _gen:
+				return
+			t += 0.1
+		if t > 0.0:
+			print("[tutorial] ad beat: waited %.1f s for the first ad (ready %s)" % [t, Ads.is_rewarded_ready("wall_ad")])
+	_allow_buttons(["*"])
+	if not _open_panels.is_empty():
+		# W4-FIX: a panel or popup still open from before the beat: the lines
+		# and the bubble's hand need the world in view.
+		print("[tutorial] ad beat: closed %s before the beat" % str(_open_panels.keys()))
+		_call(Refs.ui, "close_all")
+	if not Ads.is_rewarded_ready("wall_ad"):
+		_ad_skipped = true
+		print("[tutorial] ad beat skipped: no ad")
+		_goto(S_BUILD_BTN)
+		return
 	await _say(["l14"])
 	if g != _gen:
 		return
@@ -1222,11 +1389,23 @@ func _enter_build_btn() -> void:
 	Game.reveal_hud("build")
 	_allow_taps(["none"])
 	_lock_input(true)
-	# Keep the beat completable: the ref arrived here with 215 >= 200.
-	Game.grant_cash_floor(Game.build_cost("tandoor"))
+	# Keep the beat completable: the ref arrived here with 215 >= 200. Once
+	# per save (_gift_once): a player who spends it elsewhere earns it back.
+	_gift_once("tandoor", Game.build_cost("tandoor"))
 	if _panel_open("daftar"):
 		_goto(S_BUILD_ROW)
 		return
+	if _ad_skipped:
+		# C7.2: the ad lines were left out, so L16 ("We can afford a TANDOOR
+		# now. Tap BUILD.") is said here, BUILD coming in as it names it.
+		_ad_skipped = false
+		await _say(["l16"])
+		if g != _gen:
+			return
+		_hud_mode("gameplay")
+		if _panel_open("daftar"):
+			_goto(S_BUILD_ROW)
+			return
 	await _wait(BUILD_HAND_DELAY)
 	if g != _gen:
 		return
@@ -1524,7 +1703,10 @@ func _advance_walk() -> void:
 
 func _tick_free(delta: float) -> void:
 	_free_t += delta
-	var idle: bool = _open_panels.is_empty() and not (_dialogue != null and _dialogue.is_open())
+	# W4-FIX: the analytics consent card (layer 36, C4.4) is not idle either:
+	# the nudge hand and the fallback ad chain wait for its answer.
+	var idle: bool = _open_panels.is_empty() and not (_dialogue != null and _dialogue.is_open()) \
+			and not Analytics.is_card_open()
 	if idle:
 		_idle_t += delta
 	else:
@@ -1547,11 +1729,17 @@ func _tick_free(delta: float) -> void:
 		_start_ad_chain(REWARD_TO_LINE, "fallback")
 
 
-## Seats trigger: a door line for SEATS_DOOR_S while idle; a prewarm at
-## SEATS_NUDGE_AT and top-ups every SEATS_RENUDGE_S while no door line
-## (SEATS_NUDGES in all, counted in the save as "seats_nudges"; a save
-## with only the old "seats_forced" flag has had one); skipped (never
-## faked) at SEATS_SKIP_AT with no door line.
+## Seats trigger: a door line for SEATS_DOOR_S while idle. Core and feel
+## C4.1: SEATS_FILL_AT s into the free step with no door line and the
+## player idle, the Sim fills every free seat and stands SEATS_FILL_DOOR
+## travellers at the gate (the door line waits for a seat, C2.1), so the
+## trigger fires about 2 s later. W3-FIX: a gate line that drained before
+## the trigger (diners leaving, a panel open) gets another fill once the
+## player is idle again (SEATS_REFILL_S after the last, SEATS_FILLS in
+## all). Skipped only when the tables are maxed, or (failsafe, from
+## SEATS_FAILSAFE_AT, no door line) when the fill placed nobody or every
+## fill is spent, or at the SEATS_GIVEUP_AT backstop. A door line with the
+## player busy in a panel just waits for the calm.
 func _tick_seats(delta: float) -> void:
 	_seats_t += delta
 	var door: Variant = _call(Refs.ui, "door_waiting")
@@ -1565,38 +1753,30 @@ func _tick_seats(delta: float) -> void:
 	if _door_t >= SEATS_DOOR_S and _idle_t > IDLE_BEFORE_CHAIN:
 		_goto(S_SEATS_LINES)
 		return
-	var nudges: int = _seats_nudges()
-	if nudges < SEATS_NUDGES and _door_t <= 0.0 \
-			and _seats_t >= SEATS_NUDGE_AT + SEATS_RENUDGE_S * float(nudges):
-		Game.tutorial_set("seats_forced", true)
-		Game.tutorial_set("seats_nudges", nudges + 1)
-		# Enough travellers to fill every free seat and still stand at the
-		# door; a top-up also covers half the diners, who may get up and
-		# free their seats while the nudged travellers walk in.
+	if _door_t > 0.0:
+		return   # a door line: it waits for the player's calm
+	if _seats_t >= SEATS_GIVEUP_AT or (_seats_t >= SEATS_FAILSAFE_AT and _seats_fill_spent()):
+		_seats_skip("fill_failed")
+		return
+	if _seats_t >= SEATS_FILL_AT and _idle_t > IDLE_BEFORE_CHAIN and _seats_fills < SEATS_FILLS \
+			and (_seats_fills == 0 or (_seats_fill_n > 0 and _seats_t - _seats_fill_t >= SEATS_REFILL_S)):
+		_seats_fills += 1
+		_seats_fill_t = _seats_t
 		var free_n: int = _seats_free()
-		var n: int = free_n + SEATS_NUDGE_EXTRA
-		if nudges > 0:
-			n += ceili(float(_seats_used()) * 0.5)
-		_call(Refs.sim, "prewarm", [n])
-		print("[tutorial] seats nudge %d: prewarm %d (%d seats free) at free +%.1f s" % [nudges + 1, n, free_n, _seats_t])
-	if _seats_t >= SEATS_SKIP_AT and _door_t <= 0.0:
-		_seats_skip("no_door_line")
+		var r: Variant = _call(Refs.sim, "fill_for_seats_beat", [SEATS_FILL_DOOR])
+		_seats_fill_n = int(r) if (r is int or r is float) else 0
+		print("[tutorial] seats beat: filled %d (%d seats were free) at free +%.1f s (fill %d of %d)" % [
+				_seats_fill_n, free_n, _seats_t, _seats_fills, SEATS_FILLS])
 
 
-## Seats nudges so far (a save from before the top-ups: 1 if it nudged).
-func _seats_nudges() -> int:
-	var v: Variant = Game.tutorial_get("seats_nudges", null)
-	if v is int or v is float:
-		return int(v)
-	return 1 if bool(Game.tutorial_get("seats_forced", false)) else 0
-
-
-## Seats in use right now (Sim, else Game's copy).
-func _seats_used() -> int:
-	var v: Variant = _call(Refs.sim, "seats_in_use")
-	if v is int or v is float:
-		return maxi(int(v), 0)
-	return maxi(Game.seats_in_use(), 0)
+## C4.1 failsafe: the fill placed nobody (no Sim hook), or every fill ran
+## and SEATS_REFILL_S has passed since the last with no door line.
+func _seats_fill_spent() -> bool:
+	if _seats_fills <= 0:
+		return false
+	if _seats_fill_n <= 0:
+		return true
+	return _seats_fills >= SEATS_FILLS and _seats_t - _seats_fill_t >= SEATS_REFILL_S
 
 
 ## Free seats right now (Sim, else Game's copy of the seat counts).
@@ -1647,17 +1827,37 @@ func _ready_slot() -> int:
 	return -1
 
 
+## W4-FIX: Munshi-ji's visible top-up (Game.grant_cash_floor) before a
+## purchase the tutorial walks through, at most once per beat and save
+## (tutorial key "gift_<key>", set only when it added something). Re-entering
+## the beat (the card closed, the cash spent in a sheet the meter opened) no
+## longer grants it again, so it cannot be farmed; the Sim keeps selling.
+func _gift_once(key: String, amount: float) -> void:
+	var k: String = "gift_" + key
+	if bool(Game.tutorial_get(k, false)):
+		return
+	if Game.grant_cash_floor(amount) > 0.0:
+		Game.tutorial_set(k, true)
+
+
 # ================================================================ event handlers
 func _on_line_started(id: String = "") -> void:
 	match id:
-		"l10", "lw2":
+		"l10":
 			# Round 2 step 2: the line names STAFF; a pulsing ring around the
 			# button through the dim (it came in as STAFF › CASHIERS closed).
-			if _step == S_WRAP or _step == S_WAITER_LINES:
+			if _step == S_WRAP:
 				_reveal_staff()
 				var sb := _anchor(["staff_button"], true)
 				if sb != null:
 					_dialogue.set_highlight([sb], true)
+		"lw2":
+			# Core and feel C3.1: the line names the new waiter; his "+ WAITER"
+			# tag pops in over the ghost by the rack (like LT2's "+ TABLE")
+			# and a pulsing ring shows it through the dim.
+			if _step == S_WAITER_LINES:
+				_unlock_waiter_tag(true)
+				_ring_waiter_tag(_gen)
 		"lt2":
 			# LT1 is said where the problem shows (the full seats, the door
 			# line and its "Seats full!" pill); LT2 flies to the next ghost
@@ -1749,7 +1949,9 @@ func _on_panel_opened(panel: Variant = "") -> void:
 			if k == "staff":
 				_goto(S_HIRE)
 		S_TAP_STAFF:
-			if k == "staff":
+			# C3.1: the tag's 2-tap card, or STAFF › WAITERS (STAFF, the rack
+			# or a waiter).
+			if k == "staff" or k == "quick_waiters":
 				_goto(S_HIRE_WAITER)
 		S_TAP_TABLE:
 			if k == "quick_tables" or k == "daftar":
@@ -1781,19 +1983,27 @@ func _on_panel_closed(panel: Variant = "") -> void:
 			if k == "staff":
 				_goto(S_WRAP)
 		S_HIRE_WAITER:
-			if k == "staff":
-				_goto(S_TAP_STAFF)
+			# Closed without a hire (a tap outside the card, STAFF's X): back
+			# to the tag. (The card's "STAFF ›" link closes it and opens STAFF
+			# › WAITERS, which comes straight back here.)
+			if k == "staff" or k == "quick_waiters":
+				_goto(S_TAP_STAFF if Game.waiter_count() < 2 else S_WAITER_DONE)
 		S_CLOSE_WAITERS:
-			if k == "staff":
+			if k == "staff" or k == "quick_waiters":
 				_goto(S_WAITER_DONE)
 		S_ADD_TABLE:
 			if (k == "quick_tables" or k == "daftar") and Game.table_count() <= _tables0:
 				_goto(S_TAP_TABLE)
 		S_VIP:
 			if k == "vip":
-				# No ad fill (offline / not loaded): move on instead of
-				# looping bubble -> popup -> X forever.
-				_goto(S_AD_LINES if (_vip_taken or not Ads.is_rewarded_ready("wall_ad")) else S_BUBBLE)
+				# W4-FIX: closed without the video (its X; the popup cannot
+				# close while the ad plays) is a decline, since rewarded ads
+				# are opt-in (C7.4): move on to L15 / L16 and the BUILD beat,
+				# whose top-up keeps the tandoor reachable, instead of looping
+				# bubble -> popup -> X. (No ad fill moved on here before too.)
+				if not _vip_taken:
+					print("[tutorial] ad beat: FREE BONUS closed without the video")
+				_goto(S_AD_LINES)
 		S_BUILD_ROW:
 			if k == "daftar":
 				_goto(S_BUILD_BTN)
@@ -1828,9 +2038,24 @@ func _on_station_changed(id: String = "") -> void:
 			_level_goal(true)
 
 
+## C3.1: a hire from the 2-tap card skips close_waiters (UiRoot closes the
+## card itself, 0.15 s later); STAFF's hire still asks for its X. W3-FIX: a
+## hire made before the lesson asks for it (the meter's pulsing WAITERS row
+## or STAFF during the plate wait of waiter_lines, or in tap_staff) ends the
+## beat the same way, so LW1 / LW2 never teach a hire that is already done
+## (nor ring the tag of a third waiter).
 func _on_waiter_hired(_index: int = 0) -> void:
-	if _step == S_HIRE_WAITER and Game.waiter_count() >= 2:
-		_goto(S_CLOSE_WAITERS)
+	if Game.waiter_count() < 2:
+		return
+	if _step == S_HIRE_WAITER or _step == S_WAITER_LINES or _step == S_TAP_STAFF:
+		if _step != S_HIRE_WAITER:
+			print("[tutorial] waiter beat: hired early (step %s)" % _step)
+		if _panel_open("quick_waiters"):
+			_hired_via_card = true
+			print("[tutorial] waiter beat: hired via card")
+			_goto(S_WAITER_DONE)
+		else:
+			_goto(S_CLOSE_WAITERS)
 
 
 func _on_table_added(_index: int = 0) -> void:
@@ -2364,6 +2589,31 @@ func _reveal_staff() -> void:
 	Game.reveal_hud("staff")
 
 
+## Core and feel C2.6: the bottleneck meter on the HUD for good, from the
+## waiter beat on (the HUD prints "[hud] meter revealed at <t>").
+func _reveal_meter() -> void:
+	Game.reveal_hud("meter")
+
+
+## C3.1: UiRoot shows the ghost waiter's "+ WAITER" tag in the tutorial only
+## while rack_tag_unlocked and "waiters" taps are named; off again after the
+## waiter beat ("waiters" taps alone still let the rack and the waiters open
+## STAFF › WAITERS).
+func _unlock_waiter_tag(on: bool) -> void:
+	_set_prop(Refs.ui, "rack_tag_unlocked", on)
+	if on:
+		_allow_taps(["waiters"])
+
+
+## C3.1: once the tag has popped in (UiRoot polls it), a pulsing ring around
+## it through LW2's dim.
+func _ring_waiter_tag(g: int) -> void:
+	var a: Control = await _anchor_soon(["waiter_tag"])
+	if g != _gen or a == null or _dialogue == null or not _dialogue.is_open() or _dialogue.current_id() != "lw2":
+		return
+	_dialogue.set_highlight([a], true)
+
+
 ## The open STAFF panel on `tab` (STAFF opens on the tab that needs it most,
 ## which during a beat may be another one): switched in place.
 func _staff_tab(tab: String) -> void:
@@ -2376,7 +2626,8 @@ func _staff_tab(tab: String) -> void:
 
 
 ## Plates on a pass waiting for a waiter (cooked, nobody coming for them):
-## the ones the Sim draws orange wait rings under.
+## the ones the Sim draws orange wait rings under. Core and feel C2.3: the
+## plates held on the counter's plate stool (pass full) count too.
 func _plates_waiting() -> int:
 	var s: Object = Refs.sim
 	if s == null or not is_instance_valid(s):
@@ -2389,10 +2640,11 @@ func _plates_waiting() -> int:
 		var st: StationNode = sv as StationNode
 		if st == null or not is_instance_valid(st):
 			continue
-		for v in st.pass_items:
-			var tk: StationNode.Ticket = v as StationNode.Ticket
-			if tk != null and tk.state == StationNode.TK.READY and tk.waiter == null:
-				n += 1
+		for list: Array in [st.pass_items, st.held_tickets]:
+			for v in list:
+				var tk: StationNode.Ticket = v as StationNode.Ticket
+				if tk != null and tk.state == StationNode.TK.READY and tk.waiter == null:
+					n += 1
 	return n
 
 

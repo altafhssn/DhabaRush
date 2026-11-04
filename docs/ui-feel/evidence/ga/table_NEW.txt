@@ -1,0 +1,23 @@
+
+=== NEW
+measure                              | today (base)               | package
+seats all taken %                    | 3 [0-6]                    | 47 [45-49]
+door line mean                       | 0.03 [0.00-0.10]           | 0.58 [0.50-0.75]
+door line max                        | 2 [0-4]                    | 4 [4-5]
+door line >0 %                       | 2 [0-4]                    | 32 [27-38]
+cashier line max                     | 2 [1-2]                    | 2 [2-2]
+kitchen queue max                    | 13 [11-14]                 | 14 [14-14]
+takings Rs/min                       | 487 [482-493]              | 524 [522-527]
+food wait s                          | 19.3 [17.3-21.0]           | 33.2 [32.5-34.2]
+arrivals /min                        | 13.3 [12.9-13.8]           | 14.4 [14.2-14.8]
+drove past (riders, 60-905 s)        | 0 [0-0]                    | 24 [20-30]
+today's meter: any bar full %        | 100 [100-100]              | 100 [100-100]
+GA-4 meter: a row 95%+ busy %        | 88 [86-92]                 | 98 [97-99]
+GA-4 meter: a row overflowing %      | 66 [61-69]                 | 92 [90-94]
+plates waiting max                   | 5 [5-5]                    | 5 [5-5]
+drive-pasts base: sent 0 (0 riders), cued 0, dropped 0 over 4 runs
+  base seeds 4: today's meter limit cooks 100% | GA-4 overflowing row: cooks 47%, waiters 18%, seats 0%
+drive-pasts pkg: sent 39 (97 riders), cued 38, dropped 0 over 4 runs
+  pkg seeds 4: today's meter limit cooks 100% | GA-4 overflowing row: cooks 87%, waiters 5%, seats 1%
+  pkg rush: seats all taken 62 [38-78]%, door>0 43 [27-58]%, door max 4 [3-5], Rs/min 530 [509-551], food wait 34.3 [27.6-37.6] s, kitchen q max 14 [13-14], plates waiting mean 3.9 [3.2-4.2], drove past 10 [5-13]
+  pkg off : seats all taken 44 [37-52]%, door>0 29 [22-41]%, door max 4 [4-5], Rs/min 522 [516-526], food wait 33.0 [31.5-33.7] s, kitchen q max 14 [14-14], plates waiting mean 3.7 [3.5-3.8], drove past 15 [12-17]

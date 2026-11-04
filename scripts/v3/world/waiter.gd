@@ -58,15 +58,57 @@ extends Node3D
 ## behind him still opens the counter, and while he idles at his spot by the
 ## rack (the waiter stand's own tap boxes, "waiters", cover those spots; his
 ## free-play spot stands right in front of the chai pass's end).
+##
+## Core and feel (docs/core-and-feel/build-plan.md, W1-WORLDA):
+##  - C3.4 trays: a waiter whose tray carries k > 1 orders (Game
+##    waiter_tray_orders(i), or Sim.debug_tray from --tray=N) may get a
+##    BUNDLE from the Sim: `order` then holds the tickets of several
+##    travellers, in the order he visits the passes (grouped by station, the
+##    shortest walk). He serves the tables one after the other, nearest first
+##    from the last pass (_stops), each stop like a one-order serve. The tray
+##    is tray_wide (fallback tray) once max_orders() >= 2 and lays the items
+##    in two rows for 2 or 3 orders.
+##  - C2.8: after serving with nothing to take he lingers LINGER_S at the
+##    table (W.LINGER, free: the Sim may hand him an order) before walking
+##    home (free play only; the tutorial walks home at once as before).
+##    home_walks() counts real walks home.
+##  - C6.1 family layout (Layout3 variant "family"): MODELS row 4 (Gopal),
+##    the hall walls SEP_WALLS_FAMILY and the hall tables join the sidestep's
+##    walls; the static rect caches are keyed on the variant (static vars
+##    survive a scene reload).
+##  - C8.4: no chotu in MODELS.
 
 signal picked(w: Waiter, ticket: RefCounted)
 signal served(w: Waiter, ticket: RefCounted)
 
-## (WAIT_ITEM appended so the older state numbers stay put.)
-enum W { IDLE, TO_PASS, PICKING, TO_TABLE, SERVING, RETURNING, WAIT_ITEM }
+## (WAIT_ITEM and LINGER appended so the older state numbers stay put.)
+enum W { IDLE, TO_PASS, PICKING, TO_TABLE, SERVING, RETURNING, WAIT_ITEM, LINGER }
 
 ## Model ids per waiter (first existing wins; the economy name goes first).
-const MODELS := [["raju", "chotu", "munna"], ["pappu", "shambhu", "chotu", "bablu"], ["sonu", "lakhan", "chotu", "munna"]]
+## C8.4: no chotu (a waiter must never read as a boy); waiter 3 Lakhan has his
+## own model, waiter 4 Gopal (family layout) too.
+const MODELS := [["raju", "munna"], ["pappu", "shambhu", "bablu"], ["lakhan", "sonu", "munna"], ["gopal", "raju", "munna"]]
+## C2.8: seconds he stands at the table after serving with nothing to take;
+## then he walks home unless an order will be ready within his walk home and
+## back (Sim.waiter_should_wait, asked every LINGER_CHECK s, LINGER_MAX s at
+## most).
+const LINGER_S := 1.0
+const LINGER_CHECK := 0.25
+const LINGER_MAX := 8.0
+## Farther than this (m) from his spot = away from home (a walk home counts).
+const HOME_NEAR := 0.5
+## C3.4: the wide tray's inner half width (along X) and half depth (m), and
+## the round tray's half depth (= TRAY_INNER_R).
+const TRAY_WIDE_HALF := Vector2(0.27, 0.16)
+## C6.1 family layout: the hall's walls for the sidestep (x0, z0, x1, z1):
+## north wall, the courtyard's east wall either side of the hall door, the
+## hall's east and south walls (frozen, plan 2.3 / W1-WORLDA 9).
+const SEP_WALLS_FAMILY := [[15.4, 0.15, 21.8, 0.45], [15.05, 0.3, 15.35, 3.5], [15.05, 4.6, 15.35, 8.0],
+		[21.65, 0.3, 21.95, 7.9], [15.4, 7.75, 21.8, 8.05]]
+## The hall's table sets and decor (= Layout3.HALL_TABLES / HALL_DECOR rect,
+## frozen, plan 2.3): props the stepped rig keeps off in the family layout.
+const HALL_TABLES_FROZEN := [Vector3(17.25, 0.0, 2.1), Vector3(17.25, 0.0, 6.1), Vector3(20.15, 0.0, 2.1)]
+const HALL_DECOR_RECT := [19.55, 5.5, 20.75, 6.7]
 const PICK_TIME := 0.22
 const SERVE_TIME := 0.34
 const HOP_TIME := 0.24
@@ -84,10 +126,15 @@ const MAX_STEPS_PER_FRAME := 16
 const TRAY_MULTI_SCALE := 0.8
 const TRAY_INNER_R := 0.19
 const TRAY_GAP := 0.006
-const ITEM_RADIUS := {"pass_plate": 0.092, "pass_roti": 0.135, "pass_lassi": 0.075, "pass_bhurji": 0.135, "pass_dal": 0.10,
+## Core and feel (W2-WORLD, from the art packages' measured footprints):
+## pass_plate is now the cutting-chai glass on its saucer (r 0.061, C8.1; the
+## old kulhad lives on as pass_kulhad, r 0.092) and the nine NH 48 items (C6.3).
+const ITEM_RADIUS := {"pass_plate": 0.061, "pass_roti": 0.135, "pass_lassi": 0.075, "pass_bhurji": 0.135, "pass_dal": 0.10,
 		"pass_coffee": 0.07, "pass_green_tea": 0.075, "pass_kesar_doodh": 0.092, "pass_naan": 0.135, "pass_keema_paratha": 0.135,
 		"pass_kulcha": 0.135, "pass_chaas": 0.075, "pass_mango_lassi": 0.075, "pass_patiala": 0.09, "pass_paneer": 0.10,
-		"pass_chole": 0.10}
+		"pass_chole": 0.10, "pass_kulhad": 0.092,
+		"pass_missi_roti": 0.135, "pass_lahsun_roti": 0.135, "pass_baati": 0.135, "pass_rabri": 0.08, "pass_dal_baati": 0.136,
+		"pass_gatte": 0.10, "pass_ker_sangri": 0.10, "pass_laal_maas": 0.10, "pass_shikanji": 0.075}
 const ITEM_RADIUS_DEFAULT := 0.1
 ## A pass slot this far from where he stands: step over before lifting.
 const PICKUP_REACH := 0.3
@@ -220,10 +267,30 @@ var _lead: Vector3 = Vector3.ZERO
 ## _near_rects for [position, _lead, the rect list it was cut from].
 var _near_at: Array = [Vector3.INF, Vector3.INF, null]
 var _near_cache: Array = []
-## SEP_WALLS + SEP_PROPS as Rect2s (x, z) inflated by SEP_BODY, built once;
-## with Layout3.obstacles() per obstacle mask (_all_rects).
+## SEP_WALLS + SEP_PROPS as Rect2s (x, z) inflated by SEP_BODY, built once
+## per layout variant; with Layout3.obstacles() per variant + obstacle mask
+## (_all_rects).
 static var _sep_walls: Array = []
+static var _sep_variant: String = ""
 static var _all_cache: Dictionary = {}
+## The layout variant of the current scene ("roadside" | "family"), set by
+## the Sim in its _ready (a promotion reloads the scene).
+static var layout_variant: String = "roadside"
+## C3.4: the stops of his order (one per traveller, nearest first from the
+## last pass), each an Array of that traveller's tickets in ticket order, and
+## the stop he is serving / walking to.
+var _stops: Array = []
+var _stop_i: int = 0
+## (stats) walks home from away (from farther than HOME_NEAR, all the way to
+## his spot), orders (travellers) served.
+var home_walk_n: int = 0
+var orders_done: int = 0
+## C3.4: the tray model on his socket ("tray" / "tray_wide"); a change of
+## tray size while he carries waits for the end of the trip.
+var _tray_model: String = ""
+var _tray_dirty: bool = false
+var _linger_chk: float = 0.0
+var _walk_from_away: bool = false
 
 
 func setup(p_sim: Sim, i: int) -> void:
@@ -249,11 +316,22 @@ func setup(p_sim: Sim, i: int) -> void:
 	tap_area = StationNode.make_tap_area(TAP_SIZE, "waiter_%d" % i)
 	tap_area.set_meta("waiter_index", i)
 	add_child(tap_area)
+	# C3.4: Game (W1-CORE) emits waiter_tray_changed(index, orders) at a tray
+	# level (reached by name: rule 5 of the build plan).
+	if Game.has_signal("waiter_tray_changed") and not Game.is_connected("waiter_tray_changed", _on_tray_changed):
+		Game.connect("waiter_tray_changed", _on_tray_changed)
+
+
+func _exit_tree() -> void:
+	if Game.has_signal("waiter_tray_changed") and Game.is_connected("waiter_tray_changed", _on_tray_changed):
+		Game.disconnect("waiter_tray_changed", _on_tray_changed)
 
 
 func _attach_tray() -> void:
 	var h: float = rig.height
-	tray = Models.make("tray", Vector3(0.4, 0.03, 0.4), Color(0.78, 0.8, 0.84))
+	_tray_model = _wanted_tray()
+	var wide: bool = _tray_model == "tray_wide"
+	tray = Models.make(_tray_model, Vector3(0.6 if wide else 0.4, 0.03, 0.38 if wide else 0.4), Color(0.78, 0.8, 0.84))
 	tray.name = "Tray"
 	var socket: Node3D = rig.find_socket("tray_socket")
 	if socket != null:
@@ -276,6 +354,56 @@ func _no_shadows(n: Node) -> void:
 		_no_shadows(c)
 
 
+## C3.4: orders his tray carries a trip (Sim.debug_tray from --tray=N, else
+## Game.waiter_tray_orders(i) by name, else 1).
+func max_orders() -> int:
+	if _sim != null and _sim.debug_tray > 0:
+		return _sim.debug_tray
+	if Game.has_method("waiter_tray_orders"):
+		return maxi(1, int(Game.call("waiter_tray_orders", index)))
+	return 1
+
+
+## Travellers whose orders he is on now (0 when free).
+func carrying_orders() -> int:
+	return _stops.size() if not order.is_empty() else 0
+
+
+## Walks home from away so far.
+func home_walks() -> int:
+	return home_walk_n
+
+
+func _wanted_tray() -> String:
+	if max_orders() >= 2 and CharacterRig.model_exists("tray_wide"):
+		return "tray_wide"
+	return "tray"
+
+
+## Swaps the tray model when his tray size changed (now when the tray is
+## empty, else at the end of the trip).
+func refresh_tray() -> void:
+	if tray == null or _wanted_tray() == _tray_model:
+		_tray_dirty = false
+		return
+	if not order.is_empty() or carried_count() > 0:
+		_tray_dirty = true
+		return
+	_tray_dirty = false
+	var old: Node3D = tray
+	tray = null
+	tray_top = null
+	if old.get_parent() != null:
+		old.get_parent().remove_child(old)
+	old.queue_free()
+	_attach_tray()
+
+
+func _on_tray_changed(i: int, _orders: int) -> void:
+	if i == index:
+		refresh_tray()
+
+
 ## Walk speed from his level (call after Game.waiter_changed).
 func refresh_speed() -> void:
 	var base: float = Traveller.WALK_HEIGHTS_PER_S * CharacterRig.DEFAULT_HEIGHT
@@ -283,7 +411,7 @@ func refresh_speed() -> void:
 
 
 func is_free() -> bool:
-	return state == W.IDLE or state == W.RETURNING
+	return state == W.IDLE or state == W.RETURNING or state == W.LINGER
 
 
 ## Items on his tray right now.
@@ -313,7 +441,8 @@ func assign(tk: StationNode.Ticket) -> void:
 
 
 ## Fetch the whole order `tks` (StationNode.Ticket, in the order to visit the
-## passes) and serve it in one trip.
+## passes) and serve it in one trip. C3.4: `tks` may hold the orders of
+## several travellers (a bundle): one stop per traveller, nearest first.
 func assign_order(tks: Array) -> void:
 	order = tks.duplicate()
 	if order.is_empty():
@@ -326,6 +455,8 @@ func assign_order(tks: Array) -> void:
 	_leg = 0
 	_busy_t = 0.0
 	_wait_t = 0.0
+	_build_stops()
+	_stop_i = 0
 	_layout_tray()
 	_go_to_pass()
 
@@ -334,9 +465,73 @@ func assign_order(tks: Array) -> void:
 func go_home() -> void:
 	ticket = null
 	order.clear()
+	_stops.clear()
+	var h: Vector3 = Layout3.waiter_home(index)
+	_walk_from_away = Vector2(position.x - h.x, position.z - h.z).length() > HOME_NEAR
 	state = W.RETURNING
 	_look = Layout3.WAITER_FACING
 	_walk(_route_to(Layout3.home_chain(index)))
+
+
+## C3.4: one stop per traveller of `order` (his tickets in his ticket
+## order), nearest first from the last pass he visits (aisle walk).
+func _build_stops() -> void:
+	_stops.clear()
+	var by_t: Dictionary = {}
+	var keys: Array = []
+	for v in order:
+		var tk: StationNode.Ticket = v
+		var key: Variant = tk.traveller if tk.traveller != null else tk
+		if not by_t.has(key):
+			by_t[key] = []
+			keys.append(key)
+		(by_t[key] as Array).append(tk)
+	var groups: Array = []
+	for key in keys:
+		var g: Array = by_t[key]
+		var t: Variant = key
+		if t is Traveller and is_instance_valid(t):
+			var sorted: Array = []
+			for tv in (t as Traveller).tickets:
+				if g.has(tv):
+					sorted.append(tv)
+			for tv in g:
+				if not sorted.has(tv):
+					sorted.append(tv)
+			g = sorted
+		groups.append(g)
+	if groups.size() <= 1:
+		_stops = groups
+		return
+	var last: StationNode.Ticket = order[order.size() - 1]
+	var pos: Vector3 = Layout3.pass_pickup(last.station_id, maxi(0, last.pass_slot))
+	while not groups.is_empty():
+		var best: int = 0
+		var best_d: float = INF
+		for k in groups.size():
+			var st: Vector3 = Layout3.seat_serve_stand((groups[k][0] as StationNode.Ticket).seat)
+			var d: float = absf(pos.z - Layout3.AISLE_Z) + absf(st.x - pos.x) + absf(st.z - Layout3.AISLE_Z)
+			if d < best_d:
+				best_d = d
+				best = k
+		var g2: Array = groups[best]
+		groups.remove_at(best)
+		_stops.append(g2)
+		pos = Layout3.seat_serve_stand((g2[0] as StationNode.Ticket).seat)
+
+
+## The tickets of stop k (empty when out of range).
+func _stop_tickets(k: int) -> Array:
+	if k < 0 or k >= _stops.size():
+		return []
+	return _stops[k]
+
+
+func _stop_seat(k: int) -> int:
+	var tks: Array = _stop_tickets(k)
+	if tks.is_empty():
+		return -1
+	return (tks[0] as StationNode.Ticket).seat
 
 
 ## Where each item of the order rides on the tray: one item in the middle at
@@ -345,6 +540,10 @@ func go_home() -> void:
 ## round), shrunk to TRAY_MULTI_SCALE (less if they would not fit).
 func _layout_tray() -> void:
 	_tray_spots.clear()
+	var half_w: float = TRAY_WIDE_HALF.x if _tray_model == "tray_wide" else TRAY_INNER_R
+	if _stops.size() >= 2:
+		_layout_tray_rows(half_w)
+		return
 	var tks: Array = _table_order()
 	var n: int = tks.size()
 	if n <= 1:
@@ -355,10 +554,10 @@ func _layout_tray() -> void:
 	var total: float = 0.0
 	for v in tks:
 		var tk: StationNode.Ticket = v
-		var r: float = float(ITEM_RADIUS.get(Sim.item_model_for(tk.station_id, tk.dish_id), ITEM_RADIUS_DEFAULT))
+		var r: float = _item_radius(tk)
 		radii.append(r)
 		total += 2.0 * r
-	var s: float = minf(TRAY_MULTI_SCALE, (2.0 * TRAY_INNER_R - TRAY_GAP * float(n - 1)) / maxf(0.01, total))
+	var s: float = minf(TRAY_MULTI_SCALE, (2.0 * half_w - TRAY_GAP * float(n - 1)) / maxf(0.01, total))
 	var width: float = total * s + TRAY_GAP * float(n - 1)
 	var x: float = -width * 0.5
 	for k in n:
@@ -367,17 +566,57 @@ func _layout_tray() -> void:
 		x += w + TRAY_GAP
 
 
-## The order in the traveller's ticket order (how it lands on the table).
+static func _item_radius(tk: StationNode.Ticket) -> float:
+	return float(ITEM_RADIUS.get(Sim.item_model_for(tk.station_id, tk.dish_id), ITEM_RADIUS_DEFAULT))
+
+
+## C3.4: 2 or 3 orders lie in two rows across the tray (front and back), each
+## order whole in one row (the row with fewer items takes the next order),
+## all items at one scale that fits both the width and half the depth.
+func _layout_tray_rows(half_w: float) -> void:
+	var half_d: float = TRAY_WIDE_HALF.y if _tray_model == "tray_wide" else TRAY_INNER_R
+	var rows: Array = [[], []]
+	for g in _stops:
+		var tg: Array = g
+		var r: int = 0 if (rows[0] as Array).size() <= (rows[1] as Array).size() else 1
+		(rows[r] as Array).append_array(tg)
+	var s: float = TRAY_MULTI_SCALE
+	for rv in rows:
+		var row: Array = rv
+		if row.is_empty():
+			continue
+		var total: float = 0.0
+		var big: float = 0.0
+		for v in row:
+			var r2: float = _item_radius(v)
+			total += 2.0 * r2
+			big = maxf(big, 2.0 * r2)
+		s = minf(s, (2.0 * half_w - TRAY_GAP * float(row.size() - 1)) / maxf(0.01, total))
+		s = minf(s, half_d / maxf(0.01, big))
+	for ri in 2:
+		var row2: Array = rows[ri]
+		if row2.is_empty():
+			continue
+		var z: float = (-0.5 if ri == 0 else 0.5) * half_d
+		var total2: float = 0.0
+		for v in row2:
+			total2 += 2.0 * _item_radius(v)
+		var width: float = total2 * s + TRAY_GAP * float(row2.size() - 1)
+		var x: float = -width * 0.5
+		for v in row2:
+			var w: float = 2.0 * _item_radius(v) * s
+			_tray_spots[v] = [Vector3(x + w * 0.5, 0.0, z), s]
+			x += w + TRAY_GAP
+
+
+## The order in the traveller's ticket order (how it lands on the table);
+## a bundle: stop by stop.
 func _table_order() -> Array:
 	var out: Array = []
 	if order.is_empty():
 		return out
-	var tk0: StationNode.Ticket = order[0]
-	var t: Traveller = tk0.traveller
-	if t != null and is_instance_valid(t):
-		for v in t.tickets:
-			if order.has(v):
-				out.append(v)
+	for g in _stops:
+		out.append_array(g)
 	for v in order:
 		if not out.has(v):
 			out.append(v)
@@ -440,6 +679,9 @@ func _arrive() -> void:
 			_serve()
 		W.RETURNING:
 			state = W.IDLE
+			if _walk_from_away:
+				home_walk_n += 1     # (a walk home cut short by a new order does not count)
+			_walk_from_away = false
 		_:
 			pass
 
@@ -516,7 +758,7 @@ func _pickup_sound() -> void:
 ## Every item hops from the tray onto its spot in front of the seat, one
 ## after the other (serve_stagger() apart), each with a sparkle + "serve".
 func _serve() -> void:
-	var tks: Array = _table_order()
+	var tks: Array = _stop_tickets(_stop_i)
 	var n: int = tks.size()
 	if n == 0:
 		go_home()
@@ -596,6 +838,14 @@ func _process(delta: float) -> void:
 			_act_t += delta
 			if _act_t >= _serve_time:
 				_after_serve()
+		W.LINGER:
+			_act_t += delta
+			if _act_t >= LINGER_S:
+				_linger_chk -= delta
+				if _linger_chk <= 0.0:
+					_linger_chk = LINGER_CHECK
+					if _act_t >= LINGER_MAX or _sim == null or not _sim.waiter_should_wait(self):
+						go_home()
 		_:
 			pass
 	if _moving:
@@ -664,7 +914,8 @@ func _update_forecast() -> void:
 		_next_path.resize(0)
 	elif _next_path.is_empty():
 		if state == W.SERVING:
-			for v in _route_to(Layout3.home_chain(index)):
+			var nxt: int = _stop_seat(_stop_i + 1)
+			for v in _route_to(Layout3.serve_chain(nxt) if nxt >= 0 else Layout3.home_chain(index)):
 				_next_path.append(v)
 		else:
 			_next_path = _forecast_after_pick()
@@ -694,8 +945,8 @@ func _forecast_after_pick() -> PackedVector3Array:
 	if _leg + 1 < order.size():
 		var nx: StationNode.Ticket = order[_leg + 1]
 		pts = _route_to(Layout3.pickup_chain(nx.station_id, nx.pass_slot if nx.pass_slot >= 0 else 0))
-	elif ticket != null:
-		pts = _route_to(Layout3.serve_chain(ticket.seat))
+	elif _stop_seat(0) >= 0:
+		pts = _route_to(Layout3.serve_chain(_stop_seat(0)))
 	for v in pts:
 		out.append(v)
 	return out
@@ -1293,9 +1544,10 @@ static func _depth_in(pt: Vector2, r: Rect2) -> float:
 ## obstacle mask (built once each).
 static func _all_rects() -> Array:
 	var mask: int = Layout3.obstacle_mask() & ~int(Layout3.OBSTACLE_BITS["homes"])
-	if not _all_cache.has(mask):
-		_all_cache[mask] = Layout3.obstacles(mask) + _wall_rects()
-	return _all_cache[mask]
+	var key: String = "%s:%d" % [layout_variant, mask]
+	if not _all_cache.has(key):
+		_all_cache[key] = Layout3.obstacles(mask) + _wall_rects()
+	return _all_cache[key]
 
 
 ## The rects of `rects` a step (<= SEP_MAX) from his path position, now or
@@ -1319,39 +1571,68 @@ static func _rect_gap(r: Rect2, p: Vector3) -> float:
 
 
 static func _wall_rects() -> Array:
-	if _sep_walls.is_empty():
+	if _sep_walls.is_empty() or _sep_variant != layout_variant:
+		_sep_walls = []
+		_sep_variant = layout_variant
 		var k: float = SEP_BODY
-		for v in SEP_WALLS + SEP_PROPS:
+		var src: Array = SEP_WALLS + SEP_PROPS
+		if layout_variant == "family":
+			src = src + SEP_WALLS_FAMILY
+			for v in HALL_TABLES_FROZEN:
+				var tp: Vector3 = v
+				src.append([tp.x - Layout3.SET_HALF.x, tp.z - Layout3.SET_HALF.y, tp.x + Layout3.SET_HALF.x, tp.z + Layout3.SET_HALF.y])
+			src.append(HALL_DECOR_RECT)
+		for v in src:
 			var w: Array = v
 			_sep_walls.append(Rect2(float(w[0]) - k, float(w[1]) - k, float(w[2]) - float(w[0]) + 2.0 * k, float(w[3]) - float(w[1]) + 2.0 * k))
 	return _sep_walls
 
 
-## Next pass, or (everything on the tray) off to the table.
+## Next pass, or (everything on the tray) off to the (first) table.
 func _after_pick() -> void:
 	_leg += 1
 	if _leg < order.size():
 		_go_to_pass()
 		return
-	var tk: StationNode.Ticket = ticket
-	if tk == null:
+	if ticket == null or _stops.is_empty():
 		go_home()
 		return
+	_stop_i = 0
+	_go_to_stop()
+
+
+## C3.4: walk to the table of stop _stop_i (from the last pass or the last
+## table).
+func _go_to_stop() -> void:
+	var seat: int = _stop_seat(_stop_i)
+	if seat < 0:
+		go_home()
+		return
+	ticket = _stop_tickets(_stop_i)[0]
 	state = W.TO_TABLE
-	_look = Layout3.seat_item_spot(tk.seat) - Layout3.seat_serve_stand(tk.seat)
+	_look = Layout3.seat_item_spot(seat) - Layout3.seat_serve_stand(seat)
 	_look.y = 0.0
-	_walk(_route_to(Layout3.serve_chain(tk.seat)))
+	_walk(_route_to(Layout3.serve_chain(seat)))
 
 
-## Everything is on the table: the traveller gets all his items in the same
-## frame (his order bubble hides once, he starts eating), then the next order.
+## Everything for this table is on it: the traveller gets all his items in the
+## same frame (his order bubble hides once, he starts eating); then the next
+## stop of a bundle, or the next order (C2.8: in free play he lingers
+## LINGER_S at the table first when the Sim has nothing for him).
 func _after_serve() -> void:
-	var tks: Array = _table_order()
+	var tks: Array = _stop_tickets(_stop_i)
+	var last: bool = _stop_i + 1 >= _stops.size()
+	var all: Array = _table_order() if last else []
+	var single: bool = _stops.size() <= 1
 	var busy: float = _busy_t - _wait_t
-	ticket = null
-	order.clear()
-	trips += 1
-	state = W.RETURNING
+	if last:
+		# (as before the bundles: free before the serve signals go out)
+		ticket = null
+		order.clear()
+		_stops.clear()
+		_stop_i = 0
+		trips += 1
+		state = W.RETURNING
 	for v in tks:
 		var tk: StationNode.Ticket = v
 		tk.state = StationNode.TK.SERVED
@@ -1360,9 +1641,21 @@ func _after_serve() -> void:
 		served.emit(self, tk)
 		if _sim != null:
 			_sim.on_waiter_served(self, tk)
-	if _sim != null:
-		_sim.on_waiter_order_done(self, tks, busy)
+	orders_done += 1
+	if not last:
+		_stop_i += 1
+		_go_to_stop()
+		return
+	# (the ramp measures one-order trips: a bundle's would read as one slow order)
+	if _sim != null and single:
+		_sim.on_waiter_order_done(self, all, busy)
+	if _tray_dirty:
+		refresh_tray()
 	if state == W.RETURNING and ticket == null:
+		if Game.is_tutorial_done():
+			state = W.LINGER
+			_act_t = 0.0
+			_linger_chk = 0.0
 		if _sim != null:
 			_sim.on_waiter_free(self)
 		if ticket == null and state == W.RETURNING:

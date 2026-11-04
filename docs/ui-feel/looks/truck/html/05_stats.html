@@ -1,0 +1,59 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Truck art: STATS hisaab</title>
+<link href="https://fonts.googleapis.com/css2?family=Bakbak+One&display=block" rel="stylesheet">
+<link href="truck.css" rel="stylesheet">
+<style>
+.col{position:absolute;top:603px;display:flex;flex-direction:column;gap:1px}
+.col .h{font-size:var(--t16);font-weight:700;color:var(--muted);letter-spacing:.05em}
+.col .v{display:flex;align-items:center;gap:2px;font-size:var(--t26);color:var(--jade-dark)}
+.col .v .ic{width:14px;height:11px}
+.col .v .u{font-size:var(--t16);font-weight:700}
+</style>
+</head><body>
+<div class="pbody o-headpat_night" style="background-size:30px 30px"></div>
+<div class="phead o-headpat"></div>
+<!-- critic fix: the feathers left the top corners (under the phone status bar; the HUD starts at y 110, hud.gd:579) and now flank the title plate like a crest -->
+<div class="abs o-feather_l" style="left:95px;top:85px;width:30px;height:30px;background-size:contain"></div>
+<div class="abs o-feather_r" style="left:235px;top:85px;width:30px;height:30px;background-size:contain"></div>
+
+<div class="cash">
+  <div class="top"><span class="bolt"></span><span class="ic ic-note"></span><span class="amt num">1.82 L</span><span class="bolt"></span></div>
+  <div class="rate"><span class="ic ic-rate"></span><span class="v num">3,763</span><span class="u">/min</span></div>
+</div>
+<div class="float num" style="left:97px;top:57.5px">+3,647<span class="u">/min</span></div>
+
+<div class="titleplate" style="top:86px"><div class="pl">STATS</div><div class="sub">hisaab</div></div>
+<div class="tab off" style="left:30px;top:132px;width:131px"><span class="ic ic-build"></span>BUILD</div>
+<div class="tab on" style="left:169px;top:132px;width:131px"><span class="ic ic-stats"></span>STATS</div>
+<div class="close" style="left:312.5px;top:135.5px"></div>
+<div class="band o-jhalar" style="top:165px;height:13px;background-size:56px 13px"></div>
+
+<!-- the hisaab: one cream ledger plate, read-only rows, figures in one right-aligned column -->
+<div class="card" style="left:7.5px;top:183px;width:345px;height:372px"></div>
+<div class="roundel teal" style="left:17.5px;top:194px;width:56px;height:56px"><span class="ic ic-stats" style="width:38px;height:38px"></span></div>
+<div class="abs" style="left:86px;top:212px;font-size:var(--t26);font-weight:600;color:var(--ink)">How the dhaba is doing right now.</div>
+<div class="abs" style="left:16.5px;top:258px;width:327px;height:0;border-top:1.5px solid var(--ink)"></div>
+
+<div class="srow good" style="top:263px"><span class="dot good"></span><span class="k">EARNING PER TRAVELLER</span><span class="v" style="display:flex;align-items:center;justify-content:flex-end;gap:3px"><span class="ic ic-note" style="width:15px;height:12px"></span>323.02</span></div>
+<div class="srow" style="top:289px"><span class="dot none"></span><span class="k">TRAVELLERS INSIDE</span><span class="v">4</span></div>
+<div class="srow" style="top:315px"><span class="dot none"></span><span class="k">SERVING CAPACITY</span><span class="v">27<span class="u">/min</span></span></div>
+<div class="srow" style="top:341px"><span class="dot none"></span><span class="k">TRUCK PARKING</span><span class="v">25%</span></div>
+<div class="srow" style="top:367px"><span class="dot none"></span><span class="k">SEATS IN USE</span><span class="v">4/20</span></div>
+<div class="srow" style="top:393px"><span class="dot none"></span><span class="k">SEATS FULL</span><span class="v">0%</span></div>
+<div class="srow" style="top:419px"><span class="dot none"></span><span class="k">AVG FOOD WAIT</span><span class="v">7.6<span class="u"> s</span></span></div>
+<div class="srow" style="top:445px"><span class="dot none"></span><span class="k">TOP DISH</span><span class="v">--</span></div>
+<div class="srow" style="top:471px"><span class="dot none"></span><span class="k">AVG CASHIER LINE</span><span class="v">0.0</span></div>
+<div class="srow bad" style="top:497px"><span class="dot bad"></span><span class="k">AVG CASHIER WAIT</span><span class="v">5<span class="u"> s</span></span></div>
+<div class="srow" style="top:523px;border-bottom:0"><span class="dot none"></span><span class="k">ONE MORE TABLE</span><span class="v">MAX</span></div>
+
+<!-- counter card -->
+<div class="card" style="left:7.5px;top:568px;width:345px;height:80px"></div>
+<div class="roundel" style="left:16px;top:578px;width:42px;height:42px"><span class="ic ic-chai" style="width:28px;height:28px"></span></div>
+<div class="abs num" style="left:19px;top:571px;background:var(--canary);border:1.25px solid var(--ink);border-radius:var(--r1);padding:0 4px;font-size:var(--t20);line-height:1.3">60</div>
+<div class="abs ttl" style="left:66px;top:577px;font-size:var(--t26)">CHAI COUNTER</div>
+<div class="abs" style="left:66px;top:591px;font-size:var(--t16);font-weight:700;color:var(--muted);letter-spacing:.05em">GREEN TEA</div>
+<div class="col" style="left:66px"><span class="h">PRICE</span><span class="v num"><span class="ic ic-note"></span>58</span></div>
+<div class="col" style="left:150px"><span class="h">MAX INCOME</span><span class="v num"><span class="ic ic-note"></span>773.33<span class="u">/min</span></span></div>
+<div class="col" style="left:262px"><span class="h">MAX SERVED</span><span class="v num" style="color:var(--indigo)">30<span class="u">/min</span></span></div>
+</body></html>

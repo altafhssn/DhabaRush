@@ -1,0 +1,6 @@
+truck: 279 runs; min 16px; <=17 46 (16%), 18-20 122 (44%), 21-26 91 (33%), >26 20 (7%)
+   devanagari runs: 30 min px 20.0  per screen: {'01_home_day': 25, '02_home_night': 29, '03_sheet_chai': 37, '04_build_daftar': 44, '05_stats': 46, '06_welcome_back': 29, '07_celebration': 30, '08_dialogue': 4, '09_hindi': 35}
+khata: 248 runs; min 17px; <=17 65 (26%), 18-20 114 (46%), 21-26 45 (18%), >26 24 (10%)
+   devanagari runs: 30 min px 20.0  per screen: {'01_home_day': 22, '02_home_night': 26, '03_sheet_chai': 35, '04_build_daftar': 31, '05_stats': 40, '06_welcome_back': 24, '07_celebration': 29, '08_dialogue': 8, '09_hindi': 33}
+tin: 258 runs; min 16px; <=17 13 (5%), 18-20 58 (22%), 21-26 124 (48%), >26 63 (24%)
+   devanagari runs: 29 min px 20.0  per screen: {'01_home_day': 24, '02_home_night': 26, '03_sheet_chai': 34, '04_build_daftar': 30, '05_stats': 41, '06_welcome_back': 23, '07_celebration': 27, '08_dialogue': 20, '09_hindi': 33}

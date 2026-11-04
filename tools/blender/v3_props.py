@@ -211,8 +211,37 @@ def build_tray_rack(mat):
 
 
 def build_pass_plate(mat):
-    """Kulhad of chai on a clay saucer: pickup / serve item, origin bottom centre, 0.13 tall."""
+    """Cutting chai (core-and-feel C8.1, 2026-11-01): a small ribbed glass of brown chai with a
+    milky top on a steel saucer. Pickup / serve item, id kept; origin bottom centre, 0.125
+    tall, footprint radius 0.06 (Waiter.ITEM_RADIUS["pass_plate"] was 0.092 for the kulhad)."""
     a = Asset("pass_plate")
+    # steel saucer r 0.06
+    a.tube((0, 0, 0), (0, 0, 0.01), 0.046, STEEL, r1=0.06, seg=12)
+    a.tube((0, 0, 0.004), (0, 0, 0.014), 0.06, DARK_STEEL, r1=0.061, seg=12, caps=False)
+    disc(a, (0, 0, 0.0105), 0.042, WHITE, n=10, facing="+z")
+    # the glass: chai seen through it (body), a clear band at the top, a milky surface
+    G0, G1, G2 = 0.012, 0.098, 0.125
+    R0, R1, R2 = 0.034, 0.046, 0.05
+    a.tube((0, 0, G0), (0, 0, G1), R0, CHAI, r1=R1, seg=10)
+    a.tube((0, 0, G1), (0, 0, G2), R1, GLASS, r1=R2, seg=10, caps=False)
+    a.tube((0, 0, G0 - 0.002), (0, 0, G0 + 0.012), R0 + 0.003, GLASS, r1=R0 + 0.004, seg=10, caps=False)  # heavy base
+    disc(a, (0, 0, G1 + 0.006), R1 + 0.002, MUD, n=10, facing="+z")                    # milky chai top
+    disc(a, (0.01, -0.008, G1 + 0.0065), 0.016, ROTI, n=6, facing="+z")                # froth
+    # vertical ribs: thin light strips standing just proud of the body, every other facet
+    for k in range(5):
+        t = 2 * math.pi * (k * 2 + 0.5) / 10 - math.pi / 2
+        p0 = Vector((math.cos(t), math.sin(t), 0.0))
+        tang = Vector((-math.sin(t), math.cos(t), 0.0)) * 0.0045
+        q0 = p0 * (R0 + 0.002) + Vector((0, 0, G0 + 0.012))
+        q1 = p0 * (R2 + 0.002) + Vector((0, 0, G2 - 0.004))
+        a.face([q0 - tang, q0 + tang, q1 + tang, q1 - tang], WHITE if k % 2 == 0 else GLASS, normal=tuple(p0))
+    return a.finish(mat, 40)
+
+
+def build_pass_kulhad(mat):
+    """The old pass_plate under a new id (NH 48 masala chai, core-and-feel C6.3 / C8.1): kulhad
+    of chai on a clay saucer, origin bottom centre, 0.13 tall, footprint radius 0.092."""
+    a = Asset("pass_kulhad")
     a.tube((0, 0, 0), (0, 0, 0.016), 0.07, BRICK, r1=0.092, seg=12)
     disc(a, (0, 0, 0.0165), 0.075, CLAY, n=12, facing="+z")
     a.tube((0, 0, 0.016), (0, 0, 0.13), 0.045, CLAY, r1=0.062, seg=12)
@@ -1534,3 +1563,241 @@ def build_props_v3(mat):
             build_sikka(mat), build_marker(mat), build_cash_brick(mat),
             build_tray(mat), build_tray_rack(mat), build_pass_plate(mat), build_pass_roti(mat),
             build_charpai(mat), build_dining_table(mat)]
+
+
+# ------------------------------------------------------------------ core-and-feel props (2026-11-01)
+# Build plan docs/core-and-feel/build-plan.md section 4.1 (W1-ART1). Blender model coords as above
+# (x = Godot x, y = -Godot z, z = up); every prop faces Godot +Z (Blender -Y), origin bottom centre
+# unless noted.
+#   seats_board   Group board / full_plate + empty text_socket (C2.2)
+#   plate_stool   wooden stool + round steel tray, top 0.62 (C2.3)
+#   tray_wide     oval steel tray 0.60 x 0.38 with end handles (C3.4)
+#   family_table  table + cloth + two cushioned benches, the dining-set footprint (C6.1)
+#   tv_set        Group tv_body / tv_screen, CRT on a wall shelf (C8.3)
+SEATS_TILT = 25.0                    # degrees the board leans back (top away from the road)
+SEATS_POST_H = 0.12                  # board bottom edge above the wall cap
+SEATS_W, SEATS_H = 1.0, 0.6          # chalk face
+SEATS_NUMBER_DY = -0.07              # number / FULL plate centre below the face centre (gate_board.gd)
+
+
+def _tilted_frame(tilt_deg):
+    """(up, normal) Blender unit vectors of a face that leans back by tilt_deg and faces -Y."""
+    t = math.radians(tilt_deg)
+    return Vector((0.0, math.sin(t), math.cos(t))), Vector((0.0, -math.cos(t), math.sin(t)))
+
+
+def _quad(a, c, r, u, w, h, color, n):
+    """w x h rectangle centred at Blender point c in the plane of unit vectors r (right), u (up),
+    facing n."""
+    c, r, u = Vector(c), Vector(r), Vector(u)
+    return a.face([c - r * (w / 2) - u * (h / 2), c + r * (w / 2) - u * (h / 2), c + r * (w / 2) + u * (h / 2),
+                   c - r * (w / 2) + u * (h / 2)], color, normal=tuple(n))
+
+
+def seats_face_centre():
+    """Blender point of the chalk face centre (= the text_socket)."""
+    up, n = _tilted_frame(SEATS_TILT)
+    return Vector((0.0, 0.0, SEATS_POST_H)) + up * (SEATS_H / 2)
+
+
+def build_seats_board(mat):
+    """C2.2 seats board: a 1.0 x 0.6 m chalk board in a wooden frame with a yellow trim, standing on
+    two stubs and a back strut on a foot that sits on the low wall cap, leaning back 25 deg. Origin
+    bottom centre (on the cap), faces Godot +Z (code yaws it 45 deg to the camera).
+      board        everything that always shows
+      full_plate   red plate over the number area (hidden by code, shown when every seat is taken)
+      text_socket  empty at the face centre, rotated with the face (local +Y = up the board, local
+                   +Z = out of the face): Label3Ds go at (0, y, 0.012) - "SEATS" line y +0.2, the
+                   number / FULL text y -0.07 (scripts/v3/world/gate_board.gd)."""
+    P = Parts("seats_board", {"board": (0, 0, 0), "full_plate": (0, 0, 0)})
+    b, fp = P["board"], P["full_plate"]
+    up, n = _tilted_frame(SEATS_TILT)
+    r = Vector((1.0, 0.0, 0.0))
+    c = seats_face_centre()
+    # foot on the cap, two stubs under the bottom edge, one strut to the back of the board
+    b.rbox((0.62, 0.3, 0.035), (0, 0.08, 0.0175), TRUNK, bevel=0.01)
+    for sx in (-1, 1):
+        b.block((0.05, 0.05, SEATS_POST_H + 0.02), (sx * 0.34, 0.0, 0.035), TRUNK)
+    back = c + up * 0.08 - n * 0.03
+    b.beam((0.0, 0.2, 0.035), tuple(back), 0.05, TRUNK)
+    # frame, trim, chalk face
+    b.rbox((SEATS_W + 0.08, 0.04, SEATS_H + 0.08), tuple(c - n * 0.021), WOOD, rot=(-SEATS_TILT, 0, 0), bevel=0.012)
+    _quad(b, c + n * 0.001, r, up, SEATS_W + 0.03, SEATS_H + 0.03, PAINT_YELLOW, n)
+    _quad(b, c + n * 0.002, r, up, SEATS_W, SEATS_H, DARK_GREEN, n)
+    # chalk rule under the "SEATS" line and two chalk dashes at the corners
+    _quad(b, c + up * 0.125 + n * 0.003, r, up, 0.78, 0.014, ROTI, n)
+    for sx in (-1, 1):
+        _quad(b, c + r * (sx * 0.44) + up * 0.245 + n * 0.003, r, up, 0.05, 0.012, ROTI, n)
+    # marigold heads on the top corners of the frame
+    for sx in (-1, 1):
+        b.ico(0.035, tuple(c + r * (sx * 0.5) + up * 0.32 + n * 0.01), MARIGOLD, subdiv=0)
+    # FULL plate: a thin red slab over the number area, 6 mm proud of the face
+    pc = c + up * SEATS_NUMBER_DY + n * 0.006
+    fp.rbox((SEATS_W - 0.08, 0.008, 0.34), tuple(pc), RED, rot=(-SEATS_TILT, 0, 0), bevel=0.004)
+    _quad(fp, pc + n * 0.0045, r, up, SEATS_W - 0.14, 0.29, MAROON, n)
+    _quad(fp, pc + n * 0.005, r, up, SEATS_W - 0.16, 0.27, RED, n)
+    g = P.finish(mat, 30)
+    g.extras.append(("text_socket", tuple(c), (math.radians(-SEATS_TILT), 0.0, 0.0)))
+    return g
+
+
+PLATE_STOOL_TOP = 0.62               # stool seat top (Layout3.PLATE_STOOL_TOP)
+PLATE_STOOL_TRAY_FLOOR = 0.642       # tray floor top; items stand at y 0.645 (Layout3.PLATE_STOOL_ITEM_Y)
+
+
+def build_plate_stool(mat):
+    """C2.3: a wooden stool (0.36 wide, seat top 0.62) carrying a round steel tray R 0.28 with a low
+    rim; plates wait on it in a row (Layout3.stool_points, 0.17 m apart). Origin bottom centre."""
+    a = Asset("plate_stool")
+    T = PLATE_STOOL_TOP
+    a.rbox((0.36, 0.36, 0.04), (0, 0, T - 0.02), WOOD, bevel=0.012)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            a.block((0.045, 0.045, T - 0.04), (sx * 0.14, sy * 0.14, 0.0), TRUNK)
+    a.box((0.3, 0.03, 0.03), (0, -0.14, 0.2), TRUNK)
+    a.box((0.03, 0.3, 0.03), (0.14, 0, 0.26), TRUNK)
+    a.decal((0, -0.181, T - 0.02), 0.3, 0.015, "-y", PAINT_YELLOW)
+    R, F = 0.28, PLATE_STOOL_TRAY_FLOOR
+    a.tube((0, 0, T), (0, 0, F), R - 0.012, STEEL, seg=16)
+    a.tube((0, 0, T), (0, 0, F + 0.02), R, STEEL, r1=R + 0.008, seg=16, caps=False)
+    a.tube((0, 0, F + 0.016), (0, 0, F + 0.022), R + 0.008, DARK_STEEL, seg=16, caps=False)
+    disc(a, (0, 0, F + 0.0005), R - 0.06, WHITE, n=16, facing="+z")
+    return a.finish(mat, 40)
+
+
+def _oval_tube(a, z0, z1, r0, r1, sx, color, seg=20, caps=True):
+    """Tube of radius r0 -> r1 (z0 -> z1) squashed to an ellipse: x radius = r * sx."""
+    m = Matrix.Diagonal((sx, 1.0, 1.0, 1.0)) @ Matrix.Translation((0, 0, (z0 + z1) / 2))
+    res = bmesh.ops.create_cone(a.bm, cap_ends=caps, cap_tris=False, segments=seg, radius1=r0, radius2=r1,
+                                depth=z1 - z0, matrix=m)
+    a._paint(res["verts"], color)
+    return a
+
+
+def _oval_disc(a, z, r, sx, color, n=20):
+    return a.face([(r * sx * math.cos(2 * math.pi * k / n), r * math.sin(2 * math.pi * k / n), z) for k in range(n)],
+                  color, up=True)
+
+
+TRAY_WIDE_RX, TRAY_WIDE_RY = 0.30, 0.19
+
+
+def build_tray_wide(mat):
+    """C3.4 bigger tray: oval steel tray 0.60 (X) x 0.38 with two end handles (0.65 over the
+    handles), same convention as `tray`: origin at its bottom centre, items sit at y 0.014.
+    Widened along X only, so the waiter's tray_socket keeps clear of the chest; usable floor about
+    x +-0.27, z +-0.16."""
+    a = Asset("tray_wide")
+    RY, sx = TRAY_WIDE_RY, TRAY_WIDE_RX / TRAY_WIDE_RY
+    _oval_tube(a, 0.0, 0.012, RY - 0.012, RY - 0.012, sx, STEEL)
+    _oval_tube(a, 0.0, 0.034, RY, RY + 0.008, sx, STEEL, caps=False)                        # rim
+    _oval_tube(a, 0.03, 0.036, RY + 0.008, RY + 0.008, sx, DARK_STEEL, caps=False)
+    _oval_disc(a, 0.0125, RY - 0.04, sx, WHITE)                                           # shine
+    _oval_disc(a, 0.0135, RY - 0.055, sx, STEEL)
+    for s in (-1, 1):                                                                     # end handles
+        a.box((0.05, 0.15, 0.012), (s * (TRAY_WIDE_RX + 0.022), 0, 0.03), STEEL)
+        a.decal((s * (TRAY_WIDE_RX + 0.024), 0, 0.0365), 0.022, 0.09, "+z", DARK_STEEL)
+    return a.finish(mat, 40)
+
+
+def build_family_table(mat):
+    """C6.1 hall set with the dining-set footprint (Layout3 SET_HALF 0.85 x 1.38): table 1.7 x 0.8
+    with a maroon cloth (top y 0.50) and two cushioned benches 1.6 x 0.86 at Godot local z +-0.95
+    (seat top 0.42, low back on the outer edge). Travellers sit at (+-0.42, z +-0.95) like the
+    charpai sets. Origin at the table centre on the ground."""
+    a = Asset("family_table")
+    # table: wooden top under a maroon cloth with a gold border, steel legs
+    a.rbox((1.7, 0.8, 0.045), (0, 0, 0.465), WOOD, bevel=0.012)
+    a.box((1.74, 0.84, 0.012), (0, 0, 0.494), MAROON)
+    for sy in (-1, 1):
+        a.decal((0, sy * 0.4205, 0.455), 1.74, 0.09, "-y" if sy < 0 else "+y", MAROON)
+        a.decal((0, sy * 0.422, 0.42), 1.74, 0.02, "-y" if sy < 0 else "+y", GOLD)
+    for sx in (-1, 1):
+        a.decal((sx * 0.8705, 0, 0.455), 0.84, 0.09, "+x" if sx > 0 else "-x", MAROON)
+    for sy in (-1, 1):
+        a.decal((0, sy * 0.38, 0.5005), 1.66, 0.025, "+z", GOLD)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            a.block((0.06, 0.06, 0.44), (sx * 0.75, sy * 0.32, 0.0), DARK_STEEL)
+    # centre strip: steel jug, napkin box, a small vase with a marigold
+    a.tube((-0.14, 0.0, 0.5), (-0.14, 0.0, 0.63), 0.055, STEEL, r1=0.046, seg=8)
+    a.tube((-0.14, 0.0, 0.63), (-0.14, 0.0, 0.655), 0.046, STEEL, r1=0.05, seg=8)
+    a.rbox((0.08, 0.05, 0.06), (0.02, 0.0, 0.53), WHITE, bevel=0.008)
+    a.decal((0.02, -0.0255, 0.535), 0.06, 0.02, "-y", RED)
+    a.tube((0.14, 0.0, 0.5), (0.14, 0.0, 0.6), 0.025, GLASS, r1=0.018, seg=6)
+    a.rod((0.14, 0.0, 0.6), (0.15, 0.0, 0.67), 0.006, GREEN, seg=4)
+    a.ico(0.03, (0.15, 0.0, 0.68), MARIGOLD, subdiv=0)
+    # benches (Blender y = -Godot z): seat frame on legs, cushion, cushioned back on the outer edge
+    for sy in (-1, 1):
+        y = sy * 0.95
+        out = sy * 1.32
+        a.rbox((1.6, 0.74, 0.05), (0, y - sy * 0.06, 0.33), WOOD, bevel=0.012)
+        for sx in (-1, 1):
+            for k in (-1, 1):
+                a.block((0.06, 0.06, 0.305), (sx * 0.72, y - sy * 0.06 + k * 0.3, 0.0), TRUNK)
+        a.rbox((1.56, 0.7, 0.08), (0, y - sy * 0.06, 0.38), DADO, bevel=0.03)
+        a.rbox((1.6, 0.12, 0.36), (0, out, 0.52), DADO, bevel=0.035)
+        a.rbox((1.62, 0.06, 0.06), (0, out, 0.715), WOOD, bevel=0.015)
+        if sy > 0:      # far bench: gold piping on the cushion front (faces the table and the camera)
+            a.decal((0, y - 0.06 - 0.351, 0.38), 1.5, 0.03, "-y", GOLD)
+        else:           # near bench: gold piping on the back's outer face (faces the camera)
+            a.decal((0, out - 0.061, 0.6), 1.5, 0.03, "-y", GOLD)
+    return a.finish(mat, 40)
+
+
+TV_SHELF_BACK = 0.14                 # the x = 0 wall is this far behind the origin (Layout3.TV.x)
+
+
+def build_tv_set(mat):
+    """C8.3 cricket TV: a small CRT (0.55 x 0.42 x 0.35) on a wooden wall shelf. Origin = the
+    Layout3.TV point: centre of the shelf top, 0.14 m in front of the wall (the shelf's back edge is
+    at Godot local z -0.14, flush with the x = 0 wall when code yaws it to face +X). Faces Godot
+    +Z. Nodes: tv_body (everything that never changes) and tv_screen (a 0.40 x 0.30 quad, origin at
+    its centre: UV = a dark screen swatch, UV2 = 0..1 across the screen, u right, v up, for a night
+    shader)."""
+    scr_c = (-0.06, -0.205 - 0.003, 0.215)
+    P = Parts("tv_set", {"tv_body": (0, 0, 0), "tv_screen": scr_c})
+    b, s = P["tv_body"], P["tv_screen"]
+    Yb = TV_SHELF_BACK                                   # Blender +y = toward the wall
+    # shelf + two brackets against the wall
+    b.rbox((0.74, 0.42, 0.04), (0, Yb - 0.21, -0.02), WOOD, bevel=0.008)
+    b.decal((0, Yb - 0.421, -0.02), 0.7, 0.02, "-y", PAINT_YELLOW)
+    for sx in (-1, 1):
+        b.beam((sx * 0.26, Yb - 0.01, -0.3), (sx * 0.26, Yb - 0.3, -0.04), 0.035, TRUNK)
+        b.block((0.04, 0.03, 0.3), (sx * 0.26, Yb - 0.015, -0.34), TRUNK, nb=False)
+    # CRT: front case + tapered back
+    b.rbox((0.55, 0.2, 0.42), (0, -0.105, 0.21), TYRE, bevel=0.03)
+    b.rbox((0.42, 0.14, 0.32), (0, 0.06, 0.19), HAIR, bevel=0.04)
+    b.decal((-0.06, -0.2055, 0.215), 0.45, 0.35, "-y", DARK_STEEL)                  # screen bezel
+    b.decal((0.215, -0.2055, 0.2), 0.08, 0.3, "-y", HAIR)                            # control strip
+    for k, col in enumerate((STEEL, STEEL, RED)):
+        disc(b, (0.215, -0.208, 0.3 - k * 0.09), 0.022 if k < 2 else 0.01, col, n=8)
+    # lace doily and a little marigold string on top
+    disc(b, (0, -0.105, 0.4205), 0.1, WHITE, n=10, facing="+z")
+    for k in range(4):
+        b.ico(0.026, (-0.18 + k * 0.12, -0.215, 0.405 - 0.035 * math.sin(math.pi * k / 3)), (MARIGOLD, PAINT_YELLOW)[k % 2],
+              subdiv=0)
+    # screen quad (own node): dark by day
+    sx0, sz0 = scr_c[0], scr_c[2]
+    sv = [s.bm.verts.new(p) for p in ((sx0 - 0.2, scr_c[1], sz0 - 0.15), (sx0 + 0.2, scr_c[1], sz0 - 0.15),
+                                       (sx0 + 0.2, scr_c[1], sz0 + 0.15), (sx0 - 0.2, scr_c[1], sz0 + 0.15))]
+    f = s.bm.faces.new(sv)
+    f.normal_update()
+    if f.normal.y > 0:
+        f.normal_flip()
+    uv2 = s.bm.loops.layers.uv.new("UV2")
+    for loop in f.loops:
+        loop[s.uv].uv = swatch_uv(TARP)
+        co = loop.vert.co
+        loop[uv2].uv = ((co.x - (sx0 - 0.2)) / 0.4, (co.z - (sz0 - 0.15)) / 0.3)
+    return P.finish(mat, 30)
+
+
+def build_core_feel_props(mat):
+    """Single-mesh core-and-feel props (W1-ART1)."""
+    return [build_plate_stool(mat), build_tray_wide(mat), build_family_table(mat)]
+
+
+def build_core_feel_prop_groups(mat):
+    """Multi-node core-and-feel props (W1-ART1)."""
+    return [build_seats_board(mat), build_tv_set(mat)]

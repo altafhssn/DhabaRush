@@ -1,0 +1,20 @@
+--- /Users/almeer/Documents/HighwayDhaba/project.godot	2026-10-25 20:33:03
++++ /private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/slots/ga_base/proj/project.godot	2026-11-03 18:22:12
+@@ -10,6 +10,9 @@
+ 
+ [application]
+ 
++config/use_custom_user_dir=true
++config/custom_user_dir_name="DhabaRushQA"
++
+ config/name="Dhaba Rush"
+ config/description="Dhaba Rush: Highway Idle Tycoon"
+ config/version="0.3.7"
+@@ -30,6 +33,7 @@
+ Game="*res://scripts/autoload/game.gd"
+ Fx="*res://scripts/autoload/fx.gd"
+ Refs="*res://scripts/autoload/refs.gd"
++GaProbe="*res://ga_probe.gd"
+ 
+ [display]
+ 

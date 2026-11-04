@@ -82,14 +82,70 @@ extends CanvasLayer
 ##  - every Iap.purchase_result becomes a toast in the current language
 ##    (SdkNotice: payment pending, cancelled, failed, store unavailable, a
 ##    pending payment granted later, purchases restored at launch);
-##  - interstitial call sites, "natural pauses" (GDD §6): "upgrade" when a
+##  - interstitial call site, a "natural pause" (GDD §6): "upgrade" when a
 ##    counter sheet / STAFF panel closes back to the game after an upgrade or
 ##    hire bought in it (not builds, tables or the quick card's hire: the
-##    camera flies to those / a "+1 WAITER" float plays), and "welcome_back"
-##    when the WELCOME BACK popup closes. Never
-##    in the tutorial or while anything else is open; Ads applies the caps
-##    (session 4+, 60 s apart, not after a rewarded video, Remove Ads) and
-##    config [ads] interstitial_triggers says which call sites are live.
+##    camera flies to those / a "+1 WAITER" float plays). Never in the
+##    tutorial or while anything else is open; Ads applies the caps (core and
+##    feel C7.1: interstitials off for the soft launch; session 4+, 180 s
+##    apart, never within 60 s of a purchase, a reward or a rewarded video,
+##    Remove Ads) and config [ads] interstitial_triggers says which call
+##    sites are live (none today). The WELCOME BACK popup is never a call
+##    site (the return screen: hard-coded in Ads).
+##
+## Core and feel (W1-MONEY):
+##  - C4.4, one launch pop-up budget: can_interrupt(kind) / note_interrupt(kind)
+##    for the analytics consent card, WELCOME BACK and Munshi-ji's "New
+##    prices!" line (at most one per launch; the count lives in Game, so a
+##    scene reload keeps it). A WELCOME BACK refused by the budget is paid
+##    silently with a toast; is_any_open() also counts the consent card.
+##  - C7.2: the FREE / VIP popup holds the wall-ad bubble while open
+##    (Game.set_ad_hold) and FREE always consumes it; a rewarded ad owed from a
+##    previous run (Game.ad_pending_paid) and the starter pack
+##    (Game.starter_paid) arrive as a toast plus the usual burst.
+##  - C7.4: open_vip() takes the popup variant ("free" | "starter" | "vip")
+##    from Game.offer_variant() and marks it shown.
+##
+## Core and feel (W2-ROOT, build plan section 1 / 2.3):
+##  - One fix router, do_fix(fix): the Game.bottleneck_fix() dict (also a
+##    readout row's fix) opens the card that fixes it: hire waiter -> the
+##    quick waiter card, upgrade waiter / hire or upgrade cashier -> STAFF,
+##    table -> open_tables("fix"), cook / speed / level -> that counter's
+##    sheet, signboard -> BUILD at the signboard row (coach hand on the
+##    button while affordable). Sources: the counter sheet's banner
+##    (action "fix" + StationSheet.fix_target, read by name), the readout's
+##    rows and caption (BottleneckMeter.row_tapped / road_tapped, connected by
+##    name), the NEXT chip's new panels ("quick:waiters", "promo:renovation",
+##    "promo:move", "daftar:signboard", "event").
+##  - C3.1: the quick waiter card sits next to Sim.oldest_waiting_plate() when
+##    that projects on screen, else at the ghost waiter; when neither is on
+##    screen the camera flies to the ghost first. A STAFF › WAITERS hire
+##    closes STAFF 0.3 s later and shows the new waiter (fly and return, 2.5
+##    s) only when the readout's limit was "waiters" just before the hire, at
+##    most once a session and never while the Director is active; the same
+##    rule (limit "seats") for a table bought in BUILD in free play.
+##  - Popup "promo" (PromoPopup: the carry-over card of the Family Dhaba and
+##    the NH 48 move, open_promo(kind, target)) and full panel "event"
+##    (EventPanel: the weekend baraat, open_event(), also from the HUD's
+##    BARAAT button). Both are registered in _show_popup / _hide_popup,
+##    handle_back, _close_panel and _sync_world_cover.
+##  - C6.2 Aaj ka special: at launch / resume (and on Game.special_changed)
+##    a special that is active and not yet announced gets the band in WELCOME
+##    BACK when that opens, else MenuPop's AAJ KA SPECIAL card over its
+##    counter for 4 s once nothing covers the screen; then
+##    Game.mark_special_announced() (which starts its 8-ticket showcase). Not
+##    a launch pop-up (no budget).
+##  - World note tags (world_note_tag.gd): "NEW: {dish}" over a counter
+##    from its showcase until its showcase plates are served, "AAJ KA
+##    SPECIAL" over the special's counter for the
+##    rest of the session, and the drive-past line at the gate for 3 s.
+##  - last_press_rect(): the last pressed button's rect (W2-FX aims the spend
+##    notes there while a panel covers the world).
+##  - Debug prints: "[ui] quick waiters: near plates|flew to ghost|on screen",
+##    "[ui] special announced: <dish> (<where>)", "[ui] promo popup <kind>
+##    ready=<bool>", "[ui] staff hire: closed and flew|stayed (<why>)", "[ui]
+##    build table: ...", "[ui] fix <kind> (<source>)", "[ui] build rows: ..."
+##    (Daftar), "[ui] event panel: ..." (EventPanel).
 
 signal panel_opened(name: String)
 signal panel_closed(name: String)
@@ -123,10 +179,38 @@ const UPGRADE_IDS := ["level_up", "hire", "processing", "galla_upgrade_", "galla
 ## Seconds after the close before an interstitial may show (close animation,
 ## camera restore).
 const INTERSTITIAL_DELAY := 0.6
+## C4.4: a WELCOME BACK held back by something open is retried this often.
+const OFFLINE_POLL_S := 0.5
+## C4.4: chai's level before the consent card may open (the first counter
+## levelled, the change list's "none before the first counter is levelled").
+const CONSENT_MIN_CHAI := 10
 ## Soft launch analytics: once-per-install funnel events.
 const Funnel := preload("res://scripts/v3/core/funnel.gd")
 ## Android back's "LEAVE THE DHABA?" (FLOW track).
 const QuitPopupScript := preload("res://scripts/v3/ui/quit_popup.gd")
+## Core and feel (W2-ROOT): no class_name, loaded by path.
+const PromoPopupScript := preload("res://scripts/v3/ui/promo_popup.gd")
+const EventPanelScript := preload("res://scripts/v3/ui/event_panel.gd")
+const WorldNoteTagScript := preload("res://scripts/v3/ui/world_note_tag.gd")
+## C3.1: the quick waiter card's tip this high over the oldest waiting plate.
+const PLATE_CARD_Y := 0.55
+## C3.1: the longest wait for the camera's fly to the ghost waiter (s).
+const QUICK_FLY_MAX_S := 2.2
+## C3.1: STAFF closes this long after the hire that fixes the limit.
+const STAFF_CLOSE_DELAY := 0.3
+## C6.2: how often a special waiting for its announcement re-checks (s).
+const SPECIAL_POLL_S := 0.5
+## C6.2: how long the card waits for a WELCOME BACK still to decide (the
+## band rides in it) before it shows on its own (s).
+const SPECIAL_OFFLINE_WAIT_S := 3.0
+## C3.1: how often the readout's limit is sampled while STAFF / BUILD is open.
+const LIMIT_POLL_S := 0.25
+## C3.1: the camera holds on the new waiter / table this long.
+const SHOW_HOLD_S := 2.5
+## Half size of the rect around a press with no button under it (px).
+const PRESS_HALF := 40.0
+## The readout widgets' hooks are re-checked this often (s).
+const HUD_HOOK_POLL := 0.5
 
 var hud: Hud
 var station_sheet: StationSheet
@@ -155,6 +239,13 @@ var menu_pop: MenuPop
 ## "LEAVE THE DHABA?" (handle_back with nothing to close; layer LAYER_QUIT;
 ## scripts/v3/ui/quit_popup.gd).
 var quit_popup: QuitPopupScript
+## Core and feel: the promotion carry-over popup ("promo") and the weekend
+## baraat panel ("event").
+var promo_popup: PromoPopupScript
+var event_panel: EventPanelScript
+## World note tags: one per counter, then the gate tag.
+var note_tags: Array = []
+var gate_tag: WorldNoteTagScript
 
 var allowed_taps: Array[String] = ["*"]
 var allowed_buttons: Array[String] = ["*"]
@@ -191,7 +282,53 @@ var _coach_local: Dictionary = {}
 ## An upgrade / hire was bought in the open panel (the "upgrade" interstitial).
 var _bought_in_panel: bool = false
 ## The 3D world is switched off under a full-screen panel (_sync_world_cover).
-var _world_covered: bool = false
+## True at first: the first _process writes disable_3d = false (W1-FIX-money).
+var _world_covered: bool = true
+## C4.4: launch pop-ups counted here only while Game has no popup budget
+## (before core and feel's game.gd).
+var _local_popups: int = 0
+## C4.4: WELCOME BACK waits for the screen to be free (polled).
+var _offline_waiting: bool = false
+var _offline_poll_t: float = 0.0
+## C3.1: the readout's limit just before the last "waiter_hire" / "table"
+## spend (Game.cash_spent fires before the purchase changes anything).
+var _limit_at_spend: Dictionary = {}
+## C3.1: STAFF hire / BUILD table "closed and flew" used this session.
+static var _staff_close_used: bool = false
+static var _table_close_used: bool = false
+## C3.1: the readout's limit sampled while STAFF or BUILD is open (copied into
+## _limit_at_spend when the purchase spends; read from the cache, never from
+## inside Game.spend()).
+var _limit_seen: String = ""
+var _limit_t: float = 0.0
+## C3.1: the quick waiter card waiting for the camera's fly (its sequence).
+var _quick_fly_seq: int = 0
+var _quick_flying: bool = false
+## [anchor, kind] of the coach hand the next quick waiter card gets.
+var _quick_coach: Array = []
+## upgrade_bought's source for the next quick waiter card (plan 2.8, C3.1):
+## "chip" when the NEXT chip asked for it, else "world_card" (set on QuickBuy
+## by name, rule 5).
+var _quick_source: String = "world_card"
+## C6.2: a special waits for its announcement (polled), and the one announced
+## this session (its counter's tag).
+var _special_wait: bool = false
+var _special_poll_t: float = 0.0
+var _special_wait_t: float = 0.0
+static var _special_tag_dish: String = ""
+## The readout widgets (W2-HUD) whose signals are connected here.
+var _meter_hooked: Object = null
+var _event_btn_hooked: Object = null
+var _hud_hook_t: float = HUD_HOOK_POLL
+## last_press_rect(): the last press (canvas px), and the rect found for it.
+var _press_pos: Vector2 = Vector2.ZERO
+var _press_seen: bool = false
+var _press_id: int = 0
+var _press_rect: Rect2 = Rect2()
+var _press_rect_id: int = -1
+## A debug `--open` of BUILD / STATS refused by an open popup (WELCOME BACK
+## at launch): opened when the popup closes (free play only).
+var _queued_daftar: String = ""
 
 
 func _ready() -> void:
@@ -275,7 +412,7 @@ func _ready() -> void:
 	_panel_root.add_child(staff_panel)
 	staff_panel.gate = can_press
 	staff_panel.close_pressed.connect(_on_panel_x)
-	staff_panel.action.connect(_relay)
+	staff_panel.action.connect(_on_staff_action)
 	staff_panel.tab_changed.connect(_on_staff_tab)
 
 	daftar = Daftar.new()
@@ -284,6 +421,15 @@ func _ready() -> void:
 	daftar.gate = can_press
 	daftar.close_pressed.connect(_on_panel_x)
 	daftar.action.connect(_on_daftar_action)
+
+	# C6.4: the weekend baraat panel (a full panel like STAFF).
+	event_panel = EventPanelScript.new()
+	event_panel.name = "EventPanel"
+	_panel_root.add_child(event_panel)
+	event_panel.gate = can_press
+	event_panel.hud = hud
+	event_panel.close_pressed.connect(_on_panel_x)
+	event_panel.action.connect(_relay)
 
 	add_child(UiJuice.new())
 
@@ -321,6 +467,14 @@ func _ready() -> void:
 	settings_popup.name = "SettingsPopup"
 	_popup_root.add_child(settings_popup)
 	settings_popup.close_pressed.connect(_on_popup_x)
+
+	# C5.2 / C6.1 / C6.3: the promotion carry-over popup.
+	promo_popup = PromoPopupScript.new()
+	promo_popup.name = "PromoPopup"
+	_popup_root.add_child(promo_popup)
+	promo_popup.gate = can_press
+	promo_popup.close_pressed.connect(_on_popup_x)
+	promo_popup.action.connect(_on_promo_action)
 	_popup_layer.add_child(UiJuice.new())
 
 	# Station menus §7.2: the NEW ON THE MENU pop, over everything, non-blocking.
@@ -342,6 +496,24 @@ func _ready() -> void:
 	quit_popup.answered.connect(_on_quit_answered)
 	quit_layer.add_child(UiJuice.new())
 
+	# C3.5 / C6.2 / C2.7: the world note tags (below the panels, with the
+	# other world tags).
+	for sid: String in Game.station_ids():
+		var nt: WorldNoteTagScript = WorldNoteTagScript.new()
+		nt.mode = "counter"
+		nt.station_id = sid
+		nt.name = "NoteTag_" + sid
+		nt.allowed_fn = _note_tags_allowed
+		nt.special_fn = _special_tag
+		nt.busy_fn = _menu_pop_station
+		_bubble_layer.add_child(nt)
+		note_tags.append(nt)
+	gate_tag = WorldNoteTagScript.new()
+	gate_tag.mode = "gate"
+	gate_tag.name = "GateTag"
+	gate_tag.allowed_fn = _note_tags_allowed
+	_bubble_layer.add_child(gate_tag)
+
 	Game.offline_earnings_ready.connect(_on_offline_ready)
 	if Refs.ui == null:
 		Refs.ui = self
@@ -357,8 +529,24 @@ func _ready() -> void:
 	var ads: Node = UiKit.autoload("Ads")
 	if ads != null and ads.has_signal("interstitial_finished"):
 		ads.connect("interstitial_finished", _on_interstitial_finished)
+	# C7.2 / C7.4: money that arrives on its own (core and feel's Game signals,
+	# connected by name).
+	if Game.has_signal("ad_pending_paid") and not Game.is_connected("ad_pending_paid", _on_ad_pending_paid):
+		Game.connect("ad_pending_paid", _on_ad_pending_paid)
+	if Game.has_signal("starter_paid") and not Game.is_connected("starter_paid", _on_starter_paid):
+		Game.connect("starter_paid", _on_starter_paid)
+	# Core and feel (wave 1 merged): the limit before a hire / table (C3.1)
+	# and the special's announcement (C6.2).
+	Game.cash_spent.connect(_on_cash_spent)
+	Game.special_changed.connect(_on_special_changed)
+	# C6.4: the weekend window closing shuts the baraat panel.
+	Game.event_changed.connect(_on_event_window)
+	# No popup is open in a new UI (a scene reload after a promotion keeps Game).
+	_set_ad_hold(false)
 	_try_connect_world.call_deferred()
 	_check_pending_offline.call_deferred()
+	# C6.2: after WELCOME BACK has decided (the band rides in it), else the card.
+	_queue_special_check()
 	set_process(true)
 
 
@@ -391,6 +579,14 @@ func set_allowed_buttons(ids: Array) -> void:
 
 # ================================================================ panels
 func open_station(id: String) -> void:
+	# Core and feel: main3's --open=<name> sends unknown names here; "event"
+	# and "promo:<kind>" are panels / popups, not counters.
+	if id == "event":
+		open_event()
+		return
+	if id.begins_with("promo:"):
+		open_promo(id.substr(6))
+		return
 	if current_popup != "" or not Game.is_built(id):
 		return
 	var pname: String = "station:" + id
@@ -420,6 +616,7 @@ func open_staff(tab: String = "", opts: Dictionary = {}) -> void:
 	staff_panel.open_tab(t, opts)
 	hud.set_mode("panel")
 	current_panel = "staff:" + t
+	_sample_limit()
 	Sfx.play("tap", 0.02)
 	panel_opened.emit(current_panel)
 
@@ -461,33 +658,146 @@ func open_tables(source: String = "") -> String:
 
 
 ## The 2-tap card on a ghost: "waiters" (the ghost waiter) or "tables" (the
-## next ghost table).
-func open_quick(kind: String) -> void:
+## next ghost table). Core and feel C3.1: the waiter card sits by the oldest
+## waiting plate when that is on screen, else at the ghost waiter, and the
+## camera flies to the ghost first when neither is on screen.
+## `source` "tap" / "tag" (the player tapped the ghost or its tag: never a
+## camera fly) or anything else ("open", "chip", "fix").
+func open_quick(kind: String, source: String = "open") -> void:
 	if current_popup != "":
 		return
-	if kind == "tables":
-		var n: int = UiKit.gint("table_count", [], 0)
-		if n >= UiKit.gint("table_max", [], 0) or not TableTag.has_table_point(n):
-			return
-		if current_panel != "":
-			_close_panel(true)
-		quick_buy.open_for("tables", TableTag.table_point(n) + Vector3(0.0, HireSlot.TABLE_TAG_Y, 0.0), n)
-	else:
-		if not StaffRows.can_hire("waiters"):
-			open_staff("waiters")
-			return
-		if current_panel != "":
-			_close_panel(true)
-		var i: int = StaffRows.count("waiters")
-		quick_buy.open_for("waiters", Layout3.waiter_home(i) + Vector3(0.0, HireSlot.WAITER_TAG_Y, 0.0), i)
+	if kind != "tables":
+		_open_quick_waiters(source)
+		return
+	var n: int = UiKit.gint("table_count", [], 0)
+	if n >= UiKit.gint("table_max", [], 0) or not TableTag.has_table_point(n):
+		return
+	if current_panel != "":
+		_close_panel(true)
+	quick_buy.set("source", "world_card")
+	quick_buy.open_for("tables", TableTag.table_point(n) + Vector3(0.0, HireSlot.TABLE_TAG_Y, 0.0), n)
 	current_panel = "quick:" + kind
 	Sfx.play("pop", 0.02)
 	panel_opened.emit(current_panel)
 
 
-## BUILD (tab "build") or STATS ("hisaab").
+## C3.1: the quick waiter card. `source` "tap" / "tag" (the player tapped the
+## ghost or its tag, so the ghost is on screen: never a fly) or anything else.
+## `coach` / `coach_kind`: a coach hand for the card's HIRE once it shows
+## (after a camera fly too). An open counter sheet closes first and its view
+## comes back, so the on-screen tests see the view the card will sit in.
+func _open_quick_waiters(source: String, coach: String = "", coach_kind: String = "") -> void:
+	if current_popup != "":
+		return
+	if not StaffRows.can_hire("waiters"):
+		open_staff("waiters")
+		return
+	_quick_fly_seq += 1
+	var seq: int = _quick_fly_seq
+	_quick_flying = false
+	_quick_coach = [coach, coach_kind] if coach != "" else []
+	_quick_source = "chip" if source == "chip" else "world_card"
+	if current_panel.begins_with("station:"):
+		_close_panel(true)
+		await _camera_settled(seq, QUICK_FLY_MAX_S)
+		if seq != _quick_fly_seq or current_panel != "" or current_popup != "" or _quit_open():
+			return
+	var i: int = StaffRows.count("waiters")
+	var ghost: Vector3 = Layout3.waiter_home(i) + Vector3(0.0, HireSlot.WAITER_TAG_Y, 0.0)
+	var plate: Vector3 = _oldest_plate()
+	if plate.is_finite() and _point_on_screen(plate + Vector3(0.0, PLATE_CARD_Y, 0.0)):
+		print("[ui] quick waiters: near plates")
+		_show_quick_waiters(plate + Vector3(0.0, PLATE_CARD_Y, 0.0), i)
+		return
+	if source == "tap" or source == "tag" or _point_on_screen(ghost) or Refs.camera == null:
+		print("[ui] quick waiters: on screen")
+		_show_quick_waiters(ghost, i)
+		return
+	print("[ui] quick waiters: flew to ghost")
+	if current_panel != "":
+		_close_panel(false)
+	_fly_then_quick(seq, ghost, i)
+
+
+func _show_quick_waiters(at: Vector3, i: int) -> void:
+	if current_panel != "":
+		_close_panel(true)
+	quick_buy.set("source", _quick_source)
+	quick_buy.open_for("waiters", at, i)
+	current_panel = "quick:waiters"
+	Sfx.play("pop", 0.02)
+	panel_opened.emit(current_panel)
+	if not _quick_coach.is_empty():
+		var c: Array = _quick_coach
+		_quick_coach = []
+		coach_hand(str(c[0]), {"kind": str(c[1]) if str(c[1]) != "" else str(c[0])})
+
+
+## Flies the camera to the ghost waiter, then opens his card there (unless
+## something else opened meanwhile, Android back asked to quit, or a newer
+## request replaced this one).
+func _fly_then_quick(seq: int, ghost: Vector3, i: int) -> void:
+	_quick_flying = true
+	_cam_call("fly_to", [Vector3(ghost.x, 0.0, ghost.z), -1.0])
+	await _camera_settled(seq, QUICK_FLY_MAX_S)
+	if seq != _quick_fly_seq:
+		return
+	_quick_flying = false
+	if current_panel != "" or current_popup != "" or _quit_open():
+		return
+	_show_quick_waiters(ghost, i)
+
+
+## W2-FIX-ui: the quit question ("LEAVE THE DHABA?") is up. A back press
+## during a deferred quick card open (camera fly, sheet close) cancels the
+## card: it is neither a panel nor a popup, so the guards ask for it.
+func _quit_open() -> bool:
+	return quit_popup != null and quit_popup.is_open()
+
+
+## Waits (at most `max_s`) until the camera stops moving, or a newer quick
+## card request replaces `seq`.
+func _camera_settled(seq: int, max_s: float) -> void:
+	var cam: Node = Refs.camera
+	var left: float = max_s
+	await get_tree().process_frame
+	while left > 0.0 and seq == _quick_fly_seq:
+		if cam == null or not is_instance_valid(cam) or not cam.has_method("is_busy") or not bool(cam.call("is_busy")):
+			return
+		await get_tree().process_frame
+		left -= get_process_delta_time()
+
+
+## Sim.oldest_waiting_plate() (Vector3.INF when none or no Sim).
+func _oldest_plate() -> Vector3:
+	var sv: Variant = Refs.sim
+	if not is_instance_valid(sv) or not (sv as Object).has_method("oldest_waiting_plate"):
+		return Vector3.INF
+	var p: Variant = (sv as Object).call("oldest_waiting_plate")
+	return p if p is Vector3 else Vector3.INF
+
+
+## A world point projects inside the screen margins (a card above it fits).
+func _point_on_screen(p: Vector3) -> bool:
+	var cam: Camera3D = get_viewport().get_camera_3d()
+	if cam == null or not p.is_finite() or cam.is_position_behind(p):
+		return false
+	var sp: Vector2 = cam.unproject_position(p)
+	var vs: Vector2 = get_viewport().get_visible_rect().size
+	return sp.x > ON_SCREEN_SIDE and sp.x < vs.x - ON_SCREEN_SIDE and sp.y > ON_SCREEN_TOP \
+			and sp.y < vs.y - ON_SCREEN_BOTTOM
+
+
+## BUILD (tab "build") or STATS ("hisaab"). Refused while a popup is open;
+## in free play the request then waits for that popup to close (a debug
+## --open=build at launch under WELCOME BACK; real taps never get here with a
+## popup up), and debug builds print the BUILD rows it will show.
 func open_daftar(tab: String = "build") -> void:
 	if current_popup != "":
+		if Game.is_tutorial_done() and not _tutorial_active():
+			_queued_daftar = tab
+			if tab == "build" and OS.is_debug_build():
+				print("[ui] build rows: %s (opens after the %s popup)" % [daftar.build_rows_line(), current_popup])
 		return
 	if current_panel == "daftar":
 		daftar.select_tab(tab)
@@ -497,26 +807,88 @@ func open_daftar(tab: String = "build") -> void:
 	daftar.open(tab)
 	hud.set_mode("panel")
 	current_panel = "daftar"
+	_sample_limit()
 	Sfx.play("tap", 0.02)
 	panel_opened.emit("daftar")
 
 
+## C5.2 / C6.1 / C6.3: the carry-over popup of a promotion, kind
+## "renovation" or "move" (target: the location id; "" = the next highway).
+## Opens over BUILD when it is open (popup "promo").
+func open_promo(kind: String, target: String = "") -> void:
+	if current_popup != "":
+		return
+	var k: String = "move" if kind == "move" else "renovation"
+	var tgt: String = target
+	if k == "move" and tgt == "":
+		tgt = Daftar.move_target()
+	if k == "move" and tgt == "":
+		return
+	promo_popup.open(k, tgt)
+	_show_popup("promo")
+	print("[ui] promo popup %s ready=%s" % [k, str(promo_popup.unlocked_now)])
+	Analytics.event("renovation_preview", {"kind": k, "ready": promo_popup.unlocked_now})
+
+
+## C6.4: the weekend baraat panel (full panel "event").
+func open_event() -> void:
+	if current_popup != "":
+		return
+	if current_panel == "event":
+		return
+	if current_panel != "":
+		_close_panel(true)
+	event_panel.open()
+	hud.set_mode("panel")
+	current_panel = "event"
+	Sfx.play("tap", 0.02)
+	panel_opened.emit("event")
+
+
+## C6.4: the weekend window closed while the baraat panel was open (the event
+## module's close emits event_changed once event_active() is false): close
+## the panel, so it never shows an empty event with a fresh "Ends in".
+func _on_event_window() -> void:
+	if current_panel == "event" and not Game.event_active():
+		print("[ui] event panel closed: the weekend window ended")
+		_close_panel(true)
+
+
 ## reward <= 0 uses the current wall-ad reward. free_only (D7): true = the
-## FREE CASH variant (no ₹299 offer), false = the full VIP offer, null =
-## FREE CASH until Game.vip_offer_visible() (session 2+, tutorial done).
+## FREE BONUS variant (no offer), false = the full VIP offer, null = the
+## variant Game.offer_variant() gives (C7.4: "free" in session 1, in the
+## tutorial, after any purchase and once an offer was shown this session;
+## else the STARTER PACK once ever, then VIP once a session).
 func open_vip(reward: float = -1.0, free_only: Variant = null) -> void:
 	if current_popup != "":
 		return
-	var fo: bool = (not Game.vip_offer_visible()) if free_only == null else bool(free_only)
-	vip_popup.open(reward if reward > 0.0 else Game.ad_bubble_reward(), fo)
-	if not fo:
-		# Round 2: the full VIP offer at most once per session.
-		Game.mark_vip_offer_shown()
+	var variant: String = offer_variant() if free_only == null else ("free" if bool(free_only) else "vip")
+	vip_popup.open(reward if reward > 0.0 else Game.ad_bubble_reward(), variant)
+	if variant != "free":
+		# The offer at most once per session (Round 2; C7.4: one offer).
+		if Game.has_method("mark_offer_shown"):
+			Game.call("mark_offer_shown", variant)
+		elif variant == "vip":
+			Game.mark_vip_offer_shown()
+	# C7.2: the bubble is never hidden under this popup (FREE consumes it).
+	_set_ad_hold(true)
 	_show_popup("vip")
 	# Soft launch analytics: offers seen (the funnel's first step per placement).
-	Analytics.event("ad_offer_shown", {"placement": "wall_ad", "variant": "free" if fo else "vip"})
-	if not fo and not Game.vip:
+	Analytics.event("ad_offer_shown", {"placement": "wall_ad", "variant": variant})
+	if variant == "vip" and not Game.vip:
 		Analytics.event("iap_offer_shown", {"id": "vip_x2", "source": "wall_ad"})
+	elif variant == "starter":
+		Analytics.event("iap_offer_shown", {"id": Iap.STARTER, "source": "wall_ad"})
+
+
+## C7.4: "free" | "starter" | "vip" for the next bubble tap (Game's offer rule;
+## before core and feel's game.gd, the 0.3.7 VIP rule).
+func offer_variant() -> String:
+	if Game.has_method("offer_variant"):
+		var v: String = str(Game.call("offer_variant"))
+		if v in ["free", "starter", "vip"]:
+			return v
+	return "vip" if Game.vip_offer_visible() else "free"
 
 
 func open_settings() -> void:
@@ -538,14 +910,20 @@ func open_offline(amount: float, seconds: float) -> void:
 	if current_popup != "":
 		_queued_offline = true
 		return
+	# C6.2: a special waiting for its announcement rides in as the band.
+	var sp: String = _special_due()
+	offline_popup.set_special(_special_dish_text(sp) if sp != "" else "")
 	offline_popup.open(amount, seconds)
 	_show_popup("offline")
+	if sp != "":
+		_announce_special(sp, "welcome back")
 	# Soft launch analytics: the WELCOME BACK popup (an offline return that
 	# pays; under offline.min_away nothing shows and nothing is sent here).
-	var x2: bool = Game.offline_ad_allowed()
+	# C7.2: x2 is offered only while its ad is ready; `x2` here is the state
+	# at the open. OfflinePopup sends ad_offer_shown {offline_double} itself
+	# the first time x2 shows (often a few seconds later on a cold launch).
+	var x2: bool = offline_popup.double_button.visible
 	Analytics.event("offline_return", {"away_min": int(seconds / 60.0), "amount": amount, "x2": x2})
-	if x2:
-		Analytics.event("ad_offer_shown", {"placement": "offline_double", "variant": "x2"})
 
 
 ## Closes popups and panels (the tutorial uses it to reset the screen).
@@ -556,8 +934,105 @@ func close_all() -> void:
 		_close_panel(true)
 
 
+## A panel or popup is open, or the analytics consent card (C4.4).
 func is_any_open() -> bool:
-	return current_panel != "" or current_popup != ""
+	return current_panel != "" or current_popup != "" or Analytics.is_card_open()
+
+
+# ================================================================ C4.4 launch pop-up budget
+## kinds "consent" | "offline" | "eco_note": true when that launch pop-up may
+## open now: none shown yet this launch (Game.popup_budget_used() < 1),
+## nothing open (panel, popup, dialogue, reward burst, consent card, the quit
+## question); "consent" also needs chai Lv 10+ and the tutorial done, or its
+## calm free step after the seats beat (tutorial.seats_done and the Director
+## in step "free"); "offline" and "eco_note" need the tutorial done.
+func can_interrupt(kind: String) -> bool:
+	return interrupt_block_reason(kind) == ""
+
+
+## Why `kind` may not open now ("" = it may): "tutorial" (or "level" for the
+## consent card under chai Lv 10), "budget" (another launch pop-up showed this
+## launch, or, for "offline" / "eco_note", the consent card still wants this
+## launch's pop-up: lead decision 6(c)), "open" (something is on screen).
+func interrupt_block_reason(kind: String) -> String:
+	if kind == "consent":
+		if Game.station_level("chai") < CONSENT_MIN_CHAI:
+			return "level"
+		if not Game.is_tutorial_done() and not _tutorial_calm_free():
+			return "tutorial"
+	elif not Game.is_tutorial_done():
+		return "tutorial"
+	elif _consent_card_first():
+		# Lead decision 6(c): the consent card owns this launch's pop-up;
+		# WELCOME BACK is paid silently with its toast.
+		return "budget"
+	if _popup_budget_used() >= 1:
+		return "budget"
+	if _screen_busy(kind != "consent"):
+		return "open"
+	return ""
+
+
+## Lead decision 6(c): analytics consent is still unknown on a launch past
+## the tutorial and the card may open here (chai Lv 10+), so WELCOME BACK and
+## the eco note give way to it.
+func _consent_card_first() -> bool:
+	if Game.station_level("chai") < CONSENT_MIN_CHAI:
+		return false
+	return Analytics.has_method("card_pending") and bool(Analytics.call("card_pending"))
+
+
+## A launch pop-up of `kind` opened: Game counts it (the budget) and the
+## funnel gets launch_popup {kind}.
+func note_interrupt(kind: String) -> void:
+	if Game.has_method("note_popup"):
+		Game.call("note_popup", kind)
+	else:
+		_local_popups += 1
+		print("[ui] launch popup %s (local count)" % kind)
+	Analytics.event("launch_popup", {"kind": kind})
+
+
+func _popup_budget_used() -> int:
+	if Game.has_method("popup_budget_used"):
+		return int(Game.call("popup_budget_used"))
+	return _local_popups
+
+
+## Anything on screen a launch pop-up must not cover: a panel, a popup, the
+## quit question, Munshi-ji's box, a reward burst, the consent card.
+func _screen_busy(count_card: bool = true) -> bool:
+	if current_panel != "" or current_popup != "":
+		return true
+	if quit_popup != null and quit_popup.is_open():
+		return true
+	if count_card and Analytics.is_card_open():
+		return true
+	var dlg: Variant = Refs.dialogue
+	if dlg != null and is_instance_valid(dlg) and (dlg as Object).has_method("is_open") \
+			and bool((dlg as Object).call("is_open")):
+		return true
+	var fx: Node = UiKit.autoload("Fx")
+	if fx != null and fx.has_method("reward_playing") and bool(fx.call("reward_playing")):
+		return true
+	return false
+
+
+## The tutorial's calm free step after the seats beat (~1:50): the consent
+## card's place in the first session.
+func _tutorial_calm_free() -> bool:
+	if not bool(Game.tutorial_get("seats_done", false)):
+		return false
+	var d: Variant = Refs.director
+	if d == null or not is_instance_valid(d) or not (d as Object).has_method("current_step"):
+		return false
+	return str((d as Object).call("current_step")) == "free"
+
+
+## C7.2: Game holds the wall-ad bubble while the FREE / VIP popup is open.
+func _set_ad_hold(on: bool) -> void:
+	if Game.has_method("set_ad_hold"):
+		Game.call("set_ad_hold", on)
 
 
 ## Top of the open station sheet's frame (canvas px); INF while it is closed.
@@ -632,6 +1107,8 @@ func _close_panel(restore_cam: bool) -> void:
 		quick_buy.close()
 	elif pname == "daftar":
 		daftar.close()
+	elif pname == "event":
+		event_panel.close()
 	hud.set_mode("gameplay")
 	panel_closed.emit(pname)
 
@@ -655,10 +1132,13 @@ func _hide_popup() -> void:
 	match pname:
 		"vip":
 			vip_popup.close()
+			_set_ad_hold(false)
 		"offline":
 			offline_popup.close()
 		"settings":
 			settings_popup.close()
+		"promo":
+			promo_popup.close()
 	if _dim_tw != null and _dim_tw.is_valid():
 		_dim_tw.kill()
 	_dim_tw = create_tween()
@@ -668,6 +1148,17 @@ func _hide_popup() -> void:
 	if _queued_offline:
 		_queued_offline = false
 		_check_pending_offline.call_deferred()
+	elif _queued_daftar != "":
+		_open_queued_daftar.call_deferred()
+
+
+## The BUILD / STATS open that waited for a popup (open_daftar).
+func _open_queued_daftar() -> void:
+	var t: String = _queued_daftar
+	_queued_daftar = ""
+	if t == "" or current_popup != "" or current_panel != "":
+		return
+	open_daftar(t)
 
 
 # ================================================================ anchors
@@ -683,9 +1174,17 @@ func anchor(n: String) -> Control:
 			return table_tag if table_tag.is_showing() else null
 		"sheet_close":
 			return station_sheet.close_button if station_sheet.is_open() else null
-		"sheet_limit_button":
+		"sheet_limit_button", "sheet_fix_button":
 			var lb: UiButton = station_sheet.limit_btn
 			return lb if station_sheet.is_open() and lb != null and lb.is_visible_in_tree() else null
+		"promo_button":
+			var pb: UiButton = promo_popup.primary_button
+			return pb if current_popup == "promo" and pb != null and pb.is_visible_in_tree() else null
+		"build_row_renovation", "build_row_signboard", "build_row_move":
+			return daftar.row_button(n.substr(10)) if daftar.is_open() else null
+		"event_button":
+			var eb: Object = _hud_widget("event_button")
+			return eb as Control if eb is Control else null
 		"next_chip", "home_button", "staff_button":
 			return hud.anchor(n)
 		"staff_close", "waiter_close", "galla_close":
@@ -752,6 +1251,14 @@ func anchor(n: String) -> Control:
 		return staff_panel.upgrade_button("waiters", int(n.substr(15))) if staff_open else null
 	if n.begins_with("daftar_build_"):
 		return daftar.build_button(n.substr(13))
+	if n.begins_with("meter_row_"):
+		var m: Object = _hud_widget("meter")
+		if m != null and m.has_method("row_control"):
+			var rc: Variant = m.call("row_control", n.substr(10))
+			return rc if rc is Control else null
+		return null
+	if n.begins_with("event_claim_"):
+		return event_panel.claim_button(int(n.substr(12))) if current_panel == "event" else null
 	if n.begins_with("daftar_hire_waiter_"):
 		return daftar.hire_waiter_button(n.substr(19))
 	return hud.anchor(n) if hud != null else null
@@ -766,6 +1273,10 @@ func anchor(n: String) -> Control:
 ## dialogue after it shows, or clear_coach(). A new call replaces the old
 ## hand. Returns true when scheduled. (Round 2: after the first two times the
 ## HIRE card's BEST NOW glow does the pointing, with no hand.)
+## W2-FIX-ui: a use is counted when the hand actually points (_coach_run), so
+## a hand that a newer call or clear_coach() cancels during its delay (e.g.
+## the sheet's fix banner hand under a task / chip route's own hand) costs
+## nothing.
 func coach_hand(target: Variant, opts: Dictionary = {}) -> bool:
 	var force: bool = bool(opts.get("force", false))
 	var d: Variant = Refs.director
@@ -778,10 +1289,9 @@ func coach_hand(target: Variant, opts: Dictionary = {}) -> bool:
 		return false
 	if _director_hand() == null:
 		return false
-	_coach_bump(key)
 	clear_coach()
 	_coach_seq += 1
-	_coach_run(_coach_seq, target, float(opts.get("delay", COACH_DELAY)), opts.get("rel", Vector2(0.5, 0.5)))
+	_coach_run(_coach_seq, target, float(opts.get("delay", COACH_DELAY)), opts.get("rel", Vector2(0.5, 0.5)), key)
 	return true
 
 
@@ -804,7 +1314,7 @@ func is_coaching() -> bool:
 	return _coach_shown
 
 
-func _coach_run(seq: int, target: Variant, delay: float, rel: Variant) -> void:
+func _coach_run(seq: int, target: Variant, delay: float, rel: Variant, key: String = "") -> void:
 	if delay > 0.0:
 		await get_tree().create_timer(delay).timeout
 	var c: Control = null
@@ -821,6 +1331,8 @@ func _coach_run(seq: int, target: Variant, delay: float, rel: Variant) -> void:
 	if h == null:
 		return
 	(h as Object).call("point_at", c, rel if rel is Vector2 else Vector2(0.5, 0.5))
+	if key != "":
+		_coach_bump(key)
 	_coach_control = c
 	_coach_shown = true
 	_coach_panel = current_panel
@@ -871,6 +1383,25 @@ func _process(delta: float) -> void:
 	if _ghost_t >= GHOST_POLL:
 		_ghost_t = 0.0
 		_sync_ghost_waiter()
+	_hud_hook_t += delta
+	if _hud_hook_t >= HUD_HOOK_POLL:
+		_hud_hook_t = 0.0
+		_hook_hud_widgets()
+	# C3.1: the limit before a STAFF hire / BUILD table (free play only).
+	if current_panel.begins_with("staff:") or current_panel == "daftar":
+		_limit_t += delta
+		if _limit_t >= LIMIT_POLL_S:
+			_sample_limit()
+	if _special_wait:
+		_special_poll_t += delta
+		if _special_poll_t >= SPECIAL_POLL_S:
+			_special_poll_t = 0.0
+			_check_special()
+	if _offline_waiting:
+		_offline_poll_t += delta
+		if _offline_poll_t >= OFFLINE_POLL_S:
+			_offline_poll_t = 0.0
+			_check_pending_offline()
 	if not _coach_shown:
 		return
 	var dlg: Variant = Refs.dialogue
@@ -887,7 +1418,9 @@ func _process(delta: float) -> void:
 ## the world tags keep running). Off from the end of the 0.12 s fade-in, back
 ## on the frame a close starts, so the fades still show the world.
 func _sync_world_cover() -> void:
-	var covered: bool = visible and (_covers(staff_panel) or _covers(daftar))
+	# _world_covered starts true, so a new UiRoot (a promotion's scene reload
+	# keeps the root viewport) always writes disable_3d once.
+	var covered: bool = visible and (_covers(staff_panel) or _covers(daftar) or _covers(event_panel))
 	if covered == _world_covered:
 		return
 	_world_covered = covered
@@ -936,7 +1469,7 @@ func _on_world_tapped(tap_id: String, _world_pos: Vector3 = Vector3.ZERO) -> voi
 	if tap_id.begins_with("station:"):
 		open_station(tap_id.substr(8))
 	elif tap_id.begins_with("ghost_waiter"):
-		open_quick("waiters")
+		open_quick("waiters", "tap")
 	elif canon == "waiters":
 		open_staff("waiters")
 	elif tap_id.begins_with("ghost_table"):
@@ -994,9 +1527,22 @@ func _on_staff_tab(tab: String) -> void:
 
 
 ## Station sheet actions; "goto_limit" opens what limits the takings, as the
-## banner's button says.
+## banner's button says. Core and feel C2.5: "fix" (the banner's saffron fix
+## button) opens the card that fixes the limit: do_fix(StationSheet.fix_target)
+## (W2-PANELS' property, read by name; Game.bottleneck_fix() when it is
+## missing or empty, which is the same dict the banner shows).
 func _on_sheet_action(id: String) -> void:
 	button_pressed.emit(id)
+	if id == "fix":
+		var fix: Dictionary = {}
+		if "fix_target" in station_sheet:
+			var fv: Variant = station_sheet.get("fix_target")
+			if fv is Dictionary:
+				fix = fv
+		if fix.is_empty() or str(fix.get("kind", "none")) == "none":
+			fix = Game.bottleneck_fix()
+		do_fix(fix, "sheet")
+		return
 	if id != "goto_limit":
 		return
 	var target: String = station_sheet.limit_target
@@ -1091,7 +1637,8 @@ func _on_bubble_tapped() -> void:
 	if not Game.ad_bubble_ready():
 		return
 	# Looking at the offer does not spend the bubble: it is consumed only when
-	# FREE pays out (or it expires on its own). VipPopup keeps the reward.
+	# FREE pays out (or it expires on its own once the popup is closed).
+	# VipPopup keeps the reward.
 	var reward: float = Game.ad_bubble_reward()
 	open_vip(reward)
 	button_pressed.emit("ad_bubble")
@@ -1231,7 +1778,7 @@ func _waiter_tag_allowed() -> bool:
 func _on_waiter_tag_tapped() -> void:
 	if current_popup != "" or current_panel != "" or not _tap_allowed("waiters"):
 		return
-	open_quick("waiters")
+	open_quick("waiters", "tag")
 	button_pressed.emit("hire_slot_waiters")
 	# Old id kept for the step-1 listeners.
 	button_pressed.emit("rack_tag")
@@ -1297,7 +1844,37 @@ func _on_next_chip_tapped(hint: Dictionary) -> void:
 	if id == "":
 		return
 	var panel: String = str(hint.get("panel", ""))
+	var coach: String = str(hint.get("coach", ""))
+	# Plan 2.8: a PROBLEM hint is the chip's fix tap (bottleneck_fix_tap
+	# {fix, source: chip}, the "<kind>[:<role>]" format of do_fix). The chip
+	# opens its panel itself (below); the fix comes from the hint, since the
+	# seats PROBLEM is a door line, not the readout's limit.
+	if bool(hint.get("problem", false)):
+		var fx: String = str({"quick:waiters": "hire:waiters", "staff:waiters": "upgrade:waiters",
+				"tables": "table", "seating": "table"}.get(panel, ""))
+		if panel == "staff:cashiers" or panel == "cashiers" or panel == "galla":
+			fx = "hire:cashiers" if coach.begins_with("staff_hire") else "upgrade:cashiers"
+		if fx != "":
+			Analytics.event("bottleneck_fix_tap", {"fix": fx, "source": "chip"})
+	# FLOW: no hand on a button the player cannot pay for yet ("Save x / y").
+	if bool(hint.get("saving", false)):
+		coach = ""
 	match panel:
+		"quick:waiters":
+			# Core and feel C3.1: the 2-tap card in the world (by the oldest
+			# waiting plate, else the ghost; a fly to the ghost when neither is
+			# on screen); its coach hand comes once the card shows.
+			_open_quick_waiters("chip", coach, "next_" + id)
+			coach = ""
+		"promo:renovation":
+			open_promo("renovation")
+		"promo:move":
+			open_promo("move", str(hint.get("target", "")))
+		"daftar:signboard":
+			open_daftar("build")
+			daftar.focus_row("signboard")
+		"event":
+			open_event()
 		"seating", "tables":
 			open_tables("next")
 		"waiters", "staff:waiters":
@@ -1315,9 +1892,7 @@ func _on_next_chip_tapped(hint: Dictionary) -> void:
 			# milestone, SPEED, level milestone).
 			if panel.begins_with("station:"):
 				open_station(panel.substr(8))
-	var coach: String = str(hint.get("coach", ""))
-	# FLOW: no hand on a button the player cannot pay for yet ("Save x / y").
-	if coach != "" and not bool(hint.get("saving", false)):
+	if coach != "":
 		coach_hand(coach, {"kind": "next_" + id})
 	button_pressed.emit("next_chip_" + id)
 	Analytics.event("next_chip_tap", {"id": id})
@@ -1406,6 +1981,13 @@ func _on_task_goto(slot: int) -> void:
 ## 0.12 s later and flies the camera to it, where the Sim pops it in),
 ## "seating_add" (a table: likewise to the new table), "open_waiters" (a
 ## waiter-blocked row's STAFF ›).
+## Core and feel: "see_renovation" / "see_move" (a promotion row's SEE) open
+## the carry-over popup over BUILD; "signboard_buy" (C5.3) only relays (the
+## world feedback is W2-FX's, on Game.signboard_changed). A table bought in
+## BUILD in free play closes BUILD and shows it only under the C3.1 rule
+## (_show_purchase_rule: the readout's limit was "seats" just before, once a
+## session, never while the Director runs); in the tutorial BUILD still
+## closes and shows every table (0.3.7, the seats beat relies on it).
 func _on_daftar_action(id: String) -> void:
 	button_pressed.emit(id)
 	if id == "open_waiters":
@@ -1413,10 +1995,26 @@ func _on_daftar_action(id: String) -> void:
 		open_staff("waiters", {"highlight": "hire"})
 		coach_hand("staff_hire_waiters", {"kind": "daftar_waiters"})
 		return
+	if id == "see_renovation":
+		open_promo("renovation")
+		return
+	if id == "see_move":
+		open_promo("move", Daftar.move_target())
+		return
 	if id == "seating_add":
 		table_tag.poll_now()
-		if close_seating_on_add and not lock_close:
+		if not close_seating_on_add or lock_close:
+			return
+		if not Game.is_tutorial_done() or _director_active():
 			get_tree().create_timer(0.12).timeout.connect(_after_table_added)
+			return
+		var why: String = _show_purchase_rule("table", "seats")
+		if why != "":
+			print("[ui] build table: stayed (%s)" % why)
+			return
+		_table_close_used = true
+		print("[ui] build table: closed and flew (limit seats)")
+		get_tree().create_timer(STAFF_CLOSE_DELAY).timeout.connect(_after_table_added)
 		return
 	if not id.begins_with("build_"):
 		return
@@ -1474,10 +2072,15 @@ func _after_table_added() -> void:
 func _on_vip_action(id: String) -> void:
 	# Report the action first: listeners (the Director) must know FREE was
 	# taken before they see the popup close.
-	if id == "vip_free" and Game.ad_bubble_ready():
+	if id == "vip_free":
+		# C7.2: FREE paid, so the bubble is spent (and the next one waits the
+		# full interval) even if it already went away under the popup.
 		Game.consume_ad_bubble()
 	button_pressed.emit(id)
 	if id == "vip_free" and current_popup == "vip":
+		_hide_popup()
+	elif id == "vip_unlock" and current_popup == "vip" and vip_popup.variant == "starter":
+		# C7.4: the starter pack is paid by Game once nothing is open.
 		_hide_popup()
 
 
@@ -1487,18 +2090,75 @@ func _on_offline_ready(_amount: float, _seconds: float) -> void:
 	_check_pending_offline()
 
 
+## WELCOME BACK when the launch pop-up budget allows it (C4.4); refused by
+## the budget alone, the pay is collected at once with a toast; held back by
+## something on screen, it is retried (OFFLINE_POLL_S).
 func _check_pending_offline() -> void:
 	if Game.pending_offline <= 0.0:
+		_offline_waiting = false
+		return
+	if current_popup == "offline":
+		# Already showing: Game's amount is cumulative, open_offline refreshes.
+		open_offline(Game.pending_offline, Game.offline_seconds)
+		_offline_waiting = false
 		return
 	if _tutorial_active():
 		var d: Node = Refs.director
 		if d != null and d.has_signal("finished") and not d.is_connected("finished", _check_pending_offline):
 			d.connect("finished", _check_pending_offline, CONNECT_ONE_SHOT)
 		return
-	if current_popup == "":
-		open_offline(Game.pending_offline, Game.offline_seconds)
-	else:
-		_queued_offline = true
+	var why: String = interrupt_block_reason("offline")
+	# W1-FIX-core (C4.4): Munshi-ji's one-time "New prices!" line outranks
+	# WELCOME BACK: the pay arrives silently with the toast, and the line
+	# takes the launch budget once the toast and burst end (munshi_notes).
+	if why == "" and Game.has_method("economy_note_due") and bool(Game.call("economy_note_due")):
+		_offline_waiting = false
+		print("[ui] welcome back gives way: eco note due")
+		_collect_offline_silently()
+		return
+	if why == "budget":
+		if _screen_busy():
+			# Collect once the screen is free, so the toast is seen.
+			_offline_waiting = true
+			return
+		_offline_waiting = false
+		_collect_offline_silently()
+		return
+	if why != "":
+		_offline_waiting = true
+		if current_popup != "":
+			_queued_offline = true
+		return
+	_offline_waiting = false
+	note_interrupt("offline")
+	open_offline(Game.pending_offline, Game.offline_seconds)
+
+
+## C4.4: WELCOME BACK refused by the budget: paid now, said in a toast.
+func _collect_offline_silently() -> void:
+	var got: float = Game.claim_offline(1.0)
+	Analytics.event("popup_suppressed", {"kind": "offline"})
+	if got <= 0.0:
+		return
+	print("[ui] welcome back paid silently: +%.2f" % got)
+	SdkNotice.toast(SdkNotice.welcome_back_text(got))
+	if hud != null:
+		hud.play_reward_burst(hud.burst_center(), got)
+
+
+## C7.2: the rewarded ad that was on screen when the app died last time paid
+## now (offers module, on the first frame the UI exists).
+func _on_ad_pending_paid(amount: float) -> void:
+	SdkNotice.toast(SdkNotice.owed_bonus_text(amount))
+	if hud != null:
+		hud.play_reward_burst(hud.burst_center(), amount, true)
+
+
+## C7.4: the starter pack's dhaba cash (paid once, after the tutorial).
+func _on_starter_paid(amount: float) -> void:
+	SdkNotice.toast(SdkNotice.starter_paid_text(amount))
+	if hud != null:
+		hud.play_reward_burst(hud.burst_center(), amount)
 
 
 func _tutorial_active() -> bool:
@@ -1511,6 +2171,375 @@ func _tutorial_active() -> bool:
 func _on_offline_closed() -> void:
 	if current_popup == "offline":
 		_hide_popup()
+
+
+# ================================================================ core and feel: fix routing (W2-ROOT)
+## C2.5 / C2.6: opens the card that fixes `fix` (a Game.bottleneck_fix() dict,
+## or a readout row's fix): hire waiter -> the quick waiter card (by the
+## oldest waiting plate, else the ghost; a fly when neither is on screen);
+## upgrade waiter -> STAFF › WAITERS; table -> open_tables("fix") (the ghost
+## table's card, else BUILD › TABLES); hire / upgrade cashier -> STAFF ›
+## CASHIERS; cook / speed / level -> that counter's sheet; signboard -> BUILD
+## at the signboard row. A coach hand points at the button the first 2 times
+## per kind while it is affordable. `source` ("sheet" | "meter" | "caption" |
+## "chip" | "") goes to bottleneck_fix_tap (not for "sheet" or "": the sheet
+## sends it on its own press). Prints "[ui] fix <kind> [<role|station>]
+## (<source>)".
+func do_fix(fix: Dictionary, source: String = "") -> void:
+	var kind: String = str(fix.get("kind", "none"))
+	var role: String = str(fix.get("role", ""))
+	var sid: String = str(fix.get("station", ""))
+	var idx: int = int(fix.get("index", -1))
+	var paid: bool = bool(fix.get("affordable", false))
+	var what: String = role if role != "" else sid
+	print("[ui] fix %s%s (%s)" % [kind, " " + what if what != "" else "", source if source != "" else "-"])
+	if kind == "" or kind == "none" or current_popup != "":
+		return
+	# The sheet sends bottleneck_fix_tap on its own press (W2-PANELS); the
+	# meter's readout_tap is the HUD's (W2-HUD).
+	if source != "" and source != "sheet":
+		Analytics.event("bottleneck_fix_tap", {"fix": kind + (":" + role if role != "" else ""), "source": source})
+	var coach: String = ""
+	match kind:
+		"hire":
+			if role == "cashiers":
+				open_staff("cashiers", {"highlight": "hire"})
+				coach = "staff_hire_cashiers"
+			else:
+				_open_quick_waiters("fix", "quick_buy_button" if paid else "", "fix_hire_waiters")
+		"upgrade":
+			var tab: String = "cashiers" if role == "cashiers" else "waiters"
+			open_staff(tab)
+			if idx >= 0:
+				coach = "staff_upgrade_%s_%d" % [tab, idx]
+		"table":
+			if open_tables("fix") != "":
+				coach = "seating_add_button"
+		"cook", "speed", "level":
+			if sid == "" or not Game.is_built(sid):
+				return
+			if current_panel != "station:" + sid:
+				if current_panel != "" and not current_panel.begins_with("station:"):
+					_close_panel(true)
+				open_station(sid)
+			match kind:
+				"cook":
+					coach = "hire_button"
+				"speed":
+					coach = "processing_button"
+				_:
+					coach = "level_up_button"
+		"signboard":
+			open_daftar("build")
+			daftar.focus_row("signboard")
+			coach = "build_row_signboard"
+	if coach != "" and paid:
+		coach_hand(coach, {"kind": "fix_%s_%s" % [kind, role if role != "" else "x"]})
+
+
+## C2.6: a readout row tapped (BottleneckMeter.row_tapped, W2-HUD; connected
+## by name): that row's fix.
+func _on_meter_row(stage: String) -> void:
+	if not can_press("meter_row") or current_popup != "" or current_panel != "":
+		return
+	# W4-FIX (onboarding_1): during a tutorial lesson only the lesson's row
+	# acts (the waiter beat's SEATS row opened BUILD > TABLES before L16
+	# brings BUILD in; its COOKS row opened a counter sheet mid-lesson).
+	var lesson: String = BottleneckMeter._lesson_stage()
+	if lesson != "" and stage != lesson:
+		return
+	var fix: Dictionary = {}
+	for rv in Game.bottleneck_rows():
+		if rv is Dictionary and str((rv as Dictionary).get("stage", "")) == stage:
+			var fv: Variant = (rv as Dictionary).get("fix", {})
+			fix = fv if fv is Dictionary else {}
+			break
+	# (readout_tap {row} is sent by the meter itself.)
+	button_pressed.emit("meter_row")
+	do_fix(fix, "meter")
+
+
+## C2.7: the readout's road caption tapped (road_tapped): the state's fix
+## (SIGNBOARD or LEVEL UP while the road is the limit).
+func _on_meter_road() -> void:
+	if not can_press("meter_road") or current_popup != "" or current_panel != "":
+		return
+	var fv: Variant = Game.bottleneck_state().get("fix", {})
+	button_pressed.emit("meter_road")
+	do_fix(fv if fv is Dictionary else {}, "caption")
+
+
+## C6.4: the HUD's BARAAT button (EventButton.pressed_event).
+func _on_event_button() -> void:
+	if not can_press("event_button") or current_popup != "" or current_panel != "":
+		return
+	open_event()
+	button_pressed.emit("event_button")
+
+
+## The HUD widget `n` ("meter" | "event_button", W2-HUD's Hud methods,
+## called by name), or null.
+func _hud_widget(n: String) -> Object:
+	if hud == null or not hud.has_method(n):
+		return null
+	var v: Variant = hud.call(n)
+	if v is Object and is_instance_valid(v):
+		return v
+	return null
+
+
+## Connects the readout's and the event button's signals once they exist
+## (by name, plan rule 5).
+func _hook_hud_widgets() -> void:
+	var m: Object = _hud_widget("meter")
+	if m != null and m != _meter_hooked:
+		_meter_hooked = m
+		if m.has_signal("row_tapped") and not m.is_connected("row_tapped", _on_meter_row):
+			m.connect("row_tapped", _on_meter_row)
+		if m.has_signal("road_tapped") and not m.is_connected("road_tapped", _on_meter_road):
+			m.connect("road_tapped", _on_meter_road)
+	var e: Object = _hud_widget("event_button")
+	if e != null and e != _event_btn_hooked:
+		_event_btn_hooked = e
+		if e.has_signal("pressed_event") and not e.is_connected("pressed_event", _on_event_button):
+			e.connect("pressed_event", _on_event_button)
+
+
+# ================================================================ core and feel: staff / table show rule (C3.1)
+func _director_active() -> bool:
+	var d: Variant = Refs.director
+	return d != null and is_instance_valid(d) and (d as Object).has_method("is_active") \
+			and bool((d as Object).call("is_active"))
+
+
+## The readout's limit now ("road" while the road is the limit; cached by
+## the readout, so cheap).
+func _limit_now() -> String:
+	var st: Dictionary = Game.bottleneck_state()
+	if bool(st.get("road_capped", false)):
+		return "road"
+	return str(st.get("limit", ""))
+
+
+## Samples the readout's limit (free play: the C3.1 rule never applies while
+## the Director runs, and the tutorial's numbers stay untouched).
+func _sample_limit() -> void:
+	_limit_t = 0.0
+	if Game.is_tutorial_done() and not _director_active():
+		_limit_seen = _limit_now()
+
+
+## Game.cash_spent: a waiter hire or a table keeps the limit seen just before
+## it (C3.1's "the hire fixes the current limit").
+func _on_cash_spent(_amount: float, what: String) -> void:
+	if what == "waiter_hire" or what == "table":
+		_limit_at_spend[what] = _limit_seen
+
+
+## Why a purchase does NOT close its panel and show the new thing ("" = it
+## does): the Director runs, close is locked, used once this session, or the
+## limit just before was not `stage`.
+func _show_purchase_rule(what: String, stage: String) -> String:
+	var before: String = str(_limit_at_spend.get(what, ""))
+	_limit_at_spend.erase(what)
+	if _director_active():
+		return "director"
+	if lock_close:
+		return "lock"
+	if (_staff_close_used if what == "waiter_hire" else _table_close_used):
+		return "once a session"
+	if before != stage:
+		return "limit %s" % (before if before != "" else "none")
+	return ""
+
+
+## STAFF actions (relayed as button_pressed). C3.1: a STAFF › WAITERS hire
+## that fixes the limit closes STAFF 0.3 s later and shows the new waiter
+## (fly and return, 2.5 s); otherwise STAFF stays open.
+func _on_staff_action(id: String) -> void:
+	button_pressed.emit(id)
+	if id != "waiter_hire" or not current_panel.begins_with("staff:"):
+		return
+	var why: String = _show_purchase_rule("waiter_hire", "waiters")
+	if why != "":
+		print("[ui] staff hire: stayed (%s)" % why)
+		return
+	_staff_close_used = true
+	print("[ui] staff hire: closed and flew (limit waiters)")
+	get_tree().create_timer(STAFF_CLOSE_DELAY).timeout.connect(_close_staff_and_show.bind(Game.waiter_count() - 1))
+
+
+func _close_staff_and_show(i: int) -> void:
+	if not current_panel.begins_with("staff:") or lock_close or current_popup != "":
+		return
+	_close_panel(false)
+	if i >= 0:
+		var p: Vector3 = Layout3.waiter_home(i)
+		if not _cam_call("fly_to_and_return", [p, -1.0, SHOW_HOLD_S]):
+			_cam_call("fly_to", [p, -1.0])
+
+
+# ================================================================ core and feel: promotions (C5.2, C6.1, C6.3)
+## PromoPopup's primary button on a ready, affordable promotion: everything
+## closes, then Game.renovate() / Game.move_highway(id) (Game saves and the
+## scene reloads, main3's production hook).
+func _on_promo_action(id: String) -> void:
+	var tgt: String = promo_popup.target
+	button_pressed.emit(id)
+	close_all()
+	var ok: bool = false
+	if id == "promo_renovate":
+		ok = Game.renovate()
+	elif id == "promo_move":
+		ok = Game.move_highway(tgt)
+	print("[ui] promo %s -> %s" % [id, str(ok)])
+
+
+# ================================================================ core and feel: Aaj ka special (C6.2)
+## The special waits for its announcement: the first check after
+## SPECIAL_POLL_S, so a WELCOME BACK at launch (deferred) decides first.
+func _queue_special_check() -> void:
+	_special_wait = true
+	_special_poll_t = 0.0
+	_special_wait_t = 0.0
+
+
+func _on_special_changed(dish_id: String) -> void:
+	if dish_id != "":
+		_queue_special_check()
+
+
+## The active special's dish id when it still waits for its announcement,
+## else "".
+func _special_due() -> String:
+	var st: Dictionary = Game.special_state()
+	if st.is_empty() or not bool(st.get("active", false)) or bool(st.get("announced", false)):
+		return ""
+	return str(st.get("dish", ""))
+
+
+## The dish name as shown (title case; Hindi: the translated name).
+func _special_dish_text(dish_id: String) -> String:
+	return UiKit.dish_title(dish_id.get_slice(".", 0), dish_id)
+
+
+## Polled while a special waits: once WELCOME BACK has decided (it carries
+## the band when it opens) and nothing covers the screen, MenuPop's AAJ KA
+## SPECIAL card over the counter for 4 s. Not a launch pop-up (no budget).
+func _check_special() -> void:
+	var sp: String = _special_due()
+	if sp == "":
+		_special_wait = false
+		return
+	_special_wait_t += SPECIAL_POLL_S
+	if _tutorial_active() or current_popup == "offline":
+		return
+	if Game.pending_offline > 0.0 and (_offline_waiting or _special_wait_t < SPECIAL_OFFLINE_WAIT_S):
+		return
+	if _screen_busy() or menu_pop == null:
+		return
+	_special_wait = false
+	menu_pop.show_special(sp.get_slice(".", 0), sp)
+	_announce_special(sp, "card")
+
+
+## The announcement showed (band or card): Game marks it and starts the
+## counter's 8-ticket showcase; the counter's tag shows for the session.
+func _announce_special(dish_id: String, where: String) -> void:
+	Game.mark_special_announced()
+	_special_tag_dish = dish_id
+	_special_wait = false
+	print("[ui] special announced: %s (%s)" % [dish_id, where])
+	for nt in note_tags:
+		if is_instance_valid(nt):
+			(nt as WorldNoteTagScript).poll_now()
+
+
+# ================================================================ core and feel: world note tags
+## The note tags show in free play while nothing is open.
+func _note_tags_allowed() -> bool:
+	return Game.is_tutorial_done() and current_panel == "" and current_popup == ""
+
+
+## The special announced this session ("" = none).
+func _special_tag() -> String:
+	return _special_tag_dish
+
+
+## The counter under MenuPop's card on show ("" = none).
+func _menu_pop_station() -> String:
+	return menu_pop.showing_station() if menu_pop != null else ""
+
+
+# ================================================================ core and feel: last press (W2-FX)
+## The rect (canvas px) of the button under the last press; around the press
+## point when no button was under it; Rect2() before any press. W2-FX aims the
+## spend notes there while a panel covers the world.
+func last_press_rect() -> Rect2:
+	if not _press_seen:
+		return Rect2()
+	if _press_rect_id != _press_id:
+		_press_rect_id = _press_id
+		var b: Control = _button_at(_press_pos)
+		if b != null:
+			_press_rect = b.get_global_rect()
+		else:
+			_press_rect = Rect2(_press_pos - Vector2(PRESS_HALF, PRESS_HALF), Vector2(PRESS_HALF, PRESS_HALF) * 2.0)
+	return _press_rect
+
+
+## The topmost visible UiButton under `p` in the open popup, panel or card.
+func _button_at(p: Vector2) -> Control:
+	var roots: Array = []
+	if current_popup != "":
+		roots.append(_popup_root)
+	if current_panel.begins_with("quick:"):
+		roots.append(quick_buy)
+	elif current_panel != "":
+		roots.append(_panel_root)
+	roots.append(hud)
+	for r in roots:
+		var hit: Control = _find_button(r as Node, p)
+		if hit != null:
+			return hit
+	return null
+
+
+func _find_button(n: Node, p: Vector2) -> Control:
+	if n is CanvasItem and not (n as CanvasItem).visible:
+		return null
+	# Children drawn later sit on top: search them last-first.
+	for k in range(n.get_child_count() - 1, -1, -1):
+		var hit: Control = _find_button(n.get_child(k), p)
+		if hit != null:
+			return hit
+	if n is UiButton and (n as Control).get_global_rect().has_point(p):
+		return n as Control
+	return null
+
+
+func _input(event: InputEvent) -> void:
+	var down: bool = false
+	var pos: Vector2 = Vector2.ZERO
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		down = mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT
+		pos = mb.position
+	elif event is InputEventScreenTouch:
+		var st := event as InputEventScreenTouch
+		down = st.pressed
+		pos = st.position
+	if down:
+		_press_pos = pos
+		_press_seen = true
+		_press_id += 1
+
+
+func _notification(what: int) -> void:
+	# C6.2: a resume may pick a special (Game's module) or bring one that was
+	# never announced.
+	if what == NOTIFICATION_APPLICATION_RESUMED and is_node_ready():
+		_queue_special_check()
 
 
 # ================================================================ SDK messages / interstitials
@@ -1540,9 +2569,8 @@ func _on_closed_for_interstitial(pname: String) -> void:
 	var is_panel: bool = pname.begins_with("station:") or pname.begins_with("staff:") \
 			or pname.begins_with("quick:") or pname == "daftar"
 	var trigger: String = ""
-	if pname == "offline":
-		trigger = "welcome_back"
-	elif _bought_in_panel and (pname.begins_with("station:") or pname.begins_with("staff:")):
+	# C7.1: never on the return screen (WELCOME BACK is no call site).
+	if _bought_in_panel and (pname.begins_with("station:") or pname.begins_with("staff:")):
 		# Not the quick card: its hire ends on the "+1 WAITER" float.
 		trigger = "upgrade"
 	if is_panel:

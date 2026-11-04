@@ -113,7 +113,7 @@ Things to try in Dhaba Rush:
 - Build the lassi counter, then the kadai.
 - Hire waiters and cooks in STAFF.
 - Level up the chai counter to 25: a new dish joins the menu.
-- Tap the AD bubble for free cash (test ad).
+- Tap the AD bubble for a bonus (test ad).
 - Leave the game for 30 minutes, then come back.
 - Switch to Hindi in Settings.
 - Press back on your phone at different moments.

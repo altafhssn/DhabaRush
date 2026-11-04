@@ -5,31 +5,87 @@ extends RefCounted
 ## 108 bubble image, `dx` texels right of the one-item art's centre (x 48),
 ## item centred around (48, 46). The five original drawers (kulhad, roti,
 ## lassi glass, bhurji plate, dal katori) moved here from traveller.gd with
-## their pixels unchanged, so a one-item chai bubble is identical to before;
-## the eleven new dishes use the same filled-ellipse / span style.
+## their pixels unchanged; the eleven station-menu dishes use the same
+## filled-ellipse / span style.
 ## icon_texture() returns the icon alone on a transparent canvas (cached)
 ## for the NEW ON THE MENU pop, the station sheet's MENU chips, the product
 ## card and the Daftar.
+##
+## Core-and-feel (docs/core-and-feel/build-plan.md 4.2):
+##  - C8.1: NH 44's chai (`chai.chai`) is served in a ribbed cutting-chai
+##    glass on a steel saucer now (the `pass_plate` model), so its bubble is
+##    the glass; the kulhad drawer lives on for NH 48's `chai.masala_chai`.
+##  - C6.3: NH 48 (Rajasthan) dishes. New drawers: gur ki chai (the glass,
+##    darker, a jaggery lump), shikanji (tall glass), missi roti, tandoori
+##    roti with lahsun chutney (roti + red katori), baati, rabri, dal baati
+##    churma, gatte, ker sangri, laal maas. NH 48 dishes served in an NH 44
+##    item reuse its drawer: masala chai -> kulhad, kesariya thandai -> kesar
+##    doodh, laccha paratha -> keema paratha, makhaniya -> lassi, chaach ->
+##    chaas, kesar lassi -> mango lassi.
+##  - A bare station id resolves to the current location's dish 1, and
+##    icon_texture() caches by that resolved id (the cache is static and
+##    survives the scene reload of a highway move).
 
 const W := 96
 const H := 108
 const ROTI_SPOTS := [Vector2(38, 36), Vector2(57, 40), Vector2(44, 55), Vector2(60, 53), Vector2(35, 49), Vector2(51, 31)]
 const STEAM := Color(0.62, 0.62, 0.66)
+const STEEL := Color(0.74, 0.77, 0.8)
 
 static var _icon_tex: Dictionary = {}
 
 
-## Paints dish `dish_id` ("chai.coffee"; a bare station id or an unknown
-## dish draws that station's dish 1; anything else the dal katori).
-static func draw(img: Image, dish_id: String, dx: float) -> void:
+## The full dish id `dish_id` stands for: "chai.coffee" stays as it is; a bare
+## station id ("chai") becomes that station's dish 1 at the current location.
+static func resolve(dish_id: String) -> String:
 	var sid: String = dish_id.get_slice(".", 0)
 	var key: String = dish_id.substr(sid.length() + 1) if dish_id.find(".") >= 0 else ""
 	if key == "":
 		var first: String = Game.dish_at(sid, 0)
 		key = first.substr(sid.length() + 1) if first != "" else sid
-	match sid + "." + key:
+	return sid + "." + key
+
+
+## Paints dish `dish_id` ("chai.coffee"; a bare station id or an unknown
+## dish draws that station's dish 1; anything else the dal katori).
+static func draw(img: Image, dish_id: String, dx: float) -> void:
+	var rid: String = resolve(dish_id)
+	var sid: String = rid.get_slice(".", 0)
+	match rid:
 		"chai.chai":
+			_draw_chai_glass(img, dx, false)
+		"chai.masala_chai":
 			_draw_kulhad(img, dx)
+		"chai.gur_chai":
+			_draw_chai_glass(img, dx, true)
+		"chai.shikanji":
+			_draw_shikanji(img, dx)
+		"chai.thandai":
+			_draw_kesar_doodh(img, dx)
+		"tandoor.missi_roti":
+			_draw_missi_roti(img, dx)
+		"tandoor.tandoori_roti":
+			_draw_lahsun_roti(img, dx)
+		"tandoor.baati":
+			_draw_baati(img, dx)
+		"tandoor.laccha_paratha":
+			_draw_keema_paratha(img, dx)
+		"lassi.makhaniya":
+			_draw_lassi(img, dx)
+		"lassi.chaach":
+			_draw_chaas(img, dx)
+		"lassi.kesar_lassi":
+			_draw_mango_lassi(img, dx)
+		"lassi.rabri":
+			_draw_rabri(img, dx)
+		"kadai.dal_baati":
+			_draw_dal_baati(img, dx)
+		"kadai.gatte":
+			_draw_gatte(img, dx)
+		"kadai.ker_sangri":
+			_draw_ker_sangri(img, dx)
+		"kadai.laal_maas":
+			_draw_laal_maas(img, dx)
 		"chai.coffee":
 			_draw_coffee(img, dx)
 		"chai.green_tea":
@@ -63,7 +119,7 @@ static func draw(img: Image, dish_id: String, dx: float) -> void:
 		_:
 			match sid:
 				"chai":
-					_draw_kulhad(img, dx)
+					_draw_chai_glass(img, dx, false)
 				"tandoor":
 					_draw_roti(img, dx)
 				"lassi":
@@ -74,17 +130,19 @@ static func draw(img: Image, dish_id: String, dx: float) -> void:
 					_draw_dal(img, dx)
 
 
-## The icon alone (no bubble) on a transparent W x H image; cached per dish.
+## The icon alone (no bubble) on a transparent W x H image; cached per
+## resolved dish id (a bare station id follows the current location).
 static func icon_texture(dish_id: String) -> Texture2D:
-	if _icon_tex.has(dish_id):
-		var cached: Texture2D = _icon_tex[dish_id]
+	var rid: String = resolve(dish_id)
+	if _icon_tex.has(rid):
+		var cached: Texture2D = _icon_tex[rid]
 		return cached
 	var img := Image.create_empty(W, H, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0.0, 0.0, 0.0, 0.0))
-	draw(img, dish_id, 0.0)
+	draw(img, rid, 0.0)
 	img.generate_mipmaps()
 	var tex := ImageTexture.create_from_image(img)
-	_icon_tex[dish_id] = tex
+	_icon_tex[rid] = tex
 	return tex
 
 
@@ -491,3 +549,228 @@ static func _draw_chole(img: Image, dx: float) -> void:
 	_ellipse(img, cx + 4.0, 41.0, 3.4, 1.9, Color(0.5, 0.3, 0.15))
 	_ellipse(img, cx - 14.0, 38.0, 4.0, 2.4, Color(0.6, 0.8, 0.3))
 	_ellipse(img, cx - 14.0, 37.5, 2.4, 1.3, Color(0.85, 0.95, 0.6))
+
+
+# ================================================================ core-and-feel: shared bits
+## Round strokes from (x0, y0) to (x1, y1): beans, chillies, a bone.
+static func _stroke(img: Image, x0: float, y0: float, x1: float, y1: float, r: float, col: Color) -> void:
+	var n: int = maxi(2, int(Vector2(x1 - x0, y1 - y0).length() / maxf(0.8, r * 0.7)))
+	for i in n + 1:
+		var t: float = float(i) / float(n)
+		_ellipse(img, lerpf(x0, x1, t), lerpf(y0, y1, t), r, r, col)
+
+
+## The steel katori of the kadai dishes (same shape as dal / chole): the
+## bowl, its rim, and the food surface in `edge` / `food`.
+static func _katori_with(img: Image, cx: float, edge: Color, food: Color) -> void:
+	_ellipse(img, cx, 50.0, 24.0, 15.0, Color(0.55, 0.57, 0.6))
+	_ellipse(img, cx, 42.0, 24.0, 8.0, Color(0.75, 0.77, 0.8))
+	_ellipse(img, cx, 42.0, 20.0, 6.0, edge)
+	_ellipse(img, cx - 1.0, 41.5, 17.0, 4.6, food)
+
+
+## A baked baati (a round wheat ball) at (x, y), radius r, cracked open in a
+## cross with ghee in the crack.
+static func _baati_ball(img: Image, x: float, y: float, r: float) -> void:
+	_ellipse(img, x, y, r, r * 0.88, Color(0.5, 0.29, 0.12))
+	_ellipse(img, x - 0.6, y - 0.8, r - 1.3, r * 0.88 - 1.5, Color(0.8, 0.53, 0.26))
+	_ellipse(img, x - r * 0.35, y - r * 0.42, r * 0.32, r * 0.2, Color(0.93, 0.72, 0.44))
+	var ghee := Color(1.0, 0.86, 0.38)
+	img.fill_rect(Rect2i(int(x - r * 0.55), int(y - r * 0.3), int(r * 1.1), 2), ghee)
+	img.fill_rect(Rect2i(int(x) - 1, int(y - r * 0.78), 2, int(r * 0.95)), ghee)
+
+
+# ================================================================ chai: glass, gur chai, shikanji
+## Cutting chai (NH 44's chai, C8.1): a small ribbed glass, wider at the
+## top, milky brown chai to just under the clear rim, a foam ring, a thick
+## glass foot, on a steel saucer, two steam wisps. `gur` (NH 48 gur ki chai):
+## darker chai and a jaggery lump on the saucer.
+static func _draw_chai_glass(img: Image, dx: float, gur: bool) -> void:
+	var cx: float = 48.0 + dx
+	var chai: Color = Color(0.46, 0.25, 0.11) if gur else Color(0.68, 0.42, 0.21)
+	var glass := Color(0.86, 0.93, 0.97)
+	var top_y: float = 31.0
+	var bot_y: float = 63.0
+	# saucer
+	_ellipse(img, cx, 66.0, 21.5, 6.2, STEEL.darkened(0.35))
+	_ellipse(img, cx, 64.8, 20.0, 5.0, STEEL)
+	_ellipse(img, cx, 64.6, 12.5, 2.8, STEEL.darkened(0.12))
+	# the chai seen through the glass, ribbed
+	_tumbler(img, cx, top_y + 4.0, bot_y - 3.0, 16.0, 11.5, chai, chai.darkened(0.18), 0.4, false)
+	for k in 5:
+		var f: float = -0.72 + 0.36 * float(k)
+		for y in range(int(top_y) + 5, int(bot_y) - 3):
+			var u: float = (float(y) - top_y - 4.0) / (bot_y - top_y - 7.0)
+			var hw: float = lerpf(16.0, 11.5, u)
+			img.fill_rect(Rect2i(int(cx + hw * f), y, 1, 1), chai.darkened(0.32))
+	# thick glass foot
+	_tumbler(img, cx, bot_y - 3.0, bot_y, 11.5, 11.0, glass, glass.darkened(0.15), 0.4, false)
+	_ellipse(img, cx, bot_y, 11.0, 2.8, glass.darkened(0.3))
+	# clear band above the chai, the rim, the chai top with a foam ring
+	_tumbler(img, cx, top_y, top_y + 4.0, 16.8, 16.0, glass, glass.darkened(0.12), 0.45, false)
+	_ellipse(img, cx, top_y, 17.2, 4.6, glass.darkened(0.3))
+	_ellipse(img, cx, top_y + 1.2, 15.0, 3.4, chai.lightened(0.18))
+	_ellipse(img, cx - 2.0, top_y + 0.8, 8.0, 1.6, Color(0.95, 0.86, 0.72))
+	# highlight down the left of the glass
+	for y in range(int(top_y) + 2, int(bot_y) - 1):
+		var u: float = (float(y) - top_y) / (bot_y - top_y)
+		var hw: float = lerpf(16.6, 11.2, u)
+		img.fill_rect(Rect2i(int(cx - hw * 0.62), y, 2, 1), Color(0.97, 0.98, 1.0))
+	if gur:
+		_ellipse(img, cx + 16.0, 63.0, 5.0, 3.4, Color(0.42, 0.24, 0.08))
+		_ellipse(img, cx + 15.5, 62.0, 4.2, 2.6, Color(0.7, 0.44, 0.14))
+		_ellipse(img, cx + 14.5, 61.2, 1.8, 1.0, Color(0.9, 0.66, 0.3))
+	_steam_wisps(img, cx, 23.0, 2, 10, -5.0, 10.0, 1.3)
+
+
+## Shikanji: a tall clear glass of pale yellow-green lemon drink with ice,
+## a lemon slice on the rim and mint leaves, on a steel coaster.
+static func _draw_shikanji(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	var glass := Color(0.86, 0.93, 0.97)
+	var drink := Color(0.84, 0.92, 0.48)
+	var top_y: float = 24.0
+	var bot_y: float = 69.0
+	_ellipse(img, cx, 71.5, 19.0, 5.0, STEEL.darkened(0.35))
+	_ellipse(img, cx, 70.5, 17.5, 4.0, STEEL)
+	_tumbler(img, cx, top_y + 1.0, bot_y - 5.0, 14.0, 11.5, drink, drink.darkened(0.16), 0.4, true, Color(1.0, 1.0, 0.88))
+	_tumbler(img, cx, bot_y - 5.0, bot_y, 11.5, 11.0, glass, glass.darkened(0.15), 0.4, false)
+	_ellipse(img, cx, bot_y, 11.0, 2.8, glass.darkened(0.3))
+	_ellipse(img, cx, top_y, 14.6, 4.2, glass.darkened(0.3))
+	_ellipse(img, cx, top_y + 0.6, 12.8, 3.2, Color(0.97, 0.97, 0.7))
+	img.fill_rect(Rect2i(int(cx - 9.0), int(top_y) - 2, 5, 4), Color(0.97, 0.99, 1.0))
+	img.fill_rect(Rect2i(int(cx - 1.0), int(top_y) - 1, 5, 3), Color(0.9, 0.96, 1.0))
+	_ellipse(img, cx + 12.0, top_y - 2.5, 6.6, 6.6, Color(0.93, 0.76, 0.12))
+	_ellipse(img, cx + 12.0, top_y - 2.5, 4.8, 4.8, Color(1.0, 0.95, 0.58))
+	_ellipse(img, cx + 12.0, top_y - 2.5, 1.2, 1.2, Color(0.95, 0.85, 0.4))
+	_ellipse(img, cx - 6.0, top_y - 5.0, 4.6, 2.0, Color(0.24, 0.58, 0.2))
+	_ellipse(img, cx - 1.5, top_y - 6.5, 3.6, 1.8, Color(0.33, 0.7, 0.28))
+
+
+# ================================================================ tandoor: missi roti, tandoori roti, baati
+## Missi roti: a yellow-orange besan roti with spice spots and green methi
+## flecks, a lump of white butter.
+static func _draw_missi_roti(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_ellipse(img, cx, 46.0, 25.0, 23.0, Color(0.64, 0.38, 0.1))
+	_ellipse(img, cx, 45.0, 23.0, 21.0, Color(0.97, 0.7, 0.26))
+	for sp: Vector2 in ROTI_SPOTS:
+		_ellipse(img, sp.x + dx, sp.y, 2.6, 2.1, Color(0.62, 0.32, 0.1))
+	for g: Vector2 in [Vector2(-12.0, 42.0), Vector2(4.0, 36.0), Vector2(13.0, 47.0), Vector2(-5.0, 56.0),
+			Vector2(8.0, 58.0), Vector2(-15.0, 52.0)]:
+		_ellipse(img, cx + g.x, g.y, 1.8, 1.2, Color(0.28, 0.56, 0.18))
+	_ellipse(img, cx + 1.0, 45.5, 7.5, 5.8, Color(0.8, 0.8, 0.78))
+	_ellipse(img, cx + 0.5, 44.5, 6.6, 4.8, Color(0.99, 0.99, 0.97))
+	_ellipse(img, cx - 1.5, 43.0, 2.6, 1.4, Color(1.0, 1.0, 1.0))
+
+
+## Tandoori roti with lahsun chutney: a charred roti (dark blisters, a
+## scorched edge) and a small katori of red garlic chutney (the red dot).
+static func _draw_lahsun_roti(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_ellipse(img, cx - 3.0, 44.0, 24.0, 22.0, Color(0.42, 0.24, 0.1))
+	_ellipse(img, cx - 3.0, 43.0, 22.0, 20.0, Color(0.9, 0.7, 0.4))
+	for sp: Vector2 in [Vector2(-14.0, 36.0), Vector2(6.0, 33.0), Vector2(-4.0, 44.0), Vector2(9.0, 46.0),
+			Vector2(-16.0, 50.0), Vector2(-6.0, 56.0), Vector2(12.0, 37.0), Vector2(-10.0, 28.0)]:
+		_ellipse(img, cx + sp.x, sp.y, 2.8, 2.2, Color(0.36, 0.2, 0.08))
+	_ellipse(img, cx + 15.0, 61.0, 11.0, 7.0, Color(0.55, 0.57, 0.6))
+	_ellipse(img, cx + 15.0, 58.5, 10.5, 4.6, Color(0.75, 0.77, 0.8))
+	_ellipse(img, cx + 15.0, 58.5, 8.5, 3.4, Color(0.82, 0.14, 0.08))
+	_ellipse(img, cx + 12.5, 57.8, 2.6, 1.0, Color(1.0, 0.48, 0.32))
+	_ellipse(img, cx + 18.0, 58.8, 1.4, 1.0, Color(0.98, 0.95, 0.88))
+	_ellipse(img, cx + 15.0, 59.6, 1.2, 0.9, Color(0.98, 0.95, 0.88))
+
+
+## Baati: three cracked baatis with ghee on a steel plate.
+static func _draw_baati(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_ellipse(img, cx, 55.0, 28.0, 13.0, Color(0.55, 0.57, 0.6))
+	_ellipse(img, cx, 53.5, 26.0, 11.0, Color(0.8, 0.82, 0.85))
+	_baati_ball(img, cx - 11.0, 44.0, 11.0)
+	_baati_ball(img, cx + 11.0, 44.0, 11.0)
+	_baati_ball(img, cx, 54.0, 11.5)
+
+
+# ================================================================ lassi: rabri
+## Rabri: a clay bowl of thick cream rabri in folds, pista and saffron.
+static func _draw_rabri(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	var clay := Color(0.74, 0.38, 0.2)
+	_ellipse(img, cx, 51.0, 23.0, 15.0, clay.darkened(0.15))
+	_ellipse(img, cx - 7.0, 54.0, 5.0, 8.0, clay.lightened(0.12))
+	_ellipse(img, cx, 42.0, 24.0, 8.5, clay.darkened(0.35))
+	_ellipse(img, cx, 42.0, 21.5, 6.6, Color(0.97, 0.9, 0.74))
+	_ellipse(img, cx, 40.5, 16.0, 5.0, Color(1.0, 0.96, 0.86))
+	for f: Vector3 in [Vector3(-9.0, 41.0, 5.0), Vector3(5.0, 43.0, 6.0), Vector3(-2.0, 38.5, 4.0), Vector3(10.0, 39.5, 4.0)]:
+		_ellipse(img, cx + f.x, f.y, f.z, 1.1, Color(0.9, 0.78, 0.56))
+	for p: Vector2 in [Vector2(-4.0, 40.0), Vector2(7.0, 41.0), Vector2(-11.0, 43.0)]:
+		_ellipse(img, cx + p.x, p.y, 1.7, 1.1, Color(0.35, 0.62, 0.22))
+	for t: Vector2 in [Vector2(-1.0, 42.0), Vector2(3.0, 38.0)]:
+		img.fill_rect(Rect2i(int(cx + t.x), int(t.y), 4, 1), Color(0.95, 0.45, 0.1))
+
+
+# ================================================================ kadai: dal baati, gatte, ker sangri, laal maas
+## Dal baati churma: a steel thali with a katori of yellow dal (red tadka,
+## coriander), two cracked baatis and a heap of golden churma.
+static func _draw_dal_baati(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_ellipse(img, cx, 53.0, 30.0, 16.0, Color(0.55, 0.57, 0.6))
+	_ellipse(img, cx, 51.5, 28.0, 14.0, Color(0.8, 0.82, 0.85))
+	_ellipse(img, cx - 10.0, 44.0, 12.5, 7.5, Color(0.55, 0.57, 0.6))
+	_ellipse(img, cx - 10.0, 41.5, 12.0, 5.5, Color(0.75, 0.77, 0.8))
+	_ellipse(img, cx - 10.0, 41.5, 10.0, 4.2, Color(0.96, 0.74, 0.2))
+	for t: Vector3 in [Vector3(-14.0, 41.0, 0.0), Vector3(-8.0, 42.5, 0.0), Vector3(-6.0, 40.0, 1.0), Vector3(-12.0, 43.0, 1.0)]:
+		_ellipse(img, cx + t.x, t.y, 1.5, 1.1, Color(0.85, 0.2, 0.1) if t.z < 0.5 else Color(0.3, 0.6, 0.2))
+	_ellipse(img, cx - 6.0, 58.0, 11.0, 6.0, Color(0.72, 0.48, 0.12))
+	_ellipse(img, cx - 6.5, 57.0, 9.5, 4.8, Color(0.9, 0.66, 0.2))
+	for g: Vector2 in [Vector2(-10.0, 56.0), Vector2(-4.0, 55.0), Vector2(-7.0, 58.5), Vector2(-1.0, 57.5)]:
+		_ellipse(img, cx + g.x, g.y, 1.2, 1.0, Color(1.0, 0.84, 0.42))
+	_baati_ball(img, cx + 12.0, 43.0, 8.5)
+	_baati_ball(img, cx + 13.0, 55.0, 9.0)
+
+
+## Gatte ki sabzi: the katori of orange curd gravy with yellow gram-flour
+## gatte rounds and coriander, one steam wisp.
+static func _draw_gatte(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_katori_with(img, cx, Color(0.82, 0.38, 0.08), Color(0.98, 0.56, 0.16))
+	for p: Vector2 in [Vector2(-11.0, 41.5), Vector2(-3.0, 43.5), Vector2(6.0, 40.5), Vector2(12.0, 42.5), Vector2(-6.0, 39.0)]:
+		_ellipse(img, cx + p.x, p.y, 3.8, 2.7, Color(0.8, 0.56, 0.12))
+		_ellipse(img, cx + p.x - 0.3, p.y - 0.4, 2.7, 1.8, Color(1.0, 0.86, 0.36))
+	for g: Vector2 in [Vector2(1.0, 41.0), Vector2(9.0, 44.0), Vector2(-14.0, 43.5)]:
+		_ellipse(img, cx + g.x, g.y, 2.2, 1.3, Color(0.3, 0.6, 0.2))
+	_steam_wisps(img, cx, 33.0, 1, 9, -4.0, 0.0, 1.3)
+
+
+## Ker sangri: the katori heaped with the dry sabzi: brown-green sangri
+## beans, dark round ker berries and a dry red chilli.
+static func _draw_ker_sangri(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_katori_with(img, cx, Color(0.4, 0.26, 0.1), Color(0.55, 0.38, 0.16))
+	_ellipse(img, cx, 39.5, 15.0, 5.5, Color(0.5, 0.35, 0.14))
+	var olive := Color(0.45, 0.5, 0.18)
+	var brown := Color(0.36, 0.26, 0.1)
+	_stroke(img, cx - 14.0, 42.0, cx - 2.0, 37.0, 1.1, olive)
+	_stroke(img, cx - 6.0, 44.0, cx + 9.0, 39.0, 1.1, brown)
+	_stroke(img, cx + 2.0, 36.5, cx + 14.0, 41.5, 1.1, olive)
+	_stroke(img, cx - 11.0, 38.0, cx + 1.0, 43.5, 1.1, brown)
+	_stroke(img, cx + 6.0, 44.0, cx + 15.0, 43.0, 1.1, olive)
+	for k: Vector2 in [Vector2(-8.0, 40.0), Vector2(4.0, 41.5), Vector2(10.0, 38.5), Vector2(-2.0, 39.0), Vector2(-13.0, 44.0)]:
+		_ellipse(img, cx + k.x, k.y, 1.9, 1.7, Color(0.26, 0.16, 0.07))
+	_stroke(img, cx - 3.0, 35.5, cx + 6.0, 34.0, 1.4, Color(0.8, 0.12, 0.08))
+
+
+## Laal maas: the katori of deep red mutton curry, brown meat pieces, a bone
+## end, a red oil sheen, coriander and a steam wisp.
+static func _draw_laal_maas(img: Image, dx: float) -> void:
+	var cx: float = 48.0 + dx
+	_katori_with(img, cx, Color(0.45, 0.05, 0.04), Color(0.76, 0.1, 0.07))
+	_ellipse(img, cx - 7.0, 40.0, 6.0, 1.3, Color(0.95, 0.36, 0.16))
+	for m: Vector2 in [Vector2(-10.0, 42.0), Vector2(-1.0, 43.5), Vector2(8.0, 41.0), Vector2(-4.0, 39.0)]:
+		_ellipse(img, cx + m.x, m.y, 3.8, 2.6, Color(0.4, 0.2, 0.09))
+		_ellipse(img, cx + m.x - 0.6, m.y - 0.6, 2.4, 1.5, Color(0.58, 0.3, 0.14))
+	_stroke(img, cx + 9.0, 40.5, cx + 15.0, 37.5, 1.2, Color(0.95, 0.92, 0.84))
+	_ellipse(img, cx + 15.5, 37.2, 2.2, 1.8, Color(0.98, 0.96, 0.9))
+	_ellipse(img, cx + 3.0, 40.5, 2.2, 1.3, Color(0.3, 0.6, 0.2))
+	_ellipse(img, cx - 13.0, 43.5, 2.0, 1.2, Color(0.3, 0.6, 0.2))
+	_steam_wisps(img, cx, 33.0, 1, 9, 3.0, 0.0, 1.3)

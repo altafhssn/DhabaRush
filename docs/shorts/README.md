@@ -5,6 +5,7 @@ Six faceless Shorts for the first two weeks of the plan in [../launch/soft-launc
 - Nothing was uploaded. You upload (about 10 minutes each) and answer comments.
 - Every clip was recorded in a scratch copy of the project with its own HOME. Your save and the project were not touched. Nothing was exported or installed.
 - The game version in the clips is 0.3.7 on the desktop build, graphics HIGH. Gameplay numbers are the real ones.
+- **Stale after the core-and-feel build (2 Nov 2026).** The six clips show the 0.3.7 HUD (no seats board at the gate, no four-line meter), and a busy frame can show the red LOST count or a "No seat!" walk-out, which this build removes. `w1_fri_chai_pour` and the chai close-up of `w1_mon_highway_dhaba` show the old kulhad: NH 44's chai is a cutting-chai glass now (C8.1). `w2_fri_waiter_pov` must not go up with its burned-in "POV: आप हाईवे ढाबे के वेटर हैं" (POV: you're the waiter): the player runs the dhaba and the staff serve ([../store/README.md §6.1](../store/README.md#61-the-rules) rule 4). Its text in `clips.json` is now "हर ऑर्डर एक ही बार में" (Every order in one trip), which needs the native review and a re-record. Before posting, compare each clip with the build testers can install and re-record any clip that shows something that build no longer has. Re-recording opens Godot windows, so it waits for your approval ([../store/README.md §6.3](../store/README.md#63-what-is-stale-after-the-core-and-feel-build), [../core-and-feel/owner-tasks.md](../core-and-feel/owner-tasks.md)).
 
 ## 1. The six clips
 
@@ -14,18 +15,20 @@ Each folder in `export/shorts/` holds the video (`<id>.mp4`, 1080 × 1920, 30 fp
 |---|---|---|---|---|---|
 | W1 Mon 9 Nov | `w1_mon_highway_dhaba` | "I built a highway dhaba": a 7-beat cut (chai close-up pulling back, a lorry backing in, a waiter's whole-order trip, a dish unlock, BUILD the kadai, dusk to night, the busy dhaba at night) | English | 23.6 s | I built a **highway dhaba** |
 | W1 Wed 11 Nov | `w1_wed_day_night` | Day vs night: one framing, the light sweeps from afternoon to night, fairy lights and headlights come on | Hindi | 15.0 s | एक ढाबा, **दिन और रात** |
-| W1 Fri 13 Nov | `w1_fri_chai_pour` | Chai pour close-up: Pinky at the kettle, the timer filling, kulhads landing on the pass, waiters picking up | English | 13.0 s | Chai for every **truck driver** |
+| W1 Fri 13 Nov | `w1_fri_chai_pour` | Chai pour close-up: Pinky at the kettle, the timer filling, chai glasses landing on the pass, waiters picking up | English | 13.0 s | Chai for every **truck driver** |
 | W2 Mon 16 Nov | `w2_mon_level_up` | LEVEL UP spam: four taps, then a held LEVEL UP with the rising pitch, through the coffee (L25) and green tea (L50) unlocks | Hindi | 12.5 s | बस एक और **लेवल अप**... |
 | W2 Wed 18 Nov | `w2_wed_every_dish` | Every dish on the menu: all four counters, a LEVEL UP at each L25 / L50 / L100, a "DISHES n / 16" counter | English | 23.0 s | Every dish in my **highway dhaba** |
-| W2 Fri 20 Nov | `w2_fri_waiter_pov` | POV: you're the waiter. The camera follows Raju on his trips (one waiter for two busy counters, so he never stops) | Hindi | 15.0 s | POV: आप हाईवे ढाबे के **वेटर** हैं |
+| W2 Fri 20 Nov | `w2_fri_waiter_pov` | Every order in one trip. The camera follows Raju on his trips (one waiter for two busy counters, so he never stops) | Hindi | 15.0 s | हर ऑर्डर **एक ही बार में** |
 
 The checklist asked for 15–30 s and this round for 10–25 s; the six are 12.5–23.6 s (the LEVEL UP clip is the short one: it loops well). Every clip ends on a short "Dhaba Rush · Join the free test" line (Hindi: "ढाबा रश · फ़्री टेस्ट में खेलें"), except the dish clip, which ends on 16 / 16.
 
 ### The rules they follow (checklist E2)
 
+The full rule block for every store image, video and ad is [../store/README.md §6](../store/README.md#6-store-media-rules-c93): every frame from the current build, re-record when a build changes what a frame shows, no real brands, logos, teams or channels, no earnings wording, no prices that differ from the game, no feature the build lacks, the owner posts. For these clips that means:
+
 - Gameplay in the first second, no logo first.
 - The game's own sound: its music, ambience and effects at the in-game mix. No voice, no film music, nothing from YouTube's library.
-- Only what the game has. No tractors, no sikke, no shop, no events. Prices, levels and dish unlocks are the game's own.
+- Only what the game has. No tractors, no sikke, no shop. The weekend baraat, the Family Dhaba and NH 48 only as they really play. Prices, levels and dish unlocks are the game's own.
 - **No ads on screen.** The AD bubble (the wall-ad offer) is held back for the whole recording, and the desktop build never shows an ad. No debug text, no cursor: the white ring is a drawn finger tap, as in phone screen recordings.
 - **No debug values.** The cash on screen is what a player has at that stage (about ₹98,000 to ₹1 lakh late game; it goes down when something is bought).
 - Captions alternate English and Hindi, and the Hindi clips show the Hindi game (`--lang=hi`).
@@ -104,7 +107,7 @@ From checklist E2. Week 3 can be made with the same recorder; weeks 4–6 need o
 
 | Week | Shorts | How |
 |---|---|---|
-| W3 · 23–29 Nov | ₹0 to ₹1 lakh time-lapse · Munshi-ji rates your dhaba · A lorry backs into the parking | A new `timelapse` clip (the `--auto` bot at `--speed`, frames saved every Nth); Munshi-ji's notes with `--notes-after-prep`; `lorry` with a longer `--span` |
+| W3 · 23–29 Nov | From one chai counter to a full dhaba (time-lapse; no rupee amounts in the title) · Munshi-ji rates your dhaba · A lorry backs into the parking | A new `timelapse` clip (the `--auto` bot at `--speed`, frames saved every Nth); Munshi-ji's notes with `--notes-after-prep`; `lorry` with a longer `--span` |
 | W4 · 30 Nov–6 Dec | Low-poly tandoor, Blender to game · The dhaba's music · English or Hindi? | Blender turntable of the tandoor model, then the `chai`-style clip on the tandoor; the music over a slow `busy` pan; a split screen of two `--lang` runs |
 | W5 · 7–13 Dec | "On Google Play 15 Dec" countdown · two re-cuts of the best format | Re-cuts from `clips.json`, new text |
 | W6 · 14–20 Dec | Launch day · Day 1 vs day 100 · Answer a comment | `zoomout` from a fresh dhaba and from LATE; the comment's text as the hook |

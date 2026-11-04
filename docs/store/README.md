@@ -2,6 +2,8 @@
 
 Dhaba Rush 0.3.7 · store page track · 2026-10-26, updated 2026-10-27. Nothing was uploaded, published, exported or committed. Every Godot run used a scratch copy with its own HOME; the real save is unchanged (md5 `0df78beb11133c66873437f0b54b2108`).
 
+**Updated 2 Nov 2026 for the core-and-feel build** ([../core-and-feel/change-list.md](../core-and-feel/change-list.md), C9.1 to C9.3): the listing text was rewritten for the build as it is now; section 6 holds the rules every store image, video and ad follows; the screenshots, the feature graphic and the six Shorts are **stale** until they are recaptured from this build, which needs windowed runs and the owner's approval (section 6.3, and [../core-and-feel/owner-tasks.md](../core-and-feel/owner-tasks.md)).
+
 | File | What |
 |---|---|
 | `docs/store/play-listing.md` | The listing to paste into Play Console: English and Hindi name, short and full descriptions with character counts, category and tags, keyword notes, the screenshot order and captions, and the promises the copy makes, each checked against the code |
@@ -20,7 +22,7 @@ Dhaba Rush 0.3.7 · store page track · 2026-10-26, updated 2026-10-27. Nothing 
 
 Eight moments per language, captured from the running game at 1440 × 2160 with the HUD laid out as on a phone, then given a 400 px caption band (total 1440 × 2560, 9:16):
 
-1. A busy day (late game), 2. a dish unlock, 3. dusk turning to night, 4. STAFF hire, 5. a counter's menu, 6. BUILD, 7. Munshi-ji, 8. WELCOME BACK (away earnings).
+1. A busy day (late game), 2. a dish unlock, 3. dusk turning to night, 4. STAFF hire, 5. a counter's menu, 6. BUILD, 7. Munshi-ji, 8. WELCOME BACK (away pay).
 
 The Hindi set is captured with the Hindi UI (`--lang=hi`), not just Hindi captions. The feature graphic is the real dhaba at dusk with the HUD hidden, Munshi-ji's game model (namaste) and the "Dhaba Rush / Highway Idle Tycoon" lockup.
 
@@ -59,13 +61,16 @@ docs/store/pipeline/make_store.sh --compose    # new captions only (edit CAP_EN 
 
 ## 4. What the owner needs to do
 
-1. **Play Console → Main store listing:** paste the English text from `play-listing.md` §1a, add the Hindi (India) translation from §1b, and upload the icon, feature graphic and 8 screenshots per language from `export/store/play/`, in the numbered order.
-2. **Check "Play offline" on a phone** (airplane mode, cold start, 5 minutes) before publishing. If anything blocks, delete that bullet in both languages (`play-listing.md` §5).
-3. **Native Hindi read** of the Hindi listing and the 8 Hindi captions.
+The full list for the core-and-feel build, with why and how for each item, is [../core-and-feel/owner-tasks.md](../core-and-feel/owner-tasks.md). The store items:
+
+1. **Play Console → Main store listing:** paste the English text from `play-listing.md` §1a, add the Hindi (India) translation from §1b, and upload the icon, feature graphic and 8 screenshots per language from `export/store/play/`, in the numbered order. Upload the screenshots and the feature graphic only after they are recaptured from this build (section 6.3); the text can go up before.
+2. **Check "Works without internet" on a phone** (airplane mode, cold start, 5 minutes; phone test J) before publishing. If anything blocks, delete the offline lines in both languages (`play-listing.md` §5, last row).
+3. **Native Hindi read** of the Hindi listing and the 8 Hindi captions, on the review sheet that the Hindi pass regenerates once the English is final (`docs/hindi-review/`; the sheet there now, from 27 Oct, is out of date: see [owner-tasks §3](../core-and-feel/owner-tasks.md#3-native-hindi-review-and-the-music-on-a-phone-c85)).
 4. **Privacy policy URL**: host `docs/legal/privacy-policy.html` and put the URL in the listing.
 5. **Promo video:** record from the internal-test build on a phone and cut it to `promo-video.md`; upload it to YouTube as unlisted with ads off.
 6. **Artist:** send `artist-brief.md` to 2–3 illustrators for quotes. The lean package is ₹20,000–45,000.
 7. **Store listing experiment** once the listing gets steady traffic: icon A against icon B (later, against the commissioned icon), and short description A against B.
+8. **Approve the recapture** of the 8 screenshots per language, the feature graphic and the six Shorts (section 6.3). Claude runs it in a scratch copy once you say yes; you upload and post.
 
 ## 5. Hooks for other tracks
 
@@ -77,3 +82,33 @@ docs/store/pipeline/make_store.sh --compose    # new captions only (edit CAP_EN 
 | MONETIZATION / RELEASE | **Decided 27 Oct 2026: don't create it** (checklist decision 12). `sikke_small` ("Pouch of Sikke", ₹89) is configured, but the sikke pill and shop are off in v0.3 and nothing spends sikke (`Game.spend_sikke` has no callers). Don't create that product in Play Console until sikke are visible and spendable; Play can treat a paid currency with no use as misleading |
 | SOUND | The promo video should be recorded after the new music and sound effects land |
 | ASO (`docs/aso.md`, not this track's file) | §5 (Play listing) and §6 (creative) describe the v0.3 listing from 2026-10-20. Mark them as superseded by `docs/store/play-listing.md`. `export/store/NOTES.md` and `export/store/appstore/` are also from that set |
+
+## 6. Store media rules (C9.3)
+
+One rule block for every picture, video and ad made from the game: the Play screenshots and feature graphic, the promo video ([promo-video.md](promo-video.md)), the YouTube Shorts ([../shorts/README.md](../shorts/README.md)), the Google Ads assets (checklist E1), the artist's work ([artist-brief.md](artist-brief.md)) and anything posted later. Play and YouTube demote or reject media that shows what a game does not have, and "the ad looked different from the game" is one of the genre's most common review complaints.
+
+### 6.1 The rules
+
+1. **Every frame comes from the current build.** Real gameplay, recorded from the build that testers and players can install. No mock-ups, no relit or repainted frames, no debug overlays, no debug cash (the cash shown is what a player has at that stage).
+2. **Re-record when a build changes what a frame shows.** A new HUD, a renamed button, a new caption or a removed feature makes the frames that show it stale. Recapture them before they go up again, in every language.
+3. **No real brands, logos, people, teams or channels.** No vehicle makers, fuel companies, food or drink brands, telecom companies, cricket teams, leagues or broadcasters, and no real people. The game invents its own: the wall ads (PAKKA CEMENT, SADAK TYRES, KHET PUMP SETS), the TV's plain score strip.
+4. **No earnings wording.** Never "earn", "money", "kamaai", "payout", "win cash" or a rupee amount framed as something the player gets. In-game amounts are "dhaba cash". The player runs the dhaba; the staff do the serving.
+5. **No prices that differ from the game.** A price or level on screen is the game's own. Real-money prices appear only as Play shows them (Starter Pack, Remove Ads, VIP), never next to an in-game amount without "dhaba cash".
+6. **No feature that is not in the build.** No sikke, no shop, no gems, no tractors, no characters or events the build lacks. The Family Dhaba, NH 48, the weekend baraat, Aaj ka special and the highway signboard may be shown only as they really play.
+7. **No ads on screen.** Hold the AD bubble back while recording; never show a test ad.
+8. **The owner uploads and posts.** Claude prepares files, captions and texts and never uploads, posts or publishes. New Hindi texts go through the native review (C8.5) before they are posted.
+
+### 6.2 Where the rules are linked
+
+`play-listing.md` (§4 graphics), [promo-video.md](promo-video.md) §1, [../shorts/README.md](../shorts/README.md) §1, [artist-brief.md](artist-brief.md) §7, [../aso.md](../aso.md) §6, and [../launch/soft-launch-checklist.md](../launch/soft-launch-checklist.md) E1 and E2.
+
+### 6.3 What is stale after the core-and-feel build
+
+| Media | Made from | Why it is stale | To refresh |
+|---|---|---|---|
+| 8 screenshots per language (`export/store/play/shot*`) | 0.3.6, 26 Oct | The old HUD: no seats board at the gate, no four-line meter; a busy frame can show a "No seat!" walk-out, which this build removes. Captions 3 and 8 changed on 2 Nov | `docs/store/pipeline/make_store.sh` (windowed, about 15 min, scratch copy), then check the contact sheets against 6.1 |
+| Feature graphic | 0.3.6 street | The street and the dhaba changed (puncture shop, nimbu-mirchi, TV, seats board, hoarding) | the same run |
+| Six Shorts (`export/shorts/`, posting from Mon 9 Nov) | 0.3.7, 27 Oct | The old HUD; any frame with the red LOST count or "No seat!"; the chai close-ups show the old kulhad (NH 44 chai is a glass now, C8.1); `w2_fri_waiter_pov`'s burned-in "POV: you're the waiter" breaks rule 4 (retitled "Every order in one trip" in `clips.json`) | `docs/shorts/make_shorts.py` (windowed, about 20 min, scratch copy) |
+| Promo video | not recorded yet | | record from the phone build ([promo-video.md](promo-video.md) §3) |
+
+Both recorders open Godot windows, so they run only with the owner's approval, in a scratch copy with its own HOME (the real project and save are never touched). Their purchase lists (`make_store.sh` MID / PRE / LATE, `clips.json` states) call `Game.buy_level`, `buy_hire`, `buy_processing`, `buy_table`, `buy_waiter_hire` / `buy_waiter_upgrade`, `buy_galla_hire` / `buy_galla_upgrade`, `build`, `claim_task`, `debug_set_cash`, `debug_set_level`, `hide_ad_bubble` and `Layout3.station_focus`; all of them are still in this build (checked by name on 2 Nov). A rig run that frames a moment differently (the meter sits at the left edge under the readout) may need a new camera spot: check the contact sheets before installing.

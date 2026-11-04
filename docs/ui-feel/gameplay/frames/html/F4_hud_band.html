@@ -1,0 +1,81 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>F4 · HUD band</title>
+<link rel="stylesheet" href="kit.css">
+<style>
+  body { background-image: url("file:///private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/uxd/bg/mid/t009.0.png"); }
+</style></head>
+<body><div class="cv">
+
+<!-- ============ WORLD (bg/mid/t009 = MID: chai, tandoor, lassi, 1 cashier) ============ -->
+<!-- three more diners fill the 8 seats on screen (sprites cut from same-camera shots) -->
+<img class="a" src="../work/spr/d_turban_far_full.png" style="left:615px;top:395px">
+<img class="a" src="../work/spr/d_bluecap.png" style="left:470px;top:500px">
+<img class="a" src="../work/spr/d_teal_nl_hf.png" style="left:449px;top:960px">
+
+<!-- every diner has eaten: empty plate + ₹ chit bubbles (cover the order bubbles) -->
+<div id="chits"></div>
+
+<!-- four in the bill line (walk/t067 galla line, one cut out) -->
+<img class="a" src="../work/spr/q_galla4.png" style="left:245px;top:685px">
+
+<!-- seats board: FULL plate + on the way -->
+<div class="a" style="left:144px;top:1019px;width:102px;height:39px;border-radius:4px;background:#d11f1a;box-shadow:inset 0 0 0 2px #7d0e0a"></div>
+<div class="a olr nowrap" style="left:144px;top:1021px;width:102px;text-align:center;color:#fff;font-size:20px;line-height:36px;font-weight:800">FULL · भरा</div>
+<div class="a onway" style="left:142px;top:1066px;width:104px">+2 on the way</div>
+
+<!-- level plates (G17) -->
+<div class="a lplate" style="left:364px;top:470px">Lv 30 → 50
+  <img src="../work/ico/coffee.png" style="width:18px;height:19px">
+  <svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#7a4d17" stroke-opacity=".35" stroke-width="3"/><circle cx="10" cy="10" r="7" fill="none" stroke="#2f7d32" stroke-width="3" stroke-dasharray="8.8 44" transform="rotate(-90 10 10)"/></svg></div>
+<div class="a lplate" style="left:322px;top:604px">Lv 12 → 25
+  <svg width="16" height="20" viewBox="0 0 16 20"><path d="M2,2 H14 L12,18 H4 Z" fill="#f4f6f8" stroke="#5a6670" stroke-width="1.6"/><rect x="3" y="4" width="10" height="5" fill="#e6efe2"/></svg>
+  <svg class="ring" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="#7a4d17" stroke-opacity=".35" stroke-width="3"/></svg></div>
+
+<!-- the marigold mark over the cash counter, with its hanging plate (G2) -->
+<div class="a" style="left:168px;top:452px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,80,.55),rgba(255,182,39,0) 65%)"></div>
+<img class="a" src="../work/svg/mark.svg" style="left:201px;top:470px;width:64px;height:64px">
+<div class="a" style="left:232px;top:530px;width:2px;height:12px;background:#7a3f0e"></div>
+<div class="a wtag mari" style="left:150px;top:540px;width:168px;height:52px;padding:3px 0 0 0;text-align:center">
+  <div style="font-size:15px;line-height:18px;color:var(--marigold-pale)">HIRE CASHIER</div>
+  <div style="font-size:19px;line-height:24px"><img src="../work/ico/note.png" style="width:24px;height:17px;vertical-align:-2px"> 500 <span style="color:var(--gain-light)">+900/min</span></div>
+</div>
+<div class="ptr" style="left:224px;top:592px;border-top:9px solid var(--marigold)"></div>
+
+<!-- ============ HUD ============ -->
+<div class="a pill"><img class="a note" src="../work/ico/note.png"><div class="a amt">14,400</div><img class="a trend" src="../work/ico/trend.png"><div class="a rate"><b>1,034</b> <i>/min</i></div></div>
+
+<div class="a chip problem"><div class="a lip"></div><div class="a face"></div>
+  <div class="a ic"><img class="a" src="../work/ico/galla_k.png" style="left:3px;top:2px"></div>
+  <img class="a" src="../work/svg/mark.svg" style="left:42px;top:-4px;width:28px;height:28px">
+  <div class="a l1 fit" data-w="250">PROBLEM · LONG BILL LINE</div>
+  <div class="a l2">Hire cashier 2</div>
+  <div class="a gain">+900/min</div><div class="a chev">›</div></div>
+
+<div class="a task"><div class="a tlabel">TASK</div><div class="a card claim">
+  <div class="a" style="left:22px;top:13px;font-size:22px;line-height:30px;color:var(--claim-text)">CLAIM</div>
+  <img class="a" src="../work/ico/note.png" style="left:122px;top:18px;width:34px;height:24px"><div class="a" style="left:162px;top:15px;font-size:20px;line-height:28px;color:var(--claim-text)">700</div>
+  <div class="a" style="left:214px;top:17px;font-size:16px;line-height:26px;color:var(--claim-text);font-weight:600;white-space:nowrap">Upgrade the chai counter to level 25</div></div>
+  <div class="a count">1/3</div></div>
+
+<div class="a meter">
+  <div class="a row" style="top:2px"><img src="../work/ico/m_seats.png"><div class="lab">SEATS</div><div class="track"><i class="amber" style="width:100%"></i></div><div class="val">+4</div></div>
+  <div class="a row" style="top:36px"><img src="../work/ico/m_cooks.png"><div class="lab">COOKS</div><div class="track"><i class="grey" style="width:100%"></i></div><div class="val">100 %</div></div>
+  <div class="a row" style="top:70px"><img src="../work/ico/m_waiters.png"><div class="lab">WAITERS</div><div class="track"><i class="grey" style="width:67%"></i></div><div class="val">67 %</div></div>
+  <div class="a row mark" style="top:104px"><img src="../work/ico/m_cash.png"><div class="lab">CASHIERS</div><div class="track"><i class="red" style="width:100%"></i></div><div class="pillr">+12</div><div class="chev">›</div></div>
+  <div class="a cap fit" data-w="284">2 drove past this minute · HIRE CASHIER ›</div>
+</div>
+
+<div class="a sq" style="left:15px;top:1115px"><div class="a lip"></div><div class="a face"></div><img class="a" src="../work/ico/staff.png" style="left:18px;top:16px"><div class="a lbl ol">STAFF</div>
+  <div class="a badge green" style="left:-6px;top:-8px">1</div></div>
+<div class="a sq" style="left:603px;top:1120px"><div class="a lip"></div><div class="a face"></div><img class="a" src="../work/ico/build.png" style="left:13px;top:14px"><div class="a lbl ol">BUILD</div></div>
+<img class="a gear" src="../work/ico/gear.png">
+
+<div class="a flabel"><b>F4</b> · Top band, bigger meter (MID, bill line)</div>
+<div class="a looktag">Look not final</div>
+</div>
+<script src="chits.js"></script>
+<script>
+  addChits("chits", [[509,503],[570,554],[653,397],[706,443],[421,912],[565,799],[627,852],[487,964]]);
+</script>
+<script src="fit.js"></script>
+</body></html>

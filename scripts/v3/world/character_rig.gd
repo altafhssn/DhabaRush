@@ -14,13 +14,21 @@ extends Node3D
 ##
 ## API: setup(model_id, height), walk(on), face(dir), face_yaw(yaw),
 ##      set_yaw(yaw), play(pose) with pose "idle" | "serve" | "pay" | "turn90"
-##      | "sit" | "eat" | "carry" | "sad", set_sit_height(seat_top_y),
-##      find_socket(name).
+##      | "sit" | "eat" | "carry" | "sad" | "sip" | "phone" | "doze" | "look"
+##      | "slap", set_sit_height(seat_top_y), find_socket(name).
 ## Seated-dhaba poses (2026-10-19): "sit" lifts the model onto a charpai (the
 ## chibi's hips are lower than the seat) and swings the legs forward; "eat" is
 ## "sit" plus a munch loop (right hand to the mouth, chewing nod); "carry"
 ## holds both forearms out under a tray (no arm swing while walking); "sad"
 ## drops the head (the traveller who found no seat).
+## Core-and-feel C6.6 (seated idles while waiting for food; all seated, like
+## "sit"): "sip" raises the right hand to the mouth with the steel water
+## tumbler a dhaba puts down when you sit (a code CylinderMesh on arm_r),
+## "phone" holds a small dark phone up in front of the face (arm_r ~ -2.0,
+## head bowed to it), "doze" droops the head (SAD_HEAD) with a slow nod,
+## "look" turns the head +-0.5 rad to look about. C8.1: "slap" (the tandoor
+## cook) leans in and thrusts the right arm at the drum every SLAP_PERIOD s,
+## the first thrust at once (the tandoor_slap sound plays as a ticket starts).
 
 const WALK_CYCLE := 0.48          # s per full stride (left + right step)
 const TURN_TIME := 0.045          # snap turn, ref 35-50 ms
@@ -41,24 +49,47 @@ const SIT_BLEND := 0.22           # s to sit down / stand up
 const CARRY_ARM := -1.2           # rad: forearms out under the tray (ART tray_socket assumes ~-1.2)
 const MUNCH_PERIOD := 1.05        # s per bite
 const SAD_HEAD := 0.38            # rad head droop
+## Seated idles (C6.6) and the roti slap (C8.1).
+const SEATED_POSES := ["sit", "eat", "sip", "phone", "doze", "look"]
+const SIP_ARM := -1.95            # rad: tumbler at the mouth
+const PHONE_ARM := -2.0           # rad: phone up in front of the face
+const PHONE_HEAD := 0.24          # rad: head bowed to the phone
+const DOZE_NOD := 0.07            # rad slow nod while dozing
+const DOZE_PERIOD := 2.6          # s per nod
+const LOOK_YAW := 0.5             # rad head turn either way
+const LOOK_PERIOD := 2.6          # s per look left and right
+const SLAP_PERIOD := 1.2          # s between two slaps
+const SLAP_LEAN := 0.2            # rad body lean toward the drum
+const SLAP_ARM_REST := -0.7       # rad: right forearm out over the drum
+const SLAP_ARM_HIT := -1.55       # rad: arm thrust at the drum wall
+## Hand position on arm_r (x height, below the shoulder pivot) for the props.
+const HAND_DROP := 0.24
 ## Height (m) per model id; speed and shadow scale with it.
 const HEIGHTS := {
 	"trav_trucker": 1.12, "trav_family_m": 1.08, "trav_family_f": 1.0,
 	"trav_biker": 1.06, "trav_student": 0.98,
 	"pinky": 1.0, "munna": 1.05, "bablu": 1.0, "tandoor_wala": 1.08,
 	"customer_a": 1.0, "customer_b": 1.0, "customer_c": 1.05, "customer_d": 0.95,
-	"raju": 1.05, "pappu": 1.03, "sonu": 0.98, "chotu": 0.95,
+	"raju": 1.05, "pappu": 1.03, "sonu": 1.04,
 	"lassi_wala": 1.06, "bhurji_wala": 1.04, "dal_wala": 1.0,
 	# menu-expansion helpers (QA round 2): the lassi's 2nd / 3rd cook and the
 	# kadai's 3rd (station menus: Shera / Kamla / Kallu cook at the kadai;
 	# tinku, chhotu and rani are retired with the bhurji / dal stations)
-	"neetu": 0.99, "bittu": 0.96, "kallu": 1.06,
+	"neetu": 0.99, "bittu": 1.04, "kallu": 1.06,
+	# core-and-feel (build plan 4.2; chotu dropped, C8.4; sonu and bittu
+	# rebuilt as adults at scale 1.0): fans (C3.5), baraat guests (C6.4),
+	# waiters 3 and 4 (Lakhan, Gopal), the tandoor cook Balwant (C8.1)
+	"trav_elder": 1.02, "trav_sardar": 1.12, "trav_farmer": 1.05, "trav_techie": 1.01,
+	"trav_baraati_m": 1.08, "trav_baraati_f": 1.0,
+	"gopal": 1.05, "lakhan": 1.06, "balwant": 1.1,
 }
 const DEFAULT_HEIGHT := 1.05
 
 static var _shadow_mesh: PlaneMesh = null
 static var _shadow_mat: StandardMaterial3D = null
 static var _exists: Dictionary = {}
+static var _tumbler_mesh: Mesh = null
+static var _phone_mesh: Mesh = null
 
 var model: Node3D = null
 var model_id: String = ""
@@ -98,6 +129,17 @@ var _turn90_home: float = 0.0
 var _shadow: MeshInstance3D = null
 var _sit_w: float = 0.0
 var _sad_w: float = 0.0
+## Seconds since the current pose started (seated idles, slap).
+var _pose_t: float = 0.0
+var _head_x_off: float = 0.0
+var _head_y_off: float = 0.0
+var _lean: float = 0.0
+## Hand props on arm_r (built on first use, shown only in their pose).
+var _tumbler: MeshInstance3D = null
+var _phone: MeshInstance3D = null
+## trav_elder's walking stick (node `stick`, a child of arm_l in the glb):
+## hidden while he sits (laid aside), or it would pass down through the seat.
+var _stick: Node3D = null
 
 
 # ================================================================ statics
@@ -170,6 +212,7 @@ func setup(p_model_id: String, h: float = -1.0) -> void:
 	_arm_r = _part("arm_r")
 	_leg_l = _part("leg_l")
 	_leg_r = _part("leg_r")
+	_stick = _part("stick")
 	if _body != null:
 		_rest_body = _body.rotation
 	if _head != null:
@@ -257,16 +300,23 @@ func get_yaw() -> float:
 
 ## "idle" | "serve" (arms forward, pouring loop) | "pay" (hand held out) |
 ## "turn90" (snap ~90 deg, hold 0.4 s, snap back; then idle) | "sit" |
-## "eat" (sit + munch) | "carry" (tray held out) | "sad" (head down).
+## "eat" (sit + munch) | "carry" (tray held out) | "sad" (head down) |
+## seated idles "sip" | "phone" | "doze" | "look" | "slap" (tandoor cook).
 func play(pose: String) -> void:
 	if pose == "turn90":
 		if _turn90_left <= 0.0:
 			_turn90_home = _yaw_to
 		face_yaw(_turn90_home + PI * 0.5)
 		_turn90_left = TURN90_HOLD
+		if _pose != "idle":
+			_pose_t = 0.0
 		_pose = "idle"
+		_sync_props()
 		return
+	if pose != _pose:
+		_pose_t = 0.0
 	_pose = pose
+	_sync_props()
 
 
 func get_pose() -> String:
@@ -310,14 +360,20 @@ func _process(delta: float) -> void:
 	var still: float = 1.0 - w
 	var breathe: float = sin(_t * TAU / BREATHE_PERIOD) * idle_amount * still
 
-	var sitting: bool = _pose == "sit" or _pose == "eat"
+	_pose_t += delta
+	var sitting: bool = SEATED_POSES.has(_pose)
 	_sit_w = move_toward(_sit_w, 1.0 if sitting else 0.0, delta / SIT_BLEND)
 	_sad_w = move_toward(_sad_w, 1.0 if _pose == "sad" else 0.0, delta / 0.15)
+	if _stick != null:
+		_stick.visible = not sitting and _sit_w <= 0.0
 	var sw: float = _sit_w
 	var tl: float = 0.0
 	var tr: float = 0.0
 	var swing: float = 1.0
 	var chew: float = 0.0
+	var hx: float = 0.0
+	var hy: float = 0.0
+	var lean: float = 0.0
 	if _pose == "serve":
 		tl = -0.55
 		tr = -1.05 + sin(_t * 9.0) * 0.12
@@ -334,15 +390,45 @@ func _process(delta: float) -> void:
 		tr = -0.45 - 1.65 * bite
 		tl = -0.4
 		chew = sin(_t * 13.0) * 0.06 * (1.0 - bite)
+	elif _pose == "sip":
+		# Sips from the tumbler: hand at the mouth, head tipped back a little.
+		tl = -0.35
+		tr = SIP_ARM + 0.08 * sin(_pose_t * TAU / 1.5)
+		hx = -0.12
+	elif _pose == "phone":
+		tl = -0.55
+		tr = PHONE_ARM
+		hx = PHONE_HEAD
+	elif _pose == "doze":
+		tl = -0.3
+		tr = -0.3
+		hx = SAD_HEAD + DOZE_NOD * sin(_pose_t * TAU / DOZE_PERIOD)
+	elif _pose == "look":
+		tl = -0.35
+		tr = -0.35
+		hy = LOOK_YAW * sin(_pose_t * TAU / LOOK_PERIOD)
 	elif sitting:
 		tl = -0.35
 		tr = -0.35
 	elif _pose == "sad":
 		tl = 0.1
 		tr = 0.1
+	elif _pose == "slap":
+		# Lean in; the right arm thrusts at the drum wall in the first 0.3 of
+		# each SLAP_PERIOD (at once when the pose starts); the left hand holds
+		# the next roti over the counter.
+		var su: float = fmod(_pose_t, SLAP_PERIOD) / SLAP_PERIOD
+		var hit: float = sin(clampf(su / 0.3, 0.0, 1.0) * PI)
+		tl = -0.6
+		tr = lerpf(SLAP_ARM_REST, SLAP_ARM_HIT, hit)
+		lean = SLAP_LEAN + 0.06 * hit
 	var k: float = 1.0 - exp(-POSE_K * delta)
 	_arm_l_off = lerpf(_arm_l_off, tl, k)
 	_arm_r_off = lerpf(_arm_r_off, tr, k)
+	var kh: float = 1.0 - exp(-8.0 * delta)
+	_head_x_off = lerpf(_head_x_off, hx, kh)
+	_head_y_off = lerpf(_head_y_off, hy, kh)
+	_lean = lerpf(_lean, lean, kh)
 
 	# Whole model: step bob (twice per stride), side sway, idle breathe, seat lift.
 	var bob: float = (1.0 - absf(sin(_phase * TAU))) * BOB * height * w
@@ -352,9 +438,9 @@ func _process(delta: float) -> void:
 		# Single-mesh fallback: roll the whole model instead of the body.
 		model.rotation = Vector3(chew - _sad_w * 0.12, 0.0, s * ROLL + breathe * 0.012)
 		return
-	_body.rotation = _rest_body + Vector3(0.04 * sw, 0.0, s * ROLL + breathe * 0.012)
+	_body.rotation = _rest_body + Vector3(0.04 * sw + _lean, 0.0, s * ROLL + breathe * 0.012)
 	if _head != null:
-		_head.rotation = _rest_head + Vector3(chew + _sad_w * SAD_HEAD, 0.0, -s * ROLL * 0.5 + breathe * 0.02)
+		_head.rotation = _rest_head + Vector3(chew + _sad_w * SAD_HEAD + _head_x_off, _head_y_off, -s * ROLL * 0.5 + breathe * 0.02)
 	if _arm_l != null:
 		_arm_l.rotation = _rest_arm_l + Vector3(-s * ARM_SWING * swing + _arm_l_off, 0.0, 0.0)
 	if _arm_r != null:
@@ -364,3 +450,58 @@ func _process(delta: float) -> void:
 		_leg_l.rotation = _rest_leg_l + Vector3(s * LEG_SWING * (1.0 - sw) + leg_sit, 0.0, 0.0)
 	if _leg_r != null:
 		_leg_r.rotation = _rest_leg_r + Vector3(-s * LEG_SWING * (1.0 - sw) + leg_sit - 0.08 * sw, 0.0, 0.0)
+
+
+# ================================================================ hand props (C6.6)
+## Shows the steel tumbler only while sipping and the phone only while on the
+## phone (built on first use, parented to arm_r at the hand).
+func _sync_props() -> void:
+	if _pose == "sip" and _tumbler == null:
+		_tumbler = _make_hand_prop(true)
+	if _pose == "phone" and _phone == null:
+		_phone = _make_hand_prop(false)
+	if _tumbler != null:
+		_tumbler.visible = _pose == "sip"
+	if _phone != null:
+		_phone.visible = _pose == "phone"
+
+
+func _make_hand_prop(tumbler: bool) -> MeshInstance3D:
+	if _arm_r == null:
+		return null
+	var mi := MeshInstance3D.new()
+	mi.name = "Tumbler" if tumbler else "Phone"
+	mi.mesh = _prop_mesh(tumbler)
+	mi.position = Vector3(0.0, -HAND_DROP * height, 0.045 if tumbler else 0.04)
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.visible = false
+	_arm_r.add_child(mi)
+	return mi
+
+
+## One shared mesh per prop (every traveller's tumbler / phone).
+static func _prop_mesh(tumbler: bool) -> Mesh:
+	if tumbler and _tumbler_mesh != null:
+		return _tumbler_mesh
+	if not tumbler and _phone_mesh != null:
+		return _phone_mesh
+	var mat := StandardMaterial3D.new()
+	mat.roughness = 0.45
+	if tumbler:
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.034
+		cm.bottom_radius = 0.028
+		cm.height = 0.085
+		cm.radial_segments = 8
+		cm.rings = 1
+		mat.albedo_color = Color(0.78, 0.8, 0.82)
+		mat.metallic = 0.6
+		cm.material = mat
+		_tumbler_mesh = cm
+		return cm
+	var bm := BoxMesh.new()
+	bm.size = Vector3(0.055, 0.1, 0.012)
+	mat.albedo_color = Color(0.1, 0.1, 0.12)
+	bm.material = mat
+	_phone_mesh = bm
+	return bm

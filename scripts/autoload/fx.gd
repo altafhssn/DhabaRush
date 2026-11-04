@@ -33,9 +33,25 @@ extends Node
 ## - Haptics (scripts/v3/core/haptics.gd): vibration on purchases, claims,
 ##   builds and dish unlocks (Settings > VIBRATION).
 ## confetti() is the paper burst the NEW ON THE MENU card uses.
+##
+## Core and feel (W2-FX, build plan C3.3 / 2.3):
+## - spend_stream(): the spend flight. Paper notes fly from the HUD cash icon
+##   to what was bought: 6 notes ("big": hires, tables, builds, the
+##   signboard, a renovation, a move) or 1 note ("small": LEVEL UP, SPEED,
+##   waiter and cashier level-ups). Throttled: one big stream per 0.25 s (the
+##   next ones wait in a short queue), one small note per 0.5 s (hold-to-
+##   repeat drops the rest); half the notes on LOW; nothing is drawn in a
+##   headless run (logged only). WorldJuice calls it on Game.cash_spent and
+##   picks the target (the world point, or the pressed button while a full
+##   panel covers the world).
+## - debug_log (main3 --fx-log): prints "[fx] spend_stream <what> notes <n>".
+## - reveal_finished(kind): WorldJuice's promotion reveal after the scene
+##   reload ("renovation" | "move") has ended and the camera is home.
 
 signal reward_chunk(amount: float, last: bool)
 signal reward_finished
+## W2-FX: the promotion reveal after a renovation / move reload has ended.
+signal reveal_finished(kind: String)
 
 const CHAR_H := 1.0
 ## Gameplay ortho size (CameraRig.S_GAME_DEFAULT), used when Refs.camera is
@@ -56,6 +72,31 @@ const BILL_SIZE_MULT := 1.4
 const WorldJuiceScript := preload("res://scripts/v3/fx/world_juice.gd")
 const HapticsScript := preload("res://scripts/v3/core/haptics.gd")
 const GQ := preload("res://scripts/v3/core/gfx_quality.gd")
+const SpendStreamScript := preload("res://scripts/v3/fx/spend_stream.gd")
+
+## C3.3 spend flight: notes per tier (LOW: half, at least 1), the throttle
+## gaps, the longest wait queue of big streams, and the longest flight of one
+## note. The world's arrival juice waits for the LAST note of a stream to land
+## (W2-FIX-fx: note k leaves STAGGER x k after the first, and the stream's
+## last note flies the full SPEND_LAND_S, so a 6-note stream lands at
+## 0.15 + 0.35 = 0.50 s, a LOW 3-note one at 0.41 s; see spend_stream_eta).
+const SPEND_BIG_NOTES := 6
+const SPEND_SMALL_NOTES := 1
+const SPEND_BIG_GAP := 0.25
+const SPEND_SMALL_GAP := 0.5
+const SPEND_QUEUE_MAX := 3
+const SPEND_LAND_S := SpendStreamScript.FLY_MAX
+## `what` values (build plan 2.4) that fly the big stream; anything else is small.
+const SPEND_BIG_EXACT := ["waiter_hire", "galla_hire", "table", "signboard", "renovate"]
+const SPEND_BIG_PREFIX := ["hire:", "staff_hire:", "build:", "move:"]
+## A pointer press older than this (ms) is not "the pressed button".
+const PRESS_MAX_AGE_MS := 2000
+
+## --fx-log (main3, by name): log every spend stream.
+var debug_log: bool = false
+## Tests only: draw spend notes in a headless run, and skip the throttle.
+var debug_spend_draw: bool = false
+var debug_spend_unthrottled: bool = false
 
 var _under: CanvasLayer
 var _screen: CanvasLayer
@@ -75,6 +116,17 @@ var _rings_under: FxRingPool
 var _juice: Node
 ## Haptics node (request(kind), confirm(), fired counts).
 var haptics: Node
+## Spend flight: one stream node on the screen layer and one on the top layer.
+var _spend_screen: Node2D
+var _spend_top: Node2D
+var _fx_clock: float = 0.0
+var _spend_big_next: float = 0.0
+var _spend_small_next: float = 0.0
+## Big streams waiting for their throttle slot: [start_clock, to, n, top].
+var _spend_q: Array = []
+var _last_press_pos: Vector2 = Vector2.INF
+var _last_press_ms: int = -1
+var _headless: bool = false
 
 
 func _ready() -> void:
@@ -113,6 +165,17 @@ func _ready() -> void:
 	_p_top.name = "Particles"
 	_p_top.max_count = 80
 	_top.add_child(_p_top)
+	_headless = DisplayServer.get_name() == "headless"
+	_spend_screen = SpendStreamScript.new()
+	_spend_screen.name = "SpendStream"
+	_spend_screen.set("particles", _p_screen)
+	_spend_screen.set("rings", _rings_screen)
+	_screen.add_child(_spend_screen)
+	_spend_top = SpendStreamScript.new()
+	_spend_top.name = "SpendStream"
+	_spend_top.set("particles", _p_top)
+	_spend_top.set("rings", _rings_top)
+	_top.add_child(_spend_top)
 
 	_root3d = Node3D.new()
 	_root3d.name = "Fx3D"
@@ -144,6 +207,27 @@ func _warm() -> void:
 	_rings_under.warm(4)
 	_reward.warm(24)
 	_burst.warm(12)
+	if not _headless:
+		_spend_screen.call("warm", 12)
+		_spend_top.call("warm", 6)
+
+
+func _process(delta: float) -> void:
+	_fx_clock += delta
+	if not _spend_q.is_empty():
+		_tick_spend_queue()
+
+
+## Remembers where the last press went down (the "pressed button" fallback
+## while UiRoot has no last_press_rect()). Reads only, never consumes.
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
+		_last_press_pos = (event as InputEventScreenTouch).position
+		_last_press_ms = Time.get_ticks_msec()
+	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
+			and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		_last_press_pos = (event as InputEventMouseButton).position
+		_last_press_ms = Time.get_ticks_msec()
 
 
 # ================================================================ world FX
@@ -262,6 +346,166 @@ func reward_burst(from_screen: Vector2, to_hud_anchor: Control, amount: float,
 
 func reward_playing() -> bool:
 	return _reward.is_playing()
+
+
+## C3.3 spend flight: notes fly from the HUD cash icon to `to_screen` (screen
+## px; not finite = the pressed button, else the screen centre). `what` is
+## Game.cash_spent's value (build plan 2.4): it picks the tier (6 notes or
+## 1). Throttled per the class doc; nothing is drawn headless.
+func spend_stream(to_screen: Vector2, amount: float, what: String = "") -> void:
+	spend_stream_eta(to_screen, amount, what)
+
+
+## spend_stream() that returns the seconds until its notes land (-1 when it
+## was throttled away). WorldJuice times the world's arrival juice with it.
+func spend_stream_eta(to_screen: Vector2, _amount: float, what: String = "") -> float:
+	var big: bool = spend_is_big(what)
+	var n: int = SPEND_BIG_NOTES if big else SPEND_SMALL_NOTES
+	if is_low():
+		n = maxi(1, int(float(n) * 0.5))
+	var to: Vector2 = to_screen if to_screen.is_finite() else press_point()
+	var free: bool = debug_spend_unthrottled
+	var wait: float = 0.0
+	if big:
+		if not free and (_fx_clock < _spend_big_next or not _spend_q.is_empty()):
+			if _spend_q.size() >= SPEND_QUEUE_MAX:
+				_spend_log(what, 0, "throttled")
+				return -1.0
+			wait = maxf(0.0, _spend_big_next - _fx_clock)
+		if not free:
+			_spend_big_next = maxf(_spend_big_next, _fx_clock) + SPEND_BIG_GAP
+	else:
+		if not free and _fx_clock < _spend_small_next:
+			_spend_log(what, 0, "throttled")
+			return -1.0
+		if not free:
+			_spend_small_next = _fx_clock + SPEND_SMALL_GAP
+	var pill: bool = _pill_showing()
+	if not pill:
+		_spend_log(what, 0, "no pill")
+		return -1.0
+	# (A queued stream logs like any other: the line is the plan's exact
+	# "[fx] spend_stream <what> notes <n>"; only a dropped one gets a note.)
+	_spend_log(what, n, "")
+	var top: bool = _spend_on_top()
+	if wait > 0.0:
+		_spend_q.append([_fx_clock + wait, to, n, top, big])
+	else:
+		_spend_launch(to, n, top, big)
+	# The last note leaves STAGGER x (n - 1) after the first and flies FLY_MAX
+	# (SpendStream.launch), so every note is down by then (C3.3: the notes
+	# land, then the world changes).
+	return wait + SpendStreamScript.STAGGER * float(n - 1) + SPEND_LAND_S
+
+
+## True for the `what` values that fly the big (6-note) stream.
+func spend_is_big(what: String) -> bool:
+	if SPEND_BIG_EXACT.has(what):
+		return true
+	for p: String in SPEND_BIG_PREFIX:
+		if what.begins_with(p):
+			return true
+	return false
+
+
+## Notes in flight on both layers (tests).
+func spend_live() -> int:
+	return int(_spend_screen.call("live_count")) + int(_spend_top.call("live_count"))
+
+
+## The pressed button's centre (UiRoot.last_press_rect() by name, W2-ROOT),
+## else where the last press went down (within PRESS_MAX_AGE_MS), else the
+## screen centre.
+func press_point() -> Vector2:
+	var ui: Variant = Refs.ui
+	if is_instance_valid(ui) and (ui as Object).has_method("last_press_rect"):
+		var r: Variant = (ui as Object).call("last_press_rect")
+		if r is Rect2 and (r as Rect2).has_area():
+			return (r as Rect2).get_center()
+	if _last_press_ms >= 0 and Time.get_ticks_msec() - _last_press_ms <= PRESS_MAX_AGE_MS and _last_press_pos.is_finite():
+		return _last_press_pos
+	return _view_size() * 0.5
+
+
+## A screen point inside the visible rect, `margin` px in from its edges.
+func on_screen(p: Vector2, margin: float = 0.0) -> bool:
+	if not p.is_finite():
+		return false
+	var vs: Vector2 = _view_size()
+	return p.x >= margin and p.y >= margin and p.x <= vs.x - margin and p.y <= vs.y - margin
+
+
+## The money pill's screen rect; empty while there is no HUD or the pill is
+## hidden (the "+X/min" float sits under it).
+func money_pill_rect() -> Rect2:
+	var c: Control = _hud_anchor("money_pill")
+	if c == null or not c.is_visible_in_tree():
+		return Rect2()
+	return c.get_global_rect()
+
+
+## A rising label near `at` (screen px) on the HUD's pill layer
+## (Hud.show_float, by name); false when there is no HUD.
+func float_text(text: String, at: Vector2, color: Color) -> bool:
+	var hud: Variant = Refs.hud
+	if not is_instance_valid(hud) or not (hud as Object).has_method("show_float"):
+		return false
+	(hud as Object).call("show_float", text, at, color)
+	return true
+
+
+func _spend_launch(to: Vector2, n: int, top: bool, big: bool) -> void:
+	if _headless and not debug_spend_draw:
+		return   # C3.3: none drawn headless (the log line was printed)
+	var from: Vector2 = _cash_icon_point()
+	var node: Node2D = _spend_top if top else _spend_screen
+	node.call("launch", from, to, n, ui_scale(), big)
+
+
+func _tick_spend_queue() -> void:
+	while not _spend_q.is_empty():
+		var e: Array = _spend_q[0]
+		if _fx_clock < float(e[0]):
+			return
+		_spend_q.pop_front()
+		_spend_launch(e[1], int(e[2]), bool(e[3]), bool(e[4]))
+
+
+func _spend_log(what: String, n: int, note: String) -> void:
+	if not debug_log:
+		return
+	if note == "":
+		print("[fx] spend_stream %s notes %d" % [what, n])
+	else:
+		print("[fx] spend_stream %s notes %d (%s)" % [what, n, note])
+
+
+## The pills sit on layer 22 above a sheet or a full panel (Hud.set_mode),
+## and popups (25) cover layer 15: the notes then fly on the top layer.
+func _spend_on_top() -> bool:
+	var hud: Variant = Refs.hud
+	if is_instance_valid(hud):
+		var m: String = str((hud as Object).get("mode"))
+		if m == "sheet" or m == "panel":
+			return true
+	var ui: Variant = Refs.ui
+	return is_instance_valid(ui) and str((ui as Object).get("current_popup")) != ""
+
+
+func _pill_showing() -> bool:
+	var c: Control = _hud_anchor("money_pill")
+	if c == null:
+		return not is_instance_valid(Refs.hud)   # no HUD at all (tests): fly from the reference spot
+	return c.is_visible_in_tree()
+
+
+func _cash_icon_point() -> Vector2:
+	var hud: Variant = Refs.hud
+	if is_instance_valid(hud) and (hud as Object).has_method("cash_icon_center"):
+		var v: Variant = (hud as Object).call("cash_icon_center")
+		if v is Vector2:
+			return v
+	return hud_cash_point()
 
 
 ## J8 tap ripple: white ring 10 -> 50 px, alpha 0.8 -> 0, 0.45 s ease-out.
@@ -485,6 +729,9 @@ func reset() -> void:
 	_rings_top.clear()
 	_rings_under.clear()
 	_marker.hide_now()
+	_spend_screen.call("clear")
+	_spend_top.call("clear")
+	_spend_q.clear()
 
 
 func _big_ring(pos: Vector2, target_size: Vector2) -> void:
@@ -497,18 +744,20 @@ func _big_ring(pos: Vector2, target_size: Vector2) -> void:
 
 
 func _hud_anchor(anchor_name: String) -> Control:
-	var hud: Node = Refs.hud
-	if hud != null and is_instance_valid(hud) and hud.has_method("anchor"):
-		var v: Variant = hud.call("anchor", anchor_name)
+	# Variant first: across a promotion's scene reload Refs may still hold a
+	# freed HUD for a moment (a typed local would raise a script error).
+	var hud: Variant = Refs.hud
+	if is_instance_valid(hud) and (hud as Object).has_method("anchor"):
+		var v: Variant = (hud as Object).call("anchor", anchor_name)
 		if is_instance_valid(v) and v is Control and (v as Control).is_inside_tree():
 			return v as Control
 	return null
 
 
 func _game_cam_size() -> float:
-	var rig: Node = Refs.camera
-	if rig != null and is_instance_valid(rig):
-		var v: Variant = rig.get("s_game")
+	var rig: Variant = Refs.camera
+	if is_instance_valid(rig):
+		var v: Variant = (rig as Object).get("s_game")
 		if (v is float or v is int) and float(v) > 0.01:
 			return float(v)
 	return GAME_CAM_SIZE

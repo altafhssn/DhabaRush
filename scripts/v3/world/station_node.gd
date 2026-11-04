@@ -36,6 +36,21 @@ extends Node3D
 ## small unlock prop per unlocked dish 2-4 stands on the station
 ## (_sync_unlock_props: instant on setup / load, a pop with sparkles 0.4 s
 ## after a live Game.menu_unlocked).
+##
+## Core-and-feel C2.3 (plates visibly stack when the waiters cannot keep
+## up): when the pass is full, a finished item no longer vanishes into its
+## cook's hands. It goes at once onto the steel tray of a small PLATE STOOL
+## beside the pass (Layout3.stool_pos / stool_points: side by side, up to 3,
+## one per holding cook): the ticket is READY (ready_at = now, held = true,
+## pass_slot -1, in held_tickets) and item_ready fires once, so the plate
+## counts as waiting and gets its orange wait ring after 6 s (Sim). The cook
+## keeps holding as before (no throughput change): when a pass slot frees,
+## the oldest plate no waiter is coming for slides from the stool onto it
+## (same item, same ready_at; _release_holds); a waiter at the pass takes a
+## stool plate straight away (hand_over), which frees its cook. The stool
+## (`plate_stool` glb, or a code
+## stool) shows only while it holds a plate. C8.1: the tandoor's cook plays
+## the "slap" pose while cooking.
 
 signal ticket_started(station: StationNode, ticket: RefCounted)
 signal item_ready(station: StationNode, ticket: RefCounted)
@@ -71,6 +86,9 @@ class Ticket:
 	var waiter: Node3D = null
 	var created_at: float = 0.0
 	var ready_at: float = 0.0
+	## Core-and-feel C2.3: cooked while the pass was full; the item waits on
+	## the plate stool (its cook holds until a pass slot frees).
+	var held: bool = false
 
 
 ## One employee position at the counter.
@@ -94,6 +112,9 @@ var queue: Array[Ticket] = []
 var slots: Array = []             # of Slot
 ## Pass slot -> Ticket on it (null = free).
 var pass_items: Array = []
+## Core-and-feel C2.3: tickets whose item waits on the plate stool (pass
+## full), oldest first; item k stands on Layout3.stool_points(id)[k].
+var held_tickets: Array = []
 var cooked_count: int = 0
 
 ## True while the station waits for its build reveal: cooks take no tickets.
@@ -169,6 +190,17 @@ var _steam_mats: Array = []
 var _steam_next: float = 0.0
 var _steam_i: int = 0
 var _steam_col: Color = Color.WHITE
+## The plate stool (built on the first held plate; hidden while empty).
+var _stool: Node3D = null
+## Last held count printed ([station] <id> held <n>, debug builds).
+var _held_printed: int = 0
+## Most plates held at once (debug / --stats).
+var held_max: int = 0
+## Ticket -> the Tween sliding its item (stool -> pass, or closing up on the
+## stool): killed when a waiter lifts the item, so it never drifts on his tray.
+var _slide_tw: Dictionary = {}
+## Cook pose while a timer runs (C8.1: the tandoor cook slaps rotis).
+const COOK_POSE := {"tandoor": "slap"}
 
 
 ## Area3D tap target with meta tap_id (WorldInput raycasts these).
@@ -384,6 +416,11 @@ func is_busy() -> bool:
 	return false
 
 
+## Plates waiting on the plate stool (pass full; C2.3).
+func held_count() -> int:
+	return held_tickets.size()
+
+
 ## Items waiting on the pass.
 func pass_used() -> int:
 	var n: int = 0
@@ -495,6 +532,13 @@ func hand_over(tk: Ticket) -> Node3D:
 		return null
 	s.ticket = null
 	s.phase = P.IDLE
+	if tk.held:
+		# C2.3: the plate is already on the stool (READY since it landed there,
+		# item_ready sent then): the waiter lifts it off; its cook is free.
+		_unhold(tk)
+		_stop_slide(tk)
+		_refresh()
+		return tk.item
 	tk.state = TK.READY
 	tk.ready_at = Traveller.now_s()
 	if _sim != null:
@@ -519,6 +563,7 @@ func take_from_pass(tk: Ticket) -> Node3D:
 	if k >= 0 and k < pass_items.size() and pass_items[k] == tk:
 		pass_items[k] = null
 	tk.pass_slot = -1
+	_stop_slide(tk)
 	var item: Node3D = tk.item
 	_release_holds()
 	return item
@@ -557,7 +602,7 @@ func _start(s: Slot) -> void:
 		s.timer.set_progress(0.0)
 		s.timer.pause(Game.sim_paused)
 	if s.staff != null:
-		s.staff.serve(true)
+		s.staff.serve(true, str(COOK_POSE.get(id, "serve")))
 	var t: Traveller = s.ticket.traveller if s.ticket != null else null
 	_cook_sound(s.ticket.dish_id if s.ticket != null else "")
 	ticket_started.emit(self, s.ticket)
@@ -619,17 +664,28 @@ func _complete(s: Slot) -> void:
 	tk.price = Game.dish_price(id, tk.dish_id)
 	if not _try_place(tk):
 		s.phase = P.HOLD
+		_hold_on_stool(tk)
 		return
 	s.ticket = null
 	s.phase = P.IDLE
 	_refresh()
 
 
-## Puts the finished item on a free pass slot. false = pass full.
+## Puts the finished item on a free pass slot. false = pass full. A plate
+## waiting on the stool (C2.3) slides over to the slot: same item, same
+## ready_at, no second item_ready.
 func _try_place(tk: Ticket) -> bool:
 	var k: int = _free_pass_slot()
 	if k < 0:
 		return false
+	if tk.held:
+		pass_items[k] = tk
+		tk.pass_slot = k
+		_unhold(tk)
+		if tk.state != TK.ASSIGNED:
+			tk.state = TK.READY
+		_slide(tk, pass_point(k), 0.18, 1.0)
+		return true
 	pass_items[k] = tk
 	tk.pass_slot = k
 	tk.state = TK.READY
@@ -649,12 +705,38 @@ func _try_place(tk: Ticket) -> bool:
 
 
 ## A pass slot was cleared: cooks holding a finished item put it down now.
+## Order (W4-FIX-world; slot order let a newer plate take the pass while the
+## oldest, ringed, stayed on the stool): the stool plates nobody is coming
+## for yet, oldest first (C2.3: held_tickets is in ready order; only these
+## get a wait ring); then the stool plates a waiter is already walking to
+## (he heads for pass slot 0 and lifts a stool plate from there: moving his
+## plate along the pass would only send him after it); then any holder whose
+## plate is not on the stool (more holders than stool spots: he finished
+## after the stool filled). One cook is freed per free pass slot either way.
 func _release_holds() -> void:
 	var placed: bool = false
+	var order: Array = []
+	for coming in [false, true]:
+		for tv in held_tickets:
+			var tk: Ticket = tv
+			if (tk.waiter != null) != coming:
+				continue
+			var hs: Slot = _held_slot(tk)
+			if hs != null and not order.has(hs):
+				order.append(hs)
 	for v in slots:
+		var s0: Slot = v
+		if s0.phase == P.HOLD and s0.ticket != null and not order.has(s0):
+			order.append(s0)
+	# (order is a list of its own: _unhold and _try_place edit held_tickets)
+	for v in order:
 		var s: Slot = v
 		if s.phase == P.HOLD and s.ticket != null:
 			if s.ticket.state == TK.CANCELLED:
+				if s.ticket.held:
+					_unhold(s.ticket)
+					if s.ticket.item != null and is_instance_valid(s.ticket.item):
+						s.ticket.item.visible = false
 				s.ticket = null
 				s.phase = P.IDLE
 				placed = true
@@ -666,6 +748,171 @@ func _release_holds() -> void:
 				break
 	if placed:
 		_refresh()
+
+
+# ================================================================ plate stool (C2.3)
+## The pass is full: the finished item goes at once onto the next free spot
+## of the plate stool's tray (READY, item_ready once); the cook keeps holding.
+## More holders than stool spots (never with 3 cooks): the old way (the cook
+## holds the plate out of sight; hand_over makes it).
+func _hold_on_stool(tk: Ticket) -> void:
+	if tk == null or tk.held:
+		return
+	var pts: Array = Layout3.stool_points(id)
+	var n: int = held_tickets.size()
+	if n >= pts.size():
+		return
+	tk.held = true
+	tk.pass_slot = -1
+	tk.state = TK.READY
+	tk.ready_at = Traveller.now_s()
+	if tk.item == null and _sim != null:
+		tk.item = _sim.acquire_item(id, tk.dish_id)
+	held_tickets.append(tk)
+	_show_stool(true)
+	if tk.item != null:
+		tk.item.position = pts[n]
+		tk.item.rotation = Vector3(0.0, randf() * TAU, 0.0)
+		tk.item.scale = Vector3.ONE * 0.01
+		tk.item.visible = true
+		var tw := tk.item.create_tween()
+		tw.tween_property(tk.item, "scale", Vector3.ONE * _stool_scale(tk), ITEM_POP).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_callback(_slide_done.bind(tk))
+		_slide_tw[tk] = tw
+	_note_held()
+	item_ready.emit(self, tk)
+	service_done.emit(self, tk.traveller)
+
+
+## `tk` leaves the stool (to the pass or a waiter's tray): the others close up.
+func _unhold(tk: Ticket) -> void:
+	tk.held = false
+	var i: int = held_tickets.find(tk)
+	if i < 0:
+		return
+	held_tickets.remove_at(i)
+	var pts: Array = Layout3.stool_points(id)
+	for k in held_tickets.size():
+		if k < pts.size():
+			_slide(held_tickets[k], pts[k], 0.15, _stool_scale(held_tickets[k]))
+	if held_tickets.is_empty():
+		_show_stool(false)
+	_note_held()
+
+
+## Slides `tk`'s item to `to` (world) over `dur` s; `to_scale` > 0 also
+## scales it to that size on the way (stool scale <-> full size on the pass).
+func _slide(tk: Ticket, to: Vector3, dur: float, to_scale: float = -1.0) -> void:
+	_stop_slide(tk)
+	if tk.item == null or not is_instance_valid(tk.item):
+		return
+	if tk.item.position.distance_squared_to(to) < 0.000001:
+		if to_scale > 0.0:
+			tk.item.scale = Vector3.ONE * to_scale
+		return
+	var tw := tk.item.create_tween()
+	tw.tween_property(tk.item, "position", to, dur).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if to_scale > 0.0:
+		tw.parallel().tween_property(tk.item, "scale", Vector3.ONE * to_scale, dur)
+	tw.tween_callback(_slide_done.bind(tk))
+	_slide_tw[tk] = tw
+
+
+## C2.3: the size of `tk`'s item on the plate stool. Items stand
+## Layout3.PLATE_STOOL_GAP (0.17 m) apart, so a plate wider than that is
+## scaled until neighbours keep 1 cm between them and the outer ones stay on
+## the tray (R 0.28): roti / bhurji plates (r 0.135) 0.59, katoris (0.10)
+## 0.8, glasses 1.0. Full size again on the pass and on the waiter's tray.
+func _stool_scale(tk: Ticket) -> float:
+	var r: float = float(Waiter.ITEM_RADIUS.get(Sim.item_model_for(id, tk.dish_id), Waiter.ITEM_RADIUS_DEFAULT))
+	return minf(1.0, (Layout3.PLATE_STOOL_GAP - 0.01) / (2.0 * maxf(r, 0.01)))
+
+
+func _slide_done(tk: Ticket) -> void:
+	_slide_tw.erase(tk)
+
+
+## A waiter lifts the item: no slide may move it any more.
+func _stop_slide(tk: Ticket) -> void:
+	if not _slide_tw.has(tk):
+		return
+	var tw: Tween = _slide_tw[tk]
+	if tw != null and tw.is_valid():
+		tw.kill()
+	_slide_tw.erase(tk)
+
+
+func _note_held() -> void:
+	var n: int = held_tickets.size()
+	held_max = maxi(held_max, n)
+	if n != _held_printed:
+		_held_printed = n
+		if OS.is_debug_build():
+			print("[station] %s held %d" % [id, n])
+
+
+## The stool appears (pop) with the first held plate and hides when empty.
+func _show_stool(on: bool) -> void:
+	if not on:
+		if _stool != null:
+			_stool.visible = false
+		return
+	if _stool == null:
+		_stool = _make_stool()
+		_stool.name = "PlateStool"
+		_stool.position = Layout3.stool_pos(id)
+		_stool.rotation.y = PI * 0.25
+		_no_prop_shadows(_stool)
+		add_child(_stool)
+	elif _stool.visible:
+		return
+	_stool.visible = true
+	_stool.scale = Vector3.ONE * 0.01
+	var tw := _stool.create_tween()
+	tw.tween_property(_stool, "scale", Vector3.ONE, ITEM_POP).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+## W1-ART1's `plate_stool` (a wooden stool, top y 0.62, with a round steel
+## tray R 0.28); until it exists a code stool of the same size.
+static func _make_stool() -> Node3D:
+	if ResourceLoader.exists(Models.DIR + "plate_stool.glb"):
+		return Models.make("plate_stool")
+	var root := Node3D.new()
+	var top: float = Layout3.PLATE_STOOL_TOP
+	var wood := StandardMaterial3D.new()
+	wood.albedo_color = Color(0.55, 0.36, 0.2)
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = Color(0.78, 0.8, 0.82)
+	steel.metallic = 0.5
+	steel.roughness = 0.4
+	var seat := MeshInstance3D.new()
+	var sb := BoxMesh.new()
+	sb.size = Vector3(0.36, 0.04, 0.36)
+	sb.material = wood
+	seat.mesh = sb
+	seat.position = Vector3(0.0, top - 0.02, 0.0)
+	root.add_child(seat)
+	for v in [Vector2(-0.14, -0.14), Vector2(0.14, -0.14), Vector2(-0.14, 0.14), Vector2(0.14, 0.14)]:
+		var c: Vector2 = v
+		var leg := MeshInstance3D.new()
+		var lb := BoxMesh.new()
+		lb.size = Vector3(0.04, top - 0.04, 0.04)
+		lb.material = wood
+		leg.mesh = lb
+		leg.position = Vector3(c.x, (top - 0.04) * 0.5, c.y)
+		root.add_child(leg)
+	var tray := MeshInstance3D.new()
+	var tc := CylinderMesh.new()
+	tc.top_radius = 0.28
+	tc.bottom_radius = 0.27
+	tc.height = 0.025
+	tc.radial_segments = 16
+	tc.rings = 1
+	tc.material = steel
+	tray.mesh = tc
+	tray.position = Vector3(0.0, top + 0.0125, 0.0)
+	root.add_child(tray)
+	return root
 
 
 # ================================================================ prop animator + steam

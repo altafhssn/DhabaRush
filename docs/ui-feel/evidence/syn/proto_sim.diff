@@ -1,0 +1,124 @@
+--- /Users/almeer/Documents/HighwayDhaba/scripts/v3/world/sim.gd	2026-11-03 00:52:51
++++ scripts/v3/world/sim.gd	2026-11-03 22:38:20
+@@ -558,6 +558,17 @@
+ var baraat_buses: int = 0
+ var baraat_guests: int = 0
+ var baraat_passed: int = 0
++## GA prototype (throw-away): see design_work/ga/patch_pkg.py.
++var ga_k: float = -1.0
++var ga_rush: float = 1.0
++var ga_rush_from: float = 0.64
++var ga_rush_to: float = 0.79
++var ga_cashline: int = -1
++var ga_dampmin: float = -1.0
++var ga_cue_all: bool = false
++var ga_rush_on: bool = false
++## Synthesis prototype: GB-10 as designed (see design_work/syn/syn_patch.py).
++var syn_gbk: float = -1.0
+ 
+ 
+ func _ready() -> void:
+@@ -565,6 +576,22 @@
+ 	Waiter.layout_variant = _variant_s
+ 	if OS.is_debug_build():
+ 		for a in OS.get_cmdline_user_args():
++			if a.begins_with("--syn-gbk="):
++				syn_gbk = float(a.get_slice("=", 1))
++			if a.begins_with("--ga-k="):
++				ga_k = float(a.get_slice("=", 1))
++			elif a.begins_with("--ga-rush="):
++				ga_rush = float(a.get_slice("=", 1))
++			elif a.begins_with("--ga-rush-from="):
++				ga_rush_from = float(a.get_slice("=", 1))
++			elif a.begins_with("--ga-rush-to="):
++				ga_rush_to = float(a.get_slice("=", 1))
++			elif a.begins_with("--ga-cashline="):
++				ga_cashline = int(a.get_slice("=", 1))
++			elif a.begins_with("--ga-dampmin="):
++				ga_dampmin = float(a.get_slice("=", 1))
++			elif a == "--ga-cue-all":
++				ga_cue_all = true
+ 			if a.begins_with("--tray="):
+ 				debug_tray = maxi(0, int(a.get_slice("=", 1)))
+ 				print("[sim] tray forced %d" % debug_tray)
+@@ -875,6 +902,32 @@
+ 	return seats_free() + _seats_freeing() + DOOR_LINE_PLACES - door_queue.size() - arrivals_incoming()
+ 
+ 
++## GA-1 (P0): the bill line is full: ga_cashline a cash counter, counting
++## travellers standing up to go and pay. Travellers who finish eating then wait
++## at their seat to pay (traveller.gd), so the seats - and the gate - fill.
++func ga_bill_full() -> bool:
++	if ga_cashline < 0 or not Game.is_tutorial_done():
++		return false
++	var line: int = 0
++	var n: int = 0
++	for g in gallas:
++		if is_instance_valid(g):
++			n += 1
++			line += int(g.call("queue_length"))
++	for t in travellers:
++		if is_instance_valid(t) and t.state == Traveller.S.STANDING:
++			line += 1
++	return line >= ga_cashline * maxi(1, n)
++
++
++## GA-3 (P4): the dinner rush window (free play only).
++func _ga_in_rush() -> bool:
++	if ga_rush <= 1.0 or not Game.is_tutorial_done():
++		return false
++	var ph: float = float(Game.day_phase)
++	return ph >= ga_rush_from and ph < ga_rush_to
++
++
+ ## C2.1: seated travellers who stand up within seconds: eating, or every
+ ## item still owed to them already on a waiter's tray or being fetched. The
+ ## riders counted in arrivals_incoming() reach the door 5 to 25 s from now,
+@@ -893,7 +946,7 @@
+ 		if not is_instance_valid(v):
+ 			continue
+ 		var t: Traveller = v
+-		if t.state == Traveller.S.EATING or t.state == Traveller.S.STANDING:
++		if (t.state == Traveller.S.EATING and not t.ga_wait_pay) or t.state == Traveller.S.STANDING:
+ 			n += 1
+ 			continue
+ 		if t.state != Traveller.S.SEATED or t.tickets.is_empty():
+@@ -1140,7 +1193,7 @@
+ ## pairs it with its "[hud] road:" caption) or "[sim] drive-past cue dropped".
+ func _on_pass_at_gate(kind: String, riders: int) -> void:
+ 	var door: int = door_queue.size()
+-	if seats_free() > 0 and door == 0:
++	if seats_free() > 0 and door == 0 and not ga_cue_all:
+ 		if OS.is_debug_build():
+ 			print("[sim] drive-past cue dropped: %s %d (seats %d/%d, door 0)" % [kind, riders, seats_in_use(), seats_total()])
+ 		return
+@@ -1586,13 +1639,27 @@
+ 		elif t.state == Traveller.S.TO_SEAT or t.state == Traveller.S.SITTING:
+ 			owed += per_trav
+ 	var backlog_s: float = owed / float(n_w) / tray_f
++	var dmin: float = _bus_value("ramp_backlog_min", RAMP_BACKLOG_MIN)
++	if ga_dampmin >= 0.0 and Game.is_tutorial_done():
++		dmin = ga_dampmin
+ 	var damp_now: float = clampf(_bus_value("ramp_backlog_s", RAMP_BACKLOG_S) / maxf(0.001, backlog_s),
+-			_bus_value("ramp_backlog_min", RAMP_BACKLOG_MIN), 1.0)
++			minf(dmin, 1.0), 1.0)
+ 	var lo: float = _bus_value("ramp_min_tpm", RAMP_MIN_TPM)
+ 	# C5.3: the highway signboard raises the cap (free play; W1-CORE, by name)
+ 	var hi: float = maxf(lo, _bus_value("ramp_max_tpm", Game.travellers_per_min()) + _signboard_bonus())
+ 	# The floor keeps the dhaba busy; only a backlog takes arrivals below it.
+-	var target: float = clampf(_bus_value("ramp_capacity_k", RAMP_K) * m, lo, hi) * _damp
++	var kk: float = _bus_value("ramp_capacity_k", RAMP_K)
++	if ga_k > 0.0 and Game.is_tutorial_done():
++		kk = ga_k
++	var target: float = clampf(kk * m, lo, hi) * _damp
++	if syn_gbk > 0.0 and Game.is_tutorial_done():
++		target = clampf(minf(syn_gbk * minf(minf(s_cap, w_cap), st_eff), g_cap), lo, hi) * _damp
++	var rush_now: bool = _ga_in_rush()
++	if rush_now:
++		target *= ga_rush
++	if rush_now != ga_rush_on:
++		ga_rush_on = rush_now
++		print("[ga] rush %s at sim %.1f phase %.3f" % ["start" if rush_now else "end", sim_clock, float(Game.day_phase)])
+ 	if debug_arrivals_tpm > 0.0:
+ 		target = debug_arrivals_tpm
+ 	elif _ref_pacing():

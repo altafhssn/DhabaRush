@@ -1,0 +1,104 @@
+{
+  "_comment": "content10h design_lean (3 Nov 2026): the LEAN design of docs/content-10h/designs/lean.md for tools/sim/content10h.py (design prototype; not used by the game or the gates). PHASE 1 (before the soft launch) = this file as it stands: NH 44 and NH 48 exactly as today, then NH 19 (UP - Bihar) and NH 44 South (Tamil Nadu) made the NH 48 way (family layout from the start, menus a 1.0 factor, the same price-to-cost ratio as NH 48: cost_mult = mult / 1.5). Each new highway also needs Izzat EARNED in all (never spent: earning only counts up): 50 for NH 19, 85 for NH 44 South. Izzat is earned at milestones, per counter-mastery star and per baraat step, and spent on 5 perks. Mastery is PER COUNTER (all its dishes on every highway count): stars at 20, 60, 150, 300, 500, 750, 1000 plates, then one more every 200 plates up to 100 stars; +1 % on that counter's prices per star, for at most 50 stars. No hotel in phase 1. PHASE 2 (after the soft-launch data) = content.phase2, merged only by the lean copy of the tool with --phase 2: a lean Truckers' Rest stage after the family stage on every highway (its own module, 6 bays to level 6), NH 66 Konkan and NH 16 Odisha, a festival week. The official tool ignores content.phase2 and the keys tail, counter_price_per_star and counter_price_cap_stars, and runs scope 'counter' as scope 'slot': use the lean copy for this design's numbers (lean.md section 2 gives the commands). All money in ref units (x10 on screen).",
+  "content": {
+    "highways": [
+      {"id": "nh44", "cost_mult": 1.0},
+      {"id": "nh48", "cost_mult": 1.0},
+      {"id": "nh19", "name": "NH 19", "region": "UP · BIHAR", "mult": 2.25, "cost": 75000.0,
+       "requires": "renovated_all_dishes+izzat:50", "rebuild": true, "cost_mult": 1.5},
+      {"id": "nh44s", "name": "NH 44", "region": "TAMIL NADU", "mult": 3.4, "cost": 150000.0,
+       "requires": "renovated_all_dishes+izzat:85", "rebuild": true, "cost_mult": 2.25}
+    ],
+    "hotel": {"enabled": false},
+    "izzat": {
+      "enabled": true,
+      "start": 0,
+      "earn": {
+        "stage_done": {"roadside": 3, "family": 3, "hotel": 3},
+        "promotion": {"renovation": 2, "hotel": 1, "move": 3},
+        "dish_unlock": 0,
+        "star": 1,
+        "baraat_step": [1, 1, 2]
+      },
+      "perks": {
+        "old_staff": {"name": "Old staff: +1 waiter on a new highway", "effect": "start_waiters", "per_level": 1,
+                      "costs": [8, 20], "applies_on": ["move"]},
+        "seed_money": {"name": "Seed money: start a new highway with 500 x its price mult a level", "effect": "start_cash",
+                       "per_level": 500.0, "costs": [4, 10, 18], "applies_on": ["move"]},
+        "quick_hands": {"name": "Quick hands: cooks 5 % faster a level", "effect": "cook_speed", "per_level": 0.05,
+                        "costs": [5, 9, 14, 20, 27]},
+        "fast_feet": {"name": "Fast feet: waiters 5 % faster a level", "effect": "waiter_speed", "per_level": 0.05,
+                      "costs": [5, 9, 14, 20, 27]},
+        "good_name": {"name": "Good name: every price +4 % a level", "effect": "price_mult", "per_level": 0.04,
+                      "costs": [6, 10, 15, 21, 28, 36, 45, 55]}
+      },
+      "policy": "cheapest",
+      "fund": {"_comment": "Village fund (lean copy only): step n costs 30 x 1.05^n minutes of the reward rate and pays 1 Izzat; the bot buys it only when every counter is at its max level (the sink of a maxed dhaba).",
+               "base_minutes": 30, "growth": 1.05, "izzat": 1, "when": "maxed"}
+    },
+    "mastery": {
+      "enabled": true,
+      "scope": "counter",
+      "thresholds": [20, 60, 150, 300, 500, 750, 1000],
+      "tail": {"step": 200, "growth": 1.0, "max_stars": 100},
+      "counter_price_per_star": 0.01,
+      "counter_price_cap_stars": 50
+    },
+    "sessions": {
+      "per_day": 3,
+      "minutes": 20.0,
+      "starts_h": [8.0, 13.0, 21.0],
+      "install_weekday": 1,
+      "offline_ad": true,
+      "special_share": 0.08,
+      "baraat": true,
+      "guest_rate": 2.4
+    },
+    "festivals": [],
+    "phase2": {
+      "_comment": "After the soft-launch data. Replaces the highway list (every move now also needs the highway's Truckers' Rest full: hotel_done), turns on the lean hotel stage, adds a hotel perk and one festival week (day 8, as an example date).",
+      "highways": [
+        {"id": "nh44", "cost_mult": 1.0},
+        {"id": "nh48", "requires": "renovated_all_dishes+hotel_done", "cost_mult": 1.0},
+        {"id": "nh19", "name": "NH 19", "region": "UP · BIHAR", "mult": 2.25, "cost": 75000.0,
+         "requires": "renovated_all_dishes+hotel_done+izzat:50", "rebuild": true, "cost_mult": 1.5},
+        {"id": "nh44s", "name": "NH 44", "region": "TAMIL NADU", "mult": 3.4, "cost": 150000.0,
+         "requires": "renovated_all_dishes+hotel_done+izzat:85", "rebuild": true, "cost_mult": 2.25},
+        {"id": "nh66", "name": "NH 66", "region": "KONKAN", "mult": 5.1, "cost": 300000.0,
+         "requires": "renovated_all_dishes+hotel_done+izzat:125", "rebuild": true, "cost_mult": 3.4},
+        {"id": "nh16", "name": "NH 16", "region": "ODISHA", "mult": 7.65, "cost": 600000.0,
+         "requires": "renovated_all_dishes+hotel_done+izzat:165", "rebuild": true, "cost_mult": 5.1}
+      ],
+      "hotel": {
+        "_comment": "Truckers' Rest: a roofed deck on the rear block with charpai bays for overnight truckers. Opens when the family stage has all 16 dishes, for 12,500 x the highway's price mult; 2 bays come with it, 6 in all, each to level 6. A bay at level L pays 300 x 1.3^(L-1) x the price mult a night (about a quarter of the dhaba's takings when NH 44's is full), 85 % full; one night = one day cycle of play (600 s), paid at dawn. Full = 6 bays at level 6. Away: 1/4 of its pay for up to 8 h.",
+        "enabled": true,
+        "unlock": "renovated+all_dishes",
+        "cost": 12500.0,
+        "scale_with_mult": true,
+        "rooms_start": 2,
+        "rooms_max": 6,
+        "room_costs": [200.0, 300.0, 450.0, 700.0],
+        "room_cost_growth": 1.5,
+        "room_level_max": 6,
+        "level_cost_base": 150.0,
+        "level_cost_growth": 1.4,
+        "rate_base": 300.0,
+        "rate_growth": 1.3,
+        "occupancy": 0.85,
+        "night_s": null,
+        "pay": "dawn",
+        "done": "rooms_all+room_level:6",
+        "offline_share": 0.25,
+        "offline_cap_hours": 8.0,
+        "bias": 1.0
+      },
+      "izzat": {
+        "perks": {
+          "soft_charpai": {"name": "Soft charpais: Truckers' Rest pays 10 % more a level", "effect": "hotel_rate",
+                           "per_level": 0.1, "costs": [6, 12, 20]}
+        }
+      },
+      "festivals": [{"name": "Diwali week (example date)", "day": 8, "days": 7, "izzat": 5, "cash_minutes": 10}]
+    }
+  }
+}

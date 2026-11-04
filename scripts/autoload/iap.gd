@@ -7,7 +7,8 @@ extends Node
 ##   signal purchase_finished(product_id, ok)
 ##   signal purchase_result(product_id, result)   why, for the UI's message
 ## Entitlements are applied here (Game.set_vip, Game.set_remove_ads,
-## Game.add_sikke + save), then `cb.call(ok)` runs. A purchase that turns
+## Game.add_sikke + save, the starter pack through Game.grant_starter()),
+## then `cb.call(ok)` runs. A purchase that turns
 ## pending (slow payment methods such as UPI) answers ok = false now and is
 ## granted later, whenever the store reports it complete (same session,
 ## next resume or next launch), with purchase_finished(id, true).
@@ -35,11 +36,19 @@ signal restore_finished(ok: bool, restored: PackedStringArray)
 signal purchase_result(product_id: String, result: String)
 
 const FAKE_SECONDS := 0.5
-## Placeholder store prices; real ones come from the store at runtime.
+## Core and feel C7.4: the one-time starter pack (a fixed amount of dhaba cash,
+## paid once after the tutorial by the offers module, scripts/v3/core/
+## offers.gd). Every purchase, restore and old buyer is reported to
+## Game.note_purchase() first, so no offer shows after any purchase.
+const STARTER := "starter_pack"
+## Placeholder store titles and prices; real ones come from the store at
+## runtime (Play Console: owner task). Remove Ads ₹149 is sold as "No forced
+## ads, now or later" (it removes every interstitial; bonus videos stay).
 const PRODUCTS := {
-	"vip_x2": {"title": "Seth-ji Special: Double Kamaai", "price": "₹299", "consumable": false},
-	"remove_ads": {"title": "No Ads", "price": "₹199", "consumable": false},
+	"vip_x2": {"title": "VIP: ×2 dhaba income", "price": "₹299", "consumable": false},
+	"remove_ads": {"title": "No Ads", "price": "₹149", "consumable": false},
 	"sikke_small": {"title": "Pouch of Sikke", "price": "₹89", "consumable": true, "sikke": 80},
+	"starter_pack": {"title": "Starter Pack", "price": "₹49", "consumable": false},
 }
 
 const Config := preload("res://scripts/v3/monetization/monetization_config.gd")
@@ -106,13 +115,16 @@ func title(product_id: String) -> String:
 	return str(p.get("title", product_id))
 
 
-## Non-consumables already bought (from Game's saved entitlements).
+## Non-consumables already bought (from Game's saved entitlements; the
+## starter pack from the offers module).
 func is_owned(product_id: String) -> bool:
 	match product_id:
 		"vip_x2":
 			return Game.vip
 		"remove_ads":
 			return Game.remove_ads
+		STARTER:
+			return _starter_owned()
 	return false
 
 
@@ -348,6 +360,11 @@ func _end_active(ok: bool) -> void:
 # ================================================================ granting
 ## Applies the entitlement. Returns true when something new was granted.
 func _grant(product_id: String, p: Dictionary) -> bool:
+	var had: bool = is_owned(product_id)
+	# C7.4: every purchase counts, before the early returns below (restores and
+	# old buyers too): the offers module shows no offer after any purchase.
+	if Game.has_method("note_purchase"):
+		Game.call("note_purchase", product_id)
 	match product_id:
 		"vip_x2":
 			if Game.vip:
@@ -371,7 +388,26 @@ func _grant(product_id: String, p: Dictionary) -> bool:
 				_ledger[token] = int(Time.get_unix_time_from_system())
 				_save_ledger()
 			return true
+		STARTER:
+			# Paid once per save and only after the tutorial (the offers
+			# module); a silent restore of an owned pack pays nothing again.
+			if Game.has_method("grant_starter"):
+				Game.call("grant_starter")
+			# On disk before the store transaction is finalized (iOS does no
+			# silent restore at launch), as for the other products.
+			Game.save_game()
+			return not had
 	return false
+
+
+## The starter pack is owned (offers module state; false without it).
+func _starter_owned() -> bool:
+	if not Game.has_method("system"):
+		return false
+	var o: Variant = Game.call("system", "offers")
+	if not (o is Object) or not ("starter_owned" in (o as Object)):
+		return false
+	return bool((o as Object).get("starter_owned"))
 
 
 func _is_consumable(product_id: String) -> bool:
@@ -379,7 +415,7 @@ func _is_consumable(product_id: String) -> bool:
 
 
 func _owns_any() -> bool:
-	return Game.vip or Game.remove_ads
+	return Game.vip or Game.remove_ads or _starter_owned()
 
 
 func _report_revenue(id: String, sid: String) -> void:

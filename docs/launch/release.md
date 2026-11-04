@@ -232,7 +232,7 @@ The launch sequence is in `docs/launch/release/launch_sequence.png`, drawn on a 
 Order (`UiRoot.handle_back()` in `scripts/v3/ui/ui_root.gd`, soft launch FLOW track, 2026-10-26; it replaced the 2026-10-25 "press back twice" toast):
 
 1. The quit question itself, if open: back = STAY.
-2. An open popup closes (the WELCOME BACK popup collects plainly; a busy VIP / FREE CASH popup waits for its ad).
+2. An open popup closes (the WELCOME BACK popup collects plainly; a busy VIP / FREE BONUS popup waits for its ad).
 3. An open panel, sheet or 2-tap card closes.
 4. With nothing to close, or one the tutorial keeps open, and also while a Munshi-ji line is up: the question "LEAVE THE DHABA?" (`scripts/v3/ui/quit_popup.gd`) with STAY and LEAVE. Its line says the staff keep earning while you are away (from 10 min, up to 2 h), or, during the tutorial, "Your progress is saved. See you soon!".
    - A second back, STAY or a tap outside the card closes it.

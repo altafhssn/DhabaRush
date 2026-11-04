@@ -22,9 +22,13 @@ extends Node3D
 ##                       tutorial gate with real taps where the hand / marker
 ##                       points (falls back to the handler a tap would call);
 ##                       its free-play purchases and first claim are timed
-##                       from the tutorial's free step; 1 s after the tutorial
-##                       it prints an "[auto] ... home check" line (camera
-##                       distance to the home view, NEXT chip)
+##                       from the tutorial's free step; at "step -> done" it
+##                       prints "[auto] <t> done state: chai L<n> cash <c>
+##                       waiters <n> tables <n>"; 1 s after the tutorial it
+##                       prints an "[auto] ... home check" line (camera
+##                       distance to the home view, NEXT chip); with
+##                       --consent=ask it answers the consent card ALLOW once
+##                       it has been open 1.5 s ("[auto] <t> consent answered")
 ##   --shots=t1,t2,...   save viewport PNGs at these game-time seconds…
 ##   --shot-dir=PATH     …into this folder (default user://shots)
 ##   --quit-at=SEC       quit at this game time
@@ -38,20 +42,28 @@ extends Node3D
 ##                       CASHIERS / STAFF › WAITERS / tables) (use with
 ##                       --skip-tutorial)
 ##   --stats=SEC         print a one-line sim summary every SEC game seconds
+##                       (core and feel: "| door max | passed | held (max) |
+##                       trip orders | home walks | cap | hall seated (%) |
+##                       hall food .. road food .." from the Sim's getters,
+##                       "-" where this build's Sim has none)
 ##   --buy=a,b,...       purchases at start: galla, waiter, table, waiter_up,
 ##                       galla_up (galla 1 level), a station id to build it
 ##                       (tandoor, lassi, kadai), <id>_up (level up),
 ##                       <id>_hire (hire a cook), <id>_speed (processing),
 ##                       <id>_lvl<N> (set the level outright, station menus:
 ##                       milestone dish unlocks fire as on LEVEL UP taps),
+##                       waiter_lvl<N> (every waiter to level N; prints
+##                       "[game] waiter tray <i> orders <k>"),
 ##                       e.g. chai_up, lassi_hire, kadai_up, chai_lvl24
 ##   --no-notes          MunshiNotes off (measurement runs)
 ##   --seed=N            fixed pacing seed N (tutorial and free play) for
 ##                       repeatable / varied measurement runs
 ##   --arrivals=N        force the arrival ramp's target to N travellers/min
-##   --window=SEC        print a [window] line (arrivals/min, lost, food
-##                       waits) for the first SEC sim seconds after the
-##                       tutorial ends (from the start if it is already done)
+##   --window=SEC        print a [window] line (arrivals/min, lost, travellers
+##                       who drove past, takings/min = sales only, food
+##                       waits; event guests while the baraat is on) for the
+##                       first SEC sim seconds after the tutorial ends (from
+##                       the start if it is already done); no --stats needed
 ##   --capture=free      free-play review shots (use with --skip-tutorial
 ##                       --money=N --shot-dir=DIR): home view with seated
 ##                       travellers / Raju carrying / both gallas, the ghost
@@ -95,7 +107,10 @@ extends Node3D
 ##                       tables) and D (kadai built, 3 cooks, L100 props;
 ##                       also from the kadai and annex views), one TAPCHECK
 ##                       line per world point,
-##                       then "TAPCHECK fails=<n>"; quits with exit code n
+##                       then "TAPCHECK fails=<n>"; quits with exit code n.
+##                       In the family layout (after --renovate) only stage E
+##                       runs: the hall's ghost waiter, waiter 4 and tables
+##                       2-7, from the home view and the hall view
 ##   --time=P            day / night cycle phase 0..1 at start (0 = dawn,
 ##                       0.25 bright day, 0.62 dusk, 0.84 night); the cycle
 ##                       runs on from there once the tutorial is done
@@ -128,22 +143,76 @@ extends Node3D
 ##    measured whole-order trips per order key, the demand shares, each
 ##    station's queue / pass and, at --quit-at, a [summary] line with run
 ##    averages, the order mix seen and the serves per dish + dish mismatches)
+## Core and feel (build plan 2.7):
+##   --reno-ready        Game.debug_reno_ready(): every counter built and at
+##                       L100, the Family Dhaba unlocked (cash untouched);
+##                       prints "[promo] renovation ready: dishes n/16 cost c"
+##   --renovate          --reno-ready, then Game.renovate(true) once the scene
+##                       is up: the scene reloads (the production path) and
+##                       the run goes on in the family layout
+##   --move=nh48         --renovate, then on the reloaded scene
+##                       debug_reno_ready() + move_highway("nh48", true): a
+##                       second reload, the run goes on at NH 48
+##   --signboard=N       Game.debug_set_signboard(N); prints
+##                       "[game] signboard N cap <ramp cap>"
+##   --claims=N          Game.debug_set_claims(N) (task claims so far)
+##   --sessions=N        Game.debug_set_sessions(N) (--open=vip then prints
+##                       "[offer] variant <v>")
+##   --special=DISH|none|auto  the daily special: that dish (validated by
+##                       Game), none, or the real rules (a debug run with flags
+##                       has no special without --special or --date)
+##   --event=on|off|auto the weekend baraat (debug runs with flags: off
+##                       unless --event or --date)
+##   --event-guests=N    N baraat guests counted at once
+##   --event-claim       claims every done goal step, now and whenever one
+##                       completes
+##   --fx-log            Fx.debug_log on (spend flight log lines)
+##   --promo-check       promotions end to end (with --fresh --skip-tutorial
+##                       --money=1e12): renovate -> reload -> family checks,
+##                       NH 48 -> reload -> NH 48 checks; one "PROMOCHECK
+##                       <phase> <check> ok|FAIL|SKIP" line per check, then
+##                       "PROMOCHECK fails=<n>"; quits with exit code n
+##   Applied once per process (static, so they survive the promotion's scene
+##   reload): --fresh, --skip-tutorial, --money; then the promotion flags,
+##   one reload each; then, on the final scene only and in this order:
+##   --buy, --signboard, --claims, --sessions, --special, --event,
+##   --event-guests, --event-claim, --open, the checks (--tap-check,
+##   --zoom-test, --promo-check, --capture). --arrivals, --stats, --window
+##   and --quit-at count from the scene they run in.
+##   Parsed elsewhere: --lang (Loc); --consent=ask|allow|deny|reset and
+##   --sdk-test (Analytics); --date=YYYY-MM-DD and --away=SEC (Game);
+##   --layout=family (Layout3: the family layout without a renovation);
+##   --tray=N (Sim: every waiter carries N orders); --ads=nofill (Ads: the
+##   stub never fills).
 
 const GfxQuality := preload("res://scripts/v3/core/gfx_quality.gd")
 const SHADOW_DISTANCE := 60.0
 const AMBIENT_ENERGY := 0.34
 const SUN_ENERGY := 0.5
-## Name board text area on dhaba_v3 (ART report): centre, facing +Z.
-const NAME_BOARD_POS := Vector3(3.8, 2.33, 10.13)
+## Name board text area on dhaba_v3 (ART report): centre (3.8, 2.33, 10.112),
+## 2.4 x 0.44 m, facing +Z. Core and feel C8.2: two lines, "DHABA RUSH" (as
+## big as before, raised) over the Hindi line (plan 5.5, BI fixed text).
+const NAME_BOARD_POS := Vector3(3.8, 2.42, 10.13)
 const NAME_BOARD_TEXT := "DHABA RUSH"
+## The Hindi line under it: its centre, cap / headline height (m), max width.
+const NAME_BOARD_HI_POS := Vector3(3.8, 2.20, 10.13)
+const NAME_BOARD_HI_CAP := 0.11
+const NAME_BOARD_HI_MAX_W := 2.3
+const NAME_BOARD_HI_TEXT := "ढाबा · होटल"
 ## Rooftop signboard text (ART v3_exterior.SIGN_TEXT): text, centre (faces
 ## +Z), max width (m), cap height (m), colour. Board model only in the glb.
+## Entry 3 (the small English line) is set per scene: Game's location line
+## (NH 48 "RAJASTHANI DHABA"), else SIGN_EN_FAMILY after the renovation, else
+## SIGN_EN_ROADSIDE (core and feel C8.2 / C6.3, plan 5.5).
 const SIGN_TEXT := [
 	["ढाबा रश", Vector3(4.5, 4.36, -0.105), 2.6, 0.34, Color("FFFFFF")],
 	["DHABA RUSH", Vector3(4.5, 3.86, -0.105), 4.4, 0.44, Color("FFD23F")],
 	["24 घंटे खुला", Vector3(3.0, 3.36, -0.105), 2.3, 0.17, Color("FFFFFF")],
-	["FAMILY DHABA", Vector3(6.0, 3.36, -0.105), 2.3, 0.17, Color("FFFFFF")],
+	["HOTEL & DHABA", Vector3(6.0, 3.36, -0.105), 2.3, 0.17, Color("FFFFFF")],
 ]
+const SIGN_EN_INDEX := 3
+const SIGN_EN_ROADSIDE := "HOTEL & DHABA"
+const SIGN_EN_FAMILY := "AC FAMILY HALL"
 const SIGN_FONT_SIZE := 128
 ## Cap height / em of Baloo 2 (and the Devanagari headline height).
 const SIGN_CAP_EM := 0.68
@@ -238,15 +307,62 @@ var _win_bus_riders0: int = 0
 var _win_done: bool = false
 
 var _tap_check: bool = false
-## Menu-expansion + station-menus models (docs/v3-station-menus.md §10.1);
-## --capture=menu lists the missing ones.
+## Menu-expansion + station-menus models (docs/v3-station-menus.md §10.1)
+## and the core-and-feel models of build plan section 4 (props, buildings,
+## people, NH 48 dishes); --capture=menu lists the missing ones.
 const MENU_MODELS := ["lassi_station", "kadai_station", "pass_lassi", "pass_bhurji", "pass_dal",
 		"pass_coffee", "pass_green_tea", "pass_kesar_doodh", "pass_naan", "pass_keema_paratha", "pass_kulcha",
 		"pass_chaas", "pass_mango_lassi", "pass_patiala", "pass_paneer", "pass_chole",
 		"prop_coffee_kettle", "prop_green_tea_jar", "prop_milk_can", "prop_naan_basket", "prop_keema_pot",
 		"prop_kulcha_board", "prop_chaas_jug", "prop_mango_crate", "prop_patiala_glass", "prop_dal_handi",
 		"prop_paneer_block", "prop_chole_sack",
-		"lassi_wala", "bhurji_wala", "dal_wala", "neetu", "bittu", "kallu"]
+		"lassi_wala", "bhurji_wala", "dal_wala", "neetu", "bittu", "kallu",
+		"seats_board", "plate_stool", "tray_wide", "family_hall", "family_table", "hoarding", "tv_set",
+		"dog_sit", "bus_baraat", "deco_baraat", "camel_cart", "pass_kulhad",
+		"trav_elder", "trav_sardar", "trav_farmer", "trav_techie", "trav_baraati_m", "trav_baraati_f",
+		"gopal", "lakhan", "balwant", "sonu",
+		"pass_missi_roti", "pass_lahsun_roti", "pass_baati", "pass_rabri", "pass_dal_baati", "pass_gatte",
+		"pass_ker_sangri", "pass_laal_maas", "pass_shikanji"]
+
+# --- core and feel debug flags (build plan 2.7). Static: they survive the
+# promotion's get_tree().reload_current_scene() (one process = one run).
+## --fresh / --skip-tutorial / --money / --reno-ready already applied.
+static var _once_done: bool = false
+## Promotion steps still to run, one per scene: "renovate", "move:<id>".
+static var _promo_steps: Array = []
+## --promo-check: the phase the next scene runs (1 = the first scene) and the
+## fails so far.
+static var _pc_phase: int = 1
+static var _pc_fails: int = 0
+## session_settings is sent once per app start, not again after a reload.
+static var _session_settings_sent: bool = false
+## A final scene ran its debug flags (_start_debug_flags): a later scene (a
+## promotion reload) does not apply the one-shot flags (--buy, --open, the
+## game-state flags) again (plan 2.7).
+static var _final_done: bool = false
+## This scene only runs a promotion flag's step and reloads (debug).
+var _promo_scene: bool = false
+## The promoted signal arrived: this scene is about to be replaced.
+var _reloading: bool = false
+var _promo_check: bool = false
+var _fx_log: bool = false
+var _signboard_n: int = -1
+var _claims_n: int = -1
+var _sessions_n: int = -1
+var _special_arg: String = ""
+var _event_mode: String = ""
+var _event_guests: int = -1
+var _event_claim: bool = false
+## The two sign lines set this scene (C8.2 / C6.3): name board Hindi, rooftop English.
+var _sign_hi: String = ""
+var _sign_en: String = ""
+## --window extras: passed and takings (sales only: lifetime earnings minus
+## rewards) and baraat guests at the window start.
+var _win_passed0: int = 0
+var _win_life0: float = 0.0
+var _win_reward0: float = 0.0
+var _win_event0: int = 0
+var _rewards_seen: float = 0.0
 
 var _auto: bool = false
 var _auto_next: float = 0.0
@@ -265,12 +381,24 @@ var _auto_log_step: String = ""
 ## Game time the tutorial's free step was first entered (-1 = not yet).
 var _auto_free_t0: float = -1.0
 var _auto_home_checked: bool = false
+## --consent=ask: game time the consent card was first seen open, and when
+## the autopilot tapped ALLOW (-1 = not yet).
+const AUTO_CONSENT_DWELL := 1.5
+const AUTO_CONSENT_RETRY := 1.0
+var _auto_card_t: float = -1.0
+var _auto_card_tap_t: float = -1.0
+## 0 = not answered yet, 1 = ALLOW tapped, 2 = answered by its handler.
+var _auto_card_stage: int = 0
 
 
 func _ready() -> void:
 	_parse_cmdline()
 	_detect_tier()
 	Refs.world = self
+	# Core and feel C6.1 / C6.3 (production): a renovation or a move resets
+	# Game, which saves and emits promoted; this scene then reloads.
+	if Game.has_signal("promoted") and not Game.is_connected("promoted", _on_promoted):
+		Game.connect("promoted", _on_promoted)
 	_build_environment()
 
 	# Modules: Refs first, then into the tree (Sim builds the world in _ready).
@@ -307,8 +435,12 @@ func _ready() -> void:
 	munshi_notes = MunshiNotes.new()
 	munshi_notes.name = "MunshiNotes"
 	add_child(munshi_notes)
+	var signs: Array = _sign_lines()
+	_sign_hi = str(signs[0])
+	_sign_en = str(signs[1])
 	_add_name_board()
 	_add_signboard()
+	print("[main3] signs: %s | %s" % [_sign_hi, _sign_en])
 	fairy_lights = FairyLights.new()
 	fairy_lights.name = "FairyLights"
 	add_child(fairy_lights)
@@ -323,13 +455,42 @@ func _ready() -> void:
 		sim.prewarm(6)   # returning player: travellers already on their way in
 	if OS.is_debug_build() and OS.get_cmdline_user_args().has("--traffic-debug") and sim.traffic != null:
 		sim.traffic.debug_overlaps = true
+	if _promo_scene:
+		# Debug: this scene only runs the next promotion flag, then reloads.
+		_run_promo_step.call_deferred()
+	else:
+		_start_debug_flags()
+	if not _shots.is_empty():
+		DirAccess.make_dir_recursive_absolute(_globalize(_shot_dir))
+	print("[main3] ready (low_tier=%s, auto=%s, shots=%d, fairy strings=%d, graphics=%s, max_fps=%d)" % [low_tier, _auto, _shots.size(), strings, GfxQuality.mode(), Engine.max_fps])
+	# Soft launch analytics: the settings this session plays with (language,
+	# graphics, sound), for splitting the funnel by them. Once per app start
+	# (a promotion reloads this scene within the same session).
+	if not _session_settings_sent:
+		_session_settings_sent = true
+		var loc: Node = get_node_or_null("/root/Loc")
+		Analytics.event("session_settings", {"lang": str(loc.get("lang")) if loc != null else "en",
+				"gfx": GfxQuality.mode(), "low": low_tier, "music": Sfx.music_on, "sound": Sfx.sound_on})
+
+
+## The final scene's debug flags (plan 2.7 order): --arrivals, --stats and
+## --window measure from this scene's start (as in 0.3.7); --buy, then the
+## game-state flags, then --open run in one deferred sequence; the checks and
+## captures start deferred as before.
+func _start_debug_flags() -> void:
+	_final_done = true
 	if _arrivals_force > 0.0:
 		sim.debug_arrivals_tpm = _arrivals_force
-
-	if _open_at_start != "":
-		_debug_open.call_deferred(_open_at_start)
-	if not _buy.is_empty():
-		_debug_buy.call_deferred()
+	if _window > 0.0 and Game.has_signal("reward_added"):
+		Game.reward_added.connect(_on_reward_seen)
+	if _fx_log:
+		if "debug_log" in Fx:
+			Fx.set("debug_log", true)
+			print("[main3] --fx-log: Fx.debug_log on")
+		else:
+			print("[main3] --fx-log: SKIP (no Fx.debug_log)")
+	if not _buy.is_empty() or _open_at_start != "" or _has_state_flags():
+		_debug_sequence.call_deferred()
 	if _capture == "free" or _capture == "lorry":
 		_free_capture.call_deferred()
 	elif _capture == "bus":
@@ -354,31 +515,28 @@ func _ready() -> void:
 		ui.panel_closed.connect(func(n: String) -> void: print("[auto] %.2f panel closed: %s" % [_game_t, n]))
 		ui.button_pressed.connect(func(b: String) -> void: print("[auto] %.2f button: %s" % [_game_t, b]))
 		dialogue.line_started.connect(func(l: String) -> void: print("[auto] %.2f line %s" % [_game_t, l]))
-	if not _shots.is_empty():
-		DirAccess.make_dir_recursive_absolute(_globalize(_shot_dir))
-	print("[main3] ready (low_tier=%s, auto=%s, shots=%d, fairy strings=%d, graphics=%s, max_fps=%d)" % [low_tier, _auto, _shots.size(), strings, GfxQuality.mode(), Engine.max_fps])
-	# Soft launch analytics: the settings this session plays with (language,
-	# graphics, sound), for splitting the funnel by them.
-	var loc: Node = get_node_or_null("/root/Loc")
-	Analytics.event("session_settings", {"lang": str(loc.get("lang")) if loc != null else "en",
-			"gfx": GfxQuality.mode(), "low": low_tier, "music": Sfx.music_on, "sound": Sfx.sound_on})
+	if _promo_check:
+		_run_promo_check.call_deferred()
 
 
 func _process(delta: float) -> void:
 	_game_t += delta
+	if _promo_scene:
+		return   # debug: a promotion flag's scene; it reloads in a moment
 	if not _shots.is_empty() and _game_t >= _shots[0]:
 		var t: float = _shots.pop_front()
 		_take_shot(t)
 	if _auto:
 		_auto_tick(delta)
+	# (--window no longer needs --stats: it ticks on its own.)
+	if _window > 0.0 and not _win_done:
+		_tick_window()
 	if _stats_every > 0.0:
 		if not Game.sim_paused:
 			_line_area += sim.avg_galla_line() * delta
 			_line_time += delta
 		_busq_max = maxi(_busq_max, sim.bus_line.size())
 		_busq_wait_max = maxf(_busq_wait_max, sim.bus_wait_oldest())
-		if _window > 0.0 and not _win_done:
-			_tick_window()
 		if _game_t >= _stats_next:
 			_stats_next = _game_t + _stats_every
 			_print_stats()
@@ -552,14 +710,37 @@ func _add_name_board() -> void:
 	l.double_sided = false
 	l.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(l)
+	# C8.2: the Hindi line under it ("ढाबा · होटल"; NH 48 "राजस्थानी ढाबा ·
+	# होटल"), same colours, fixed text (never translated).
+	var h := Label3D.new()
+	h.name = "NameBoardHi"
+	h.text = _sign_hi
+	h.font = l.font
+	h.font_size = 96
+	var px: float = NAME_BOARD_HI_CAP / (SIGN_CAP_EM * 96.0)
+	if h.font != null:
+		var w: float = h.font.get_string_size(_sign_hi, HORIZONTAL_ALIGNMENT_LEFT, -1, 96).x
+		if w > 0.0:
+			px = minf(px, NAME_BOARD_HI_MAX_W / w)
+	h.pixel_size = px
+	h.outline_size = 14
+	h.modulate = l.modulate
+	h.outline_modulate = l.outline_modulate
+	h.position = NAME_BOARD_HI_POS
+	h.shaded = false
+	h.double_sided = false
+	h.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	h.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(h)
 
 
 ## Hindi + English text on ART's rooftop signboard (board only in dhaba_v3).
+## The small English line (SIGN_EN_INDEX) is this scene's _sign_en (C8.2).
 func _add_signboard() -> void:
 	var font: Font = load("res://ui/main_font.tres") as Font
-	for v in SIGN_TEXT:
-		var e: Array = v
-		var text: String = e[0]
+	for i in SIGN_TEXT.size():
+		var e: Array = SIGN_TEXT[i]
+		var text: String = _sign_en if i == SIGN_EN_INDEX else str(e[0])
 		var l := Label3D.new()
 		l.name = "Sign_" + str(get_child_count())
 		l.text = text
@@ -578,18 +759,294 @@ func _add_signboard() -> void:
 		l.position = e[1]
 		l.shaded = false
 		l.double_sided = false
+		if i == SIGN_EN_INDEX:
+			l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 		l.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(l)
 
 
+## C8.2 / C6.3 (plan 5.5, BI fixed text): [name board Hindi line, rooftop
+## English small line] for this scene: Game.location_signs() (NH 48) when it
+## has them, else the layout's lines (by name: W1-CORE's Game, rule 5).
+func _sign_lines() -> Array:
+	var signs: Dictionary = {}
+	if Game.has_method("location_signs"):
+		var v: Variant = Game.call("location_signs")
+		if v is Dictionary:
+			signs = v
+	var hi: String = str(signs.get("sign_hi", ""))
+	if hi == "":
+		hi = NAME_BOARD_HI_TEXT
+	var en: String = str(signs.get("sign_en", ""))
+	if en == "":
+		en = SIGN_EN_FAMILY if _layout_variant() == "family" else SIGN_EN_ROADSIDE
+	return [hi, en]
+
+
+## The layout this scene shows, resolved as Layout3 and the Sim do: "family"
+## with a debug run's --layout=family, else Game.layout_variant() (W1-CORE,
+## by name: "family" after the renovation), else "roadside".
+func _layout_variant() -> String:
+	if OS.is_debug_build() and OS.get_cmdline_user_args().has("--layout=family"):
+		return "family"
+	if Game.has_method("layout_variant"):
+		return str(Game.call("layout_variant"))
+	return "roadside"
+
+
+# ================================================================ promotions (core and feel C6.1 / C6.3)
+## Production, every build: Game reset itself for a renovation or a move and
+## saved (W1-CORE's _promote_reset). The old scene must not run another frame
+## on the reset state, so it stops here and the whole scene reloads: the Sim,
+## the world and the UI rebuild from Game's state, as for a loaded save.
+func _on_promoted(kind: String, count: int) -> void:
+	if _reloading:
+		return
+	_reloading = true
+	print("[promo] %s %d: reloading scene" % [kind, count])
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		return
+	if tree.current_scene != null:
+		tree.current_scene.process_mode = Node.PROCESS_MODE_DISABLED
+	# UiRoot turns the root viewport's 3D off while STAFF / BUILD cover the
+	# screen; the root Window survives the reload and the disabled old UiRoot
+	# never turns it back on, so the new scene would draw no world.
+	var vp: Viewport = get_viewport()
+	if vp != null:
+		vp.disable_3d = false
+	tree.reload_current_scene.call_deferred()
+
+
+## Debug (--reno-ready, --renovate, --move, --promo-check): every counter
+## built and at L100 (Game.debug_reno_ready, by name; cash untouched) and the
+## plan 2.7 line. False when this build's Game lacks it.
+func _reno_ready_now() -> bool:
+	if not Game.has_method("debug_reno_ready"):
+		print("[main3] reno-ready: SKIP (no Game.debug_reno_ready)")
+		return false
+	Game.call("debug_reno_ready")
+	var rs: Dictionary = _game_dict("renovation_state")
+	print("[promo] renovation ready: dishes %d/%d cost %.2f" % [int(rs.get("dishes", 0)),
+			int(rs.get("dishes_total", 0)), float(rs.get("cost", 0.0))])
+	return true
+
+
+## Debug: the next promotion flag's step on this scene, once it is up (two
+## frames: the Sim and the UI are in the tree). Game's promoted signal then
+## reloads the scene and the next scene goes on. When the step cannot run
+## (an API missing in this build, a refusal) this scene becomes the final one.
+func _run_promo_step() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if _promo_steps.is_empty():
+		_promo_scene = false
+		_start_debug_flags()
+		return
+	var step: String = str(_promo_steps.pop_front())
+	var ok: bool = false
+	if step == "renovate":
+		if Game.has_method("renovate"):
+			ok = bool(Game.call("renovate", true))
+	elif step.begins_with("move:"):
+		if Game.has_method("move_highway"):
+			_reno_ready_now()
+			ok = bool(Game.call("move_highway", step.substr(5), true))
+	if ok and _reloading:
+		return
+	print("[main3] promotion flag %s: %s; this scene is the final one" % [step,
+			"no reload" if ok else ("refused" if Game.has_method("renovate") else "SKIP (no promotion API in this build)")])
+	_promo_steps.clear()
+	_promo_scene = false
+	_start_debug_flags()
+
+
+## --promo-check (plan W1-HARNESS 5; with --fresh --skip-tutorial
+## --money=1e12): phase 1 renovates (reload), phase 2 checks the family
+## layout, builds it out, plays 60 s and moves to NH 48 (reload), phase 3
+## checks NH 48. The phase and the fails live in statics across the reloads.
+## A Game or Sim method this build lacks prints SKIP; then the check ends.
+func _run_promo_check() -> void:
+	await _game_wait(0.5)
+	Game.debug_set_cash(maxf(Game.cash, 1.0e12))
+	match _pc_phase:
+		1:
+			await _promo_check_1()
+		2:
+			await _promo_check_2()
+		_:
+			await _promo_check_3()
+
+
+func _pc(phase: int, check: String, ok: bool, detail: String = "") -> void:
+	if not ok:
+		_pc_fails += 1
+	print("PROMOCHECK %d %s %s %s" % [phase, check, "ok" if ok else "FAIL", detail])
+
+
+func _pc_skip(phase: int, check: String, why: String) -> void:
+	print("PROMOCHECK %d %s SKIP %s" % [phase, check, why])
+
+
+## The end of the check (this scene does not reload any more).
+func _pc_end() -> void:
+	print("PROMOCHECK fails=%d" % _pc_fails)
+	get_tree().quit(_pc_fails)
+
+
+## Game methods the check needs; SKIP lines for the missing ones.
+func _pc_needs(phase: int, methods: Array) -> bool:
+	var ok: bool = true
+	for m in methods:
+		if not Game.has_method(str(m)):
+			_pc_skip(phase, str(m), "(no Game.%s in this build)" % str(m))
+			ok = false
+	return ok
+
+
+func _promo_check_1() -> void:
+	print("[promocheck] phase 1: renovation (scene 1)")
+	if not _pc_needs(1, ["debug_reno_ready", "renovation_state", "renovate"]) or not Game.has_signal("promoted"):
+		if not Game.has_signal("promoted"):
+			_pc_skip(1, "promoted", "(no Game.promoted signal in this build)")
+		_pc_end()
+		return
+	# (debug_reno_ready ran at parse time, before the world was built: a
+	# counter built live here would still be mid-reveal at the reload.)
+	var rs: Dictionary = _game_dict("renovation_state")
+	_pc(1, "reno_unlocked", bool(rs.get("unlocked", false)), "dishes %s/%s cost %s" % [rs.get("dishes"), rs.get("dishes_total"), rs.get("cost")])
+	var cash0: float = Game.cash
+	_pc_phase = 2
+	var ok: bool = bool(Game.call("renovate"))
+	_pc(1, "renovate", ok, "cash %.2f -> %.2f" % [cash0, Game.cash])
+	_pc(1, "reload", ok and _reloading, "promoted -> scene reload" if _reloading else "no reload")
+	if not (ok and _reloading):
+		_pc_end()
+
+
+func _promo_check_2() -> void:
+	print("[promocheck] phase 2: family layout (scene 2, after the reload)")
+	await _game_wait(0.5)
+	_pc(2, "waiters_1", Game.waiter_count() == 1, "waiters %d" % Game.waiter_count())
+	_pc(2, "gallas_1", Game.galla_count() == 1, "gallas %d" % Game.galla_count())
+	_pc(2, "tables_3", Game.table_count() == 3, "tables %d" % Game.table_count())
+	var dl: PackedStringArray = PackedStringArray()
+	var dish_ok: bool = true
+	for id: String in Game.station_ids():
+		var n: int = Game.dishes_unlocked(id)
+		dl.append("%s %d" % [id, n])
+		if n != 4:
+			dish_ok = false
+	_pc(2, "dishes_4", dish_ok, ", ".join(dl))
+	if _pc_needs(2, ["fame_mult"]):
+		var fm: float = float(Game.call("fame_mult"))
+		_pc(2, "fame_mult_2", absf(fm - 2.0) < 0.0001, "%.2f" % fm)
+	_pc(2, "layout_family", _layout_variant() == "family", _layout_variant())
+	_pc(2, "seats_12", sim.seats_total() == 12, "seats %d" % sim.seats_total())
+	_pc(2, "rooftop_family", _sign_en == SIGN_EN_FAMILY, "'%s'" % _sign_en)
+	for k in 5:
+		Game.buy_table()
+	await _game_wait(1.0)
+	_pc(2, "tables_8_seats_32", Game.table_count() == 8 and sim.seats_total() == 32,
+			"tables %d seats %d" % [Game.table_count(), sim.seats_total()])
+	for k in 3:
+		Game.buy_waiter_hire()
+	await _game_wait(1.0)
+	_pc(2, "waiters_4", Game.waiter_count() == 4, "waiters %d" % Game.waiter_count())
+	var t0: float = _game_t
+	await _game_wait(60.0)
+	if sim.has_method("hall_seated_total"):
+		var hs: int = int(sim.call("hall_seated_total"))
+		var st: int = int(sim.call("seated_total_scene")) if sim.has_method("seated_total_scene") else -1
+		_pc(2, "hall_seated", hs >= 1, "hall seated %d of %d in %.0f s" % [hs, st, _game_t - t0])
+	else:
+		_pc_skip(2, "hall_seated", "(no Sim.hall_seated_total in this build)")
+	if not _pc_needs(2, ["move_highway"]):
+		_pc_end()
+		return
+	_reno_ready_now()
+	var cash0: float = Game.cash
+	_pc_phase = 3
+	var ok: bool = bool(Game.call("move_highway", "nh48"))
+	_pc(2, "move_nh48", ok, "cash %.2f -> %.2f" % [cash0, Game.cash])
+	_pc(2, "reload", ok and _reloading, "promoted -> scene reload" if _reloading else "no reload")
+	if not (ok and _reloading):
+		_pc_end()
+
+
+func _promo_check_3() -> void:
+	print("[promocheck] phase 3: NH 48 (scene 3, after the reload)")
+	await _game_wait(0.5)
+	if _pc_needs(3, ["location_id"]):
+		_pc(3, "location_nh48", str(Game.call("location_id")) == "nh48", str(Game.call("location_id")))
+	if _pc_needs(3, ["fame_mult"]):
+		var fm: float = float(Game.call("fame_mult"))
+		_pc(3, "fame_mult_3", absf(fm - 3.0) < 0.0001, "%.2f" % fm)
+	var built: Array[String] = Game.built_station_ids()
+	_pc(3, "only_chai_built", built.size() == 1 and built[0] == "chai", str(built))
+	var dishes: Array[String] = Game.dish_ids("chai")
+	_pc(3, "chai_masala_chai", not dishes.is_empty() and dishes[0] == "chai.masala_chai", str(dishes))
+	_pc(3, "rooftop_rajasthani", _sign_en == "RAJASTHANI DHABA", "'%s'" % _sign_en)
+	_pc(3, "gate_board_hindi", _sign_hi == "राजस्थानी ढाबा · होटल", "'%s'" % _sign_hi)
+	_pc(3, "layout_family", _layout_variant() == "family", _layout_variant())
+	_pc_end()
+
+
+## A Game method returning a Dictionary, by name ({} when missing).
+func _game_dict(m: String, args: Array = []) -> Dictionary:
+	if not Game.has_method(m):
+		return {}
+	var v: Variant = Game.callv(m, args)
+	if v is Dictionary:
+		return v
+	return {}
+
+
 # ================================================================ debug flags
+## Every scene parses the flags again (a promotion reloads it); --fresh,
+## --skip-tutorial, --money, --reno-ready and the promotion steps are applied
+## only on the first scene of the process (static _once_done).
 func _parse_cmdline() -> void:
 	if not OS.is_debug_build():
 		return
+	var first: bool = not _once_done
 	var money: float = -1.0
+	var reno_ready: bool = false
+	var steps: Array = []
 	for arg: String in OS.get_cmdline_user_args():
 		if arg == "--fresh":
-			Game.wipe_save()
+			if first:
+				Game.wipe_save()
+		elif arg == "--reno-ready":
+			reno_ready = true
+		elif arg == "--renovate":
+			reno_ready = true
+			if not steps.has("renovate"):
+				steps.push_front("renovate")
+		elif arg.begins_with("--move="):
+			reno_ready = true
+			if not steps.has("renovate"):
+				steps.push_front("renovate")
+			steps.append("move:" + arg.get_slice("=", 1))
+		elif arg.begins_with("--signboard="):
+			_signboard_n = maxi(0, int(arg.get_slice("=", 1)))
+		elif arg.begins_with("--claims="):
+			_claims_n = maxi(0, int(arg.get_slice("=", 1)))
+		elif arg.begins_with("--sessions="):
+			_sessions_n = maxi(0, int(arg.get_slice("=", 1)))
+		elif arg.begins_with("--special="):
+			_special_arg = arg.get_slice("=", 1)
+		elif arg.begins_with("--event="):
+			_event_mode = arg.get_slice("=", 1)
+		elif arg.begins_with("--event-guests="):
+			_event_guests = maxi(0, int(arg.get_slice("=", 1)))
+		elif arg == "--event-claim":
+			_event_claim = true
+		elif arg == "--fx-log":
+			_fx_log = true
+		elif arg == "--promo-check":
+			_promo_check = true
+			MunshiNotes.enabled = false
 		elif arg == "--skip-tutorial":
 			_skip_tutorial = true
 		elif arg.begins_with("--money="):
@@ -634,6 +1091,29 @@ func _parse_cmdline() -> void:
 			_tap_zoom = arg.get_slice("=", 1)
 	if _capture != "" and _capture != "menu":
 		MunshiNotes.enabled = false
+	if not first:
+		# A promotion reloaded the scene: the run goes on with the next step.
+		_promo_scene = not _promo_steps.is_empty()
+		if _final_done:
+			# Plan 2.7: a reload never re-applies --buy (nor --open and the
+			# game-state flags); --event-claim re-hooks this scene, and the
+			# measures (--arrivals, --stats, --window, --quit-at) and
+			# --promo-check's later phases go on.
+			var had: bool = not _buy.is_empty() or _open_at_start != "" or _signboard_n >= 0 \
+					or _claims_n >= 0 or _sessions_n >= 0 or _special_arg != "" or _event_mode != "" \
+					or _event_guests >= 0
+			_buy = PackedStringArray()
+			_open_at_start = ""
+			_signboard_n = -1
+			_claims_n = -1
+			_sessions_n = -1
+			_special_arg = ""
+			_event_mode = ""
+			_event_guests = -1
+			if had:
+				print("[main3] reload: one-shot flags not re-applied")
+		return
+	_once_done = true
 	if _skip_tutorial and not Game.is_tutorial_done():
 		Game.tutorial_set("step", "done")
 		Game.tutorial_set("done", true)
@@ -641,6 +1121,13 @@ func _parse_cmdline() -> void:
 		Game.enable_ad_bubbles(true)
 	if money >= 0.0:
 		Game.cash = money
+	# Core and feel promotion flags: every counter at L100 before the world
+	# is built (so no counter is revealed live), then (deferred, once the
+	# scene is up) renovate / move. --promo-check's phase 1 likewise.
+	if reno_ready or (_promo_check and _pc_phase == 1):
+		_reno_ready_now()
+	_promo_steps = steps
+	_promo_scene = not _promo_steps.is_empty()
 
 
 func _debug_open(what: String) -> void:
@@ -655,6 +1142,8 @@ func _debug_open(what: String) -> void:
 		"hisaab", "stats":
 			ui.open_daftar("hisaab")
 		"vip":
+			# C7.4: which offer this open shows (W1-MONEY's UiRoot marks it shown).
+			print("[offer] variant %s" % _offer_variant())
 			ui.open_vip(100.0)
 		"settings":
 			ui.open_settings()
@@ -669,6 +1158,102 @@ func _debug_open(what: String) -> void:
 				ui.open_quick(what.substr(6))
 			else:
 				ui.open_station(what)
+
+
+## C7.4: Game.offer_variant() (W1-CORE, by name), else the 0.3.7 rule.
+func _offer_variant() -> String:
+	if Game.has_method("offer_variant"):
+		return str(Game.call("offer_variant"))
+	return "vip" if Game.vip_offer_visible() else "free"
+
+
+## The final scene's --buy, game-state flags and --open, in the plan 2.7
+## order (each waits for the one before it).
+func _debug_sequence() -> void:
+	if not _buy.is_empty():
+		await _debug_buy()
+	_apply_state_flags()
+	if _open_at_start != "":
+		await _debug_open(_open_at_start)
+
+
+func _has_state_flags() -> bool:
+	return _signboard_n >= 0 or _claims_n >= 0 or _sessions_n >= 0 or _special_arg != "" \
+			or _event_mode != "" or _event_guests >= 0 or _event_claim
+
+
+## --signboard, --claims, --sessions, --special, --event, --event-guests,
+## --event-claim (plan 2.7), each through Game by name (W1-CORE; SKIP when
+## this build's Game lacks the method).
+func _apply_state_flags() -> void:
+	if _signboard_n >= 0:
+		if _game_has("debug_set_signboard", "--signboard"):
+			Game.call("debug_set_signboard", _signboard_n)
+			var lv: int = int(Game.call("signboard_level")) if Game.has_method("signboard_level") else _signboard_n
+			print("[game] signboard %d cap %.1f" % [lv, _ramp_cap_formula()])
+	if _claims_n >= 0 and _game_has("debug_set_claims", "--claims"):
+		Game.call("debug_set_claims", _claims_n)
+		print("[main3] --claims=%d (claims_total %d)" % [_claims_n, Game.claims_total])
+	if _sessions_n >= 0 and _game_has("debug_set_sessions", "--sessions"):
+		Game.call("debug_set_sessions", _sessions_n)
+		print("[main3] --sessions=%d (sessions %d)" % [_sessions_n, Game.sessions])
+	if _special_arg != "":
+		match _special_arg:
+			"auto":
+				print("[main3] --special=auto: the special follows its real rules this run")
+			"none":
+				print("[main3] --special=none: no special this run")
+			_:
+				if _game_has("debug_set_special", "--special"):
+					var ok: bool = bool(Game.call("debug_set_special", _special_arg))
+					print("[main3] --special=%s -> %s" % [_special_arg, ok])
+	if _event_mode != "" and _game_has("debug_event", "--event"):
+		Game.call("debug_event", _event_mode)
+	if _event_guests >= 0 and _game_has("debug_event_served", "--event-guests"):
+		Game.call("debug_event_served", _event_guests)
+	if _event_claim:
+		if Game.has_signal("event_changed") and Game.has_method("claim_event_step"):
+			Game.connect("event_changed", _on_event_changed_claim)
+			_event_claim_pass()
+		else:
+			print("[main3] --event-claim: SKIP (no Game.event_changed / claim_event_step)")
+
+
+## True when Game has `m`; else prints the flag's SKIP line (plan: every new
+## flag parses on a Game without the API and says so).
+func _game_has(m: String, flag: String) -> bool:
+	if Game.has_method(m):
+		return true
+	print("[main3] %s: SKIP (no Game.%s)" % [flag, m])
+	return false
+
+
+## The Sim's arrival ramp cap: traffic ramp_max_tpm (19.5) + the signboard's
+## travellers/min (C5.3, 1.5 a level; 0 in the tutorial).
+func _ramp_cap_formula() -> float:
+	var hi: float = float(Game.traffic_value("ramp_max_tpm", 19.5))
+	if Game.has_method("signboard_bonus_tpm"):
+		hi += float(Game.call("signboard_bonus_tpm"))
+	return hi
+
+
+## --event-claim: Game's event_changed (also emitted by a claim) -> one
+## deferred pass over the goal steps.
+func _on_event_changed_claim() -> void:
+	_event_claim_pass.call_deferred()
+
+
+func _event_claim_pass() -> void:
+	var st: Dictionary = _game_dict("event_state")
+	var steps: Array = st.get("steps", [])
+	for i in steps.size():
+		var s: Variant = steps[i]
+		if s is Dictionary and bool((s as Dictionary).get("done", false)) and not bool((s as Dictionary).get("claimed", false)):
+			Game.call("claim_event_step", i)
+
+
+func _on_reward_seen(amount: float, _source: String = "") -> void:
+	_rewards_seen += amount
 
 
 func _debug_buy() -> void:
@@ -687,8 +1272,23 @@ func _debug_buy() -> void:
 			"galla_up":
 				ok = Game.buy_galla_upgrade(0)
 			_:
-				ok = _debug_buy_station(b)
+				if b.begins_with("waiter_lvl") and b.substr(10).is_valid_int():
+					ok = _debug_waiter_levels(int(b.substr(10)))
+				else:
+					ok = _debug_buy_station(b)
 		print("[main3] buy %s -> %s (cash %.2f)" % [b, ok, Game.cash])
+
+
+## --buy=waiter_lvl<N> (C3.4): every waiter to level N (Game, by name), then
+## each waiter's tray size.
+func _debug_waiter_levels(level: int) -> bool:
+	if not _game_has("debug_set_waiter_levels", "--buy=waiter_lvl%d" % level):
+		return false
+	Game.call("debug_set_waiter_levels", level)
+	for i in Game.waiter_count():
+		var k: int = int(Game.call("waiter_tray_orders", i)) if Game.has_method("waiter_tray_orders") else 1
+		print("[game] waiter tray %d orders %d" % [i, k])
+	return true
 
 
 ## --buy station keys: "<id>" builds it, "<id>_up" levels it, "<id>_hire"
@@ -1026,12 +1626,13 @@ func _print_stats() -> void:
 	var gl: String = ""
 	for g in sim.gallas:
 		gl += "%d " % g.line_count()
-	print("[stats] %.1f cash %.2f sales %d trav %d inside %d seats %d/%d door %d lost %d park %.2f | chai q %d pass %d | gallas %s| waiters %s| served %d foodwait %.1f | nodes %d timers %d step %s" % [
+	var cap: Dictionary = sim.capacity_estimate()
+	print("[stats] %.1f cash %.2f sales %d trav %d inside %d seats %d/%d door %d lost %d park %.2f | chai q %d pass %d | gallas %s| waiters %s| served %d foodwait %.1f | nodes %d timers %d step %s%s" % [
 		_game_t, Game.cash, sim.sales_count, sim.travellers.size(), sim.travellers_inside(),
 		sim.seats_in_use(), sim.seats_total(), sim.seats_waiting(), Game.lost_session, sim.parking_usage(),
 		chai.queue_length() if chai != null else -1, chai.pass_used() if chai != null else -1,
 		gl, ws, Game.served_total, float(Game.stats().get("avg_food_wait", -1.0)),
-		get_tree().get_node_count(), timers, director.current_step()])
+		get_tree().get_node_count(), timers, director.current_step(), _stats_core_feel(cap)])
 	var vp: Viewport = get_viewport()
 	print("[stats]    draw calls: canvas %d, 3d %d | fps %.0f" % [
 		vp.get_render_info(Viewport.RENDER_INFO_TYPE_CANVAS, Viewport.RENDER_INFO_DRAW_CALLS_IN_FRAME),
@@ -1044,7 +1645,6 @@ func _print_stats() -> void:
 		if OS.get_cmdline_user_args().has("--traffic-debug"):
 			print("[stats]    cars %s" % sim.traffic.debug_active())
 			print("[stats]    %s" % _overlap_line())
-	var cap: Dictionary = sim.capacity_estimate()
 	print("[stats]    ramp %.1f/min (raw %.1f, lorries measured %.1f) bus every %.0f s | capacity seats %.1f waiters %.1f stations %.1f gallas %.1f (items %.2f, expected waiter order trip %.2f s, chai %.1f s chai+tandoor %.1f s) | backlog %.1f s damp %.2f" % [
 			sim.arrivals_target, sim.arrivals_raw, sim.lorry_supply(),
 			minf(9999.0, sim.bus_interval()), float(cap["seats"]), float(cap["waiters"]), float(cap["stations"]),
@@ -1095,6 +1695,10 @@ func _tick_window() -> void:
 		_win_fw_n0 = sim.food_wait_n
 		_win_buses0 = sim.buses_stopped
 		_win_bus_riders0 = sim.arrivals_bus
+		_win_passed0 = _game_int("passed_session")
+		_win_life0 = Game.lifetime_earned
+		_win_reward0 = _rewards_seen
+		_win_event0 = int(_game_dict("event_state").get("served", 0))
 		sim.food_wait_max = 0.0
 		print("[window] start at game %.1f s (sim %.1f s): waiters %d, tables %d, gallas %d, stations %s, ramp %.1f/min" % [
 				_game_t, sim.sim_clock, Game.waiter_count(), Game.table_count(), Game.galla_count(),
@@ -1106,10 +1710,49 @@ func _tick_window() -> void:
 	_win_done = true
 	var arr: int = sim.arrivals_lorry + sim.arrivals_bus - _win_arr0
 	var fn: int = sim.food_wait_n - _win_fw_n0
-	print("[window] %.0f s after start | arrivals %d = %.1f/min | buses %d (bringing %d riders) | lost %d | food wait mean %.1f s (n %d), max %.1f s | HISAAB avg food wait %.1f s | ramp %.1f/min (raw %.1f), bus every %.0f s" % [
+	# Core and feel (plan 2.7): travellers who drove past (C2.1), takings =
+	# sales only (lifetime earnings minus rewards) per minute, and the baraat
+	# guests while the event is on (C6.4).
+	var passed: String = ("%d" % (_game_int("passed_session") - _win_passed0)) if "passed_session" in Game else "-"
+	var takings: float = (Game.lifetime_earned - _win_life0 - (_rewards_seen - _win_reward0)) * 60.0 / span
+	var ev: String = ""
+	if Game.has_method("event_active") and bool(Game.call("event_active")):
+		ev = "event guests %d | " % maxi(0, int(_game_dict("event_state").get("served", 0)) - _win_event0)
+	print("[window] %.0f s after start | arrivals %d = %.1f/min | buses %d (bringing %d riders) | lost %d | passed %s | takings %.1f/min | %sfood wait mean %.1f s (n %d), max %.1f s | HISAAB avg food wait %.1f s | ramp %.1f/min (raw %.1f), bus every %.0f s" % [
 			span, arr, float(arr) * 60.0 / span, sim.buses_stopped - _win_buses0, sim.arrivals_bus - _win_bus_riders0, Game.lost_session - _win_lost0,
-			(sim.food_wait_sum - _win_fw_sum0) / maxf(1.0, float(fn)), fn, sim.food_wait_max,
+			passed, takings, ev, (sim.food_wait_sum - _win_fw_sum0) / maxf(1.0, float(fn)), fn, sim.food_wait_max,
 			float(Game.stats().get("avg_food_wait", -1.0)), sim.arrivals_target, sim.arrivals_raw, minf(9999.0, sim.bus_interval())])
+
+
+## A Game int property by name (W1-CORE's new vars), 0 when missing.
+func _game_int(p: String) -> int:
+	if p in Game:
+		return int(Game.get(p))
+	return 0
+
+
+## --stats: the core-and-feel fields of plan 2.7 from the wave-1 Sim's getters
+## (by name: "-" where this build's Sim has none).
+func _stats_core_feel(cap: Dictionary) -> String:
+	var held: String = "-"
+	if sim.has_method("held_plates") and sim.has_method("held_plates_max"):
+		held = "%d (max %d)" % [int(sim.call("held_plates")), int(sim.call("held_plates_max"))]
+	var hall: String = "-"
+	if sim.has_method("hall_seated_total") and sim.has_method("seated_total_scene"):
+		var h: int = int(sim.call("hall_seated_total"))
+		hall = "%d (%.1f%%)" % [h, 100.0 * float(h) / maxf(1.0, float(sim.call("seated_total_scene")))]
+	var ramp_cap: float = float(cap["cap"]) if cap.has("cap") else _ramp_cap_formula()
+	return " | door max %s | passed %s | held %s | trip orders %s | home walks %s | cap %.1f | hall seated %s | hall food %s road food %s" % [
+		_sim_val("door_line_max_seen", "%d"), ("%d" % _game_int("passed_session")) if "passed_session" in Game else "-",
+		held, _sim_val("trip_orders_mean", "%.2f"), _sim_val("home_walks", "%d"), ramp_cap,
+		hall, _sim_val("hall_food_wait_mean", "%.1f"), _sim_val("road_food_wait_mean", "%.1f")]
+
+
+## A wave-1 Sim getter by name, formatted; "-" when this build's Sim lacks it.
+func _sim_val(m: String, fmt: String) -> String:
+	if sim != null and sim.has_method(m):
+		return fmt % sim.call(m)
+	return "-"
 
 
 ## --stats + --quit-at: one line of run averages (arrivals over unpaused sim time).
@@ -1205,6 +1848,46 @@ func _on_auto_line_typed(_id: String) -> void:
 	_auto_typed_t = _game_t
 
 
+## The analytics consent card (--consent=ask) is open: true while the
+## autopilot leaves everything else alone. After AUTO_CONSENT_DWELL s it taps
+## ALLOW (a real tap at the button); if the card is still open
+## AUTO_CONSENT_RETRY s later, it calls the card's own answer (the handler the
+## tap reaches), else Analytics.set_consent(true, "auto").
+func _auto_consent_tick() -> bool:
+	if not Analytics.is_card_open():
+		_auto_card_t = -1.0
+		_auto_card_stage = 0
+		return false
+	if _auto_card_t < 0.0:
+		_auto_card_t = _game_t
+		_auto_card_stage = 0
+	if _auto_card_stage == 2:
+		return false   # answered by hand already and still open: carry on
+	if _game_t - _auto_card_t < AUTO_CONSENT_DWELL:
+		return true
+	var card: Variant = Analytics.get("_card")
+	if _auto_card_stage == 0:
+		_auto_card_stage = 1
+		_auto_card_tap_t = _game_t
+		print("[auto] %.2f consent answered" % _game_t)
+		var btn: Control = null
+		if card is Control and is_instance_valid(card) and "allow_button" in (card as Object):
+			btn = (card as Object).get("allow_button") as Control
+		if btn != null and btn.is_visible_in_tree():
+			_send_tap(btn.get_global_transform_with_canvas() * (btn.size * 0.5))
+			return true
+	elif _game_t - _auto_card_tap_t < AUTO_CONSENT_RETRY:
+		return true
+	_auto_card_stage = 2
+	if card is Object and is_instance_valid(card) and (card as Object).has_method("answer"):
+		print("[auto] %.2f consent: the tap did not land; answering through the card" % _game_t)
+		(card as Object).call("answer", true)
+	else:
+		print("[auto] %.2f consent: no card button; Analytics.set_consent(true, auto)" % _game_t)
+		Analytics.set_consent(true, "auto")
+	return true
+
+
 func _auto_tick(delta: float) -> void:
 	var step: String = director.current_step()
 	if step != _auto_log_step:
@@ -1212,6 +1895,13 @@ func _auto_tick(delta: float) -> void:
 		print("[auto] %.2f step -> %s (cash %.2f)" % [_game_t, step, Game.cash])
 		if step == Director.S_FREE and _auto_free_t0 < 0.0:
 			_auto_free_t0 = _game_t
+		if step == Director.S_DONE:
+			print("[auto] %.2f done state: chai L%d cash %.2f waiters %d tables %d" % [_game_t,
+					Game.station_level("chai"), Game.cash, Game.waiter_count(), Game.table_count()])
+	# --consent=ask: the consent card covers the game (its dim swallows taps);
+	# nothing else is tapped while it is up, and it is answered ALLOW.
+	if _auto_consent_tick():
+		return
 	# Progress signature: any change resets the no-progress counter.
 	var sig: String = "%s|%s|%s|%s|%s|%d|%d|%d|%d|%d|%d" % [step, dialogue.current_id(), str(dialogue.is_open()),
 		ui.current_panel, ui.current_popup, Game.station_level("chai"), Game.galla_count(),
@@ -1595,6 +2285,10 @@ const TAP_D := [
 	["table4_top", Vector3(13.60, 0.50, 2.00), "daftar"],
 ]
 const TAP_D_VIEWS := [["kadai_focus", Vector3(10.7, 0.0, 2.2)], ["annex", Vector3(11.0, 0.0, 3.4)]]
+## E (family layout, core and feel C6.1): waiter 4's hall home and the hall
+## view. Wave 1 reaches no new Layout3 name (build plan rule 5):
+const WAITER_HOME_HALL := Vector3(15.85, 0.0, 3.35)   # = Layout3.WAITER_HOME_HALL (frozen, plan 2.3)
+const HALL_CENTER := Vector3(18.6, 0.0, 4.1)          # = Layout3.HALL_CENTER (frozen, plan 2.3)
 ## --capture=menu: camera target offset from a ghost pad (pad + tag in view).
 const GHOST_VIEW_OFFSET := Vector3(0.5, 0.0, 0.5)
 const TAP_SETTLE := 0.25
@@ -1607,7 +2301,11 @@ const TAP_CENTRE := 0.7
 ## stations). Quits with exit code = the number of failed points.
 func _run_tap_check() -> void:
 	await _game_wait(0.5)
-	if Game.is_built("lassi") or not Game.is_tutorial_done():
+	# Core and feel C6.1: the family layout (after --renovate) keeps every
+	# counter built, so the fresh-save precondition and stages A-D are
+	# skipped there and only stage E runs.
+	var family: bool = _layout_variant() == "family"
+	if not family and (Game.is_built("lassi") or not Game.is_tutorial_done()):
 		print("TAPCHECK needs --skip-tutorial on a fresh save (lassi already built or the tutorial still running)")
 		print("TAPCHECK fails=99")
 		get_tree().quit(99)
@@ -1623,6 +2321,12 @@ func _run_tap_check() -> void:
 		_:
 			_tap_mult = clampf(float(_tap_zoom), camera_rig.zoom_min, camera_rig.zoom_max)
 	print("[tapcheck] zoom x%.2f" % _tap_mult)
+	if family:
+		print("[tapcheck] family layout: stages A-D skipped, stage E only")
+		var fe: int = await _tap_stage_e()
+		print("TAPCHECK fails=%d" % fe)
+		get_tree().quit(fe)
+		return
 	# A: lassi pad (tandoor, 3 waiters, 2 gallas, 3 tables).
 	if not Game.is_built("tandoor"):
 		Game.build("tandoor")
@@ -1661,8 +2365,107 @@ func _run_tap_check() -> void:
 	await _game_wait(2.0)
 	fails += await _tap_stage("D", TAP_D)
 	fails += await _tap_stage_views("D", TAP_D, TAP_D_VIEWS)
+	print("[tapcheck] stage E: SKIP (roadside layout; E runs after --renovate)")
 	print("TAPCHECK fails=%d" % fails)
 	get_tree().quit(fails)
+
+
+## Stage E (core and feel C6.1, family layout): waiter 4's ghost at the hall
+## home (the 2-tap card), waiter 4 there once hired (STAFF › WAITERS) and the
+## tables 2-7 of the family layout (BUILD › TABLES), each tried from the home
+## view and the hall view (a point off screen or under the HUD in a view is
+## skipped there); a point no view shows is tapped centred, as stages A-C do.
+func _tap_stage_e() -> int:
+	while Game.waiter_count() < 3 and Game.buy_waiter_hire():
+		pass
+	await _game_wait(1.5)
+	var views: Array = [["home", home_view()], ["hall", HALL_CENTER]]
+	var p_home: Vector3 = WAITER_HOME_HALL + Vector3(0.0, 0.7, 0.0)
+	var fails: int = 0
+	_show_ghost_waiter()
+	await _game_wait(0.5)
+	print("[tapcheck] stage E: waiters %d, ghost waiter %s" % [Game.waiter_count(),
+			str(sim.call("ghost_waiter_shown")) if sim.has_method("ghost_waiter_shown") else "?"])
+	fails += await _tap_points_views("E", [["hall_ghost_waiter", p_home, "quick:waiters"]], views, _show_ghost_waiter)
+	while Game.waiter_count() < 4 and Game.buy_waiter_hire():
+		pass
+	await _game_wait(1.5)
+	print("[tapcheck] stage E: waiters %d" % Game.waiter_count())
+	fails += await _tap_points_views("E", [["hall_waiter4", p_home, "staff:waiters"]], views)
+	while Game.table_count() < 8 and Game.buy_table():
+		pass
+	await _game_wait(2.0)
+	print("[tapcheck] stage E: tables %d" % Game.table_count())
+	var pts: Array = []
+	for i in range(2, 8):
+		pts.append(["table%d_top" % i, Layout3.table_tap_center(i), "daftar"])
+	fails += await _tap_points_views("E", pts, views)
+	return fails
+
+
+func _show_ghost_waiter() -> void:
+	sim.show_ghost_waiter(true)
+
+
+## Taps every point of `pts` ([label, world point, expected panel]) from each
+## view ([label, ground point]) as _tap_stage_views does, `prep` called before
+## each tap; a point that no view shows (off screen or under the HUD) is then
+## tapped once with the camera centred on it, as _tap_stage does.
+func _tap_points_views(stage: String, pts: Array, views: Array, prep: Callable = Callable()) -> int:
+	var fails: int = 0
+	var cam: Camera3D = camera_rig.get_camera()
+	for v in pts:
+		var e: Array = v
+		var label: String = str(e[0])
+		var p: Vector3 = e[1]
+		var want: String = str(e[2])
+		var tapped: bool = false
+		for vv in views:
+			var view: Array = vv
+			ui.close_all()
+			Game.hide_ad_bubble()
+			if dialogue.is_open():
+				dialogue.close()
+			if prep.is_valid():
+				prep.call()
+			camera_rig.snap(view[1], _tap_mult)
+			await _game_wait(TAP_SETTLE)
+			var sp: Vector2 = cam.unproject_position(p)
+			var cover: String = await _gui_cover(sp)
+			if cover != "" or not _tap_on_screen(sp) or cam.is_position_behind(p):
+				print("TAPCHECK %s@%s %s skipped (%s)" % [stage, str(view[0]), label, cover if cover != "" else "off screen"])
+				continue
+			tapped = true
+			_send_tap(sp)
+			await _game_wait(TAP_RESULT)
+			var got: String = ui.current_panel
+			var ok: bool = got == want
+			if not ok:
+				fails += 1
+			print("TAPCHECK %s@%s %s want=%s got=%s %s" % [stage, str(view[0]), label, want, got if got != "" else "-",
+					"PASS" if ok else "FAIL"])
+		if tapped:
+			continue
+		ui.close_all()
+		Game.hide_ad_bubble()
+		if dialogue.is_open():
+			dialogue.close()
+		if prep.is_valid():
+			prep.call()
+		camera_rig.fly_to(Vector3(p.x, 0.0, p.z), _tap_mult)
+		await _game_wait(TAP_CENTRE)
+		var sp2: Vector2 = cam.unproject_position(p)
+		var cover2: String = await _gui_cover(sp2)
+		_send_tap(sp2)
+		await _game_wait(TAP_RESULT)
+		var got2: String = ui.current_panel
+		var ok2: bool = got2 == want
+		if not ok2:
+			fails += 1
+		print("TAPCHECK %s %s want=%s got=%s %s (centred%s)" % [stage, label, want, got2 if got2 != "" else "-",
+				"PASS" if ok2 else "FAIL", (": under %s" % cover2) if cover2 != "" else ""])
+	ui.close_all()
+	return fails
 
 
 func _tap_stage(stage: String, pts: Array) -> int:

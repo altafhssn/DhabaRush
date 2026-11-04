@@ -70,6 +70,7 @@ Readability check: at 48 px on both a light and a dark home screen, inside a cir
 - Alcohol, tobacco or beedi.
 - Toy-like, nursery or "for kids" styling.
 - Anything the game does not have: shops, gems, events or characters that are not in it.
+- Real cricket teams, leagues or TV channels, and earnings or prize wording ("earn", "win cash", rupee amounts to win). The full list every store image follows is in [README.md §6](README.md#6-store-media-rules-c93).
 
 ## 8. Rights and process
 

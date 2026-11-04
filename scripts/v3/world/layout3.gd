@@ -296,8 +296,12 @@ const SEAT_FACING := [
 const FRONT_SEAT_PENALTY := 2.2
 
 ## Door line for travellers waiting for a seat (slot 0 just inside the door,
-## then out through the gap onto the sidewalk).
-const DOOR_WAIT := [Vector3(3.25, 0.0, 8.45), Vector3(3.25, 0.0, 9.0), Vector3(3.25, 0.0, 9.55), Vector3(2.75, 0.0, 9.85)]
+## then out through the gap onto the sidewalk). Core-and-feel C2.1 (the line
+## never gives up, so it can reach 7): 7 explicit slots, the last three west
+## along the sidewalk at z 9.85 (extrapolating the old 4-point line put slot 6
+## on the highway); door_wait_slot(i) returns them as they are.
+const DOOR_WAIT := [Vector3(3.25, 0.0, 8.45), Vector3(3.25, 0.0, 9.0), Vector3(3.25, 0.0, 9.55), Vector3(2.75, 0.0, 9.85),
+		Vector3(2.2, 0.0, 9.85), Vector3(1.65, 0.0, 9.85), Vector3(1.1, 0.0, 9.85)]
 
 # ------------------------------------------------------------------ waiters
 ## The waiter stand: steel tray rack at the chai counter's front end (tap
@@ -453,7 +457,16 @@ const BUS_STOP_VIEW := Vector3(14.0, 0.0, 15.4)
 ## the stop points) and, between AMBIENT_FAR_DETOUR x .x and .y, steps back
 ## behind the bus shelter (AMBIENT_FAR_BACK_Z), clear of the stop bus (z
 ## 16.11) and the waiting line (z 16.58) - ambient_far_z.
-const AMBIENT_WALK_Z := [9.8, 16.6]
+## Core-and-feel C2.1 (W2-WORLD, lead decision 7): the near line runs at z
+## 10.12, in front of the longer door line (slots 3-6 at z 9.85) instead of
+## through it (it was 9.8 +- 0.25), with its jitter cut to
+## AMBIENT_NEAR_JITTER: Traffic files anyone at z > 10.15 (HIGHWAY_Z.x -
+## 0.35) in its road list and vehicles react to them (the plan's 10.15 +-
+## 0.25 changed the tutorial's traffic), so the line stays at 10.10..10.14.
+## A villager who would still brush a traveller standing in the door line
+## stops and turns back (Traffic._update_walkers).
+const AMBIENT_WALK_Z := [10.12, 16.6]
+const AMBIENT_NEAR_JITTER := 0.02
 const AMBIENT_WALK_X := Vector2(-12.0, 20.0)
 const AMBIENT_FAR_JITTER := 0.04
 const AMBIENT_FAR_DETOUR := Vector2(11.9, 12.9)
@@ -462,17 +475,261 @@ const AMBIENT_FAR_BACK_Z := 17.55
 const TRAFFIC_X := Vector2(-18.0, 28.0)
 
 # ------------------------------------------------------------------ camera
-## Camera target bounds (x, z), read by CameraRig.
+## Camera target bounds (x, z), read by CameraRig (by name, from the constant
+## map). Core-and-feel C6.1: CAM_MAX.x 14 -> 19 in both layouts, so the plot
+## east of the courtyard and the AC family hall can be framed.
 const CAM_MIN := Vector2(-3.0, -1.0)
-const CAM_MAX := Vector2(14.0, 20.5)
+const CAM_MAX := Vector2(19.0, 20.5)
 ## Gameplay start target: Pinky, both table sets, galla 1 and most of galla 2.
 const CAM_START := Vector3(2.6, 0.0, 4.0)
 
+# ------------------------------------------------------------------ core-and-feel (build plan 2.3)
+## FROZEN points (art bakes them, the pacing tool copies them; nobody moves
+## them in any wave).
+## AC FAMILY HALL (C6.1, family layout only): east of the courtyard, through a
+## door gap in the courtyard's east low wall (x 15.05..15.35, z 3.5..4.6;
+## gate pillars at (15.2, 3.29) and (15.2, 4.81)).
+const HALL_MIN := Vector2(15.4, 0.3)
+const HALL_MAX := Vector2(21.8, 7.9)
+const HALL_DOOR_Z := Vector2(3.5, 4.6)
+const HALL_CENTER := Vector3(18.6, 0.0, 4.1)
+## Family table indices 2, 3, 4 (family_table sets: the dining-set footprint).
+const HALL_TABLES := [Vector3(17.25, 0.0, 2.1), Vector3(17.25, 0.0, 6.1), Vector3(20.15, 0.0, 2.1)]
+## Water cooler, plants, photo; obstacle rect x 19.55..20.75, z 5.5..6.7.
+const HALL_DECOR := Vector3(20.15, 0.0, 6.1)
+const HALL_DECOR_RECT := [19.55, 5.5, 20.75, 6.7]
+## Label3D on the hall's north-wall board (W2-WORLD).
+const HALL_SIGN := Vector3(18.6, 2.35, 0.47)
+## Waiter 4 (Gopal) waits just inside the hall door.
+const WAITER_HOME_HALL := Vector3(15.85, 0.0, 3.35)
+## Tap box round the hall home: [centre at y 0, size] (W1-WORLDA's frozen box).
+const WAITER_HALL_TAP_SIZE := Vector3(0.9, 1.15, 0.7)
+const SHAADI_GATE := Vector3(3.8, 0.0, 9.15)
+const MILESTONE_LABEL := Vector3(-5.6, 0.62, 17.02)   # = MILESTONE + (0, 0.62, 0.12)
+## Cricket TV on the store's x = 0 wall where the left-wall window was; faces +X.
+const TV := Vector3(0.14, 1.6, 2.7)
+## Walls of the family layout (x0, z0, x1, z1): the hall's north, east and
+## south walls and the courtyard's east low wall either side of the hall door
+## (= W1-WORLDA's SEP_WALLS_FAMILY). Obstacles in the family layout only.
+const HALL_WALLS := [
+	[15.4, 0.15, 21.8, 0.45], [15.05, 0.3, 15.35, 3.5], [15.05, 4.6, 15.35, 8.0],
+	[21.65, 0.3, 21.95, 7.9], [15.4, 7.75, 21.8, 8.05],
+]
+## The courtyard's east wall line (x range) the hall door cuts.
+const HALL_WALL_X := Vector2(15.05, 15.35)
+## Family layout: the floor aisle runs on through the hall door to here.
+const AISLE_X_FAMILY := 21.3
+## Hall sets are entered (and served) from end strips this far from the
+## table centre (STRIP_X is 1.12 elsewhere): at 1.12 the strip of the first
+## hall set (x 16.13) passed 0.28 m from Gopal's home by the hall door; at
+## 1.04 it passes 0.36 m from it and still clears the set's inflated rect
+## (0.85 + WALK_RADIUS = 1.01).
+const HALL_STRIP_X := 1.04
+## Tables in the family layout (W1-WORLDA reads table_max_layout()).
+const TABLE_MAX_FAMILY := 8
+
+## MOVABLE points (code-placed props; W1-WORLDB checks them and may move one
+## by up to 1.5 m, noted in its build notes).
+## Seats board (C2.2) on the low front-wall cap right of the door, yawed 45 deg
+## to face the camera (its 25 deg tilt is baked in the model).
+const GATE_BOARD := Vector3(5.5, 0.5, 9.1)
+const GATE_BOARD_YAW := PI * 0.25
+## Sitting stray dog (C8.3; home view ~ (183, 1140) px, between STAFF and HOME).
+const DOG_SIT := Vector3(5.75, 0.0, 9.5)
+## Highway hoarding (C5.3) on the far shoulder, faces +Z. Origin between its
+## poles; plan footprint x +-1.37 (bulb frame), z -0.23..+0.13 (footings).
+## Lead decision 7 (W2-WORLD): moved from (-7.6, 0, 18.4), where the peepal's
+## crown hid the board. Lead decision 9 (W3-LOOK): at (-6.6, 0, 17.4) no
+## camera target inside CAM_MIN/CAM_MAX showed the whole board clear of the
+## HUD, and its poles stood 0.14 m from the milestone and 0.18 m from the
+## gumti. Moved east along the far shoulder to the westmost spot (0.1 m grid,
+## z 17.0..18.0) that a HOME-zoom target inside the bounds shows whole and clear
+## of every HUD rect and that keeps >= 0.5 m from the peepal, the milestone, the
+## gumti and every walker path: west of x 21.9 the shoulder is taken by the
+## milestone and gumti, the truck lot (lorries of bay 0 reverse over x -6..-2,
+## measured), the lot walk (z 17.2), the bus stop, its waiting line (z 16.58)
+## and the villagers' line behind the shelter (z 17.55, to x 20). Here: 0.57 m
+## from the end of the villagers' line (20, 17.55), 0.74 m from the bush at
+## x 23.66, 1.30 m from the bus waiting line, 1.39 m from the NH 48 camel cart.
+## Framed by hoarding_view().
+const HOARDING := Vector3(21.9, 0.0, 18.0)
+## Camera target (ground point at screen centre, inside CAM_MIN/CAM_MAX, so
+## never clamped) that shows the whole hoarding at HOME zoom on screen and
+## clear of every HUD rect of plan 2.3: board centre ~ (349, 802) px, the
+## board, its bulb frame, the level-2 strip, the level-4 top board and the
+## level-5/6 stars >= 200 px from any HUD rect or screen edge (still clear at
+## the player's zoom 0.5 and 2.6). The signboard fly goes here (W3-LOOK).
+const HOARDING_VIEW := Vector3(19.0, 0.0, 15.0)
+## Camera target of the AC family hall (HOME's second stop, the renovation
+## reveal, Munshi-ji's reno_ready fly): at HOME zoom it shows HALL_SIGN (the
+## whole 2.5 m board), the three HALL_TABLES (table tops) and the hall door
+## (both gate pillars, the gap) on screen and clear of every HUD rect, with
+## >= 19 px to spare sideways and >= 77 px up and down. Lead decision 9:
+## HALL_CENTER showed the sign under the task strip, cut off on the right.
+## The hall is as wide as the screen at HOME zoom: the full table sets and
+## their seated people do not all fit (the hall's south-west bench reaches
+## past the left edge).
+const HALL_VIEW := Vector3(15.4, 0.0, 0.5)
+## Camel cart (C6.3, NH 48 only). The glb faces +X; CAMEL_CART_YAW (+90 deg)
+## turns it to face -Z, toward the highway, in the open strip east of the lot
+## beside the parked decorated lorry. Lead decision 7 (W2-WORLD): moved from
+## (-9.8, 0, 18.2), at the far left edge of the camera's reach and behind the
+## peepal's crown.
+const CAMEL_CART := Vector3(18.4, 0.0, 21.2)
+const CAMEL_CART_YAW := PI * 0.5
+## Plate stools (C2.3): where a counter puts finished plates while its pass is
+## full (a wooden stool with a round steel tray, top y PLATE_STOOL_TOP).
+## Checked by W1-WORLDB's layout test (>= 0.35 m from every pickup, walk
+## chain, cook, line spot and every obstacle but the counter's own): the
+## tandoor's candidate (8.05, 2.95) sat 0.25 m from the kulcha-board crate
+## (UNLOCK_PROP_POINTS) and moved to (8.4, 3.3); the lassi's (2.4, 4.95)
+## stood on galla 1's desk (x 1.9..2.5, z 4.78..6.03) and moved to
+## (2.9, 5.0), between the desk's end and Shambhu's spot (HOME_OBSTACLE).
+const PLATE_STOOLS := {
+	"chai": Vector3(2.35, 0.0, 0.42),
+	"tandoor": Vector3(8.4, 0.0, 3.3),
+	"lassi": Vector3(2.9, 0.0, 5.0),
+	"kadai": Vector3(11.75, 0.0, 3.0),
+}
+const PLATE_STOOL_TOP := 0.62
+## Where items stand on the stool's tray (just above the tray floor) and how
+## far apart (in a row along the screen's horizontal, never stacked).
+const PLATE_STOOL_ITEM_Y := 0.645
+const PLATE_STOOL_GAP := 0.17
+
 static var _obs: Array = []
 static var _obs_key: int = -1
+## -1 unknown, 0 no, 1 yes: --layout=family on the command line (debug).
+static var _v_forced: int = -1
+## -1 unknown, 0 no, 1 yes: Game has layout_variant() (W1-CORE, same wave).
+static var _v_game: int = -1
 ## The station whose ghost build pad is shown ("" = none). Set by the Sim:
 ## its obstacle bit stays set while the pad is up (walkers go around it).
 static var ghost_pad_id: String = ""
+
+
+# ================================================================== layout variant (core-and-feel C6.1)
+## "family" after the Family Dhaba renovation (Game.layout_variant(), read by
+## name: W1-CORE adds it in the same wave), or with --layout=family on the
+## command line of a debug build (layout tests); else "roadside". Read live
+## on every call (no per-frame cache): the scene reload after a renovation
+## can build the new Sim in the same frame as the renovation itself.
+static func variant() -> String:
+	if _forced_family():
+		return "family"
+	if _v_game < 0:
+		_v_game = 1 if Game.has_method("layout_variant") else 0
+	if _v_game == 1:
+		return str(Game.call("layout_variant"))
+	return "roadside"
+
+
+static func _forced_family() -> bool:
+	if _v_forced < 0:
+		_v_forced = 0
+		if OS.is_debug_build() and OS.get_cmdline_user_args().has("--layout=family"):
+			_v_forced = 1
+			print("[layout] variant family (forced)")
+	return _v_forced == 1
+
+
+static func is_family() -> bool:
+	return variant() == "family"
+
+
+static func cam_min() -> Vector2:
+	return CAM_MIN
+
+
+static func cam_max() -> Vector2:
+	return CAM_MAX
+
+
+## East end of the floor aisle (through the hall door in the family layout).
+static func aisle_x_max() -> float:
+	return AISLE_X_FAMILY if is_family() else AISLE_X.y
+
+
+## Family table indices 2..4 are the hall sets.
+static func is_hall_table(i: int) -> bool:
+	return i >= 2 and i <= 4 and is_family()
+
+
+static func is_hall_seat(s: int) -> bool:
+	return s >= 0 and is_hall_table(seat_table(s))
+
+
+## Model id of table set i: "family_table" for the hall sets, "" = the usual
+## dining_table + charpais.
+static func table_model(i: int) -> String:
+	return "family_table" if is_hall_table(i) else ""
+
+
+## Free-play waiter tap boxes ([centre at y 0, size]); the family layout adds
+## the hall home's box (Gopal by the hall door).
+static func waiter_tap_boxes_free() -> Array:
+	var out: Array = WAITER_TAP_BOXES_FREE.duplicate()
+	if is_family():
+		out.append([WAITER_HOME_HALL, WAITER_HALL_TAP_SIZE])
+	return out
+
+
+## Floor point (origin) of the plate stool of station `id` (C2.3).
+static func stool_pos(id: String) -> Vector3:
+	if PLATE_STOOLS.has(id):
+		return PLATE_STOOLS[id]
+	var p: Vector3 = pass_pickup(id, pass_count(id) - 1)
+	return p + station_lateral(id) * 0.6
+
+
+## The 3 item points on the stool's tray (item origin = its bottom centre),
+## PLATE_STOOL_GAP apart in a row along the screen's horizontal (+X -Z): the
+## first plate in the middle, the second left of it, the third right.
+static func stool_points(id: String) -> Array:
+	var c: Vector3 = stool_pos(id) + Vector3(0.0, PLATE_STOOL_ITEM_Y, 0.0)
+	var d: Vector3 = Vector3(1.0, 0.0, -1.0).normalized() * PLATE_STOOL_GAP
+	var out: Array = []
+	out.append(c)
+	out.append(c - d)
+	out.append(c + d)
+	return out
+
+
+## Camera target that frames the AC family hall (HOME's second stop, the
+## renovation reveal, Munshi-ji's reno_ready fly): HALL_VIEW (lead decision 9;
+## HALL_CENTER stays frozen as the hall's centre point).
+static func hall_view() -> Vector3:
+	return HALL_VIEW
+
+
+## The size multiplier (x CameraRig.GAME) a fly to hall_view() needs to keep
+## the 720 x 1280 framing on a phone taller than 16:9 (W3-FIX-look). The
+## project stretches canvas_items + expand and the camera keeps its height
+## (KEEP_HEIGHT), so a taller screen shows a narrower strip of world: on 20:9
+## the hall's sign end and door pillar fell off the sides. This is the screen's
+## height/width over 1280/720: 1.0 up to 16:9 (and on wider screens and the
+## 1280 x 1280 headless window), 1.1875 at 19:9, 1.25 at 20:9. At it the
+## screen shows the same world width as the 720 x 1280 frame (the 20 px side
+## margins of HALL_VIEW) and the extra height is top and bottom margin, where
+## the HUD's edge-anchored bars move away from the hall.
+static func hall_view_mult() -> float:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return 1.0
+	var vp: Vector2 = tree.root.get_visible_rect().size
+	if vp.x <= 0.0 or vp.y <= 0.0:
+		return 1.0
+	return maxf(1.0, (vp.y / vp.x) / (1280.0 / 720.0))
+
+
+## Camera target that shows the whole highway hoarding clear of the HUD at
+## HOME zoom (the signboard fly; W3-LOOK, lead decision 9).
+static func hoarding_view() -> Vector3:
+	return HOARDING_VIEW
+
+
+static func is_in_hall(p: Vector3) -> bool:
+	return p.x > HALL_MIN.x and p.x < HALL_MAX.x and p.z > HALL_MIN.y and p.z < HALL_MAX.y
 
 
 # ================================================================== stations
@@ -574,9 +831,13 @@ static func station_fallback_color(id: String) -> Color:
 ## Model ids to try for employee slot k (first that exists wins). Callers put
 ## the economy staff name (lower-cased) in front of these. The kadai's cooks
 ## re-use the bhurji / dal glbs (Shera, Kamla) and Kallu, per slot.
+## Core-and-feel C8.1: the tandoor's first cook is Balwant (turban, apron;
+## he slaps rotis on the drum).
 static func station_staff_models(id: String, k: int = 0) -> Array:
 	match id:
 		"tandoor":
+			if k <= 0:
+				return ["balwant", "tandoor_wala", "bablu", "munna"]
 			return ["tandoor_wala", "bablu", "munna"]
 		"lassi":
 			return ["lassi_wala", "pinky"]
@@ -737,11 +998,24 @@ static func marker_galla(i: int) -> Vector3:
 
 
 # ================================================================== seating
+## Table sets in this layout: 5 (roadside), 8 (family: 2 in the store, 3 in the
+## AC hall, 3 in the courtyard).
 static func table_max_layout() -> int:
-	return TABLES.size()
+	return TABLE_MAX_FAMILY if is_family() else TABLES.size()
 
 
+## Table set i (index = purchase order). Family layout: 0-1 TABLES[0..1],
+## 2-4 HALL_TABLES[0..2] (the hall is used from the first minute), 5-7
+## TABLES[2..4] (the courtyard). Out of range: the last courtyard set.
 static func table_pos(i: int) -> Vector3:
+	if is_family():
+		if i >= 0 and i < 2:
+			return TABLES[i]
+		if i >= 2 and i < 5:
+			return HALL_TABLES[i - 2]
+		if i >= 5 and i < TABLE_MAX_FAMILY:
+			return TABLES[i - 3]
+		return TABLES[TABLES.size() - 1]
 	if i >= 0 and i < TABLES.size():
 		return TABLES[i]
 	return TABLES[TABLES.size() - 1]
@@ -756,7 +1030,7 @@ static func table_tap_size() -> Vector3:
 
 
 static func seat_count_layout() -> int:
-	return SEATS.size()
+	return table_max_layout() * SEATS_PER_TABLE
 
 
 static func seat_table(seat: int) -> int:
@@ -767,16 +1041,18 @@ static func seat_local(seat: int) -> Vector3:
 	return TABLE_SEAT_OFFSETS[posmod(seat, SEATS_PER_TABLE)]
 
 
+## Floor point under the sitter. Roadside: SEATS (unchanged); family: the
+## table's position + the dining-set offset (hall sets share the footprint).
 static func seat_pos(seat: int) -> Vector3:
-	if seat >= 0 and seat < SEATS.size():
+	if not is_family() and seat >= 0 and seat < SEATS.size():
 		return SEATS[seat]
 	return table_pos(seat_table(seat)) + seat_local(seat)
 
 
 static func seat_facing(seat: int) -> Vector3:
-	if seat >= 0 and seat < SEAT_FACING.size():
+	if not is_family() and seat >= 0 and seat < SEAT_FACING.size():
 		return SEAT_FACING[seat]
-	return Vector3(0.0, 0.0, 1.0)
+	return Vector3(0.0, 0.0, -1.0) if seat_local(seat).z > 0.0 else Vector3(0.0, 0.0, 1.0)
 
 
 static func seat_is_front(seat: int) -> bool:
@@ -785,8 +1061,9 @@ static func seat_is_front(seat: int) -> bool:
 
 ## x of the end strip a seat is entered from (and served from).
 static func seat_strip_x(seat: int) -> float:
-	var tp: Vector3 = table_pos(seat_table(seat))
-	return tp.x + signf(seat_local(seat).x) * STRIP_X
+	var t: int = seat_table(seat)
+	var tp: Vector3 = table_pos(t)
+	return tp.x + signf(seat_local(seat).x) * (HALL_STRIP_X if is_hall_table(t) else STRIP_X)
 
 
 ## Where a traveller steps in before scooting onto the seat.
@@ -860,6 +1137,8 @@ static func waiter_home(i: int) -> Vector3:
 		return WAITER_HOME_FREE
 	if i >= 0 and i < WAITER_HOMES.size():
 		return WAITER_HOMES[i]
+	if i == 3 and is_family():
+		return WAITER_HOME_HALL
 	return WAITER_HOME + Vector3(-0.45 * float(i), 0.0, 0.3)
 
 
@@ -911,9 +1190,17 @@ static func path_length(start: Vector3, pts: Array) -> float:
 	return d
 
 
-## Door-line slot i (0 = just inside the door) and the way it faces.
+## Door-line slot i (0 = just inside the door) and the way it faces: the 7
+## explicit DOOR_WAIT points, then on west along the sidewalk.
 static func door_wait_slot(i: int) -> Vector3:
-	return queue_slot(DOOR_WAIT, i)
+	var n: int = DOOR_WAIT.size()
+	if i < 0:
+		return DOOR_WAIT[0]
+	if i < n:
+		return DOOR_WAIT[i]
+	var a: Vector3 = DOOR_WAIT[n - 2]
+	var b: Vector3 = DOOR_WAIT[n - 1]
+	return b + (b - a).normalized() * QUEUE_GAP * float(i - n + 1)
 
 
 static func door_wait_look(i: int) -> Vector3:
@@ -1046,9 +1333,12 @@ static func obstacle_mask() -> int:
 	return m
 
 
-## Obstacle rectangles (x, z) inflated by WALK_RADIUS. Cached per mask.
+## Obstacle rectangles (x, z) inflated by WALK_RADIUS. Cached per mask and
+## layout variant (the family layout adds the hall sets, the hall walls and
+## the hall decor).
 static func obstacles(mask: int) -> Array:
-	var key: int = mask
+	var family: bool = is_family()
+	var key: int = mask | (1 << 20 if family else 0)
 	if key == _obs_key:
 		return _obs
 	_obs_key = key
@@ -1057,6 +1347,15 @@ static func obstacles(mask: int) -> Array:
 	for v in TABLES:
 		var tp: Vector3 = v
 		_obs.append(_rect(tp.x - SET_HALF.x, tp.z - SET_HALF.y, tp.x + SET_HALF.x, tp.z + SET_HALF.y))
+	if family:
+		for v in HALL_TABLES:
+			var hp: Vector3 = v
+			_obs.append(_rect(hp.x - SET_HALF.x, hp.z - SET_HALF.y, hp.x + SET_HALF.x, hp.z + SET_HALF.y))
+		for v in HALL_WALLS:
+			var w: Array = v
+			_obs.append(_rect(float(w[0]), float(w[1]), float(w[2]), float(w[3])))
+		var d: Array = HALL_DECOR_RECT
+		_obs.append(_rect(float(d[0]), float(d[1]), float(d[2]), float(d[3])))
 	_obs.append(_rect(0.3, 0.45, 2.2, 3.05))         # chai counter + cooks (+ matka corner)
 	_obs.append(_rect(1.25, 3.2, 1.95, 3.64))        # tray rack
 	_obs.append(_rect(7.9, 0.15, 9.0, 1.7))          # sacks + gas cylinder
@@ -1118,8 +1417,12 @@ static func segment_clear(a: Vector3, b: Vector3, rects: Array) -> bool:
 	return true
 
 
-## Low near walls: x = 9 is open only at the side gate, z = 9 only at the door.
+## Low near walls: x = 9 is open only at the side gate, z = 9 only at the door;
+## in the family layout the courtyard's east wall (x 15.05..15.35) is open
+## only at the hall door (z 3.5..4.6).
 static func _crosses_wall(a: Vector3, b: Vector3) -> bool:
+	if is_family() and (_crosses_hall_wall(a, b, HALL_WALL_X.x) or _crosses_hall_wall(a, b, HALL_WALL_X.y)):
+		return true
 	if (a.x - STORE_MAX.x) * (b.x - STORE_MAX.x) < 0.0:
 		var u: float = (STORE_MAX.x - a.x) / (b.x - a.x)
 		var z: float = lerpf(a.z, b.z, u)
@@ -1131,6 +1434,14 @@ static func _crosses_wall(a: Vector3, b: Vector3) -> bool:
 		if x > -0.1 and x < STORE_MAX.x + 0.1 and not (x > DOOR_X.x + 0.15 and x < DOOR_X.y - 0.15):
 			return true
 	return false
+
+
+## Does a->b cross the courtyard's east wall line x = wx outside the hall door?
+static func _crosses_hall_wall(a: Vector3, b: Vector3, wx: float) -> bool:
+	if (a.x - wx) * (b.x - wx) >= 0.0:
+		return false
+	var z: float = lerpf(a.z, b.z, (wx - a.x) / (b.x - a.x))
+	return z > HALL_MIN.y - 0.15 and z < HALL_MAX.y + 0.15 and not (z > HALL_DOOR_Z.x + 0.15 and z < HALL_DOOR_Z.y - 0.15)
 
 
 ## Liang-Barsky: does segment a->b touch rect r (x, z)?
@@ -1213,9 +1524,9 @@ static func is_in_courtyard(p: Vector3) -> bool:
 	return p.x > COURTYARD_MIN.x and p.x < COURTYARD_MAX.x and p.z > COURTYARD_MIN.y and p.z < COURTYARD_MAX.y
 
 
-## Inside the dhaba or its courtyard.
+## Inside the dhaba or its courtyard (or the AC hall in the family layout).
 static func in_dhaba(p: Vector3) -> bool:
-	return is_inside(p) or is_in_courtyard(p)
+	return is_inside(p) or is_in_courtyard(p) or (is_in_hall(p) and is_family())
 
 
 static func clamp_camera(p: Vector3) -> Vector3:

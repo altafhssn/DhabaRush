@@ -8,7 +8,8 @@ extends Control
 ## opens the panel and puts the coach hand on the button that fixes it.
 ##
 ## evaluate() (every EVAL_EVERY s and on the Game signals): the first match
-## of seats (door line for SEATS_PROBLEM_AFTER s, tables left) -> waiter
+## of seats (door line for SEATS_PROBLEM_AFTER s, tables left, seats the
+## readout's limit) -> waiter
 ## gate (next build waits on waiters) -> food wait (tone "bad", waiters are
 ## the bottleneck) -> cashier line (gallas are the bottleneck, line >= 3) ->
 ## build ready -> save up (with a progress bar) -> once every counter is
@@ -62,6 +63,25 @@ extends Control
 ##    of "Hire waiter 3", which opened STAFF on a grey HIRE button.
 ##  - Save hints carry "saving": UiRoot puts no coach hand on a button the
 ##    player cannot pay for yet.
+##
+## Core and feel (W2-HUD; C2.5, C2.6, C3.1, C5.2, C5.3, C6.1, C6.3):
+##  - Waiter hire hints (waiter gate, food waiting, the endless hire of a
+##    waiter) open the in-world 2-tap card: panel "quick:waiters", coach
+##    "quick_buy_button" (UiRoot routes it, W2-ROOT). "Upgrade your waiters"
+##    stays STAFF › WAITERS.
+##  - One source: the PROBLEM stage test reads Game.bottleneck_state().limit
+##    (the readout module, the same numbers as the HUD meter and the sheet);
+##    problem_stage() tells the meter which row is the PROBLEM.
+##  - The seats PROBLEM's line 2 is "+{money}/min with one more table"
+##    (Game.preview_table()).
+##  - After the problems, before the counters and the endless ladder: the
+##    Family Dhaba (ready, or saving once unlocked; panel "promo:renovation"),
+##    the next highway (panel "promo:move", hint "target" = its id) and the
+##    signboard (only while Game.signboard_offer().offer; panel
+##    "daftar:signboard").
+##  - The endless ladder never names SPEED or a cook on a counter where
+##    Game.station_help(id, kind).helps is false.
+##  - Debug print "[chip] <id> panel=<panel>" when a new hint shows.
 
 signal tapped(hint: Dictionary)
 
@@ -84,6 +104,11 @@ const FADE := 0.15
 const PULSE_HZ := 1.2
 const GLOW_PX := 7.0
 const REVEAL_NOTE := "next_chip_revealed"
+## Core and feel C3.1: waiter hire hints open the in-world 2-tap card.
+const WAITER_PANEL := "quick:waiters"
+const WAITER_COACH := "quick_buy_button"
+## PROBLEM hint id -> the readout row it names (problem_stage()).
+const PROBLEM_STAGE := {"food": "waiters", "seats": "seats", "cashier": "cashiers"}
 
 ## () -> String, set by Hud: the shown mode ("gameplay", "sheet", ...).
 var mode_fn: Callable = Callable()
@@ -200,6 +225,15 @@ func is_showing() -> bool:
 	return _shown
 
 
+## Core and feel C2.6: the readout row of the current PROBLEM hint
+## ("waiters" | "seats" | "cashiers"), "" when the hint is not a PROBLEM.
+## The HUD meter turns that row red (one source with the chip).
+func problem_stage() -> String:
+	if not is_problem():
+		return ""
+	return str(PROBLEM_STAGE.get(str(hint.get("id", "")), ""))
+
+
 ## Picks the hint (first match wins; {"id": ""} = nothing to show).
 func evaluate() -> Dictionary:
 	var nb: String = Game.next_build_id()
@@ -207,10 +241,14 @@ func evaluate() -> Dictionary:
 	var door: int = _door_waiting()
 	# In the tutorial (round 2: the chip shows in its free step) only the goal.
 	var free_play: bool = Game.is_tutorial_done()
-	# 1 seats: a door line for SEATS_PROBLEM_AFTER s and tables left to buy.
-	if free_play and door > 0 and _door_t0 >= 0.0 and _clock - _door_t0 >= SEATS_PROBLEM_AFTER \
+	# One source (C2.6): the readout's limit, "" while the road is the limit.
+	var stage: String = str(Game.bottleneck_state().get("limit", "")) if free_play else ""
+	# 1 seats: a door line for SEATS_PROBLEM_AFTER s, tables left to buy and
+	# the seats are the readout's limit (a bunched bus while another stage is
+	# the limit falls through to that stage's PROBLEM or the goal).
+	if free_play and stage == "seats" and door > 0 and _door_t0 >= 0.0 and _clock - _door_t0 >= SEATS_PROBLEM_AFTER \
 			and UiKit.gint("table_count", [], 0) < UiKit.gint("table_max", [], 0):
-		return _hint("seats", true, tr("PROBLEM · %d WAITING") % door, tr("Seats full · Build a table"), "charpai",
+		return _hint("seats", true, tr("PROBLEM · %d WAITING") % door, _seats_line2(), "charpai",
 				"tables", "seating_add_button")
 	# FLOW: the next counter costs more than SAVE_MINUTES of takings (and the
 	# cash does not cover it yet: an affordable counter is always the goal).
@@ -227,30 +265,34 @@ func evaluate() -> Dictionary:
 		var wc: float = Game.waiter_hire_cost()
 		if Game.can_afford(wc):
 			return _hint("waiter_gate", false, tr("NEXT: %s") % noun, tr("Hire waiter %d") % wn,
-					"waiter", "staff:waiters", "staff_hire_waiters", 0.0, nb)
+					"waiter", WAITER_PANEL, WAITER_COACH, 0.0, nb)
 		var wcash: float = float(cash_fn.call()) if cash_fn.is_valid() else Game.cash
 		return _save_hint("waiter_gate", tr("NEXT: %s") % (tr("Hire waiter %d") % wn).to_upper(), wcash, wc, "waiter",
-				"staff:waiters", "staff_hire_waiters", nb)
-	var stage: String = UiKit.gstr("bottleneck", [], "") if free_play else ""
-	if stage == "waiters" or stage == "gallas":
+				WAITER_PANEL, WAITER_COACH, nb)
+	if stage == "waiters" or stage == "cashiers":
 		var st: Dictionary = Game.stats()
 		var tones: Dictionary = st.get("tones", {}) if st.get("tones", {}) is Dictionary else {}
 		# 3 food waits too long and the waiters are the limit.
 		if stage == "waiters" and str(tones.get("avg_food_wait", "")) == "bad":
 			if Game.can_hire_waiter():
-				return _hint("food", true, tr("PROBLEM · FOOD WAITING"), tr("Hire a waiter"), "waiter", "staff:waiters",
-						"staff_hire_waiters")
+				return _hint("food", true, tr("PROBLEM · FOOD WAITING"), tr("Hire a waiter"), "waiter", WAITER_PANEL,
+						WAITER_COACH)
 			return _hint("food", true, tr("PROBLEM · FOOD WAITING"), tr("Upgrade your waiters"), "waiter", "staff:waiters",
 					"staff_upgrade_waiters_%d" % Game.waiter_pick())
 		# 4 a long bill line and the cashiers are the limit.
 		var line: float = float(st.get("avg_galla_line", 0.0))
-		if stage == "gallas" and line >= 3.0:
+		if stage == "cashiers" and line >= 3.0:
 			var l1: String = tr("PROBLEM · LONG BILL LINE")
 			if Game.can_hire_galla():
 				return _hint("cashier", true, l1, tr("Hire cashier %d") % (Game.galla_count() + 1), "galla", "staff:cashiers",
 						"staff_hire_cashiers")
 			return _hint("cashier", true, l1, tr("Upgrade a cashier"), "galla", "staff:cashiers",
 					"staff_upgrade_cashiers_%d" % _lowest_galla())
+	# Core and feel: the Family Dhaba, the next highway, the signboard.
+	if free_play:
+		var ph: Dictionary = _promo_hint()
+		if not ph.is_empty():
+			return ph
 	if nb == "":
 		# 7 every counter is built: an endless goal (soft launch polish).
 		return _endless() if free_play else {"id": ""}
@@ -406,10 +448,13 @@ func _endless() -> Dictionary:
 		var hl2: String = "%s · %s" % [tr("HIRE"), Fmt.price(hc)]
 		var icon: String = "staff_plus"
 		var coach: String = "staff_hire_" + role
+		var panel: String = "staff:" + role
 		match role:
 			"waiters":
 				hl1 = tr("NEXT: %s") % (tr("Hire waiter %d") % (Game.waiter_count() + 1)).to_upper()
 				icon = "waiter"
+				panel = WAITER_PANEL
+				coach = WAITER_COACH
 			"cashiers":
 				hl1 = tr("NEXT: %s") % (tr("Hire cashier %d") % (Game.galla_count() + 1)).to_upper()
 				icon = "galla"
@@ -419,12 +464,16 @@ func _endless() -> Dictionary:
 				hl1 = tr("NEXT: %s") % tr("HIRE COOK")
 				hl2 = "%s · %s" % [_short(st), Fmt.price(hc)]
 				coach = "staff_hire_cooks_" + st
-		if st != "" or role != "cooks":
+		# C2.5: never a cook on a counter that is not the bottleneck.
+		var helps: bool = role == "waiters" or role == "cashiers" or _helps(st, "cook")
+		if (st != "" or role != "cooks") and helps:
 			if hire_now:
-				c["hire"] = _hint("hire", false, hl1, hl2, icon, "staff:" + role, coach, 0.0, st)
+				c["hire"] = _hint("hire", false, hl1, hl2, icon, panel, coach, 0.0, st)
 			else:
-				c["hire"] = _save_hint("hire", hl1, cash, hc, icon, "staff:" + role, coach, st)
+				c["hire"] = _save_hint("hire", hl1, cash, hc, icon, panel, coach, st)
 			c["hire"]["role"] = role
+		else:
+			hire_now = false
 	# dish: the nearest locked dish on a built counter.
 	var dst: String = ""
 	var dkey: String = ""
@@ -451,10 +500,10 @@ func _endless() -> Dictionary:
 				_level_line(dst, lv2, dfrom), str(UiKit.station_ui(dst).get("icon", "hammer")), "station:" + dst,
 				"level_up_button", clampf(float(lv2 - prev) / maxf(1.0, float(dfrom - prev)), 0.0, 1.0), dst)
 		c["dish"]["bar"] = true
-	# speed: the cheapest SPEED upgrade left.
+	# speed: the cheapest SPEED upgrade left (C2.5: only where it helps).
 	var sst: String = ""
 	for sid: String in built:
-		if not Game.proc_maxed(sid) and (sst == "" or Game.proc_cost(sid) < Game.proc_cost(sst)):
+		if not Game.proc_maxed(sid) and _helps(sid, "speed") and (sst == "" or Game.proc_cost(sid) < Game.proc_cost(sst)):
 			sst = sid
 	if sst != "":
 		var pc: float = Game.proc_cost(sst)
@@ -495,6 +544,70 @@ func _endless_pick(c: Dictionary, hire_now: bool) -> Dictionary:
 			return c[k]
 	_endless_kind = ""
 	return {"id": ""}
+
+
+## C2.5: Game.station_help(id, kind).helps ("speed" | "cook"): the readout
+## says this counter's SPEED / cook would raise takings now.
+static func _helps(id: String, kind: String) -> bool:
+	if id == "":
+		return true
+	return bool(Game.station_help(id, kind).get("helps", true))
+
+
+# ================================================================ promotions and signboard (core and feel)
+## C6.1 / C6.3 / C5.3, in this order: the Family Dhaba (ready: "Ready! Tap to
+## renovate"; unlocked but short of cash: "Save {money}" with the bar), the
+## next highway ("A new highway is ready", or "Save {money}"), the signboard
+## (only while Game.signboard_offer().offer: the road is the limit and it
+## pays back). {} when none applies.
+func _promo_hint() -> Dictionary:
+	var cash: float = float(cash_fn.call()) if cash_fn.is_valid() else Game.cash
+	var rs: Dictionary = Game.renovation_state()
+	if bool(rs.get("unlocked", false)):
+		var rl1: String = tr("NEXT: %s") % tr("FAMILY DHABA")
+		if bool(rs.get("affordable", false)):
+			return _hint("renovate", false, rl1, tr("Ready! Tap to renovate"), "family_hall", "promo:renovation",
+					"promo_button")
+		return _promo_save("renovate", rl1, cash, float(rs.get("cost", 0.0)), float(rs.get("short", 0.0)),
+				"family_hall", "promo:renovation")
+	for lv in Game.location_ids():
+		var lid: String = str(lv)
+		var ls: Dictionary = Game.location_state(lid)
+		if not bool(ls.get("unlocked", false)):
+			continue
+		var nm: String = str(Game.location_def(lid).get("name", lid.to_upper()))
+		var ml1: String = tr("NEXT: %s") % tr(nm)
+		var mh: Dictionary
+		if bool(ls.get("affordable", false)):
+			mh = _hint("move", false, ml1, tr("A new highway is ready"), "highway", "promo:move", "promo_button")
+		else:
+			mh = _promo_save("move", ml1, cash, float(ls.get("cost", 0.0)), float(ls.get("short", 0.0)), "highway",
+					"promo:move")
+		mh["target"] = lid
+		return mh
+	if bool(Game.signboard_offer().get("offer", false)):
+		return _hint("signboard", false, tr("NEXT: %s") % tr("SIGNBOARD"), tr("The road is the limit now"), "signboard",
+				"daftar:signboard", "build_row_signboard")
+	return {}
+
+
+## "Save {money}" (the cash still missing) with the progress bar; no coach
+## hand (saving).
+func _promo_save(id: String, l1: String, cash: float, cost: float, short: float, icon: String, panel: String) -> Dictionary:
+	var h: Dictionary = _hint(id, false, l1, tr("Save {money}").format({"money": Fmt.money(short)}), icon, panel,
+			"promo_button", clampf(cash / maxf(cost, 0.0001), 0.0, 1.0))
+	h["bar"] = true
+	h["saving"] = true
+	return h
+
+
+## The seats PROBLEM's second line: what one more table would add
+## (Game.preview_table()), else the 0.3.7 line.
+func _seats_line2() -> String:
+	var g: float = float(Game.preview_table().get("gain_per_min", 0.0))
+	if g > 0.0:
+		return tr("+{money}/min with one more table").format({"money": Fmt.money(g)})
+	return tr("Seats full · Build a table")
 
 
 ## "LEVEL UP KADAI · 18/25".
@@ -696,6 +809,8 @@ func _log_show() -> void:
 		return
 	_shown_id = id
 	Analytics.event("next_chip_show", {"id": id})
+	if OS.is_debug_build():
+		print("[chip] %s panel=%s" % [id, str(hint.get("panel", ""))])
 
 
 func _reveal_burst() -> void:
