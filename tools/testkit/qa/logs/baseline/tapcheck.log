@@ -1,0 +1,149 @@
+Initializing GameAnalytics
+GameAnalytics - Initializing http client
+GameAnalytics - Initializing Log
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[analytics] GameAnalytics not started: consent unknown
+[analytics] consent card skipped: debug run with flags (add --consent=ask to see it)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[iap] fake store (use_stub_store)
+[analytics] session_start { "n": 1, "save": false }
+[analytics] hud_reveal { "id": "hud_staff", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] hud_reveal { "id": "hud_build", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] hud_reveal { "id": "hud_gear", "min_since_tutorial": 0.0, "tutorial": false }
+[main3] ready (low_tier=false, auto=false, shots=0, fairy strings=15, graphics=auto, max_fps=0)
+[analytics] session_settings { "lang": "en", "gfx": "auto", "low": false, "music": true, "sound": true }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[iap] backend: stub, products: ["vip_x2", "remove_ads", "sikke_small"]
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[analytics] next_chip_show { "id": "build" }
+[analytics] build_affordable { "id": "tandoor", "min_since_tutorial": 0.0, "waiters": 1, "legacy": false }
+[tapcheck] zoom x1.00
+[analytics] building_built { "id": "tandoor", "cost": 200.0, "min_since_tutorial": 0.0 }
+[analytics] upgrade_bought { "id": "galla_1", "kind": "galla_hire", "value": 2, "cost": 50.0 }
+[analytics] upgrade_bought { "id": "waiter_1", "kind": "waiter_hire", "value": 2, "cost": 40.0 }
+[analytics] upgrade_bought { "id": "waiter_2", "kind": "waiter_hire", "value": 3, "cost": 120.0 }
+[analytics] upgrade_bought { "id": "table_2", "kind": "table", "value": 3, "cost": 30.0 }
+[analytics] build_affordable { "id": "lassi", "min_since_tutorial": 0.0, "waiters": 3, "legacy": false }
+[tapcheck] stage A: ghost pad 'lassi', build tag 'lassi' shown
+TAPCHECK A chai_top want=station:chai got=station:chai PASS
+TAPCHECK A chai_pass0_item want=station:chai got=station:chai PASS
+TAPCHECK A chai_pass_end want=station:chai got=station:chai PASS
+TAPCHECK A pinky want=station:chai got=station:chai PASS
+[analytics] build_prompt { "id": "lassi", "source": "pad", "min_since_tutorial": 0.1 }
+TAPCHECK A lassi_pad_top want=daftar got=daftar PASS
+[analytics] build_prompt { "id": "lassi", "source": "pad", "min_since_tutorial": 0.1 }
+TAPCHECK A matka_mouth want=daftar got=daftar PASS
+TAPCHECK A tray_rack want=staff:waiters got=staff:waiters PASS
+TAPCHECK A raju_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK A raju_free_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK A idle_spot_2 want=staff:waiters got=staff:waiters PASS
+TAPCHECK A idle_spot_1 want=staff:waiters got=staff:waiters PASS
+TAPCHECK A galla1_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A galla1_cashier want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A galla2_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A galla2_cashier want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A table0_top want=daftar got=daftar PASS
+TAPCHECK A table0_front_charpai want=daftar got=daftar PASS
+[analytics] building_built { "id": "lassi", "cost": 170.0, "min_since_tutorial": 0.2 }
+[analytics] upgrade_bought { "id": "lassi", "kind": "hire", "value": 2, "cost": 50.0 }
+[analytics] upgrade_bought { "id": "lassi", "kind": "hire", "value": 3, "cost": 300.0 }
+[analytics] build_affordable { "id": "kadai", "min_since_tutorial": 0.2, "waiters": 3, "legacy": false }
+ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+   at: call (modules/gdscript/gdscript_lambda_callable.cpp:110)
+[tapcheck] stage B: ghost pad 'kadai', build tag 'kadai' shown
+TAPCHECK B chai_top want=station:chai got=station:chai PASS
+TAPCHECK B chai_pass0_item want=station:chai got=station:chai PASS
+TAPCHECK B chai_pass_end want=station:chai got=station:chai PASS
+TAPCHECK B pinky want=station:chai got=station:chai PASS
+TAPCHECK B lassi_pad_top want=station:lassi got=station:lassi PASS
+TAPCHECK B matka_mouth want=station:lassi got=station:lassi PASS
+TAPCHECK B tray_rack want=staff:waiters got=staff:waiters PASS
+TAPCHECK B raju_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK B raju_free_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK B idle_spot_2 want=staff:waiters got=staff:waiters PASS
+TAPCHECK B idle_spot_1 want=staff:waiters got=staff:waiters PASS
+TAPCHECK B galla1_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B galla1_cashier want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B galla2_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B galla2_cashier want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B table0_top want=daftar got=daftar PASS
+TAPCHECK B table0_front_charpai want=daftar got=daftar PASS
+TAPCHECK B lassi_pass0_item want=station:lassi got=station:lassi PASS
+TAPCHECK B lassi_cook0 want=station:lassi got=station:lassi PASS
+ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+   at: call (modules/gdscript/gdscript_lambda_callable.cpp:110)
+TAPCHECK B lassi_cook1 want=station:lassi got=station:lassi PASS
+TAPCHECK B lassi_cook2 want=station:lassi got=station:lassi PASS
+TAPCHECK B lassi_cook1_head want=station:lassi got=station:lassi PASS
+TAPCHECK B lassi_cook2_head want=station:lassi got=station:lassi PASS
+[analytics] upgrade_bought { "id": "table_3", "kind": "table", "value": 4, "cost": 75.0 }
+[analytics] upgrade_bought { "id": "table_4", "kind": "table", "value": 5, "cost": 180.0 }
+[tapcheck] stage C: ghost pad 'kadai', build tag 'kadai' shown
+[analytics] build_prompt { "id": "kadai", "source": "pad", "min_since_tutorial": 0.5 }
+TAPCHECK C kadai_pad_top want=daftar got=daftar PASS (centred: off screen at home)
+TAPCHECK C table4_top want=daftar got=daftar PASS (centred: off screen at home)
+TAPCHECK C table4_back_charpai want=daftar got=daftar PASS (centred: off screen at home)
+[analytics] building_built { "id": "kadai", "cost": 1000.0, "min_since_tutorial": 0.6 }
+[analytics] hud_reveal { "id": "hud_stats", "min_since_tutorial": 0.6, "tutorial": false }
+[analytics] upgrade_bought { "id": "kadai", "kind": "hire", "value": 2, "cost": 150.0 }
+[analytics] upgrade_bought { "id": "kadai", "kind": "hire", "value": 3, "cost": 900.0 }
+[analytics] upgrade_bought { "id": "kadai", "kind": "level", "value": 100, "cost": 0.0 }
+[menu] kadai L100: kadai.dal unlocked
+[analytics] menu_unlocked { "station": "kadai", "dish": "kadai.dal", "level": 100, "min_since_tutorial": 0.6 }
+[menu_pop] kadai.dal
+[menu] kadai L100: kadai.paneer unlocked
+[analytics] menu_unlocked { "station": "kadai", "dish": "kadai.paneer", "level": 100, "min_since_tutorial": 0.6 }
+[menu] kadai L100: kadai.chole unlocked
+[analytics] menu_unlocked { "station": "kadai", "dish": "kadai.chole", "level": 100, "min_since_tutorial": 0.6 }
+[analytics] next_chip_show { "id": "dish" }
+ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+   at: call (modules/gdscript/gdscript_lambda_callable.cpp:110)
+[tapcheck] stage D: ghost pad '', build tag hidden
+[menu_pop] kadai.paneer
+TAPCHECK D kadai_counter_top want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_rim want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[menu_pop] kadai.chole
+TAPCHECK D kadai_side_counter want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_pass0_item want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_chole_sack want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_cook0 want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_cook0_head want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_cook1 want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_cook1_head want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_cook2 want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D kadai_cook2_head want=station:kadai got=station:kadai PASS (centred: off screen at home)
+TAPCHECK D table4_top want=daftar got=daftar PASS (centred: off screen at home)
+TAPCHECK D@kadai_focus kadai_counter_top want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_rim want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_side_counter want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_pass0_item want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_chole_sack want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_cook0 want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_cook0_head want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_cook1 want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_cook1_head want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_cook2 want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus kadai_cook2_head want=station:kadai got=station:kadai PASS
+TAPCHECK D@kadai_focus table4_top want=daftar got=daftar PASS
+TAPCHECK D@annex kadai_counter_top want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_rim want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_side_counter want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_pass0_item want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_chole_sack want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_cook0 want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_cook0_head want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_cook1 want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_cook1_head want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_cook2 want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex kadai_cook2_head want=station:kadai got=station:kadai PASS
+TAPCHECK D@annex table4_top want=daftar got=daftar PASS
+TAPCHECK fails=0
+WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 5 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+rc=0

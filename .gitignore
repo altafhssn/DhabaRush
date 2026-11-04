@@ -17,3 +17,7 @@ release.env
 # Python caches
 __pycache__/
 *.pyc
+
+# Test kit work folders (the kit is meant to run from a copy outside the project)
+tools/testkit/qa/slots/
+tools/testkit/qa/locks/

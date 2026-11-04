@@ -1,0 +1,14 @@
+TUTCHECK dir=${DR_WORK:-$HOME/DhabaRushQA}/qa/logs/gate4 base=${DR_WORK:-$HOME/DhabaRushQA}/qa/logs/baseline prev=${DR_WORK:-$HOME/DhabaRushQA}/qa/logs/baseline_wave2 allow-move=tap_staff,hire_waiter,close_waiters,waiter_done,free,seats_lines,tap_table,add_table,seats_done,ad_deal,bubble,vip,ad_lines,build_btn,build_row,build_close,outro,done slack=0.00 fps30=no logs=5
+TUTCHECK tut_en_s1 PASS
+TUTCHECK tut_en_s2 PASS
+TUTCHECK tut_en_s3 PASS
+TUTCHECK tut_en_s4 PASS
+TUTCHECK tut_hi_s1 PASS
+log            done                         waiter_done                  seats_lines                  line7                        cash@done                   
+tut_en_s1      173.17 b+0.00 p+0.00         92.48 b-1.20 p-1.20          99.12 b+0.00 p+0.00          57.25 b+0.00 p+0.00          3.54 b+1.77 p+0.00          
+tut_en_s2      172.15 b+0.00 p+0.00         91.47 b-1.20 p-1.20          98.10 b+0.00 p+0.00          56.35 b+0.00 p+0.00          5.31 b+0.00 p+0.00          
+tut_en_s3      178.48 b-1.30 p+0.00         97.80 b-1.20 p-1.20          104.43 b-13.94 p+0.00        63.38 b+0.00 p+0.00          5.31 b+3.54 p+0.00          
+tut_en_s4      170.33 b-1.30 p+0.00         89.65 b-1.20 p-1.20          96.28 b-26.57 p+0.00         56.63 b+0.00 p+0.00          7.08 b+1.98 p+0.00          
+tut_hi_s1      172.00 b+0.00 p+0.00         91.32 b-1.20 p-1.20          97.95 b+0.00 p+0.00          56.80 b+0.00 p+0.00          5.31 b-1.77 p+0.00          
+  (b = delta against --base, p = delta against --prev, seconds; cash in reference units)
+TUTCHECK fails=0

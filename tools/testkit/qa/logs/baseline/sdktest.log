@@ -1,0 +1,1289 @@
+Initializing GameAnalytics
+GameAnalytics - Initializing http client
+GameAnalytics - Initializing Log
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[analytics] GameAnalytics not started: consent unknown
+[analytics] consent card skipped: debug run with flags (add --consent=ask to see it)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[iap] fake store (use_stub_store)
+[analytics] session_start { "n": 1, "save": false }
+[main3] ready (low_tier=false, auto=false, shots=0, fairy strings=15, graphics=auto, max_fps=0)
+[analytics] session_settings { "lang": "en", "gfx": "auto", "low": false, "music": true, "sound": true }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[iap] backend: stub, products: ["vip_x2", "remove_ads", "sikke_small"]
+[analytics] tutorial_step { "step": "intro", "i": 1, "t": 0 }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] start: Godot 4.7.2-stable (official), platform desktop, debug true, editor build true
+[sdk-test] singleton PoingGodotAdMob: false
+[sdk-test] singleton PoingGodotAdMobUserMessagingPlatform: false
+[sdk-test] singleton GodotGooglePlayBilling: false
+[sdk-test] singleton InAppStore: false
+[sdk-test] singleton GameAnalytics: true
+[sdk-test] file res://addons/admob/plugin.cfg: true
+[sdk-test] file res://addons/admob/android/bin/package.gd: false
+[sdk-test] file res://addons/admob/ios/bin/package.gd: true
+[sdk-test] file res://addons/GodotGooglePlayBilling/plugin.cfg: true
+[sdk-test] file res://addons/GameAnalytics/GameAnalytics.gdextension: true
+[sdk-test] backends: ads=stub iap=stub analytics=log
+[sdk-test] PASS desktop run uses the fake ad and store backends
+[sdk-test] config: local override true, errors []
+[sdk-test] PASS config: monetization.cfg loads without errors
+[sdk-test] PASS config: committed Android rewarded unit is a Google test id
+[sdk-test] PASS config: committed Android interstitial unit is a Google test id
+[sdk-test] PASS config: no analytics secret committed
+[sdk-test] PASS config: debug build requests Google test units { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[sdk-test] PASS config: overrides apply
+[sdk-test] PASS config: overrides clear
+[sdk-test] PASS config: store ids keep the existing product ids
+[sdk-test] PASS map: galla upgrade -> cash sink 'upgrade/galla'
+[sdk-test] PASS map: galla upgrade design id + level value
+[sdk-test] PASS map: station level -> item chai_level
+[sdk-test] PASS map: waiter hire -> item type hire
+[sdk-test] PASS map: wall_ad reward -> cash source 'ad'
+[sdk-test] PASS map: zero-amount resource dropped
+[sdk-test] PASS map: tutorial intro -> progression start
+[sdk-test] PASS map: tutorial done -> progression complete
+[sdk-test] PASS map: building -> sink + progression
+[sdk-test] PASS map: offline x2 claim
+[sdk-test] PASS map: chest -> sikke source
+[sdk-test] PASS map: generic event keeps a short id
+[sdk-test] PASS map: custom fields sanitized { "a": 1, "b": 1.235, "c": "x", "e_f": 2 }
+[sdk-test] PASS map: id parts sanitized
+[sdk-test] PASS map: design ids capped at 5 parts
+[sdk-test] PASS map: rewarded completed design id
+[sdk-test] PASS ga: configure + randomized id before init
+[sdk-test] PASS ga: no configureUserId without a Player ID
+[sdk-test] PASS ga: the Player ID goes to configureUserId before init
+[sdk-test] PASS ga: upgrade -> resource + design calls
+[sdk-test] PASS ga: ad event with sdk 'admob' and no-fill reason
+[sdk-test] PASS ga: business event in paise
+[sdk-test] PASS ga: custom fields sent as JSON
+WARNING: [analytics] GameAnalytics has no setEnabledInfoLog()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:31)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no setEnabledVerboseLog()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:32)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no useRandomizedId()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:34)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no configureAvailableResourceCurrencies()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:38)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no configureAvailableResourceItemTypes()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:39)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no configureAutoDetectAppVersion()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:40)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no configureBuild()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:41)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no init()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] setup (res://scripts/v3/monetization/analytics_backend_ga.gd:42)
+         [2] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:392)
+         [3] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [4] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+WARNING: [analytics] GameAnalytics has no addDesignEvent()
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _call (res://scripts/v3/monetization/analytics_backend_ga.gd:102)
+         [1] send (res://scripts/v3/monetization/analytics_backend_ga.gd:60)
+         [2] track (res://scripts/v3/monetization/analytics_backend_ga.gd:48)
+         [3] _test_analytics_backend (res://scripts/v3/monetization/sdk_test.gd:393)
+         [4] _run (res://scripts/v3/monetization/sdk_test.gd:271)
+         [5] _frames (res://scripts/v3/monetization/sdk_test.gd:1437)
+[sdk-test] PASS ga: an object without the SDK methods is ignored, no crash
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ads: fake backend ready and rewarded preloaded
+[sdk-test] PASS ads: consent not required -> can request ads
+[analytics] rewarded_started { "placement": "wall_ad" }
+[sdk-test] PASS ads: busy and not ready while the ad is open
+[sdk-test] PASS ads: master bus muted while the ad is open
+[analytics] ad show rewarded_video wall_ad
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ads: watched rewarded -> on_done(true) exactly once
+[sdk-test] PASS ads: rewarded_finished(wall_ad, true)
+[sdk-test] PASS ads: master bus unmuted after the ad
+[sdk-test] PASS ads: GameAnalytics got show + reward_received + completed
+[sdk-test] PASS ads: next rewarded preloaded after close
+[analytics] rewarded_started { "placement": "offline_double" }
+[analytics] ad show rewarded_video offline_double
+[analytics] rewarded_skipped { "placement": "offline_double" }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ads: closed early -> on_done(false), no reward
+[sdk-test] PASS ads: skipped rewarded logged
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad failed_show rewarded_video wall_ad internal_error
+WARNING: [ads] rewarded failed to show: stub: failed to show
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_show_event (res://scripts/autoload/ads.gd:463)
+         [1] <anonymous lambda> (res://scripts/v3/monetization/ad_backend_stub.gd:98)
+[analytics] rewarded_failed { "placement": "wall_ad", "reason": "internal_error" }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ads: failed to show -> on_done(false), not busy
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[sdk-test] PASS ads: late reward within the grace period still pays
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] rewarded_unavailable { "placement": "wall_ad", "why": "busy" }
+[analytics] ad show rewarded_video wall_ad
+[sdk-test] PASS ads: second show while busy -> false at once
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[sdk-test] PASS ads: the first show still completes
+[sdk-test] PASS ads: privacy options button flag passes through
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ads: privacy options form opens and answers
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = false
+[analytics] ad_consent { "can_request": false }
+[ads] backend stub ready: false
+[sdk-test] PASS ads: consent denied -> no ad requests, rewarded not ready
+[sdk-test] PASS ads: nothing loaded without consent
+[analytics] rewarded_unavailable { "placement": "wall_ad", "why": "not_ready" }
+[analytics] ad failed_show rewarded_video wall_ad no_fill
+[sdk-test] PASS ads: show without an ad -> on_done(false) at once
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[sdk-test] PASS ads: silent consent SDK -> no ads, no hang
+[ads] backend: none, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[analytics] rewarded_unavailable { "placement": "wall_ad", "why": "not_ready" }
+[analytics] ad failed_show rewarded_video wall_ad no_fill
+[ads] interstitial 'none' skipped: trigger_off
+[sdk-test] PASS ads: no SDK at all -> rewarded false, no interstitial
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded failed to load (no_fill: stub: no fill), retry in 0 s
+[analytics] ad_load_failed { "type": "rewarded", "reason": "no_fill", "attempt": 1 }
+[sdk-test] PASS ads: no fill -> not ready
+[ads] loading rewarded (attempt 2)
+[ads] rewarded failed to load (no_fill: stub: no fill), retry in 0 s
+[analytics] ad_load_failed { "type": "rewarded", "reason": "no_fill", "attempt": 2 }
+[ads] loading rewarded (attempt 3)
+[ads] rewarded failed to load (no_fill: stub: no fill), retry in 1 s
+[analytics] ad_load_failed { "type": "rewarded", "reason": "no_fill", "attempt": 3 }
+[ads] loading rewarded (attempt 4)
+[ads] rewarded loaded
+[sdk-test] PASS ads: 3 failed loads retried with backoff, then filled (1.48 s, 4 loads)
+[sdk-test] PASS ads: backoff resets after a fill
+[sdk-test] PASS ads: load failures logged
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+WARNING: [ads] rewarded load timed out
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _tick_slot (res://scripts/autoload/ads.gd:346)
+         [1] _process (res://scripts/autoload/ads.gd:323)
+[ads] rewarded failed to load (timeout: no answer from the SDK), retry in 0 s
+[analytics] ad_load_failed { "type": "rewarded", "reason": "timeout", "attempt": 1 }
+[ads] loading rewarded (attempt 2)
+WARNING: [ads] rewarded load timed out
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _tick_slot (res://scripts/autoload/ads.gd:346)
+         [1] _process (res://scripts/autoload/ads.gd:323)
+[ads] rewarded failed to load (timeout: no answer from the SDK), retry in 0 s
+[analytics] ad_load_failed { "type": "rewarded", "reason": "timeout", "attempt": 2 }
+[ads] loading rewarded (attempt 3)
+[sdk-test] PASS ads: silent load times out and retries (3 loads)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[analytics] rewarded_started { "placement": "wall_ad" }
+WARNING: [ads] rewarded never opened, giving up
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _tick_show (res://scripts/autoload/ads.gd:480)
+         [1] _process (res://scripts/autoload/ads.gd:319)
+[analytics] rewarded_failed { "placement": "wall_ad", "reason": "timeout" }
+[sdk-test] PASS ads: ad that never opens -> watchdog answers false, audio back
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[ads] interstitial 't' skipped: trigger_off
+[sdk-test] PASS interstitial: none before session 4
+[ads] loading interstitial (attempt 1)
+[ads] interstitial loaded
+[sdk-test] PASS interstitial: preloaded from session 4
+[sdk-test] PASS interstitial: shows when allowed
+[sdk-test] PASS interstitial: blocks rewarded while open
+[analytics] ad show interstitial upgrade
+[analytics] interstitial_shown { "trigger": "upgrade" }
+[analytics] interstitial_finished { "trigger": "upgrade", "shown": true }
+[sdk-test] PASS interstitial: finished + logged
+[ads] interstitial 'upgrade' skipped: interval
+[sdk-test] PASS interstitial: 60 s minimum interval
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[ads] loading interstitial (attempt 1)
+[ads] interstitial loaded
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[sdk-test] PASS interstitial: not right after a rewarded video
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS interstitial: Remove Ads blocks and drops the loaded one
+[sdk-test] PASS interstitial: Remove Ads keeps opt-in rewarded ads
+[sdk-test] PASS interstitial: no preloading for Remove Ads buyers
+[sdk-test] PASS admob: backend compiles against the installed addon
+[ads] backend: admob, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] AdMob: 0 test device id(s), max rating 'T'
+WARNING: [ads] AdMob: UMP consent plugin missing, ads stay off
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] start (res://scripts/v3/monetization/ad_backend_admob.gd:51)
+         [1] _install_backend (res://scripts/autoload/ads.gd:286)
+         [2] _test_install_backend (res://scripts/autoload/ads.gd:568)
+         [3] _test_ads_admob_mock (res://scripts/v3/monetization/sdk_test.gd:661)
+         [4] _run (res://scripts/v3/monetization/sdk_test.gd:275)
+         [5] _test_ads_interstitial (res://scripts/v3/monetization/sdk_test.gd:648)
+         [6] _wait (res://scripts/v3/monetization/sdk_test.gd:1432)
+[sdk-test] PASS admob: no UMP plugin -> ads stay off, no hang
+[sdk-test] PASS admob: privacy options without UMP answer false
+[ads] backend: admob, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] AdMob: 0 test device id(s), max rating 'T'
+[ads] AdMob: consent step skipped (sdk test)
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] AdMob: initializing (plugin v5.1.0, native SDK 1.0.0-mock)
+[ads] AdMob: initialized (callback)
+[ads] backend admob ready: true
+[ads] loading rewarded (attempt 1)
+[ads] loading interstitial (attempt 1)
+[ads] rewarded loaded
+[ads] interstitial loaded
+[sdk-test] PASS admob: mock init + rewarded load through the real backend
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[sdk-test] PASS admob: mock rewarded ad is on screen
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[ads] loading rewarded (attempt 1)
+[sdk-test] PASS admob: reward event -> on_done(true)
+[ads] rewarded loaded
+[sdk-test] PASS admob: next rewarded loaded
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] rewarded_skipped { "placement": "wall_ad" }
+[ads] loading rewarded (attempt 1)
+[sdk-test] PASS admob: closed before the reward -> on_done(false)
+[sdk-test] PASS admob: interstitial loaded
+[sdk-test] PASS admob: interstitial show starts
+[analytics] ad show interstitial upgrade
+[analytics] interstitial_shown { "trigger": "upgrade" }
+[analytics] interstitial_finished { "trigger": "upgrade", "shown": true }
+[ads] loading interstitial (attempt 1)
+[sdk-test] PASS admob: interstitial dismissed -> finished
+[sdk-test] PASS admob: plugin version v5.1.0
+[ads] rewarded loaded
+[ads] interstitial loaded
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS iap: store price when known, placeholder otherwise
+[analytics] iap_started { "id": "remove_ads" }
+[sdk-test] PASS iap: busy during a purchase
+[iap] result remove_ads: purchased
+[analytics] iap_first_success { "id": "remove_ads", "result": "purchased" }
+[analytics] iap_finished { "id": "remove_ads", "ok": true }
+[iap] finalize stub-token-1: true
+[sdk-test] PASS iap: remove_ads bought -> Game.remove_ads
+[sdk-test] PASS iap: entitlement written to the save
+[sdk-test] PASS iap: non-consumable acknowledged
+[sdk-test] PASS iap: Remove Ads switches interstitials off
+[iap] result remove_ads: purchased
+[sdk-test] PASS iap: owned product answers true without a new purchase
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_cancelled { "id": "vip_x2" }
+[iap] result vip_x2: cancelled
+[toast] Purchase cancelled.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: cancelled -> false, no VIP
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_failed { "id": "vip_x2", "code": 6, "error": "stub: purchase failed" }
+[iap] result vip_x2: failed
+[toast] Purchase failed. Please try again.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: store error -> false
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_pending { "id": "vip_x2" }
+[iap] result vip_x2: pending
+[toast] Payment pending. You will get it as soon as the payment goes through.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: pending -> false now + purchase_pending
+[analytics] vip { "on": true }
+[iap] vip_x2 granted (update)
+[iap] result vip_x2: granted
+[toast] Payment received. Thank you!
+[iap] finalize stub-token-1: true
+[sdk-test] PASS iap: pending purchase completes later -> VIP granted
+[sdk-test] PASS iap: purchase_finished(vip_x2, true) for the late grant
+[analytics] iap_started { "id": "sikke_small" }
+[iap] result sikke_small: purchased
+[analytics] iap_finished { "id": "sikke_small", "ok": true }
+[iap] finalize stub-token-1: true
+[sdk-test] PASS iap: Sikke pouch -> +80 Sikke
+[sdk-test] PASS iap: consumable consumed and recorded in the ledger
+[iap] finalize stub-token-1: true
+[sdk-test] PASS iap: re-delivered consumable is not granted twice
+[sdk-test] PASS iap: ledger saved
+[analytics] iap_started { "id": "vip_x2" }
+[iap] result sikke_small: busy
+[toast] Please wait, a purchase is still in progress.
+[sdk-test] PASS iap: second purchase while busy -> false
+[analytics] vip { "on": true }
+[iap] result vip_x2: purchased
+[analytics] iap_finished { "id": "vip_x2", "ok": true }
+[iap] finalize stub-token-1: true
+[analytics] iap_restore_started {  }
+[iap] remove_ads granted (restore)
+[analytics] vip { "on": true }
+[iap] vip_x2 granted (restore)
+[analytics] iap_restore_finished { "ok": true, "restored": 2 }
+[sdk-test] PASS iap: restore grants owned VIP + Remove Ads
+[analytics] iap_restore_started {  }
+[analytics] iap_restore_finished { "ok": false, "restored": 0 }
+[sdk-test] PASS iap: failed restore -> false
+[analytics] iap_started { "id": "remove_ads" }
+[analytics] iap_already_owned { "id": "remove_ads" }
+[analytics] iap_restore_started {  }
+[iap] result remove_ads: purchased
+[analytics] iap_finished { "id": "remove_ads", "ok": true }
+[analytics] iap_restore_finished { "ok": true, "restored": 1 }
+[sdk-test] PASS iap: 'already owned' -> restore -> true
+[analytics] iap_started { "id": "vip_x2" }
+WARNING: [iap] vip_x2: no answer from the store, giving up
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _process (res://scripts/autoload/iap.gd:414)
+[analytics] iap_timeout { "id": "vip_x2" }
+[iap] result vip_x2: unavailable
+[toast] The store is not available right now. Please try again later.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: silent store -> watchdog answers false
+[iap] result no_such_product: failed
+[toast] Purchase failed. Please try again.
+[sdk-test] PASS iap: unknown product -> false
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_failed { "id": "vip_x2", "code": -1, "error": "store unavailable" }
+[iap] result vip_x2: unavailable
+[toast] The store is not available right now. Please try again later.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: no store plugin -> false, never stuck
+[iap] Play Billing: connecting
+WARNING: [iap] Play Billing: connect error 3 (fake: billing unavailable)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_connect_error (res://scripts/v3/monetization/store_backend_play.gd:118)
+[iap] Play Billing: connecting
+[iap] Play Billing: connected
+[iap] Play Billing: 3 product(s) loaded
+[sdk-test] PASS play: connect error retried with backoff
+[sdk-test] PASS play: localized prices from product details
+[analytics] iap_started { "id": "remove_ads" }
+[iap] Play Billing: launching purchase flow for remove_ads
+[analytics] business remove_ads 19900 INR store
+[iap] result remove_ads: purchased
+[analytics] iap_finished { "id": "remove_ads", "ok": true }
+[iap] Play Billing: acknowledge ok
+[iap] finalize tok-remove_a: true
+[sdk-test] PASS play: remove_ads purchased
+[sdk-test] PASS play: non-consumable acknowledged
+[sdk-test] PASS play: revenue event INR 19900 paise
+[analytics] iap_started { "id": "sikke_small" }
+[iap] Play Billing: launching purchase flow for sikke_small
+[analytics] business sikke_small 8900 INR store
+[iap] result sikke_small: purchased
+[analytics] iap_finished { "id": "sikke_small", "ok": true }
+[iap] Play Billing: consume ok
+[iap] finalize tok-sikke_sm: true
+[sdk-test] PASS play: Sikke pouch granted
+[sdk-test] PASS play: consumable consumed
+[analytics] iap_started { "id": "vip_x2" }
+[iap] Play Billing: launching purchase flow for vip_x2
+[analytics] iap_pending { "id": "vip_x2" }
+[iap] result vip_x2: pending
+[toast] Payment pending. You will get it as soon as the payment goes through.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS play: pending -> false, nothing granted yet
+[analytics] vip { "on": true }
+[analytics] business vip_x2 29900 INR store
+[iap] vip_x2 granted (update)
+[iap] result vip_x2: granted
+[toast] Payment received. Thank you!
+[sdk-test] PASS play: pending completes -> VIP granted
+[sdk-test] PASS play: late purchase acknowledged
+[analytics] iap_started { "id": "vip_x2" }
+[iap] Play Billing: launching purchase flow for vip_x2
+[iap] Play Billing: acknowledge ok
+[iap] finalize tok-vip_x2-1: true
+[iap] Play Billing: vip_x2 cancelled (code 1 fake: cancelled)
+[analytics] iap_cancelled { "id": "vip_x2" }
+[iap] result vip_x2: cancelled
+[toast] Purchase cancelled.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS play: cancel -> false
+[analytics] iap_started { "id": "vip_x2" }
+[iap] Play Billing: launching purchase flow for vip_x2
+[iap] Play Billing: vip_x2 failed (code 6 fake: error)
+[analytics] iap_failed { "id": "vip_x2", "code": 6, "error": "fake: error" }
+[iap] result vip_x2: failed
+[toast] Purchase failed. Please try again.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS play: error -> false
+[analytics] iap_started { "id": "vip_x2" }
+[iap] Play Billing: launching purchase flow for vip_x2
+[iap] Play Billing: vip_x2 failed (code 5 fake: developer error)
+[analytics] iap_failed { "id": "vip_x2", "code": 5, "error": "fake: developer error" }
+[iap] result vip_x2: failed
+[toast] Purchase failed. Please try again.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS play: launch_error -> false
+[analytics] iap_started { "id": "remove_ads" }
+[iap] Play Billing: launching purchase flow for remove_ads
+[iap] Play Billing: remove_ads already_owned (code 7 fake: owned)
+[analytics] iap_already_owned { "id": "remove_ads" }
+[analytics] iap_restore_started {  }
+[iap] result remove_ads: purchased
+[analytics] iap_finished { "id": "remove_ads", "ok": true }
+[iap] Play Billing: 1 owned purchase(s)
+[analytics] iap_restore_finished { "ok": true, "restored": 1 }
+[sdk-test] PASS play: ITEM_ALREADY_OWNED -> restore -> true
+[iap] Play Billing: connecting
+[iap] Play Billing: connected
+[iap] Play Billing: 3 product(s) loaded
+[iap] remove_ads granted (restore)
+[iap] result remove_ads: restored
+[toast] Purchases restored.
+[iap] sikke_small granted (restore)
+[iap] result sikke_small: restored
+[toast] Purchases restored.
+[iap] Play Billing: 2 owned purchase(s)
+[iap] Play Billing: consume ok
+[iap] finalize tok-sikke_sm: true
+[sdk-test] PASS play: restore at start grants owned items + unconsumed pouch
+[sdk-test] PASS play: restored pouch consumed, acked item not re-acked
+[analytics] iap_restore_started {  }
+[iap] Play Billing: 1 owned purchase(s)
+[analytics] iap_restore_finished { "ok": true, "restored": 0 }
+[sdk-test] PASS play: second restore grants nothing twice
+[iap] Play Billing: 1 owned purchase(s)
+[sdk-test] PASS play: purchases re-read on resume
+[iap] Play Billing: connecting
+[iap] Play Billing: connected
+[iap] Play Billing: 2 product(s) loaded
+WARNING: [iap] Play Billing: not found in Play Console (or app not from Play): vip_x2
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_details (res://scripts/v3/monetization/store_backend_play.gd:186)
+[analytics] iap_started { "id": "vip_x2" }
+[iap] Play Billing: 2 product(s) loaded
+WARNING: [iap] Play Billing: not found in Play Console (or app not from Play): vip_x2
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_details (res://scripts/v3/monetization/store_backend_play.gd:186)
+[iap] Play Billing: vip_x2 failed (code 4 product not available)
+[analytics] iap_failed { "id": "vip_x2", "code": 4, "error": "product not available" }
+[iap] result vip_x2: unavailable
+[toast] The store is not available right now. Please try again later.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS play: product missing from Play Console -> false, no flow launched
+[iap] Play Billing: connecting
+WARNING: [iap] Play Billing: connect error 3 (fake: billing unavailable)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_connect_error (res://scripts/v3/monetization/store_backend_play.gd:118)
+[analytics] iap_started { "id": "vip_x2" }
+[iap] Play Billing: connecting
+WARNING: [iap] Play Billing: connect error 3 (fake: billing unavailable)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_connect_error (res://scripts/v3/monetization/store_backend_play.gd:118)
+[iap] Play Billing: vip_x2 failed (code 3 billing unavailable: fake: billing unavailable)
+[analytics] iap_failed { "id": "vip_x2", "code": 3, "error": "billing unavailable: fake: billing unavailable" }
+[iap] result vip_x2: unavailable
+[toast] The store is not available right now. Please try again later.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS play: billing unavailable -> purchase fails fast
+[iap] App Store: product info requested (0)
+[sdk-test] PASS appstore: Restore button needed, no silent restore
+[sdk-test] PASS appstore: auto-finish off (finish after granting)
+[iap] App Store: 3 product(s) loaded
+[sdk-test] PASS appstore: localized prices
+[analytics] iap_started { "id": "remove_ads" }
+[analytics] business remove_ads 199 USD store
+[iap] result remove_ads: purchased
+[analytics] iap_finished { "id": "remove_ads", "ok": true }
+[iap] finalize T1: true
+[sdk-test] PASS appstore: purchase granted then transaction finished
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_cancelled { "id": "vip_x2" }
+[iap] result vip_x2: cancelled
+[toast] Purchase cancelled.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS appstore: cancelled -> false
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_pending { "id": "vip_x2" }
+[iap] result vip_x2: pending
+[toast] Payment pending. You will get it as soon as the payment goes through.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS appstore: Ask to Buy (deferred) -> pending
+[analytics] iap_restore_started {  }
+[iap] remove_ads granted (restore)
+[analytics] iap_restore_finished { "ok": true, "restored": 1 }
+[iap] finalize R4: true
+[sdk-test] PASS appstore: restore grants what the account owns
+[sdk-test] PASS ga: real GameAnalytics singleton exposes every method the backend calls []
+[sdk-test] PASS ga: desktop run did not initialise GameAnalytics (no keys / desktop off)
+[sdk-test] PASS abi: android.debug/release.arm64 -> arm64 only
+[sdk-test] PASS abi: an arm32 library in debug only does not count
+[sdk-test] PASS abi: arm32 in debug + release counts
+[sdk-test] PASS abi: an Android library without an arch tag covers every arch
+[sdk-test] PASS abi: a preset with armeabi-v7a on is reported while it is blocked
+[sdk-test] PASS abi: GameAnalytics arm64-only blocks armeabi-v7a, x86, x86_64 { "armeabi-v7a": ["GameAnalytics"], "x86": ["GameAnalytics"], "x86_64": ["GameAnalytics"] }
+[sdk-test] PASS abi: an arm32 GameAnalytics library lifts the armeabi-v7a block
+[sdk-test] PASS abi: GameAnalytics plugin disabled -> nothing blocked
+[sdk-test] PASS abi: the installed GameAnalytics.gdextension has the arm64 library
+[sdk-test] GameAnalytics Android libraries: ["arm64"]; blocked ABIs: { "armeabi-v7a": ["GameAnalytics"], "x86": ["GameAnalytics"], "x86_64": ["GameAnalytics"] }
+[sdk-test] Android presets -> ABIs: { "Android": ["arm64-v8a"], "Android Play (AAB)": ["arm64-v8a"] }
+[sdk-test] PASS abi: no Android export preset enables an ABI a native plugin lacks []
+[sdk-test] PASS abi: every Android preset exports arm64-v8a
+[sdk-test] PASS abi: the export guard plugin is enabled while GameAnalytics is installed
+[analytics] app_background { "session_sec": 14 }
+[analytics] app_foreground { "away_sec": 0 }
+[sdk-test] PASS analytics: app_background / app_foreground on pause / resume
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ads: resume keeps a loaded ad
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ui: ad ready -> no block reason
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[sdk-test] PASS ui: watched ad -> outcome rewarded, no message
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] rewarded_skipped { "placement": "wall_ad" }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ui: closed early -> 'watch to the end' message
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad failed_show rewarded_video wall_ad internal_error
+WARNING: [ads] rewarded failed to show: stub: failed to show
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _on_show_event (res://scripts/autoload/ads.gd:463)
+         [1] <anonymous lambda> (res://scripts/v3/monetization/ad_backend_stub.gd:98)
+[analytics] rewarded_failed { "placement": "wall_ad", "reason": "internal_error" }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS ui: failed to show -> 'could not play' message
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[analytics] rewarded_unavailable { "placement": "offline_double", "why": "not_ready" }
+[analytics] ad failed_show rewarded_video offline_double no_fill
+[sdk-test] PASS ui: nothing loaded -> 'no ad right now' message
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = false
+[analytics] ad_consent { "can_request": false }
+[ads] backend stub ready: false
+[sdk-test] PASS ui: consent unanswered -> 'ads paused' message
+[ads] backend: none, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[sdk-test] PASS ui: no ad SDK -> 'not available' message
+[sdk-test] PASS ui: every SDK message and Settings caption has Hindi text []
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[ads] loading interstitial (attempt 1)
+[ads] interstitial loaded
+[sdk-test] PASS interstitial: 'upgrade' call site is on
+[ads] interstitial 'welcome_back' skipped: trigger_off
+[sdk-test] PASS interstitial: 'welcome_back' call site off by default
+[analytics] iap_started { "id": "remove_ads" }
+[ads] dropping loaded interstitial (not needed)
+[iap] result remove_ads: purchased
+[analytics] iap_finished { "id": "remove_ads", "ok": true }
+[iap] finalize stub-token-1: true
+[sdk-test] PASS iap: result purchased (no message)
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_cancelled { "id": "vip_x2" }
+[iap] result vip_x2: cancelled
+[toast] Purchase cancelled.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: result cancelled + message
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_failed { "id": "vip_x2", "code": 6, "error": "stub: purchase failed" }
+[iap] result vip_x2: failed
+[toast] Purchase failed. Please try again.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: result failed + message
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_pending { "id": "vip_x2" }
+[iap] result vip_x2: pending
+[toast] Payment pending. You will get it as soon as the payment goes through.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: result pending
+[analytics] vip { "on": true }
+[iap] vip_x2 granted (update)
+[iap] result vip_x2: granted
+[toast] Payment received. Thank you!
+[iap] finalize stub-token-1: true
+[sdk-test] PASS iap: result granted when the payment goes through
+[analytics] iap_started { "id": "sikke_small" }
+[iap] result sikke_small: busy
+[toast] Please wait, a purchase is still in progress.
+[sdk-test] PASS iap: result busy for a second purchase
+[iap] result sikke_small: purchased
+[analytics] iap_finished { "id": "sikke_small", "ok": true }
+[iap] finalize stub-token-1: true
+[analytics] iap_started { "id": "vip_x2" }
+[analytics] iap_failed { "id": "vip_x2", "code": -1, "error": "store unavailable" }
+[iap] result vip_x2: unavailable
+[toast] The store is not available right now. Please try again later.
+[analytics] iap_finished { "id": "vip_x2", "ok": false }
+[sdk-test] PASS iap: result unavailable without a store
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS settings: no SDK buttons on desktop by default (India / Android)
+[sdk-test] PASS settings: PRIVACY OPTIONS, RESTORE PURCHASES, policy link shown, card grows (992 -> 1202)
+[sdk-test] PASS settings: PRIVACY OPTIONS opens the consent form
+[analytics] iap_restore_started {  }
+[sdk-test] PASS settings: RESTORE PURCHASES shows RESTORING… while waiting
+[iap] remove_ads granted (restore)
+[analytics] iap_restore_finished { "ok": true, "restored": 1 }
+[toast] Purchases restored.
+[sdk-test] PASS settings: restore -> Remove Ads back + 'Purchases restored.'
+[analytics] iap_restore_started {  }
+[analytics] iap_restore_finished { "ok": true, "restored": 0 }
+[toast] Nothing to restore.
+[sdk-test] PASS settings: restore with nothing owned -> 'Nothing to restore.'
+[analytics] iap_restore_started {  }
+[analytics] iap_restore_finished { "ok": false, "restored": 0 }
+[toast] Could not reach the store. Please try again later.
+[sdk-test] PASS settings: store silent -> 'Could not reach the store.'
+[sdk-test] PASS settings: controls hide again when they stop applying
+[sdk-test] PASS analytics: the facades' events reached the GameAnalytics queue (40 calls)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[sdk-test] PASS consent: fresh install -> no answer, GameAnalytics not started
+[analytics] consent card skipped: debug run with flags (add --consent=ask to see it)
+[sdk-test] PASS consent: a debug run with flags (--sdk-test) skips the card, so bots never wait on it
+[analytics] tutorial_step { "step": "intro" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] business remove_ads 19900 INR store
+[sdk-test] PASS consent: before the answer events are only held; nothing reaches GameAnalytics, no init
+[sdk-test] PASS consent: Player ID is random XXXX-XXXX-XXXX-XXXX, stable and saved (F562-14BC-E072-A4FF)
+[sdk-test] PASS consent: the Player ID survives a restart; held events do not
+[sdk-test] PASS consent: 200 new Player IDs, no repeats
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[sdk-test] PASS consent: card waits while Google's form is up (form_load)
+[sdk-test] PASS consent: card waits while Google's form is up (form_shown)
+[sdk-test] PASS consent: card waits while Google's form is up (privacy_form)
+[sdk-test] PASS consent: card waits for UMP's answer at most 4 s
+[sdk-test] PASS consent: no Google form (India) -> the card may open
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[sdk-test] PASS consent: a silent UMP holds the card 4 s, then it opens anyway
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[analytics] tutorial_step { "step": "intro" }
+[analytics] session_start { "n": 1, "save": false }
+[analytics] consent card shown
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[sdk-test] PASS consent: the card opens on its own layer 36 (over Munshi-ji 30 and the hand 32, under the back question 40)
+[sdk-test] PASS consent: a second call does not open a second card
+[sdk-test] PASS consent: NO THANKS and ALLOW, same size
+[sdk-test] PASS consent: the card fits the (1280.0, 1280.0) screen ([P: (360.0, 315.0), S: (560.0, 651.0)])
+[sdk-test] PASS consent: the dim swallows taps (the game under it cannot be tapped)
+[analytics] quit_prompt { "choice": "shown", "tutorial_done": false }
+[sdk-test] PASS consent: Android back over the card opens LEAVE THE DHABA? above it; the card stays
+[analytics] quit_prompt { "choice": "stay", "tutorial_done": false }
+[sdk-test] PASS consent: STAY returns to the card, still unanswered
+[analytics] consent denied (card): nothing more is sent
+[sdk-test] PASS consent: NO THANKS -> 2 held events dropped, GameAnalytics never initialised, card gone
+[sdk-test] PASS consent: the answer is saved in settings.json
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 2, "cost": 20.0 }
+[sdk-test] PASS consent: after NO THANKS nothing is sent or held
+[sdk-test] PASS consent: the next launch remembers NO THANKS: no card, no GameAnalytics
+[sdk-test] PASS settings: ANALYTICS row shows OFF after NO THANKS
+[sdk-test] PASS settings: ANALYTICS sits between GRAPHICS and REMOVE ADS
+[analytics] GameAnalytics initialized (build 0.3.7-debug)
+[analytics] consent granted (settings)
+[analytics] analytics_consent { "on": true, "source": "settings" }
+[sdk-test] PASS settings: ANALYTICS ON starts GameAnalytics live
+[sdk-test] PASS settings: GameAnalytics gets the Player ID before init
+[sdk-test] PASS settings: ON is saved and sends privacy:analytics:on:settings
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 3, "cost": 30.0 }
+[sdk-test] PASS settings: with ANALYTICS ON events are sent
+[analytics] consent denied (settings): nothing more is sent
+[sdk-test] PASS settings: ANALYTICS OFF stops sending at once (setEnabledEventSubmission false)
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 4, "cost": 40.0 }
+[analytics] ad show rewarded_video wall_ad
+[analytics] business vip_x2 29900 INR store
+[sdk-test] PASS settings: after OFF no event of any kind reaches GameAnalytics
+[analytics] consent granted (settings)
+[analytics] analytics_consent { "on": true, "source": "settings" }
+[sdk-test] PASS settings: ON again resumes GameAnalytics without a second init
+[sdk-test] PASS settings: Player ID line above the version (Player ID: F562-14BC-E072-A4FF · tap to copy)
+[sdk-test] PASS settings: the taller card still fits the screen (992 px design)
+[toast] Player ID copied.
+[sdk-test] PASS settings: tapping the Player ID -> 'Player ID copied.'
+[sdk-test] skip: no clipboard in this display server (headless)
+[sdk-test] PASS settings: Hindi Player ID line and ON caption (प्लेयर आईडी: F562-14BC-E072-A4FF · कॉपी के लिए टैप करें)
+[analytics] tutorial_step { "step": "intro" }
+[analytics] session_start { "n": 1, "save": false }
+[analytics] ad show rewarded_video wall_ad
+[analytics] consent card shown
+[analytics] GameAnalytics initialized (build 0.3.7-debug)
+[analytics] sent 3 held event(s)
+[analytics] consent granted (card)
+[analytics] analytics_consent { "on": true, "source": "card" }
+[sdk-test] PASS consent: ALLOW -> GameAnalytics starts, the 3 held events go out in order, then privacy:analytics:on:card
+[sdk-test] PASS consent: ALLOW is saved; no card on the next launch
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[analytics] traveller_lost { "seats": 1 }
+[sdk-test] PASS consent: at most 400 events held before the answer
+[analytics] GameAnalytics initialized (build 0.3.7-debug)
+WARNING: [analytics] GameAnalytics uses its own user id; Settings shows that one
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] player_id (res://scripts/autoload/analytics.gd:217)
+         [1] _test_consent (res://scripts/v3/monetization/sdk_test.gd:1353)
+         [2] _until (res://scripts/v3/monetization/sdk_test.gd:1446)
+[sdk-test] PASS consent: Player ID follows GameAnalytics' own user id if it differs
+[analytics] consent card shown
+[sdk-test] PASS consent: Hindi for the card, the ANALYTICS row and the Player ID []
+[sdk-test] PASS consent: the Hindi card fits the screen ([P: (360.0, 315.0), S: (560.0, 651.0)])
+[analytics] consent denied (card): nothing more is sent
+[sdk-test] PASS consent: card labels keep the English msgid (auto-translated)
+[sdk-test] DONE: 218 passed, 0 failed
+WARNING: 24 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 9 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+rc=0

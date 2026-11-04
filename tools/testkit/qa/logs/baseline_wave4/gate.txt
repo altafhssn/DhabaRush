@@ -1,0 +1,38 @@
+GATE 4 G-suite PASS RESULT: PASS, TUTCHECK fails=0, done en_s1 173.17, en_s2 172.15, en_s3 178.48, en_s4 170.33, hi_s1 172.00; conservation left_unpaid 0 in 5 logs
+GATE 4 G-promo PASS PROMOCHECK fails=0, phase 1 3 ok phase 2 13 ok phase 3 7 ok
+GATE 4 G-tap-hall PASS TAPCHECK fails=0; stage E PASS: hall_ghost_waiter, hall_waiter4, table2_top, table3_top, table4_top, table5_top, table6_top, table7_top
+GATE 4 G-zoom-hall PASS ZOOMTEST fails=0
+GATE 4 G-layout PASS 2 run(s): LAYOUTTEST fails=0; LAYOUTTEST fails=0; SEATSBOARD glyph 24.2 px; PROP DOG_SIT (183, 1140) GATE_BOARD (194, 1068) SHAADI_GATE (62, 1007) TV (273, 313)
+GATE 4 G-hall-natural PASS every seed: s1 hall 17 (41.5%) food hall 30.4 road 26.7 (x1.14) cons 52/45/7/0/0; s2 hall 15 (35.7%) food hall 28.4 road 31.4 (x0.90) cons 53/46/7/0/0; s3 hall 14 (29.8%) food hall 26.4 road 27.7 (x0.95) cons 57/48/9/0/0; s4 hall 20 (43.5%) food hall 33.5 road 29.6 (x1.13) cons 52/45/7/0/0
+GATE 4 G-hall-built PASS every seed: s1 hall 25 (36.8%) max ticket age 18.0 cons 82/70/12/0/0; s2 hall 20 (29.9%) max ticket age 16.2 cons 85/71/14/0/0; s3 hall 24 (35.3%) max ticket age 18.8 cons 79/70/9/0/0; s4 hall 26 (39.4%) max ticket age 18.5 cons 80/70/10/0/0
+GATE 4 G-old-saves PASS post_tutorial ok (done | chai:12 tandoor:1 lassi:- kadai:-); late ok (done | chai:100 tandoor:100 lassi:100 kadai:100); tut_waiter ok (running (waiter) | chai:10 tandoor:- lassi:- kadai:-); tut_free ok (running (free) | chai:10 tandoor:- lassi:- kadai:-)
+GATE 4 G-resume PASS resume_tut_waiter done 100.88, resume_tut_free done 76.27
+GATE 4 G-roundtrip PASS second load: renovations 1, tables 3
+GATE 4 G-lossless PASS conservation 76/54/22/0/103, drove past 35, door max 5, max ticket age 30.7
+GATE 4 G-road PASS lorry: caption in the same frame (1 line(s) before); auto: caption in the same frame (1 line(s) before); auto: caption in the same frame (1 line(s) before) (logs carry no times: judged by log order)
+GATE 4 G-held PASS chai held max 3 then 0; stats held max 4
+GATE 4 G-trays PASS mean tray-2 trip orders 1.445 (seeds 1.44 1.38 1.42 1.54) >= 1 + tray_batch_est 0.40 (economy) - 0.1; measured est min(0.45, floor0.05(0.445)) = 0.40; mean food wait tray2 16.58 (16.1 15.8 16.0 18.4) <= tray1 24.05 (21.6 22.5 26.1 26.0); tray-1 trip orders 1.00 1.00 1.00 1.00; scenario: tray-1 lowest capacity waiters on 4/4 seeds (9.3 9.3 9.4 9.3 /min), tray-1 mean food wait 24.1 s (< 40); old plan scenario (2 waiters, kitchen-bound, --arrivals=24, seed 1; info): tray-2 trip orders 1.00, food wait tray2 19.3 tray1 19.3
+GATE 4 G-dispatch PASS mean food wait 13.20 vs base 13.12; home walks 35/76 33/73 35/73 33/76
+GATE 4 G-sign PASS arrivals/min L4 21.70 - L0 17.70 = +4.00 (bar +4.5 +- 1.5); L0 [17.8, 17.6, 17.7, 17.7] L4 [22.4, 22.2, 20.9, 21.3]
+GATE 4 G-realized PASS REALIZED mean 0.927 (seeds 0.908 0.949 0.928 0.923) informational; act per plan 3.3 when it differs from 0.87 by > 0.02
+GATE 4 G-reno-reach PASS warm takings/min (stats cash 120.0-600.1 s; sales 151 149 150 152) mean 1516.8 x 7 = 10618 (bar >= 10000); seeds 1551.2 1438.0 1554.7 1523.3; cold [window] 0-600 s takings/min mean 1477.0 x 7 = 10339 (info; seeds 1482.2 1494.2 1477.8 1453.9)
+GATE 4 G-hire-rate PASS 1 run(s): HIRETEST fails=0; joins waited ['4.3'] s, rate [('29.63', '36.00', '0.00')]
+GATE 4 G-table-line PASS 1 run(s): TABLETEST fails=0
+GATE 4 G-fill PASS 1 run(s): FILLTEST fails=0
+GATE 4 G-fans PASS showcase left [7]..[0]; fan about 0 s after the unlock (stats brackets unlock 0-10.0, fan 0-10.0)
+GATE 4 G-special-unit PASS 1 run(s): SPECIALTEST fails=0
+GATE 4 G-special-game PASS [special] today chai.coffee x2.00 until 2026-11-04T02:05:28 (debug, share 0.500)
+GATE 4 G-event-unit PASS 1 run(s): EVENTTEST fails=0
+GATE 4 G-event-game PASS baraat buses ['6', '6', '6'], claim 0 +290.0, claim 1 +580.0, gate owned
+GATE 4 G-event-pace PASS event guests 24 in 600 s = 2.40/min
+GATE 4 G-delegation PASS 1 run(s): DELEGATIONTEST fails=0
+GATE 4 G-offers PASS 1 run(s): OFFERSTEST fails=0
+GATE 4 G-consent PASS waits before seats_done, card between seats_done and ad_deal, answered, tutcheck --slack 2.0 fails=0
+GATE 4 G-budget PASS launch popup ['consent']; suppressed ['eco_note', 'offline']; offline pay silent
+GATE 4 G-nofill PASS stub fill none, step -> done | info: TUTCHECK nofill_s1 PASS
+GATE 4 G-fps30 PASS s41 done 173.27 seats-free 5.0, s42 done 173.63 seats-free 2.0, s43 done 170.97 seats-free 2.0, s44 done 171.70 seats-free 2.0, s45 done 174.00 seats-free 2.0, s46 done 171.77 seats-free 5.0
+GATE 4 G-strings SKIP Hindi frozen until the English is final (lead decision 10); check_po rc=5: STALE: ('', 'Collect {money} at the galla') STALE: ('', 'More seats: fewer travellers leave.') STALE (2) MISSING (3): 
+GATE 4 G-hindi-promo PASS PROMOCHECK fails=0, phase 1 3 ok phase 2 13 ok phase 3 7 ok, no Rect2i error
+GATE 4 G-pacing PASS part A identical, MENU CHECK x2 ok, lassi 2:25.50 kadai 9:30.00; p2_ads marks ok; p2_noads marks ok; p2_sess marks ok; bands (renovated/moved) r085 44:02.50/74:48.00, r085_noads 53:01.50/78:14.50, r097 39:54.00/66:16.00, r097_noads 46:54.50/71:05.50, st15 38:50.00/65:57.50, st15_noads 45:14.50/69:57.00
+GATE 4 fails=0
+GATE 4 skips=1

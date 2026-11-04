@@ -1,0 +1,33 @@
+SUITE baseline
+sdktest      rc=0 script_errors=0 errors=1
+    tutorial done -> progression complete
+    sdk-test pass=218 fail=0
+tapcheck     rc=0 script_errors=0 errors=4
+    TAPCHECK fails=0
+tut_en_s1    rc=0 script_errors=0 errors=0
+    [auto] 174.63 home check: dist 0.00 m, in view true, next chip true 'save'
+    tutorial_step { "step": "waiter_done", "i": 24, "t": 93 }
+    [window] 600 s after start | arrivals 135 = 13.5/min | buses 20 (bringing 78 riders) | lost 0 | food wait mean 18.7 s (n 131), max 38.9 s | HISAAB avg food wait 18.2 s | ramp 13.5/min (raw 13.5), bus every 32 s
+    [summary] daynight phase 0.328 band day night 0.00 | time: day 484 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 12 other 3, through lorry 48 bus 16 other 94, stop bus 15 | dusk: park lorry 3 other 1, through lorry 7 bus 4 other 7, stop bus 2 |
+tut_en_s2    rc=0 script_errors=0 errors=0
+    [auto] 173.62 home check: dist 0.00 m, in view true, next chip true 'save'
+    tutorial_step { "step": "waiter_done", "i": 24, "t": 92 }
+    [window] 600 s after start | arrivals 137 = 13.7/min | buses 22 (bringing 77 riders) | lost 0 | food wait mean 19.3 s (n 132), max 40.7 s | HISAAB avg food wait 20.3 s | ramp 13.5/min (raw 13.5), bus every 32 s
+    [summary] daynight phase 0.330 band day night 0.00 | time: day 484 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 13 other 2, through lorry 37 bus 22 other 91, stop bus 17 | dusk: park lorry 3 other 0, through lorry 12 bus 0 other 12, stop bus 2
+tut_en_s3    rc=0 script_errors=0 errors=1
+    [auto] 181.25 home check: dist 0.00 m, in view true, next chip true 'save'
+    tutorial_step { "step": "waiter_done", "i": 24, "t": 98 }
+    [window] 600 s after start | arrivals 136 = 13.6/min | buses 22 (bringing 87 riders) | lost 0 | food wait mean 19.7 s (n 130), max 45.1 s | HISAAB avg food wait 27.3 s | ramp 13.5/min (raw 13.5), bus every 30 s
+    [summary] daynight phase 0.317 band day night 0.00 | time: day 484 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 9 other 7, through lorry 50 bus 16 other 91, stop bus 17 | dusk: park lorry 0 other 3, through lorry 6 bus 5 other 13, stop bus 2 |
+tut_en_s4    rc=0 script_errors=0 errors=0
+    [auto] 173.10 home check: dist 0.00 m, in view true, next chip true 'save'
+    tutorial_step { "step": "waiter_done", "i": 24, "t": 90 }
+    [window] 600 s after start | arrivals 136 = 13.6/min | buses 21 (bringing 80 riders) | lost 0 | food wait mean 18.7 s (n 132), max 40.5 s | HISAAB avg food wait 19.7 s | ramp 13.5/min (raw 13.5), bus every 48 s
+    [summary] daynight phase 0.331 band day night 0.00 | time: day 484 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 12 other 4, through lorry 40 bus 10 other 98, stop bus 16 | dusk: park lorry 3 other 0, through lorry 7 bus 1 other 14, stop bus 2 
+tut_hi_s1    rc=0 script_errors=0 errors=0
+    [auto] 173.47 home check: dist 0.00 m, in view true, next chip true 'save'
+    tutorial_step { "step": "waiter_done", "i": 24, "t": 92 }
+zoomtest     rc=0 script_errors=0 errors=1
+    ZOOMTEST fails=0
+save: SAVE OK
+RESULT: PASS

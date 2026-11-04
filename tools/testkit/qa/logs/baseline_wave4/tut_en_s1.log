@@ -1,0 +1,383 @@
+Initializing GameAnalytics
+GameAnalytics - Initializing http client
+GameAnalytics - Initializing Log
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[analytics] GameAnalytics not started: consent unknown
+[analytics] consent card skipped: debug run with flags (add --consent=ask to see it)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[iap] fake store (use_stub_store)
+[game] modules: readout, special, event, delegation, offers
+[analytics] session_start { "n": 1, "save": false }
+[special] none: off (debug run with flags)
+[world] region look nh44: default
+[main3] signs: ढाबा · होटल | HOTEL & DHABA
+[main3] ready (low_tier=false, auto=true, shots=0, fairy strings=17, graphics=auto, max_fps=0)
+[analytics] session_settings { "lang": "en", "gfx": "auto", "low": false, "music": true, "sound": true }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[iap] backend: stub, products: ["vip_x2", "remove_ads", "sikke_small", "starter_pack"]
+[analytics] tutorial_step { "step": "intro", "i": 1, "t": 0 }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[auto] 0.03 step -> intro (cash 100.00)
+[stats] 0.0 cash 100.00 sales 0 trav 0 inside 0 seats 0/8 door 0 lost 0 park 0.75 | chai q 0 pass 0 | gallas 0 | waiters Raju:0 | served 0 foodwait 4.7 | nodes 1353 timers 0 step intro | door max 0 | passed 0 | held 0 (max 0) | trip orders 1.00 | home walks 0 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 0.0
+[stats]    draw calls: canvas 0, 3d 0 | fps 1
+[stats]    bays -- PARKED/0/0@0.3,20.4 PARKED/0/0@7.3,20.4 PARKED/0/0@10.2,19.2 
+[stats]    bus -- | crossing people 0.0 s, area claim - | people out 0: | line 0 (oldest 0.0 s, max 0 / 0.0 s) boarded 0
+[stats]    ramp 18.0/min (raw 18.0, lorries measured 0.0) bus every 24 s | capacity seats 52.2 waiters 13.3 stations 30.0 gallas 11.7 (items 1.00, expected waiter order trip 4.50 s, chai 4.5 s chai+tandoor 6.1 s) | backlog 0.0 s damp 1.00
+[stats]    order trips (measured): - | shares: chai 100.0% 
+[stats]    stations: chai q 0 cooking 0/1 pass 0/4 cooked 0 dishes 1 props 0 | 
+[stats]    arrivals 0 (lorry 0, bus 0, 0 buses) | last 0 s: 0.0/min | run: 0.0/min | account 0.0 (called 0.0, dropped at cap 0.0)
+[stats]    daynight phase 0.250 band day night 0.00 | time: | vehicles: 
+[auto] 0.27 line l1
+[auto] 7.70 line l2
+[analytics] tutorial_step { "step": "follow", "i": 2, "t": 9 }
+[auto] 9.95 step -> follow (cash 100.00)
+[analytics] tutorial_step { "step": "seated", "i": 3, "t": 19 }
+[auto] 19.57 step -> seated (cash 100.00)
+[analytics] tutorial_step { "step": "chai_pause", "i": 4, "t": 19 }
+[auto] 19.92 step -> chai_pause (cash 100.00)
+[auto] 20.65 line l3
+[analytics] tutorial_step { "step": "brew", "i": 5, "t": 23 }
+[auto] 23.72 step -> brew (cash 100.00)
+[analytics] tutorial_step { "step": "deliver", "i": 6, "t": 25 }
+[auto] 25.13 step -> deliver (cash 100.00)
+[analytics] tutorial_step { "step": "to_galla", "i": 7, "t": 28 }
+[auto] 28.05 step -> to_galla (cash 100.00)
+[analytics] tutorial_step { "step": "galla_pause", "i": 8, "t": 33 }
+[auto] 33.43 step -> galla_pause (cash 100.00)
+[auto] 34.15 line l4
+[analytics] tutorial_step { "step": "wait_sale", "i": 9, "t": 39 }
+[auto] 39.52 step -> wait_sale (cash 100.00)
+[analytics] tutorial_step { "step": "first_sale", "i": 10, "t": 43 }
+[auto] 43.78 step -> first_sale (cash 101.00)
+[auto] 44.07 line l5
+[auto] 46.82 line l6
+[analytics] tutorial_step { "step": "tap_chai", "i": 11, "t": 49 }
+[auto] 49.08 step -> tap_chai (cash 101.00)
+[readout] limit cashiers src live fix=HIRE CASHIER
+[ui] sheet chai ribbons: none fix=none
+[auto] 50.50 panel opened: station:chai
+[analytics] tutorial_step { "step": "level", "i": 12, "t": 50 }
+[auto] 50.52 step -> level (cash 101.00)
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 2, "cost": 2.5 }
+[auto] 51.50 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 3, "cost": 2.55 }
+[auto] 52.22 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 4, "cost": 2.6 }
+[auto] 52.93 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 5, "cost": 2.65 }
+[auto] 53.65 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 6, "cost": 2.71 }
+[auto] 54.37 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 7, "cost": 2.76 }
+[auto] 55.08 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 8, "cost": 2.82 }
+[auto] 55.80 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 9, "cost": 2.87 }
+[auto] 56.52 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 10, "cost": 2.93 }
+[analytics] tutorial_step { "step": "line7", "i": 13, "t": 57 }
+[auto] 57.23 line l7
+[auto] 57.23 button: level_up
+[auto] 57.25 step -> line7 (cash 76.61)
+[analytics] tutorial_step { "step": "tap_out", "i": 14, "t": 59 }
+[auto] 59.50 step -> tap_out (cash 76.61)
+[auto] 61.92 panel closed: station:chai
+[analytics] tutorial_step { "step": "transfer", "i": 15, "t": 61 }
+[auto] 61.92 button: panel_close
+[auto] 61.93 step -> transfer (cash 76.61)
+[auto] 62.98 line l8
+[auto] 64.98 line l9
+[analytics] tutorial_step { "step": "tap_galla", "i": 16, "t": 67 }
+[auto] 67.32 step -> tap_galla (cash 76.61)
+[auto] 68.73 panel opened: staff:cashiers
+[analytics] tutorial_step { "step": "hire", "i": 17, "t": 68 }
+[analytics] reward { "source": "munshi_gift", "amount": 21.76 }
+[auto] 68.75 step -> hire (cash 100.00)
+[analytics] upgrade_bought { "id": "galla_1", "kind": "galla_hire", "value": 2, "cost": 50.0, "source": "staff" }
+[analytics] tutorial_step { "step": "close_galla", "i": 18, "t": 70 }
+[hud] rate 19.56 -> 21.73 in 0.00 s (galla_hire)
+[auto] 70.23 button: galla_hire
+[auto] 70.25 step -> close_galla (cash 50.00)
+[auto] 71.43 panel closed: staff:cashiers
+[analytics] tutorial_step { "step": "wrap", "i": 19, "t": 71 }
+[analytics] hud_reveal { "id": "hud_staff", "min_since_tutorial": 0.0, "tutorial": true }
+[auto] 71.43 button: panel_close
+[auto] 71.45 step -> wrap (cash 50.00)
+[auto] 71.95 line l10
+[analytics] tutorial_step { "step": "waiter_lines", "i": 20, "t": 77 }
+[analytics] hud_reveal { "id": "hud_meter", "min_since_tutorial": 0.0, "tutorial": true }
+[hud] meter revealed at 77.20
+[auto] 77.22 step -> waiter_lines (cash 53.26)
+[readout] limit waiters src live fix=HIRE WAITER
+[hud] meter: limit waiters
+[hud] road: Road: 18/min · all seated
+[tutorial] waiter beat: 2 orders injected, 2 plates waiting after 5.0 s
+[analytics] tutorial_waiter_problem { "plates": 2, "wait_s": 5.0 }
+[auto] 83.55 line lw1
+[auto] 86.48 line lw2
+[analytics] tutorial_step { "step": "tap_staff", "i": 21, "t": 89 }
+[tutorial] tap the WAITER tag: 3 plates still waiting
+[auto] 89.40 step -> tap_staff (cash 56.52)
+[ui] quick waiters: near plates
+[ui] waiter card: One waiter carries about 14 orders a minute. Your dhaba needs about 20 a minute.
+[ui] quick card waiters: card (600, 196, 440, 196) inside true | title (110, 22, 316, 25) | desc (110, 54, 316, 45) lines 2 px 16 | buy (104, 112, 196, 70) | link (304, 120, 128, 54) | icon (16, 16, 84, 84) | overlap none
+[auto] 90.88 panel opened: quick:waiters
+[analytics] tutorial_step { "step": "hire_waiter", "i": 22, "t": 90 }
+[auto] 90.88 button: hire_slot_waiters
+[auto] 90.88 button: rack_tag
+[auto] 90.90 step -> hire_waiter (cash 56.52)
+[analytics] upgrade_bought { "id": "waiter_1", "kind": "waiter_hire", "value": 2, "cost": 40.0, "source": "world_card" }
+[tutorial] waiter beat: hired via card
+[analytics] tutorial_step { "step": "waiter_done", "i": 24, "t": 92 }
+[sim] waiter 2 joins: takes the oldest order (waited 6.7 s)
+[hud] rate 21.73 -> 29.34 in 0.00 s (waiter_hire)
+[auto] 92.47 button: waiter_hire
+[auto] 92.48 step -> waiter_done (cash 16.52)
+[readout] limit road src live fix=LEVEL UP
+[hud] meter: limit road
+[hud] road: Road is the limit · LEVEL UP ›
+[auto] 92.63 panel closed: quick:waiters
+[auto] 94.18 line lw3
+[analytics] tutorial_step { "step": "free", "i": 25, "t": 97 }
+[auto] 97.10 step -> free (cash 19.78)
+[analytics] next_chip_show { "id": "save" }
+[chip] save panel=daftar
+[readout] limit cooks src live fix=HIRE COOK
+[hud] meter: limit cooks
+[hud] road: Road: 17/min · all seated
+[analytics] tutorial_step { "step": "seats_lines", "i": 26, "t": 99 }
+[auto] 99.10 line lt1
+[auto] 99.12 step -> seats_lines (cash 19.78)
+[auto] 102.03 line lt2
+[analytics] tutorial_step { "step": "tap_table", "i": 27, "t": 104 }
+[auto] 104.95 step -> tap_table (cash 21.41)
+[ui] quick card tables: card (420, 267, 440, 196) inside true | title (110, 22, 316, 25) | desc (110, 55, 316, 18) lines 1 px 17 | buy (104, 112, 196, 70) | link (304, 120, 128, 54) | icon (16, 16, 84, 84) | overlap none
+[auto] 106.43 panel opened: quick:tables
+[analytics] tutorial_step { "step": "add_table", "i": 28, "t": 106 }
+[analytics] reward { "source": "munshi_gift", "amount": 6.95999999999999 }
+[auto] 106.43 button: table_tag
+[auto] 106.45 step -> add_table (cash 30.00)
+[analytics] upgrade_bought { "id": "table_2", "kind": "table", "value": 3, "cost": 30.0, "source": "world_card" }
+[analytics] tutorial_step { "step": "seats_done", "i": 29, "t": 108 }
+[auto] 108.02 button: seating_add
+[auto] 108.03 step -> seats_done (cash 0.00)
+[auto] 108.15 panel closed: quick:tables
+[analytics] task_done { "id": "chai_serve20" }
+[analytics] tutorial_step { "step": "free", "i": 25, "t": 111 }
+[auto] 111.30 step -> free (cash 3.26)
+[analytics] hud_reveal { "id": "hud_tasks", "min_since_tutorial": 0.0, "tutorial": true }
+[tutorial] task strip revealed (first claimable task) at free +0.0 s
+[note] task chip shown at 111.3
+[analytics] hint_task_chip { "tutorial": true }
+[auto] 115.02 free-play: open_galla
+[auto] 115.07 panel opened: staff:cashiers
+[auto] 116.02 free-play: galla_upgrade_0
+[analytics] upgrade_bought { "id": "galla_0", "kind": "galla", "value": 2, "cost": 4.0, "source": "staff" }
+[auto] 116.02 button: galla_upgrade_0
+[auto] 117.52 free-play: close_panel
+[auto] 117.52 panel closed: staff:cashiers
+[auto] 117.52 button: panel_close
+[stats] 120.0 cash 2.52 sales 14 trav 17 inside 10 seats 4/12 door 0 lost 0 park 1.00 | chai q 0 pass 1 | gallas 3 3 | waiters Raju:3 Shambhu:1 | served 23 foodwait 11.6 | nodes 1797 timers 3 step free | door max 5 | passed 0 | held 0 (max 0) | trip orders 1.00 | home walks 1 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 13.2
+[stats]    draw calls: canvas 0, 3d 0 | fps 899
+[stats]    bays PARKED/3/3@-2.6,20.4 PARKED/3/3@0.3,20.4 LEAVING/0/8@7.3,20.4 PARKED/3/5@10.2,19.2 
+[stats]    bus [2 stops: trip 12.3 s, dwell 3.9 s, held 1.4 s] BUS_APPROACH/out 0@16.2,14.8 go false wait 0.0 busy true | crossing people 13.9 s, area claim - | people out 9: 4.1,11.9 9.2,17.4 4.1,11.9 3.5,17.0w 3.5,17.0w 3.5,17.0w | line 0 (oldest 0.0 s, max 0 / 0.0 s) boarded 0
+[stats]    ramp 13.4/min (raw 13.4, lorries measured 5.1) bus every 33 s | capacity seats 59.3 waiters 19.8 stations 15.0 gallas 23.5 (items 2.00, expected waiter order trip 6.08 s, chai 4.4 s chai+tandoor 6.1 s) | backlog 6.1 s damp 1.00
+[stats]    order trips (measured): chai 4.36 s, | shares: chai 100.0% tandoor 100.0% 
+[stats]    stations: chai q 0 cooking 1/1 pass 1/4 cooked 18 dishes 1 props 0 | 
+[stats]    arrivals 20 (lorry 12, bus 8, 2 buses) | last 112 s: 10.7/min | run: 10.7/min | account 2.3 (called 0.0, dropped at cap 0.0)
+[stats]    daynight phase 0.250 band day night 0.00 | time: day 120 s | vehicles: day: park lorry 2 other 0, through lorry 15 bus 6 other 30, stop bus 3 | 
+[auto] 129.42 free-play: open_chai
+[ui] sheet chai ribbons: none fix=none
+[auto] 129.47 panel opened: station:chai
+[auto] 130.12 free-play: processing
+[auto] 130.12 free-play: processing skipped (cash 9.04 < 10.00)
+[auto] 131.70 free-play: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 11, "cost": 2.99 }
+[auto] 131.70 button: level_up
+[auto] 132.50 free-play: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 12, "cost": 3.05 }
+[auto] 132.50 button: level_up
+[auto] 136.70 free-play: close_sheet
+[auto] 136.70 panel closed: station:chai
+[auto] 136.70 button: panel_close
+[auto] 138.70 free-play: open_galla
+[auto] 138.75 panel opened: staff:cashiers
+[auto] 139.70 free-play: galla_upgrade_0
+[analytics] upgrade_bought { "id": "galla_0", "kind": "galla", "value": 3, "cost": 4.8, "source": "staff" }
+[auto] 139.70 button: galla_upgrade_0
+[auto] 140.70 free-play: galla_upgrade_1
+[auto] 140.70 free-play: galla_upgrade_1 skipped (cash 4.72 < 10.00)
+[auto] 142.70 free-play: close_panel
+[auto] 142.70 panel closed: staff:cashiers
+[auto] 142.70 button: panel_close
+[analytics] task_claimed { "id": "chai_serve20", "reward": 48.0, "n": 1 }
+[analytics] reward { "source": "task", "amount": 48.0 }
+[analytics] tutorial_ad_chain { "trigger": "claim" }
+[analytics] tutorial_step { "step": "ad_deal", "i": 30, "t": 145 }
+[auto] 145.10 button: task_claim_1
+[auto] 145.12 step -> ad_deal (cash 55.98)
+[auto] 145.28 line l14
+[analytics] tutorial_step { "step": "bubble", "i": 31, "t": 149 }
+[analytics] ad_bubble_shown { "reward": 100.0 }
+[auto] 149.93 step -> bubble (cash 59.38)
+[analytics] ad_bubble_tapped { "reward": 100.0 }
+[auto] 151.45 panel opened: vip
+[analytics] tutorial_step { "step": "vip", "i": 32, "t": 151 }
+[analytics] ad_offer_shown { "placement": "wall_ad", "variant": "free" }
+[auto] 151.45 button: ad_bubble
+[auto] 151.47 step -> vip (cash 61.15)
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[analytics] task_done { "id": "earn_100" }
+[analytics] reward { "source": "wall_ad", "amount": 100.0 }
+[auto] 154.52 button: vip_free
+[auto] 154.52 panel closed: vip
+[analytics] tutorial_step { "step": "ad_lines", "i": 33, "t": 154 }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[auto] 154.53 step -> ad_lines (cash 161.15)
+[auto] 154.83 line l15
+[auto] 159.15 line l16
+[analytics] hud_reveal { "id": "hud_build", "min_since_tutorial": 0.0, "tutorial": true }
+[analytics] tutorial_step { "step": "build_btn", "i": 34, "t": 163 }
+[analytics] reward { "source": "munshi_gift", "amount": 31.77 }
+[auto] 163.80 step -> build_btn (cash 200.00)
+[analytics] renovation_card_shown { "tutorial": true }
+[ui] build rows: tables 3/5, chai built, tandoor open, lassi locked, kadai locked, signboard 0/4 locked, family_dhaba locked
+[auto] 166.22 panel opened: daftar
+[analytics] tutorial_step { "step": "build_row", "i": 35, "t": 166 }
+[auto] 166.22 button: build_button
+[auto] 166.23 step -> build_row (cash 201.77)
+[analytics] building_built { "id": "tandoor", "cost": 200.0, "min_since_tutorial": 0.0 }
+[analytics] tutorial_step { "step": "build_close", "i": 36, "t": 167 }
+[auto] 167.83 button: build_tandoor
+[auto] 167.85 step -> build_close (cash 1.77)
+[auto] 169.70 panel closed: daftar
+[analytics] tutorial_step { "step": "outro", "i": 37, "t": 169 }
+[auto] 169.70 button: panel_close
+[auto] 169.72 step -> outro (cash 3.54)
+[auto] 169.92 line l17
+[analytics] hud_reveal { "id": "hud_gear", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] tutorial_done { "skipped": false, "from": "outro", "t": 173 }
+[special] tutorial day 2026-11-03
+[auto] 173.17 step -> done (cash 3.54)
+[auto] 173.17 done state: chai L12 cash 3.54 waiters 2 tables 3
+[window] start at game 173.2 s (sim 164.8 s): waiters 2, tables 3, gallas 2, stations ["chai", "tandoor"], ramp 13.5/min
+[analytics] task_claimed { "id": "earn_100", "reward": 53.0, "n": 2 }
+[analytics] reward { "source": "task", "amount": 53.0 }
+[auto] 173.63 button: task_claim_1
+[auto] 174.63 home check: dist 0.00 m, in view true, next chip true 'save'
+[auto] 177.95 drag test: camera (2.6, 0.0, 4.0) -> (4.069374, 0.0, 3.984449) (release) -> (17.80043, 0.0, 3.839132) (after inertia), mode free
+[stats] 240.1 cash 90.47 sales 42 trav 15 inside 7 seats 6/12 door 0 lost 0 park 1.00 | chai q 0 pass 3 | gallas 0 1 | waiters Raju:6 Shambhu:5 | served 59 foodwait 8.5 | nodes 1967 timers 4 step done | door max 5 | passed 0 | held 0 (max 0) | trip orders 1.00 | home walks 14 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 10.1
+[stats]    draw calls: canvas 0, 3d 0 | fps 1209
+[stats]    bays [3 visits: bay 93.6 s, parked 67.3 s, riders 3.00, passes 0] PARKED/2/2@-2.6,20.4 PARKED/0/2@0.3,19.2 PARKED/2/2@7.3,20.4 DRIVE/0/0@22.4,14.5 
+[stats]    bus [7 stops: trip 20.1 s, dwell 3.8 s, held 3.3 s] BUS_STOP/out 3@15.0,14.8 go false wait 0.0 busy false | crossing people 33.0 s, area claim - | people out 9: 12.9,16.5 12.4,16.3 13.4,16.6 9.2,16.7 10.0,16.6 10.8,16.6 | line 2 (oldest 16.3 s, max 12 / 51.5 s) boarded 13
+[stats]    ramp 13.5/min (raw 13.5, lorries measured 5.0) bus every 32 s | capacity seats 62.4 waiters 23.7 stations 15.0 gallas 23.8 (items 2.00, expected waiter order trip 5.06 s, chai 3.6 s chai+tandoor 5.1 s) | backlog 11.4 s damp 1.00
+[stats]    order trips (measured): chai 3.57 s, chai+tandoor 5.06 s, | shares: chai 100.0% tandoor 100.0% 
+[stats]    stations: chai q 0 cooking 1/1 pass 3/4 cooked 43 dishes 1 props 0 | tandoor q 4 cooking 1/1 pass 0/3 cooked 11 dishes 1 props 0 | 
+[stats]    arrivals 45 (lorry 21, bus 24, 7 buses) | last 120 s: 12.5/min | run: 11.7/min | account 3.3 (called 2.5, dropped at cap 0.0)
+[stats]    daynight phase 0.361 band day night 0.00 | time: day 240 s | vehicles: day: park lorry 6 other 1, through lorry 28 bus 10 other 44, stop bus 8 | 
+[munshi] chip reno_tease at 260.4
+[analytics] munshi_react { "id": "reno_tease" }
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[analytics] next_chip_show { "id": "build" }
+[chip] build panel=daftar
+[analytics] build_affordable { "id": "lassi", "min_since_tutorial": 2.7, "waiters": 2, "legacy": false }
+[auto] 335.32 line menu_lassi
+[analytics] build_prompt { "id": "lassi", "source": "note", "min_since_tutorial": 2.7 }
+[stats] 360.1 cash 196.03 sales 70 trav 18 inside 6 seats 4/12 door 0 lost 0 park 1.00 | chai q 0 pass 2 | gallas 1 1 | waiters Raju:3 Shambhu:1 | served 116 foodwait 20.7 | nodes 2021 timers 4 step done | door max 5 | passed 0 | held 0 (max 1) | trip orders 1.00 | home walks 18 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 14.6
+[stats]    draw calls: canvas 0, 3d 0 | fps 1086
+[stats]    bays [8 visits: bay 100.9 s, parked 67.5 s, riders 2.62, passes 0] PARKED/1/2@-2.6,20.4 DRIVE/0/0@25.1,14.5 PARKED/3/3@7.3,20.4 PARKED/2/2@10.2,20.4 
+[stats]    bus [11 stops: trip 21.6 s, dwell 4.7 s, held 3.1 s] BUS_STOP/out 0@15.0,14.8 go false wait 0.0 busy false | crossing people 33.8 s, area claim - | people out 7: 4.1,16.5 4.1,16.5 4.1,16.5 3.5,10.3 8.7,17.3 8.8,18.1 | line 0 (oldest 0.0 s, max 12 / 51.5 s) boarded 30
+[stats]    ramp 13.5/min (raw 13.5, lorries measured 6.3) bus every 38 s | capacity seats 59.1 waiters 19.6 stations 15.0 gallas 23.8 (items 2.00, expected waiter order trip 6.12 s, chai 3.6 s chai+tandoor 6.1 s) | backlog 9.2 s damp 1.00
+[stats]    order trips (measured): chai 3.57 s, chai+tandoor 6.12 s, | shares: chai 100.0% tandoor 100.0% 
+[stats]    stations: chai q 0 cooking 0/1 pass 2/4 cooked 71 dishes 1 props 0 | tandoor q 2 cooking 1/1 pass 0/3 cooked 40 dishes 1 props 0 | 
+[stats]    arrivals 76 (lorry 34, bus 42, 11 buses) | last 120 s: 15.5/min | run: 13.0/min | account 3.2 (called 2.5, dropped at cap 0.0)
+[stats]    daynight phase 0.561 band dusk night 0.00 | time: day 335 s dusk 25 s | vehicles: day: park lorry 9 other 1, through lorry 37 bus 11 other 62, stop bus 10 | dusk: park lorry 1 other 1, through lorry 3 bus 1 other 2, stop bus 1 | 
+[analytics] ad_bubble_shown { "reward": 51.0 }
+[world] tv on
+[game] room gate measured: 19.1/min (hold 53.5 s over 180 s, 39 arrivals, 19 places)
+[station] chai held 1
+[station] chai held 0
+[stats] 480.1 cash 290.28 sales 95 trav 18 inside 9 seats 7/12 door 0 lost 0 park 0.75 | chai q 0 pass 4 | gallas 1 1 | waiters Raju:1 Shambhu:5 | served 168 foodwait 14.0 | nodes 2035 timers 4 step done | door max 5 | passed 0 | held 0 (max 1) | trip orders 1.00 | home walks 24 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 14.8
+[stats]    draw calls: canvas 0, 3d 0 | fps 1058
+[stats]    bays [13 visits: bay 100.0 s, parked 68.3 s, riders 2.54, passes 0] -- PARKED/3/3@0.3,20.4 PARKED/3/3@7.3,20.4 PARKED/3/3@10.2,20.4 
+[stats]    bus [13 stops: trip 23.8 s, dwell 5.8 s, held 3.3 s] BUS_STOP/out 0@15.0,14.8 go false wait 0.0 busy false | crossing people 1.7 s, area claim - | people out 12: 14.9,16.6 13.9,16.6 13.4,16.6 14.4,16.6 4.1,9.9w 4.1,9.9w | line 4 (oldest 21.1 s, max 12 / 51.5 s) boarded 42
+[stats]    ramp 13.4/min (raw 13.5, lorries measured 7.6) bus every 57 s | capacity seats 61.7 waiters 22.7 stations 15.0 gallas 23.8 (items 2.00, expected waiter order trip 5.29 s, chai 3.6 s chai+tandoor 5.3 s) | backlog 14.5 s damp 1.00
+[stats]    order trips (measured): chai 3.57 s, chai+tandoor 5.29 s, | shares: chai 100.0% tandoor 100.0% 
+[stats]    stations: chai q 0 cooking 1/1 pass 4/4 cooked 98 dishes 1 props 0 | tandoor q 5 cooking 1/1 pass 0/3 cooked 65 dishes 1 props 0 | 
+[stats]    arrivals 99 (lorry 48, bus 51, 13 buses) | last 120 s: 11.5/min | run: 12.6/min | account 2.1 (called 0.0, dropped at cap 0.0)
+[stats]    daynight phase 0.762 band night night 1.00 | time: day 335 s dusk 79 s night 66 s | vehicles: day: park lorry 9 other 1, through lorry 37 bus 11 other 62, stop bus 10 | dusk: park lorry 2 other 2, through lorry 6 bus 1 other 14, stop bus 3 | night: park lorry 2 other 0, through lorry 16 bus 0 other 6, stop bus 2 | 
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[stats] 600.1 cash 395.84 sales 123 trav 18 inside 8 seats 7/12 door 0 lost 0 park 1.00 | chai q 0 pass 2 | gallas 1 0 | waiters Raju:4 Shambhu:1 | served 222 foodwait 16.8 | nodes 2036 timers 4 step done | door max 5 | passed 0 | held 0 (max 1) | trip orders 1.00 | home walks 27 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 16.7
+[stats]    draw calls: canvas 0, 3d 0 | fps 1137
+[stats]    bays [17 visits: bay 103.9 s, parked 73.0 s, riders 2.65, passes 0] DRIVE/0/0@13.1,14.5 PARKED/3/3@0.3,20.4 PARKED/2/2@7.3,20.4 PARKED/2/2@10.2,20.4 
+[stats]    bus [17 stops: trip 23.5 s, dwell 6.0 s, held 3.4 s] -- | crossing people 1.8 s, area claim - | people out 12: 13.9,16.6 14.4,16.6 9.3,16.5 13.4,16.6 14.9,16.6 4.1,9.9w | line 4 (oldest 7.2 s, max 12 / 51.5 s) boarded 57
+[stats]    ramp 13.5/min (raw 13.5, lorries measured 6.8) bus every 50 s | capacity seats 61.0 waiters 21.8 stations 15.0 gallas 23.8 (items 2.00, expected waiter order trip 5.51 s, chai 3.6 s chai+tandoor 5.5 s) | backlog 13.8 s damp 1.00
+[stats]    order trips (measured): chai 3.57 s, chai+tandoor 5.51 s, | shares: chai 100.0% tandoor 100.0% 
+[stats]    stations: chai q 0 cooking 1/1 pass 2/4 cooked 124 dishes 1 props 0 | tandoor q 3 cooking 1/1 pass 0/3 cooked 93 dishes 1 props 0 | 
+[stats]    arrivals 126 (lorry 58, bus 68, 17 buses) | last 120 s: 13.5/min | run: 12.8/min | account 6.7 (called 2.5, dropped at cap 0.0)
+[stats]    daynight phase 0.962 band night night 1.00 | time: day 335 s dusk 79 s night 186 s | vehicles: day: park lorry 9 other 1, through lorry 37 bus 11 other 62, stop bus 10 | dusk: park lorry 2 other 2, through lorry 6 bus 1 other 14, stop bus 3 | night: park lorry 7 other 0, through lorry 38 bus 0 other 17, stop bus 4 | 
+[world] tv off
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[analytics] ad_bubble_shown { "reward": 51.0 }
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[hud] road: Road: 12/min · all seated
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[station] chai held 0
+[station] chai held 1
+[hud] road: Road: 13/min · all seated
+[station] chai held 0
+[stats] 720.1 cash 501.40 sales 151 trav 17 inside 7 seats 5/12 door 0 lost 0 park 1.00 | chai q 0 pass 4 | gallas 1 1 | waiters Raju:1 Shambhu:1 | served 280 foodwait 23.4 | nodes 2045 timers 4 step done | door max 5 | passed 0 | held 0 (max 1) | trip orders 1.00 | home walks 28 | cap 19.5 | hall seated 0 (0.0%) | hall food 0.0 road food 17.8
+[stats]    draw calls: canvas 0, 3d 0 | fps 1088
+[stats]    bays [21 visits: bay 103.3 s, parked 72.5 s, riders 2.62, passes 0] DRIVE/0/0@6.2,14.5 PARKED/3/3@0.3,18.9 PARKED/4/4@7.3,19.2 PARKED/1/3@10.2,18.9 
+[stats]    bus [21 stops: trip 18.6 s, dwell 5.8 s, held 3.5 s] -- | crossing people 3.0 s, area claim - | people out 12: 13.9,16.6 14.9,16.6 13.4,16.6 14.4,16.6 9.3,18.0 4.1,9.9w | line 4 (oldest 17.7 s, max 12 / 51.5 s) boarded 73
+[stats]    ramp 12.9/min (raw 13.4, lorries measured 6.9) bus every 45 s | capacity seats 59.2 waiters 19.6 stations 15.0 gallas 23.8 (items 2.00, expected waiter order trip 6.11 s, chai 3.6 s chai+tandoor 6.1 s) | backlog 9.2 s damp 0.99
+[stats]    order trips (measured): chai 3.57 s, chai+tandoor 6.11 s, | shares: chai 100.0% tandoor 100.0% 
+[stats]    stations: chai q 0 cooking 0/1 pass 4/4 cooked 153 dishes 1 props 0 | tandoor q 2 cooking 1/1 pass 1/3 cooked 122 dishes 1 props 0 | 
+[stats]    arrivals 153 (lorry 71, bus 82, 21 buses) | last 120 s: 13.5/min | run: 12.9/min | account 6.1 (called 2.5, dropped at cap 0.0)
+[stats]    daynight phase 0.162 band day night 0.00 | time: day 384 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 9 other 3, through lorry 44 bus 12 other 72, stop bus 11 | dusk: park lorry 2 other 2, through lorry 6 bus 1 other 14, stop bus 3 | night: park lorry 7 other 0, through lorry 41 bus 0 other 19, stop bus 5 | dawn: park lorry 0 other 2, through lorry 7 bus 1 other 12, stop bus 2 | 
+[window] 600 s after start | arrivals 136 = 13.6/min | buses 20 (bringing 76 riders) | lost 0 | passed 0 | takings 49.0/min | food wait mean 19.3 s (n 132), max 39.5 s | HISAAB avg food wait 15.5 s | ramp 13.5/min (raw 13.5), bus every 36 s
+[station] chai held 1
+[station] chai held 0
+[summary] sim 812 s | arrivals 175 = 12.9/min (lorry 6.0/min, bus 6.9/min, 24 buses) | lost 0 | avg galla line 1.02 (time-avg), avg galla wait 1.0 s | avg food wait 17.5 s (n 169) | sales 171 | bus line max 12, longest wait for a bus 49.7 s (to boarding 51.5 s), boarded 83
+[summary] orders 175: chai 28 (16.0%) chai+tandoor 147 (84.0%) | expected now: chai+tandoor 100.0% 
+[summary] dishes 317: chai.chai 175 chai.coffee 0 chai.green_tea 0 chai.kesar_doodh 0 tandoor.roti 142 tandoor.naan 0 tandoor.keema_paratha 0 tandoor.kulcha 0 | mismatch 0 (of 482 checks)
+[summary] daynight phase 0.328 band day night 0.00 | time: day 484 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 12 other 4, through lorry 56 bus 13 other 92, stop bus 14 | dusk: park lorry 2 other 2, through lorry 6 bus 1 other 14, stop bus 3 | night: park lorry 7 other 0, through lorry 41 bus 0 other 19, stop bus 5 | dawn: park lorry 0 other 2, through lorry 7 bus 1 other 12, stop bus 2 | 
+[main3] quit at game time 820.02 (tutorial step: done)
+[sim] conservation arrived 183 paid 171 inside 12 left_unpaid 0 drove_past 0
+[sim] max ticket age 39.0
+[sim] door line max 5
+[sim] home walks 36 per 169 orders
+[sim] trip orders 1.00 (171 trips)
+rc=0

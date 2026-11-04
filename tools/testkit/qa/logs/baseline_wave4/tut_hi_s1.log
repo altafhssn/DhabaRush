@@ -1,0 +1,266 @@
+Initializing GameAnalytics
+GameAnalytics - Initializing http client
+GameAnalytics - Initializing Log
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[analytics] GameAnalytics not started: consent unknown
+[analytics] consent card skipped: debug run with flags (add --consent=ask to see it)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[iap] fake store (use_stub_store)
+[game] modules: readout, special, event, delegation, offers
+[analytics] session_start { "n": 1, "save": false }
+[special] none: off (debug run with flags)
+[world] region look nh44: default
+[main3] signs: ढाबा · होटल | HOTEL & DHABA
+[main3] ready (low_tier=false, auto=true, shots=0, fairy strings=17, graphics=auto, max_fps=0)
+[analytics] session_settings { "lang": "hi", "gfx": "auto", "low": false, "music": true, "sound": true }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[iap] backend: stub, products: ["vip_x2", "remove_ads", "sikke_small", "starter_pack"]
+[analytics] tutorial_step { "step": "intro", "i": 1, "t": 0 }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[auto] 0.03 step -> intro (cash 100.00)
+[auto] 0.27 line l1
+[auto] 7.70 line l2
+[analytics] tutorial_step { "step": "follow", "i": 2, "t": 9 }
+[auto] 9.95 step -> follow (cash 100.00)
+[analytics] tutorial_step { "step": "seated", "i": 3, "t": 19 }
+[auto] 19.57 step -> seated (cash 100.00)
+[analytics] tutorial_step { "step": "chai_pause", "i": 4, "t": 19 }
+[auto] 19.92 step -> chai_pause (cash 100.00)
+[auto] 20.65 line l3
+[analytics] tutorial_step { "step": "brew", "i": 5, "t": 23 }
+[auto] 23.72 step -> brew (cash 100.00)
+[analytics] tutorial_step { "step": "deliver", "i": 6, "t": 25 }
+[auto] 25.13 step -> deliver (cash 100.00)
+[analytics] tutorial_step { "step": "to_galla", "i": 7, "t": 28 }
+[auto] 28.05 step -> to_galla (cash 100.00)
+[analytics] tutorial_step { "step": "galla_pause", "i": 8, "t": 33 }
+[auto] 33.43 step -> galla_pause (cash 100.00)
+[auto] 34.15 line l4
+[analytics] tutorial_step { "step": "wait_sale", "i": 9, "t": 39 }
+[auto] 39.52 step -> wait_sale (cash 100.00)
+[analytics] tutorial_step { "step": "first_sale", "i": 10, "t": 43 }
+[auto] 43.78 step -> first_sale (cash 101.00)
+[auto] 44.07 line l5
+[auto] 46.10 line l6
+[analytics] tutorial_step { "step": "tap_chai", "i": 11, "t": 48 }
+[auto] 48.63 step -> tap_chai (cash 101.00)
+[readout] limit cashiers src live fix=HIRE CASHIER
+[ui] sheet chai ribbons: none fix=none
+[auto] 50.05 panel opened: station:chai
+[analytics] tutorial_step { "step": "level", "i": 12, "t": 50 }
+[auto] 50.07 step -> level (cash 101.00)
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 2, "cost": 2.5 }
+[auto] 51.05 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 3, "cost": 2.55 }
+[auto] 51.77 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 4, "cost": 2.6 }
+[auto] 52.48 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 5, "cost": 2.65 }
+[auto] 53.20 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 6, "cost": 2.71 }
+[auto] 53.92 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 7, "cost": 2.76 }
+[auto] 54.63 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 8, "cost": 2.82 }
+[auto] 55.35 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 9, "cost": 2.87 }
+[auto] 56.07 button: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 10, "cost": 2.93 }
+[analytics] tutorial_step { "step": "line7", "i": 13, "t": 56 }
+[auto] 56.78 line l7
+[auto] 56.78 button: level_up
+[auto] 56.80 step -> line7 (cash 76.61)
+[analytics] tutorial_step { "step": "tap_out", "i": 14, "t": 59 }
+[auto] 59.05 step -> tap_out (cash 76.61)
+[auto] 61.47 panel closed: station:chai
+[analytics] tutorial_step { "step": "transfer", "i": 15, "t": 61 }
+[auto] 61.47 button: panel_close
+[auto] 61.48 step -> transfer (cash 76.61)
+[auto] 62.53 line l8
+[auto] 64.53 line l9
+[analytics] tutorial_step { "step": "tap_galla", "i": 16, "t": 67 }
+[auto] 67.32 step -> tap_galla (cash 78.24)
+[auto] 68.73 panel opened: staff:cashiers
+[analytics] tutorial_step { "step": "hire", "i": 17, "t": 68 }
+[analytics] reward { "source": "munshi_gift", "amount": 21.76 }
+[auto] 68.75 step -> hire (cash 100.00)
+[analytics] upgrade_bought { "id": "galla_1", "kind": "galla_hire", "value": 2, "cost": 50.0, "source": "staff" }
+[analytics] tutorial_step { "step": "close_galla", "i": 18, "t": 70 }
+[hud] rate 19.56 -> 21.73 in 0.00 s (galla_hire)
+[auto] 70.23 button: galla_hire
+[auto] 70.25 step -> close_galla (cash 50.00)
+[auto] 71.43 panel closed: staff:cashiers
+[analytics] tutorial_step { "step": "wrap", "i": 19, "t": 71 }
+[analytics] hud_reveal { "id": "hud_staff", "min_since_tutorial": 0.0, "tutorial": true }
+[auto] 71.43 button: panel_close
+[auto] 71.45 step -> wrap (cash 50.00)
+[auto] 71.95 line l10
+[analytics] tutorial_step { "step": "waiter_lines", "i": 20, "t": 77 }
+[analytics] hud_reveal { "id": "hud_meter", "min_since_tutorial": 0.0, "tutorial": true }
+[hud] meter revealed at 77.20
+[auto] 77.22 step -> waiter_lines (cash 53.26)
+[readout] limit waiters src live fix=HIRE WAITER
+[hud] meter: limit waiters
+[hud] road: Road: 18/min · all seated
+[tutorial] waiter beat: 2 orders injected, 2 plates waiting after 4.0 s
+[analytics] tutorial_waiter_problem { "plates": 2, "wait_s": 4.0 }
+[auto] 82.38 line lw1
+[auto] 85.32 line lw2
+[analytics] tutorial_step { "step": "tap_staff", "i": 21, "t": 88 }
+[tutorial] tap the WAITER tag: 3 plates still waiting
+[auto] 88.23 step -> tap_staff (cash 56.52)
+[ui] quick waiters: near plates
+[ui] waiter card: एक वेटर हर मिनट लगभग 14 ऑर्डर ले जाता है। आपके ढाबे को हर मिनट लगभग 20 चाहिए।
+[ui] quick card waiters: card (600, 196, 440, 196) inside true | title (110, 22, 316, 25) | desc (110, 55, 316, 49) lines 2 px 17 | buy (104, 112, 196, 70) | link (304, 120, 128, 54) | icon (16, 16, 84, 84) | overlap none
+[auto] 89.72 panel opened: quick:waiters
+[analytics] tutorial_step { "step": "hire_waiter", "i": 22, "t": 89 }
+[auto] 89.72 button: hire_slot_waiters
+[auto] 89.72 button: rack_tag
+[auto] 89.73 step -> hire_waiter (cash 56.52)
+[analytics] upgrade_bought { "id": "waiter_1", "kind": "waiter_hire", "value": 2, "cost": 40.0, "source": "world_card" }
+[tutorial] waiter beat: hired via card
+[analytics] tutorial_step { "step": "waiter_done", "i": 24, "t": 91 }
+[sim] waiter 2 joins: takes the oldest order (waited 6.8 s)
+[hud] rate 21.73 -> 29.34 in 0.00 s (waiter_hire)
+[auto] 91.30 button: waiter_hire
+[auto] 91.32 step -> waiter_done (cash 16.52)
+[auto] 91.47 panel closed: quick:waiters
+[readout] limit road src live fix=LEVEL UP
+[hud] meter: limit road
+[hud] road: Road is the limit · LEVEL UP ›
+[auto] 93.02 line lw3
+[analytics] tutorial_step { "step": "free", "i": 25, "t": 95 }
+[auto] 95.93 step -> free (cash 19.78)
+[analytics] next_chip_show { "id": "save" }
+[chip] save panel=daftar
+[analytics] tutorial_step { "step": "seats_lines", "i": 26, "t": 97 }
+[auto] 97.93 line lt1
+[auto] 97.95 step -> seats_lines (cash 19.78)
+[readout] limit cooks src live fix=HIRE COOK
+[hud] meter: limit cooks
+[hud] road: Road: 17/min · all seated
+[auto] 100.87 line lt2
+[analytics] tutorial_step { "step": "tap_table", "i": 27, "t": 103 }
+[auto] 103.78 step -> tap_table (cash 21.41)
+[ui] quick card tables: card (420, 267, 440, 196) inside true | title (110, 22, 316, 25) | desc (110, 55, 316, 18) lines 1 px 17 | buy (104, 112, 196, 70) | link (304, 120, 128, 54) | icon (16, 16, 84, 84) | overlap none
+[auto] 105.27 panel opened: quick:tables
+[analytics] tutorial_step { "step": "add_table", "i": 28, "t": 105 }
+[analytics] reward { "source": "munshi_gift", "amount": 6.95999999999999 }
+[auto] 105.27 button: table_tag
+[auto] 105.28 step -> add_table (cash 30.00)
+[analytics] upgrade_bought { "id": "table_2", "kind": "table", "value": 3, "cost": 30.0, "source": "world_card" }
+[analytics] tutorial_step { "step": "seats_done", "i": 29, "t": 106 }
+[auto] 106.85 button: seating_add
+[auto] 106.87 step -> seats_done (cash 0.00)
+[auto] 106.98 panel closed: quick:tables
+[analytics] task_done { "id": "chai_serve20" }
+[analytics] tutorial_step { "step": "free", "i": 25, "t": 110 }
+[auto] 110.13 step -> free (cash 3.26)
+[analytics] hud_reveal { "id": "hud_tasks", "min_since_tutorial": 0.0, "tutorial": true }
+[tutorial] task strip revealed (first claimable task) at free +0.0 s
+[note] task chip shown at 110.1
+[analytics] hint_task_chip { "tutorial": true }
+[auto] 113.85 free-play: open_galla
+[auto] 113.90 panel opened: staff:cashiers
+[auto] 114.85 free-play: galla_upgrade_0
+[analytics] upgrade_bought { "id": "galla_0", "kind": "galla", "value": 2, "cost": 4.0, "source": "staff" }
+[auto] 114.85 button: galla_upgrade_0
+[auto] 116.35 free-play: close_panel
+[auto] 116.35 panel closed: staff:cashiers
+[auto] 116.35 button: panel_close
+[auto] 128.25 free-play: open_chai
+[ui] sheet chai ribbons: none fix=none
+[auto] 128.30 panel opened: station:chai
+[auto] 128.95 free-play: processing
+[auto] 128.95 free-play: processing skipped (cash 9.04 < 10.00)
+[auto] 130.53 free-play: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 11, "cost": 2.99 }
+[auto] 130.53 button: level_up
+[auto] 131.33 free-play: level_up
+[analytics] upgrade_bought { "id": "chai", "kind": "level", "value": 12, "cost": 3.05 }
+[auto] 131.33 button: level_up
+[auto] 135.53 free-play: close_sheet
+[auto] 135.53 panel closed: station:chai
+[auto] 135.53 button: panel_close
+[auto] 137.53 free-play: open_galla
+[auto] 137.58 panel opened: staff:cashiers
+[auto] 138.53 free-play: galla_upgrade_0
+[analytics] upgrade_bought { "id": "galla_0", "kind": "galla", "value": 3, "cost": 4.8, "source": "staff" }
+[auto] 138.53 button: galla_upgrade_0
+[auto] 139.53 free-play: galla_upgrade_1
+[auto] 139.53 free-play: galla_upgrade_1 skipped (cash 6.35 < 10.00)
+[auto] 141.53 free-play: close_panel
+[auto] 141.53 panel closed: staff:cashiers
+[auto] 141.53 button: panel_close
+[analytics] task_claimed { "id": "chai_serve20", "reward": 48.0, "n": 1 }
+[analytics] reward { "source": "task", "amount": 48.0 }
+[analytics] tutorial_ad_chain { "trigger": "claim" }
+[analytics] tutorial_step { "step": "ad_deal", "i": 30, "t": 143 }
+[auto] 143.93 button: task_claim_1
+[auto] 143.95 step -> ad_deal (cash 55.98)
+[auto] 144.12 line l14
+[analytics] tutorial_step { "step": "bubble", "i": 31, "t": 148 }
+[analytics] ad_bubble_shown { "reward": 100.0 }
+[auto] 148.77 step -> bubble (cash 59.24)
+[analytics] ad_bubble_tapped { "reward": 100.0 }
+[auto] 150.28 panel opened: vip
+[analytics] tutorial_step { "step": "vip", "i": 32, "t": 150 }
+[analytics] ad_offer_shown { "placement": "wall_ad", "variant": "free" }
+[auto] 150.28 button: ad_bubble
+[auto] 150.30 step -> vip (cash 60.87)
+[analytics] rewarded_started { "placement": "wall_ad" }
+[analytics] ad show rewarded_video wall_ad
+[analytics] ad reward_received rewarded_video wall_ad
+[analytics] rewarded_completed { "placement": "wall_ad" }
+[analytics] task_done { "id": "earn_100" }
+[analytics] reward { "source": "wall_ad", "amount": 100.0 }
+[auto] 153.35 button: vip_free
+[auto] 153.35 panel closed: vip
+[analytics] tutorial_step { "step": "ad_lines", "i": 33, "t": 153 }
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[auto] 153.37 step -> ad_lines (cash 162.50)
+[auto] 153.67 line l15
+[auto] 157.98 line l16
+[analytics] hud_reveal { "id": "hud_build", "min_since_tutorial": 0.0, "tutorial": true }
+[analytics] tutorial_step { "step": "build_btn", "i": 34, "t": 162 }
+[analytics] reward { "source": "munshi_gift", "amount": 35.73 }
+[auto] 162.63 step -> build_btn (cash 200.00)
+[analytics] renovation_card_shown { "tutorial": true }
+[ui] build rows: tables 3/5, chai built, tandoor open, lassi locked, kadai locked, signboard 0/4 locked, family_dhaba locked
+[auto] 165.05 panel opened: daftar
+[analytics] tutorial_step { "step": "build_row", "i": 35, "t": 165 }
+[auto] 165.05 button: build_button
+[auto] 165.07 step -> build_row (cash 200.00)
+[analytics] building_built { "id": "tandoor", "cost": 200.0, "min_since_tutorial": 0.0 }
+[analytics] tutorial_step { "step": "build_close", "i": 36, "t": 166 }
+[auto] 166.67 button: build_tandoor
+[auto] 166.68 step -> build_close (cash 1.77)
+[auto] 168.53 panel closed: daftar
+[analytics] tutorial_step { "step": "outro", "i": 37, "t": 168 }
+[auto] 168.53 button: panel_close
+[auto] 168.55 step -> outro (cash 3.54)
+[auto] 168.75 line l17
+[analytics] hud_reveal { "id": "hud_gear", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] tutorial_done { "skipped": false, "from": "outro", "t": 171 }
+[special] tutorial day 2026-11-03
+[auto] 172.00 step -> done (cash 5.31)
+[auto] 172.00 done state: chai L12 cash 5.31 waiters 2 tables 3
+[analytics] task_claimed { "id": "earn_100", "reward": 53.0, "n": 2 }
+[analytics] reward { "source": "task", "amount": 53.0 }
+[auto] 172.47 button: task_claim_1
+[auto] 173.47 home check: dist 0.00 m, in view true, next chip true 'save'
+[auto] 176.78 drag test: camera (2.6, 0.0, 4.0) -> (4.069374, 0.0, 3.984449) (release) -> (17.80042, 0.0, 3.839132) (after inertia), mode free
+[munshi] chip reno_tease at 259.4
+[analytics] munshi_react { "id": "reno_tease" }
+[main3] quit at game time 260.00 (tutorial step: done)
+[sim] conservation arrived 54 paid 49 inside 5 left_unpaid 0 drove_past 0
+[sim] max ticket age 21.8
+[sim] door line max 3
+[sim] home walks 15 per 47 orders
+[sim] trip orders 1.00 (47 trips)
+rc=0
