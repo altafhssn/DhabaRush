@@ -292,6 +292,12 @@ const LIMIT_SLACK := 1.10
 const NUM_FORMATS := ["auto", "indian", "intl"]
 
 const SAVE_PATH := "user://save3.json"
+## Test builds (4 Nov): a debug build whose project setting TEST_RESET_SETTING
+## holds a tag deletes the save ONCE, on its first launch, so testers who
+## install over an old build start fresh (load_game; a marker file
+## user://test_reset_<tag> remembers it). Empty in the project: no effect,
+## and never in a release build.
+const TEST_RESET_SETTING := "dhaba_rush/debug/test_reset_tag"
 const SAVE_VERSION := 3
 ## Round 2: the economy version of the normalised economy (economy_v3.json
 ## "version" 4). A save whose "eco" is lower is converted once (_migrate_economy).
@@ -5939,8 +5945,32 @@ func save_game() -> void:
 			f2.close()
 
 
+## Test builds: deletes the save once per TEST_RESET_SETTING tag (see the
+## constant). True when it did.
+func _test_reset() -> bool:
+	if not OS.is_debug_build() or save_locked():
+		return false
+	var tag: String = str(ProjectSettings.get_setting(TEST_RESET_SETTING, "")).strip_edges()
+	if tag == "":
+		return false
+	var marker: String = "user://test_reset_%s" % tag.validate_filename()
+	if FileAccess.file_exists(marker):
+		return false
+	var mf: FileAccess = FileAccess.open(marker, FileAccess.WRITE)
+	if mf != null:
+		mf.store_string(str(Time.get_unix_time_from_system()))
+		mf.close()
+	if not FileAccess.file_exists(SAVE_PATH):
+		return false
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	print("[game] test build %s: the old save was deleted, starting fresh" % tag)
+	return true
+
+
 ## Restores user://save3.json over the fresh state. Returns true if a save loaded.
 func load_game() -> bool:
+	if _test_reset():
+		return false
 	if not FileAccess.file_exists(SAVE_PATH):
 		return false
 	var parsed: Variant = _load_json(SAVE_PATH)
