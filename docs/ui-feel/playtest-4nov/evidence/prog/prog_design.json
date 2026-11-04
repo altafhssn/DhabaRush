@@ -1,0 +1,96 @@
+{
+  "_comment": "PROG design (progression addendum, 4 Nov 2026). Money in REF units (the screen shows x10). Read by pacing_prog.py --prog. Not game data.",
+  "jobs": [
+    {
+      "id": "ac_hall",
+      "name": "AC FAMILY HALL",
+      "cost": 10000.0,
+      "mult": 1.148698355
+    },
+    {
+      "id": "kitchen",
+      "name": "NEW KITCHEN",
+      "cost": 7500.0,
+      "mult": 1.148698355
+    },
+    {
+      "id": "paint",
+      "name": "PAINT AND TILES",
+      "cost": 9500.0,
+      "mult": 1.148698355
+    },
+    {
+      "id": "washroom",
+      "name": "FAMILY WASHROOM",
+      "cost": 12000.0,
+      "mult": 1.148698355
+    },
+    {
+      "id": "rooftop",
+      "name": "ROOFTOP SIGN",
+      "cost": 15000.0,
+      "mult": 1.148698355
+    }
+  ],
+  "job_save_min": 4.0,
+  "hall_last": true,
+  "table_costs_by_set": {
+    "3": 30.0,
+    "4": 75.0,
+    "5": 180.0,
+    "6": 3000,
+    "7": 5000,
+    "8": 8000
+  },
+  "waiter_hire_costs": [
+    40.0,
+    120.0,
+    2500.0
+  ],
+  "sign_max_family": 4,
+  "ads": [
+    {
+      "id": "newspaper",
+      "name": "NEWSPAPER",
+      "tables": 5,
+      "cost": 2000.0,
+      "tpm": 2.0
+    },
+    {
+      "id": "radio",
+      "name": "FM RADIO",
+      "tables": 6,
+      "cost": 4000,
+      "tpm": 3.0,
+      "carry": true
+    },
+    {
+      "id": "tv",
+      "name": "CABLE TV",
+      "tables": 7,
+      "cost": 6000,
+      "tpm": 4.0,
+      "carry": true
+    },
+    {
+      "id": "billboards",
+      "name": "HIGHWAY BILLBOARDS",
+      "tables": 8,
+      "cost": 8000,
+      "tpm": 5.0
+    }
+  ],
+  "ads_cost_by_location_mult": true,
+  "ads_offer_payback_min": 10.0,
+  "campaign": {
+    "enabled": false,
+    "len_s": 180.0,
+    "cap_mult": 1.5,
+    "price_min": 0.25,
+    "price_floor": 50.0,
+    "cooldown_s": 600.0,
+    "from_min": 0.0
+  },
+  "ad_gain_road": false,
+  "ad_gain_staffed": 8
+}

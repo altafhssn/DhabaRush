@@ -13,6 +13,7 @@ Start with `proposal.md`, then `change-list.md`.
 | `looks/` | `truck/`, `khata/`, `tin/`: each a style guide (`style.md`, ending with the critic's "Critique and fixes"), ten mockups (`png/`) and their HTML and CSS (`html/`) |
 | `compare/` | `compare.md`, the side-by-side sheets `cmp_01`-`cmp_10`, `cmp_split` and `cmp_split_07`, and the measurement outputs in `work/` |
 | `evidence/` | The gameplay designers' scripts, prototype diffs (`proto_*.diff`) and pacing outputs: `ga/`, `gb/`, `syn/` (the run tables, follower and gap summaries) |
+| `playtest-4nov/` | The owner's playtest notes of 4 Nov, designed: `addendum.md` (summary, settled conflicts, decisions OD19-OD35), `progression.md` (the Family Dhaba without a reset, five renovation jobs, prices, ads, traffic), `world.md` (one kitchen, the growing signboard, ads and renovation in the world, reactions), pictures in `png/`, evidence in `evidence/` |
 
 **Names used inside the documents.** DIAG = `diagnosis/summary.md`; SYN = `gameplay/synth.md`; FR = `gameplay/frames`; LK = `looks`; CMP = `compare`; WS = `evidence/syn`; WA = `evidence/ga`; BV or WB = `evidence/gb`.
 

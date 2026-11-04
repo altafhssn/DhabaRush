@@ -2,6 +2,8 @@
 
 3 Nov 2026. For you, the owner, to read and approve. This is a design: nothing in the game has changed yet.
 
+*4 Nov playtest additions: `playtest-4nov/addendum.md` adds decisions OD19-OD35 (the Family Dhaba without a reset, renovation jobs, ads, one kitchen, a growing signboard, reactions) and changes OD6's recommendation to (b).*
+
 *Repo copy, 4 Nov. The working files lived in a session scratch folder; the documents, mockups, scripts and pacing outputs are copied here (see `README.md`). The headless game logs and the test copies of the project were not kept.*
 
 **How to use this page.**

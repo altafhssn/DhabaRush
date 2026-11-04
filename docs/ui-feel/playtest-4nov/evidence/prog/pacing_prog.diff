@@ -1,0 +1,562 @@
+--- orig/pacing_v3.py	2026-11-04 10:02:50
++++ pacing_prog.py	2026-11-04 10:37:16
+@@ -123,7 +123,7 @@
+ import statistics
+ from pathlib import Path
+ 
+-ROOT = Path(__file__).resolve().parents[2]
++ROOT = Path("/Users/almeer/Documents/HighwayDhaba")   # PROG copy: read the real economy (read-only)
+ ECO_PATH = ROOT / "data" / "economy_v3.json"
+ DT = 0.05
+ 
+@@ -244,6 +244,14 @@
+         self.mult = 1.0
+         self.sign = 0
+         self.location = "nh44"
++        # PROG: Family Dhaba jobs done, ad tiers bought on this highway, the campaign window,
++        # and the purchase log (t, kind, arg, cost) for the gap report
++        self.jobs = 0
++        self.ad_set = set()
++        self.camp_until = -1.0
++        self.camp_mult = 1.0
++        self.plog = []
++        self.now = 0.0
+         self.tasks = self._start_tasks()
+ 
+     # ---- stations
+@@ -1022,6 +1030,12 @@
+ # The bot spends at most this share of its spendable cash on one signboard level
+ # (as on any other staff purchase; a bot policy, not a game rule).
+ SIGN_SPEND_FRAC = 0.5
++# PROG (progression addendum, 4 Nov 2026): the design under test, loaded from prog_design.json by
++# --prog (None = today's game, the tool unchanged). Family Dhaba as growth (no reset), staged jobs
++# (each x its mult on prices), the price tier (table set prices by set number, waiter hire list),
++# the ad ladder (tiers that raise the road cap, opened by table sets) and the optional campaign.
++PROG = None
++PROG_DIAG = {"no_campaign": False}
+ # The game's own tutorial (main3 --fresh --auto, the seated dhaba) ends with
+ # this much cash (ref units): 1.77, 3.54 or 5.31 by seed (a chai sale either
+ # side), 3.54 the median over 16 seeds, against ~7.9 at the end of the
+@@ -1158,6 +1172,10 @@
+         return int(s.get("tables_start_family", s["tables_start"])) if self.variant() == "family" else int(s["tables_start"])
+ 
+     def layout_tables(self):
++        # PROG (hall_last): on NH 44 the Family Dhaba keeps the roadside's 5 sets in place and
++        # the AC hall's 3 sets come after them (sets 6-8); a later highway keeps today's order.
++        if PROG is not None and PROG.get("hall_last") and self.variant() == "family" and self.location == "nh44":
++            return list(LAYOUT["tables"]) + list(HALL_TABLES)
+         return family_tables() if self.variant() == "family" else LAYOUT["tables"]
+ 
+     def tray_orders(self, i):
+@@ -1180,6 +1198,8 @@
+         d = self.sdef_sign()
+         if not self.sign_on or not d:
+             return 0
++        if PROG is not None and self.variant() == "family":
++            return int(PROG.get("sign_max_family", d.get("max_levels_family", d.get("max_levels", 0))))
+         return int(d.get("max_levels_family", d.get("max_levels", 0))) if self.variant() == "family" else int(d.get("max_levels", 0))
+ 
+     def sign_unlocked(self):
+@@ -1193,7 +1213,53 @@
+     def sign_bonus(self, extra=0):
+         """game.gd signboard_bonus_tpm(): level x tpm_per_level (travellers/min on the cap)."""
+         return float(self.sdef_sign().get("tpm_per_level", 0.0)) * (self.sign + extra)
++
++    # ---- PROG: the ad ladder and the campaign
++    def ad_defs(self):
++        return PROG.get("ads", []) if PROG is not None else []
++
++    @property
++    def ads(self):
++        return len(self.ad_set)
++
++    def ad_next(self):
++        """Index of the next tier the bot works toward: the first not bought (any order is allowed in
++        the design; the bot takes them in ladder order)."""
++        for i in range(len(self.ad_defs())):
++            if i not in self.ad_set:
++                return i
++        return None
++
++    def ad_bonus(self, extra=0):
++        """Travellers/min the ad tiers bought on this highway add to the road cap (+ `extra` what-if
++        tiers: the next ones in ladder order)."""
++        defs = self.ad_defs()
++        on = set(self.ad_set)
++        for _ in range(extra):
++            nx = next((i for i in range(len(defs)) if i not in on), None)
++            if nx is not None:
++                on.add(nx)
++        return sum(float(defs[i].get("tpm", 0.0)) for i in on)
++
++    def ad_cost(self, i):
++        a = self.ad_defs()[i]
++        m = 1.0
++        if PROG.get("ads_cost_by_location_mult", False):
++            locd = self.e.get("locations", {}).get(self.location, {})
++            m = float(locd.get("mult", 1.0)) if isinstance(locd, dict) else 1.0
++            if self.location != "nh44":
++                m *= float(PROG.get("ads_later_highway_mult", 1.0))
++        return snap(float(a.get("cost", 0.0)) * m * self.dial())
+ 
++    def ad_unlocked(self, i):
++        defs = self.ad_defs()
++        if i >= len(defs) or i in self.ad_set:
++            return False
++        return self.tables >= int(defs[i].get("tables", 0))
++
++    def camp_on(self):
++        return self.camp_until > self.now
++
+     # ---- order rule
+     def group_of(self, sid):
+         return self.sdef(sid).get("menu_group", "drink" if sid == "chai" else "dish")
+@@ -1264,11 +1330,19 @@
+         w = self.e["waiters"]
+         k = len(self.waiters) - int(w["start"])
+         c = w["hire_costs"]
++        if PROG is not None and PROG.get("waiter_hire_costs"):
++            c = PROG["waiter_hire_costs"]
+         dial = self.dial() if k >= int(self.ddef().get("exempt_waiter_hires", 1)) else 1.0
+         return snap(c[k] * dial) if k < len(c) else snap(c[-1] * w["hire_cost_growth"] ** (k - len(c) + 1) * dial)
+ 
+     def table_cost(self):
+         s = self.e["seating"]
++        if PROG is not None and PROG.get("table_costs_by_set"):
++            # PROG price tier: the price of table set n (1-based) on every highway and layout
++            tb = PROG["table_costs_by_set"]
++            n = self.tables + 1
++            dial = self.dial() if n > self.tables_start() + int(self.ddef().get("exempt_tables", 1)) else 1.0
++            return snap(float(tb.get(str(n), tb[max(tb, key=int)])) * dial)
+         k = self.tables - self.tables_start()   # the family layout counts from tables_start_family
+         c = s["table_costs"]
+         dial = self.dial() if k >= int(self.ddef().get("exempt_tables", 1)) else 1.0
+@@ -1280,6 +1354,13 @@
+         return len(self.waiters) >= int(self.sdef(sid).get("requires_waiters", 0))
+ 
+     def buy(self, kind, arg=None):
++        c0 = self.cash
++        ok = self._buy(kind, arg)
++        if ok:
++            self.plog.append((self.now, kind, arg, c0 - self.cash, self.stage))
++        return ok
++
++    def _buy(self, kind, arg=None):
+         if kind == "waiter_hire":
+             if len(self.waiters) >= self.waiters_max() or not self.spend(self.waiter_hire_cost()):
+                 return False
+@@ -1363,7 +1444,7 @@
+                 t["progress"] = self._abs_progress(t)
+ 
+ 
+-def capacity(g, built=None, plan_tandoor=False, sign_extra=0):
++def capacity(g, built=None, plan_tandoor=False, sign_extra=0, ad_extra=0):
+     """Mirror of the (menu-expansion) Sim.capacity_estimate(), steady state:
+     {seats, waiters, stations, gallas, min, target, trip, shares, bind}.
+     Core and feel: the waiters' capacity x the tray factor (C3.4), the ramp cap
+@@ -1399,6 +1480,20 @@
+     caps = {"waiters": w_cap, "seats": s_cap, "stations": st_cap, "gallas": g_cap}
+     m = min(caps.values())
+     hi = tr["ramp_max_tpm"] + (g.sign_bonus(sign_extra) if hasattr(g, "sign_bonus") else 0.0)
++    if hasattr(g, "ad_bonus"):
++        # PROG: the ad ladder raises the road cap like the signboard; a running campaign
++        # multiplies the road (only as many stop as the floor serves: target <= k x floor)
++        hi += g.ad_bonus(ad_extra)
++        # G12 mirror (GA's wrapper, design_work/ga/ga_pace.py): the dinner rush x RUSH[0] while the day
++        # phase (0.25 + t / 600, mod 1) is in [0.64, 0.79); a campaign and a rush never stack (the larger wins)
++        mult = 1.0
++        if RUSH[0] > 1.0:
++            ph = (0.25 + getattr(g, "now", 0.0) / 600.0) % 1.0
++            if 0.64 <= ph < 0.79:
++                mult = RUSH[0]
++        if g.camp_on():
++            mult = max(mult, g.camp_mult)
++        hi *= mult
+     target = min(hi, max(tr["ramp_min_tpm"], tr["ramp_capacity_k"] * m))
+     bind = min(caps, key=caps.get) if tr["ramp_capacity_k"] * m < hi else "max"
+     if bind == "stations":
+@@ -1551,8 +1646,121 @@
+           + " ".join(f"{s}{g.st[s]['level']}" for s in g.station_ids() if g.st[s]["built"])
+           + f" waiters {g.waiters} tables {g.tables} gallas {len(g.gallas)} real/min {rupees(m.real_per_min())}")
+ REPORT = [120.0]
++GAPS = [False]
++RUSH = [1.0]
++
++
++def _gaps(times, lo, hi):
++    """Gaps (start, length s) between consecutive times inside [lo, hi], lo and hi included as ends."""
++    ts = sorted(t for t in times if lo - 1e-9 <= t <= hi + 1e-9)
++    pts = [lo] + ts + [hi]
++    return sorted(((pts[i], pts[i + 1] - pts[i]) for i in range(len(pts) - 1)), key=lambda x: -x[1])
+ 
+ 
++def print_gaps(m, label="TODAY"):
++    """Gaps between purchases and new things for any run (the same measures as print_prog)."""
++    g = m.g
++    mk = m.marks
++    end = mk.get("end2", m.t)
++    print()
++    print(f"GAPS ({label}) - minutes between purchases, 0 -> NH 48 all dishes ({fmt_t(end).strip()})")
++    allp = [t for t, k, a, c, st in g.plog]
++    big = [t for t, k, a, c, st in g.plog if k not in ("level",)]
++    lo_fd, hi_fd = mk.get("promo0"), mk.get("promo1")
++    for lab, ts in (("any purchase", allp), ("any purchase but LEVEL UP", big)):
++        gl = _gaps(ts, 0.0, end)
++        print(f"  {lab}: longest " + ", ".join(f"{d / 60:.2f} min at {fmt_t(s0).strip()}" for s0, d in gl[:5])
++              + f" | over 3 min: {sum(1 for _s, d in gl if d > 180.0)}, over 5 min: {sum(1 for _s, d in gl if d > 300.0)}")
++        if lo_fd is not None and hi_fd is not None:
++            gl = _gaps(ts, lo_fd, hi_fd)
++            print(f"     Family Dhaba phase ({fmt_t(lo_fd).strip()} -> {fmt_t(hi_fd).strip()}): longest "
++                  + ", ".join(f"{d / 60:.2f} min at {fmt_t(s0).strip()}" for s0, d in gl[:3])
++                  + f" | over 3 min: {sum(1 for _s, d in gl if d > 180.0)}")
++    new = [t for t in m.unlock_t.values()] + [t for t, k, a, c, st in g.plog if k in ("job", "ad", "sign", "table", "waiter_hire", "build", "move", "galla_hire", "hire")]
++    new += [t for t, s_, n, c in m.sign_log]
++    gl = _gaps(new, 0.0, end)
++    print("  NEW things (dish, job, ad tier, signboard level, table, hire, build, move): longest "
++          + ", ".join(f"{d / 60:.2f} min at {fmt_t(s0).strip()}" for s0, d in gl[:5]))
++    n_level = sum(1 for t, k, a, c, st in g.plog if k == "level" and t <= end)
++    print(f"  purchases to the end: {sum(1 for t in allp if t <= end)} ({n_level} LEVEL UPs)")
++
++
++def print_prog(m):
++    """PROG block: the design's marks, jobs, ads, tables, the gaps between purchases and the
++    Family Dhaba phase. Times are after the tutorial (m:ss)."""
++    g = m.g
++    mk = m.marks
++    print()
++    print("=" * 96)
++    print("PROG - Family Dhaba as growth (no reset), staged jobs, price tier, ad ladder"
++          + (", campaign" if PROG.get("campaign", {}).get("enabled") else ""))
++    print("=" * 96)
++    rows = [("end0", "all 16 dishes (Family Dhaba unlocks)"), ("promo0", "job 1 bought: the Family Dhaba opens")]
++    for k in range(2, len(PROG["jobs"]) + 1):
++        rows.append((f"job{k}", f"job {k} {PROG['jobs'][k - 1]['name']}"))
++    rows += [("end1", "Family Dhaba complete (NH 48 unlocks)"), ("promo1", "moved to NH 48"), ("end2", "NH 48: all 16 dishes")]
++    for key, label in rows:
++        v = mk.get(key)
++        print(f"  {label:<44} {fmt_t(v) if v is not None else '     -'}")
++    if "promo0" in mk and "promo1" in mk:
++        print(f"  Family Dhaba phase (job 1 -> move)           {fmt_t(mk['promo1'] - mk['promo0'])}")
++    if "promo0" in mk and "end1" in mk:
++        print(f"  Family Dhaba jobs (job 1 -> last job)        {fmt_t(mk['end1'] - mk['promo0'])}")
++    print("PROG marks: " + json.dumps({k: fmt_t(v).strip() for k, v in mk.items() if not isinstance(v, list) and not k.startswith("sign")}))
++    print("  ad tiers bought (time, stage, tier, cost, highway): "
++          + (", ".join(f"({fmt_t(t).strip()}, s{st}, {PROG['ads'][n - 1]['name']}, {rupees(c)}, {loc})" for t, st, n, c, loc in m.ad_log) or "none"))
++    print("  signboard buys: " + (", ".join(f"({fmt_t(t).strip()}, s{s_}, L{n}, {rupees(c)})" for t, s_, n, c in m.sign_log) or "none"))
++    if m.camp_log:
++        print(f"  campaigns: {len(m.camp_log)} (" + ", ".join(f"{fmt_t(t).strip()} s{st} {rupees(c)}" for t, st, c in m.camp_log) + ")")
++    tb = [(t, a, c, st) for t, k, a, c, st in g.plog if k == "table"]
++    wh = [(t, a, c, st) for t, k, a, c, st in g.plog if k == "waiter_hire"]
++    tl = []
++    n_t = {0: 3, 1: None, 2: 3}
++    print("  tables bought (time, stage, price): " + ", ".join(f"({fmt_t(t).strip()}, s{st}, {rupees(c)})" for t, _a, c, st in tb))
++    print("  waiters hired (time, stage, price): " + ", ".join(f"({fmt_t(t).strip()}, s{st}, {rupees(c)})" for t, _a, c, st in wh))
++    if m.fd_next_table:
++        t, cost, real, cash = m.fd_next_table
++        bought = next((tt for tt, _a, c, st in tb if tt >= t), None)
++        print(f"  next table right after job 1: price {rupees(cost)}, cash left {rupees(cash)}, real takings {rupees(real)}/min"
++              f" -> {max(0.0, cost - cash) / max(1e-9, real):.2f} min of takings to afford; the bot bought it at "
++              + (fmt_t(bought).strip() if bought is not None else "never"))
++    end = mk.get("end2", m.t)
++    allp = [t for t, k, a, c, st in g.plog]
++    big = [t for t, k, a, c, st in g.plog if k not in ("level",)]
++    for lab, ts in (("any purchase", allp), ("any purchase but LEVEL UP", big)):
++        gl = _gaps(ts, 0.0, end)
++        over3 = sum(1 for _s, d in gl if d > 180.0)
++        over5 = sum(1 for _s, d in gl if d > 300.0)
++        print(f"  gaps between {lab} (0 -> NH 48 end): longest " + ", ".join(f"{d / 60:.2f} min at {fmt_t(s0).strip()}" for s0, d in gl[:5])
++              + f" | over 3 min: {over3}, over 5 min: {over5}")
++        if "promo0" in mk and "promo1" in mk:
++            gl = _gaps(ts, mk["promo0"], mk["promo1"])
++            print(f"     Family Dhaba phase only: longest " + ", ".join(f"{d / 60:.2f} min at {fmt_t(s0).strip()}" for s0, d in gl[:3])
++                  + f" | over 3 min: {sum(1 for _s, d in gl if d > 180.0)}")
++    # something new: dishes, jobs, ad tiers, signboard levels, tables, hires, builds, moves
++    new = [t for t in m.unlock_t.values()] + [t for t, k, a, c, st in g.plog if k in ("job", "ad", "sign", "table", "waiter_hire", "build", "move", "galla_hire", "hire")]
++    gl = _gaps(new, 0.0, end)
++    print("  gaps between NEW things (dish, job, ad tier, signboard level, table, hire, build, move): longest "
++          + ", ".join(f"{d / 60:.2f} min at {fmt_t(s0).strip()}" for s0, d in gl[:5]))
++    tot = {st: sum(d.values()) for st, d in m.bind_t.items()}
++    print("  binds per stage: " + "; ".join(f"s{st} " + ", ".join(f"{k} {100 * v / tot[st]:.0f}%" for k, v in sorted(d.items(), key=lambda kv: -kv[1]))
++                                          for st, d in sorted(m.bind_t.items())))
++    fdg = _gaps(allp, mk["promo0"], mk["promo1"]) if "promo0" in mk and "promo1" in mk else [(0, 0)]
++    summ = {k: round(v, 1) for k, v in mk.items() if not isinstance(v, list) and not k.startswith("sign")}
++    summ.update({"gap_any": round(_gaps(allp, 0.0, end)[0][1], 1), "gap_any_at": round(_gaps(allp, 0.0, end)[0][0], 1),
++                 "gap_fd": round(fdg[0][1], 1), "gap_big": round(_gaps(big, 0.0, end)[0][1], 1),
++                 "gap_new": round(_gaps(new, 0.0, end)[0][1], 1),
++                 "road_s1": round(m.bind_t.get(1, {}).get("max", 0.0) / max(1e-9, tot.get(1, 1.0)), 3),
++                 "road_s2": round(m.bind_t.get(2, {}).get("max", 0.0) / max(1e-9, tot.get(2, 1.0)), 3),
++                 "road_s0": round(m.bind_t.get(0, {}).get("max", 0.0) / max(1e-9, tot.get(0, 1.0)), 3),
++                 "ads": [[round(t, 1), st, n] for t, st, n, c, loc in m.ad_log], "camps": len(m.camp_log),
++                 "real_end": round(m.real_per_min(), 1)})
++    print("PROG summary: " + json.dumps(summ))
++    print(f"  end: stage {g.stage} ({g.location}) mult x{g.mult:.2f} jobs {g.jobs} ads {g.ads} signboard {g.sign} levels "
++          + " ".join(f"{s}{g.st[s]['level']}" for s in g.station_ids() if g.st[s]["built"])
++          + f" waiters {g.waiters} tables {g.tables} gallas {g.gallas} real/min {rupees(m.real_per_min())}")
++
++
+ class SeatedModel:
+     """Expected-value free play (dt 0.5 s) on top of a SeatedGame."""
+ 
+@@ -1574,6 +1782,10 @@
+         self.marks = {}
+         self.stage_start = {0: 0.0}
+         self.sign_log = []
++        self.ad_log = []
++        self.camp_log = []
++        self.next_camp = 0.0
++        self.fd_next_table = None
+         self.bind_t = {}
+         self.rebuilds = []
+         # wall ads shown this session (game.gd _ad_session_count, capped at
+@@ -1755,6 +1967,17 @@
+             remap = {s: {k: nd.get("key") for k, nd in zip(old_menus[s], g.menu(s))} for s in g.station_ids()}
+         locd = e.get("locations", {}).get(g.location, {})
+         g.mult = float(e.get("renovation", {}).get("mult", 1.0)) * float(locd.get("mult", 1.0) if isinstance(locd, dict) else 1.0)
++        if PROG is not None:
++            # PROG: the Family Dhaba's price step is the product of its jobs (x2.0 after all five)
++            jm = 1.0
++            for j in PROG["jobs"][:g.jobs]:
++                jm *= float(j["mult"])
++            g.mult = jm * float(locd.get("mult", 1.0) if isinstance(locd, dict) else 1.0)
++            if PROG.get("ads_reset_on_move", True):
++                # tiers marked "carry" (broadcast media) stay; the rest (local media) start again
++                g.ad_set = {i for i in g.ad_set if g.ad_defs()[i].get("carry", False)}
++            g.camp_until = -1.0
++            g.plog.append((self.t, "move", g.location, cost, g.stage))
+         rebuild = kind == "move" and bool(locd.get("rebuild", False))
+         for s in g.station_ids():
+             g.st[s]["level"] = 1
+@@ -1788,6 +2011,119 @@
+         g._check()
+         self.log(f"PROMOTED {kind} {g.stage}: cost {rupees(cost)} mult x{g.mult:.2f} location {g.location}"
+                  f" waiters before {self.marks[f'wl{g.stage - 1}']}")
++
++    def prog_goal(self, job_open):
++        """PROG: (kind, cost, gain per min, arg) of the bot's saving goal, or None."""
++        g = self.g
++        c = capacity(g)
++        real = max(1.0, self.real_per_min())
++        win = float(PROG.get("save_min", PROG.get("job_save_min", 4.0))) * real
++        cands = []
++        if job_open:
++            jd = PROG["jobs"][g.jobs]
++            cost = float(jd["cost"]) * (g.dial() if PROG.get("jobs_dialled") else 1.0)
++            gain = real * (float(jd["mult"]) - 1.0)
++            if g.jobs == 0 and PROG.get("job1_always_save", True):
++                return ("job", cost, gain, None)
++            cands.append(("job", cost, gain, None))
++        self.ad_extra_cost = 0.0
++        defs = g.ad_defs()
++        if defs and g.ad_next() is not None and c["bind"] == "max":
++            i = g.ad_next()
++            cost = g.ad_cost(i)
++            c2 = capacity(g, ad_extra=1)
++            gain = (c2["target"] - c["target"]) * self.realized * g.basket()
++            if PROG.get("ad_gain_road", False):
++                # the road's gain if the staff keep up (cheap waiter and cashier levels follow)
++                gain = float(defs[i].get("tpm", 0.0)) * self.realized * g.basket()
++            elif PROG.get("ad_gain_staffed", 0):
++                # a competent player: the ad plus up to N more levels on every waiter and cashier
++                # (the meter names them next); their cost joins the ad's
++                gain, extra = self.staffed_gain(int(PROG["ad_gain_staffed"]), c)
++                self.ad_extra_cost = extra   # saved for with the ad; the staff levels are bought by the base bot
++            pb = cost / gain if gain > 1e-9 else math.inf
++            if pb <= max(float(PROG.get("ads_offer_payback_min", 10.0)), self.best_level_payback(c)):
++                if g.ad_unlocked(i):
++                    cands.append(("ad", cost + getattr(self, "ad_extra_cost", 0.0), gain, i, cost))
++                elif g.tables + 1 == int(defs[i].get("tables", 0)) and g.tables < g.tables_max():
++                    cands.append(("table_for_ad", g.table_cost() + cost + getattr(self, "ad_extra_cost", 0.0), gain, i, g.table_cost()))
++        if c["bind"] == "waiters" and len(g.waiters) < g.waiters_max():
++            cost = g.waiter_hire_cost()
++            gain = self._gain_of(lambda: g.waiters.append(1), lambda: g.waiters.pop()) * self.realized
++            if gain > 0:
++                cands.append(("waiter_hire", cost, gain, None))
++        cands = [x for x in cands if x[1] <= win]
++        if not cands:
++            return None
++        return max(cands, key=lambda x: x[2] / max(1e-9, x[1]))
++
++    def staffed_gain(self, n, c):
++        """(gain per min, extra cost): the next ad tier plus the cheapest waiter / cashier levels
++        (at most n each) that lift the floor to the new road cap."""
++        g = self.g
++        w0, g0 = list(g.waiters), list(g.gallas)
++        extra = 0.0
++        base = c["target"]
++        added = g.ad_next()
++        g.ad_set.add(added)
++        try:
++            for _ in range(n * (len(w0) + len(g0))):
++                cc = capacity(g)
++                if cc["bind"] == "max":
++                    break
++                b = cc["bind"]
++                if b == "waiters":
++                    i = min(range(len(g.waiters)), key=lambda k: g.waiter_up_cost(k))
++                    if g.waiters[i] - w0[i] >= n:
++                        break
++                    extra += g.waiter_up_cost(i)
++                    g.waiters[i] += 1
++                elif b == "gallas":
++                    i = min(range(len(g.gallas)), key=lambda k: g.galla_up_cost(k))
++                    if g.gallas[i] - g0[i] >= n:
++                        break
++                    extra += g.galla_up_cost(i)
++                    g.gallas[i] += 1
++                else:
++                    break
++            after = capacity(g)["target"]
++        finally:
++            g.ad_set.discard(added)
++            g.waiters[:] = w0
++            g.gallas[:] = g0
++        return (after - base) * self.realized * g.basket(), extra
++
++    def buy_ad(self, cost):
++        g = self.g
++        i = g.ad_next()
++        g.cash -= cost
++        g.ad_set.add(i)
++        self.ad_log.append((self.t, g.stage, i + 1, cost, g.location))
++        g.plog.append((self.t, "ad", g.ad_defs()[i]["id"], cost, g.stage))
++        self.log(f"AD {g.ad_defs()[i]['name']} ({rupees(cost)}), cap {capacity(g)['cap']:.1f}/min")
++
++    def buy_job(self, cost):
++        """PROG: one Family Dhaba job: no reset; job 1 makes the dhaba the Family Dhaba (the family
++        layout: the AC hall's sets, a 4th waiter); every job multiplies prices by its mult."""
++        g = self.g
++        jd = PROG["jobs"][g.jobs]
++        g.cash -= cost
++        if g.jobs == 0:
++            self.marks["promo0"] = self.t
++            self.marks["wl0"] = list(g.waiters)
++            self.marks["sign0"] = g.sign
++            g.stage = 1
++            self.stage_start[1] = self.t
++            self.log(f"PROMOTED renovation 1 (growth, no reset): levels kept, waiters {list(g.waiters)}, tables {g.tables}")
++            self.fd_next_table = (self.t, g.table_cost(), self.real_per_min(), g.cash)
++        g.jobs += 1
++        g.mult *= float(jd["mult"])
++        self.marks[f"job{g.jobs}"] = self.t
++        g.plog.append((self.t, "job", jd["id"], cost, g.stage))
++        self.log(f"JOB {g.jobs} {jd['name']} ({rupees(cost)}): prices x{g.mult:.3f}")
++        if g.jobs == len(PROG["jobs"]):
++            self.marks["end1"] = self.t
++            self.log("FAMILY DHABA COMPLETE (every job)")
+ 
+     def act(self):
+         """The prototype's bot around the base bot: sessions of the wall-ad cap, the
+@@ -1810,10 +2146,38 @@
+             self.marks["starter"] = t
+             self.log(f"STARTER +{rupees(self.starter_amount)}")
+         reserve = 0.0
+-        if self.content_done() and f"end{g.stage}" not in self.marks:
++        njobs = len(PROG["jobs"]) if PROG is not None else 0
++        fd_open = PROG is not None and g.location == "nh44" and g.stage <= 1 and g.jobs < njobs
++        if self.content_done() and f"end{g.stage}" not in self.marks and not (PROG is not None and g.stage == 1 and fd_open):
+             self.marks[f"end{g.stage}"] = t
+-            self.log(f"ALL DISHES (stage {g.stage})")
+-        if g.stage < self.stages and self.content_done():
++            self.log(f"ALL DISHES (stage {g.stage})" if not (PROG is not None and g.stage == 1) else "FAMILY DHABA COMPLETE (every job)")
++        if PROG is not None and not (g.stage < self.stages and self.content_done() and not fd_open):
++            # PROG: the bot's one saving goal among the next Family Dhaba job, the next ad tier
++            # (or the table set that opens it) and the 4th waiter: the best gain per cost among
++            # those costing <= save_min minutes of real takings (job 1 at once with job1_always_save);
++            # it buys the goal once the cash is there and never spends that cash on anything else
++            if fd_open and self.content_done() and "unlock0" not in self.marks:
++                self.marks["unlock0"] = t
++                self.log(f"UNLOCKED Family Dhaba job 1 ({rupees(PROG['jobs'][0]['cost'])})")
++            goal = self.prog_goal(fd_open and self.content_done())
++            if goal is not None:
++                kind, _total, _gain, arg = goal[:4]
++                pay = goal[4] if len(goal) > 4 else goal[1]
++                cost = pay
++                if g.cash >= pay:
++                    if kind == "job":
++                        self.buy_job(cost)
++                    elif kind == "ad":
++                        self.buy_ad(cost)
++                    elif kind == "table_for_ad":
++                        if g.buy("table"):
++                            self.log(f"table set {g.tables} (opens {g.ad_defs()[g.ad_next()]['name']})")
++                    elif kind == "waiter_hire":
++                        if g.buy("waiter_hire"):
++                            self.log(f"hire waiter {len(g.waiters)} (waiters bind)")
++                else:
++                    reserve = pay
++        elif g.stage < self.stages and self.content_done() and (PROG is None or g.jobs >= njobs or g.location != "nh44"):
+             key = f"unlock{g.stage}"
+             if key not in self.marks:
+                 self.marks[key] = t
+@@ -1837,7 +2201,27 @@
+                 g.cash -= cost
+                 g.sign += 1
+                 self.sign_log.append((t, g.stage, g.sign, cost))
++                g.plog.append((t, "sign", g.sign, cost, g.stage))
+                 self.log(f"SIGNBOARD level {g.sign} ({rupees(cost)}), cap {e['traffic']['ramp_max_tpm'] + g.sign_bonus():.1f}/min")
++        cp = PROG.get("campaign", {}) if PROG is not None else {}
++        if cp.get("enabled") and not g.camp_on() and t >= self.next_camp and t >= float(cp.get("from_min", 0.0)) * 60.0 \
++                and (g.ads >= 1 or not cp.get("needs_ad", True)):
++            # PROG campaign: once per in-game day (cooldown from its start), only while the road is
++            # the limit and never during the dinner rush; the bot runs it whenever the cash beyond
++            # its saving goal covers it (the bot's policy, not a rule)
++            c = capacity(g)
++            ph = (0.25 + t / 600.0) % 1.0
++            in_rush = RUSH[0] > 1.0 and 0.64 <= ph < 0.79
++            if c["bind"] == "max" and not in_rush:
++                price = snap(max(float(cp.get("price_floor", 0.0)), float(cp.get("price_min", 0.5)) * self.lam * g.basket()))
++                if price <= g.cash - reserve:
++                    g.cash -= price
++                    g.camp_until = t + float(cp.get("len_s", 180.0))
++                    g.camp_mult = float(cp.get("cap_mult", 1.5))
++                    self.next_camp = t + float(cp.get("cooldown_s", 600.0))
++                    self.camp_log.append((t, g.stage, price))
++                    g.plog.append((t, "campaign", None, price, g.stage))
++                    self.log(f"CAMPAIGN x{g.camp_mult:g} for {cp.get('len_s', 180.0):g} s ({rupees(price)})")
+         saved = min(g.cash, reserve)
+         g.cash -= saved
+         self.act_base()
+@@ -2120,6 +2504,10 @@
+     print_round2(eco, m)
+     if stages:
+         print_promo(m)
++        if PROG is not None:
++            print_prog(m)
++        if GAPS[0]:
++            print_gaps(m, "PROG" if PROG is not None else "TODAY")
+     print()
+     print("Timeline (station affordable / built, staff, milestones):")
+     for t, ev in m.events:
+@@ -2333,7 +2721,32 @@
+                     help="grant the starter pack (offers.starter.amount) MIN minutes into part B (C7.4)")
+     ap.add_argument("--starter-amount", type=float, default=None, metavar="REF",
+                     help="override the starter pack's cash (ref units; default offers.starter.amount)")
++    ap.add_argument("--prog", nargs="?", const="DEFAULT", default=None, metavar="JSON",
++                    help="PROG: model the progression addendum (design JSON; default prog_design.json beside this file)")
++    ap.add_argument("--prog-set", action="append", default=[], metavar="PATH=VALUE",
++                    help="PROG: override a design value, e.g. --prog-set jobs.1.cost=20000 or --prog-set campaign.enabled=true")
++    ap.add_argument("--gaps", action="store_true", help="PROG copy: print the purchase-gap report (works without --prog)")
++    ap.add_argument("--rush", type=float, default=1.0, help="PROG copy: G12 dinner rush multiplier (GA's window 0.64-0.79 of a 600 s day)")
+     args = ap.parse_args()
++    GAPS[0] = bool(args.gaps)
++    RUSH[0] = float(args.rush)
++    global PROG
++    if args.prog is not None:
++        pp = Path(__file__).resolve().parent / "prog_design.json" if args.prog == "DEFAULT" else Path(args.prog)
++        PROG = json.loads(pp.read_text())
++        for kv in args.prog_set:
++            path, val = kv.split("=", 1)
++            node = PROG
++            keys = path.split(".")
++            for k in keys[:-1]:
++                node = node[int(k)] if isinstance(node, list) else node[k]
++            last = keys[-1]
++            if isinstance(node, list):
++                node[int(last)] = json.loads(val)
++            else:
++                node[last] = json.loads(val)
++            print(f"prog override {path} = {val}")
++        print(f"PROG design: {pp}")
+     eco = json.loads(Path(args.eco).read_text())
+     DISPLAY_SCALE[0] = float(eco.get("money_display_scale", 10.0))
+     for kv in args.set:
