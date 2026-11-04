@@ -15,6 +15,9 @@ extends Control
 ## head-wobble burst every few seconds, a talk nod, and the wave bob on
 ## `cheer` — each only when the model has a `head` / `arm_r` node.
 ## Until the ART glbs exist a small procedural Munshi-ji stands in.
+## 2D art (4 Nov): when the narrator sprites exist (SPRITE_PATH, one per pose)
+## they replace the 3D bust: no SubViewport, and the head wobble becomes a
+## small tilt of the sprite; the 2D sway, bob and entrances are unchanged.
 ##
 ## DialogueBox owns placement (layout_for) and fades `modulate` on dismiss.
 
@@ -22,6 +25,10 @@ signal pose_changed(pose: String)
 
 const GfxQuality := preload("res://scripts/v3/core/gfx_quality.gd")
 const POSES := ["idle", "cheer", "worried", "point", "namaste", "ledger"]
+## 2D narrator art, cut from the owner's character sheet: one PNG per pose,
+## each RECT-sized and drawn 1:1, head centre at _head_px(), hair top 58 px
+## down, mirrored so the gestures reach towards screen centre.
+const SPRITE_PATH := "res://assets/textures/narrator/narrator_%s.png"
 ## Framing (fix 0.3.4: the old square 576 px view, fitted to the idle pose,
 ## was only ±0.81 m wide around the head, so the point / ledger / cheer arms
 ## were cut by the view's own edge in mid-screen: a flat white wedge with no
@@ -78,6 +85,8 @@ var _tex: TextureRect
 var _cam: Camera3D
 var _pivot: Node3D
 var _models: Dictionary = {}       # pose -> Node3D
+var _sprites: Dictionary = {}      # pose -> TextureRect (2D art)
+var _two_d: bool = false
 var _heads: Dictionary = {}        # pose -> Node3D or null
 var _head_bases: Dictionary = {}   # pose -> Vector3
 var _arms: Dictionary = {}         # pose -> Node3D or null
@@ -108,6 +117,13 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size = RECT
 	pivot_offset = Vector2(_head_px(), RECT.y + PIVOT_BELOW)
+	_two_d = ResourceLoader.exists(SPRITE_PATH % "idle")
+	if _two_d:
+		_build_sprites()
+		visible = false
+		modulate.a = 0.0
+		set_process(false)
+		return
 	_vp = SubViewport.new()
 	_vp.name = "BustView"
 	_vp.size = Vector2i(RECT)
@@ -153,6 +169,14 @@ func current_pose() -> String:
 
 
 func set_pose(p: String) -> void:
+	if _two_d:
+		if not _sprites.has(p):
+			p = "idle"
+		for k in _sprites:
+			(_sprites[k] as TextureRect).visible = (str(k) == p)
+		_pose = p
+		pose_changed.emit(p)
+		return
 	if not _models.has(p):
 		p = "idle"
 	for k in _models:
@@ -178,8 +202,9 @@ func set_talking(on: bool) -> void:
 func activate() -> void:
 	visible = true
 	_low = GfxQuality.is_low()
-	_vp.msaa_3d = Viewport.MSAA_DISABLED if _low else Viewport.MSAA_2X
-	_vp.render_target_update_mode = SubViewport.UPDATE_ONCE if _low else SubViewport.UPDATE_ALWAYS
+	if _vp != null:
+		_vp.msaa_3d = Viewport.MSAA_DISABLED if _low else Viewport.MSAA_2X
+		_vp.render_target_update_mode = SubViewport.UPDATE_ONCE if _low else SubViewport.UPDATE_ALWAYS
 	_redraw_t = 0.0
 	set_process(true)
 
@@ -193,7 +218,8 @@ func deactivate() -> void:
 	visible = false
 	modulate.a = 0.0
 	enter_off = Vector2.ZERO
-	_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	if _vp != null:
+		_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	set_process(false)
 
 
@@ -335,7 +361,7 @@ func _kill(tw: Tween) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	if _low:
+	if _low and _vp != null:
 		# Time-based, so the bust animates the same at 30 or 60 fps. The 0.75
 		# lets a slightly short frame at the cap still redraw.
 		var every: float = 1.0 / GfxQuality.BUST_LOW_HZ
@@ -380,6 +406,11 @@ func _process(delta: float) -> void:
 				_wob_next = randf_range(3.5, 6.0)
 			else:
 				wob = deg_to_rad(WOBBLE_DEG) * sin(TAU * WOBBLE_HZ * _wob_t) * (1.0 - u)
+	if _two_d:
+		var spr := _sprites.get(_pose) as TextureRect
+		if spr != null:
+			spr.rotation = wob * 0.3
+		return
 	var ph := TAU * (_t + HEAD_LEAD) / SWAY_PERIOD
 	if _cur_head != null:
 		var yaw := deg_to_rad(HEAD_YAW_DEG) * sin(ph)
@@ -392,6 +423,27 @@ func _process(delta: float) -> void:
 			_cur_arm.rotation = _arm_base + Vector3(0.0, 0.0, deg_to_rad(WAVE_DEG) * sin(TAU * _t / WAVE_PERIOD))
 		else:
 			_cur_arm.rotation = _arm_base
+
+
+# ================================================================ 2D art
+## One TextureRect per pose, filling the rect 1:1; only the current one shows.
+## Pivot on the dialogue box line, so the wobble tilts her from the waist.
+func _build_sprites() -> void:
+	for p in POSES:
+		var pose: String = p
+		if not ResourceLoader.exists(SPRITE_PATH % pose):
+			continue
+		var t := TextureRect.new()
+		t.name = "Narrator_" + pose
+		t.texture = load(SPRITE_PATH % pose) as Texture2D
+		t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		t.stretch_mode = TextureRect.STRETCH_KEEP
+		t.size = RECT
+		t.pivot_offset = Vector2(_head_px(), (WIN_Y.y - CUT_Y) * PPM)
+		t.visible = (pose == "idle")
+		add_child(t)
+		_sprites[pose] = t
+	set_pose("idle")
 
 
 # ================================================================ 3D world
