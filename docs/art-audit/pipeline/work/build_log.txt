@@ -1,0 +1,1267 @@
+INFO Draco is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_draco_bridge.dylib
+INFO MeshOptimizer is available, use library at /Applications/Blender.app/Contents/Resources/5.2/scripts/addons_core/io_scene_gltf2/libbf_intern_meshopt_bridge.dylib
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: bhaiya
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.011142969131469727 s
+
+[asset] bhaiya              452 tris    36 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: chotu
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002947092056274414 s
+
+[asset] chotu               364 tris    30 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: customer_a
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0027589797973632812 s
+
+[asset] customer_a          352 tris    29 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: customer_b
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002743959426879883 s
+
+[asset] customer_b          428 tris    34 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: customer_c
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0030989646911621094 s
+
+[asset] customer_c          500 tris    40 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: customer_d
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0029320716857910156 s
+
+[asset] customer_d          376 tris    30 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: bike
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0026481151580810547 s
+
+[asset] bike                180 tris    15 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: car
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0026769638061523438 s
+
+[asset] car                 292 tris    21 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: car_red
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0026230812072753906 s
+
+[asset] car_red             292 tris    21 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: car_blue
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0030448436737060547 s
+
+[asset] car_blue            292 tris    21 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: car_taxi
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0029268264770507812 s
+
+[asset] car_taxi            292 tris    21 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: auto
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0024461746215820312 s
+
+[asset] auto                240 tris    18 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: truck
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.00442814826965332 s
+
+[asset] truck              1773 tris   105 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: truck_green
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.004086971282958984 s
+
+[asset] truck_green        1773 tris   105 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: bus
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.003281831741333008 s
+
+[asset] bus                1075 tris    69 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: hut_1
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0029320716857910156 s
+
+[asset] hut_1               743 tris    55 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: station_chai
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0028018951416015625 s
+
+[asset] station_chai        336 tris    24 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: station_tandoor
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002877950668334961 s
+
+[asset] station_tandoor     298 tris    21 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: canopy_red
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0028600692749023438 s
+
+[asset] canopy_red          301 tris    23 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: canopy_teal
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002704143524169922 s
+
+[asset] canopy_teal         301 tris    23 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: canopy_yellow
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002357006072998047 s
+
+[asset] canopy_yellow       301 tris    23 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: canopy_blue
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0027649402618408203 s
+
+[asset] canopy_blue         301 tris    23 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: canopy_pink
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0030798912048339844 s
+
+[asset] canopy_pink         301 tris    23 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: string_wire
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0027768611907958984 s
+
+[asset] string_wire          72 tris     8 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: string_bulbs
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0026252269744873047 s
+
+[asset] string_bulbs        104 tris    13 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: cashier_desk
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0032079219818115234 s
+
+[asset] cashier_desk        409 tris    29 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: chai_tapri
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0031800270080566406 s
+
+[asset] chai_tapri          786 tris    56 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: padlock
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002870798110961914 s
+
+[asset] padlock             304 tris    21 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: cash_table
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0022940635681152344 s
+
+[asset] cash_table           76 tris     8 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: cash
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0024929046630859375 s
+
+[asset] cash                 24 tris     4 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: parking_mark
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002481222152709961 s
+
+[asset] parking_mark         30 tris     5 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: pump
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002538919448852539 s
+
+[asset] pump                112 tris    10 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: signboard
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0030379295349121094 s
+
+[asset] signboard           546 tris    44 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: lamp
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002586841583251953 s
+
+[asset] lamp                108 tris    10 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: famous_board
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0024640560150146484 s
+
+[asset] famous_board         64 tris     7 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: plant_pot
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0027246475219726562 s
+
+[asset] plant_pot           332 tris    31 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: icon_chai
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.00273895263671875 s
+
+[asset] icon_chai            56 tris     6 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: icon_roti
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.0026221275329589844 s
+
+[asset] icon_roti           120 tris    10 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: ground
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.003117084503173828 s
+
+[asset] ground              442 tris    37 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: compound
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.004359006881713867 s
+
+[asset] compound           2114 tris   157 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: road
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002663135528564453 s
+
+[asset] road                 72 tris     8 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: scenery
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.006531238555908203 s
+
+[asset] scenery            5916 tris   426 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: wall_wire
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.002947092056274414 s
+
+[asset] wall_wire           432 tris    32 KB
+11:28:10 | INFO: Starting glTF 2.0 export
+11:28:10 | INFO: Extracting primitive: wall_bulbs
+11:28:10 | INFO: Primitives created: 1
+11:28:10 | INFO: Finished glTF 2.0 export in 0.003209829330444336 s
+
+[asset] wall_bulbs          576 tris    60 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: tandoor_lock
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0075261592864990234 s
+
+[asset] tandoor_lock       1450 tris   100 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: dog
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0062410831451416016 s
+
+[asset] dog                 768 tris    29 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: chai_counter_v3
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.007586002349853516 s
+
+[asset] chai_counter_v3    3214 tris   182 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: galla_desk
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006556034088134766 s
+
+[asset] galla_desk         1184 tris    56 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: tandoor_station
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.007197856903076172 s
+
+[asset] tandoor_station    1404 tris    65 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: banknote
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006025075912475586 s
+
+[asset] banknote            454 tris    26 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: banknote_saffron
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0057849884033203125 s
+
+[asset] banknote_saffron    454 tris    26 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: sikka
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0061147212982177734 s
+
+[asset] sikka               280 tris    14 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: marker
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006040811538696289 s
+
+[asset] marker              452 tris    46 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: cash_brick
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.00687098503112793 s
+
+[asset] cash_brick         1240 tris    53 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: tray
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.00560307502746582 s
+
+[asset] tray                192 tris    10 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: tray_rack
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006717205047607422 s
+
+[asset] tray_rack          1546 tris    77 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_plate
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0057299137115478516 s
+
+[asset] pass_plate          174 tris     9 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_roti
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005778789520263672 s
+
+[asset] pass_roti           284 tris    14 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: charpai
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005897998809814453 s
+
+[asset] charpai             358 tris    25 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: dining_table
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006134033203125 s
+
+[asset] dining_table        430 tris    25 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_lassi
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0058438777923583984 s
+
+[asset] pass_lassi          220 tris    12 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_bhurji
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006097078323364258 s
+
+[asset] pass_bhurji         580 tris    31 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_dal
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0060329437255859375 s
+
+[asset] pass_dal            214 tris    12 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_coffee
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005616188049316406 s
+
+[asset] pass_coffee         142 tris     8 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_green_tea
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005927085876464844 s
+
+[asset] pass_green_tea      216 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_kesar_doodh
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005610942840576172 s
+
+[asset] pass_kesar_doodh    240 tris    15 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_naan
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0061130523681640625 s
+
+[asset] pass_naan           236 tris    14 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_keema_paratha
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006014823913574219 s
+
+[asset] pass_keema_paratha    396 tris    25 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_kulcha
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006212949752807617 s
+
+[asset] pass_kulcha         334 tris    17 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_chaas
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0057408809661865234 s
+
+[asset] pass_chaas          176 tris    11 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_mango_lassi
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005973100662231445 s
+
+[asset] pass_mango_lassi    294 tris    15 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_patiala
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005599021911621094 s
+
+[asset] pass_patiala        230 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_paneer
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005840778350830078 s
+
+[asset] pass_paneer         338 tris    23 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_chole
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.01976299285888672 s
+
+[asset] pass_chole          356 tris    20 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_coffee_kettle
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.00569605827331543 s
+
+[asset] prop_coffee_kettle    216 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_green_tea_jar
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006014823913574219 s
+
+[asset] prop_green_tea_jar    242 tris    14 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_milk_can
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005947113037109375 s
+
+[asset] prop_milk_can       216 tris    12 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_naan_basket
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0055849552154541016 s
+
+[asset] prop_naan_basket    220 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_keema_pot
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005545139312744141 s
+
+[asset] prop_keema_pot      232 tris    14 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_kulcha_board
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005945920944213867 s
+
+[asset] prop_kulcha_board    204 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_chaas_jug
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005619049072265625 s
+
+[asset] prop_chaas_jug      176 tris    12 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_mango_crate
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006033897399902344 s
+
+[asset] prop_mango_crate    174 tris    12 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_patiala_glass
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0056476593017578125 s
+
+[asset] prop_patiala_glass    152 tris     9 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_dal_handi
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0059850215911865234 s
+
+[asset] prop_dal_handi      242 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_paneer_block
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005487203598022461 s
+
+[asset] prop_paneer_block    136 tris     9 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: prop_chole_sack
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005967855453491211 s
+
+[asset] prop_chole_sack     172 tris    13 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: pass_kulhad
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005654096603393555 s
+
+[asset] pass_kulhad         180 tris    10 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: plate_stool
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005719900131225586 s
+
+[asset] plate_stool         248 tris    14 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: tray_wide
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.005644083023071289 s
+
+[asset] tray_wide           220 tris    12 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: family_table
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.0068359375 s
+
+[asset] family_table        702 tris    38 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: camel_cart
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006838083267211914 s
+
+[asset] camel_cart         1626 tris    99 KB
+11:28:25 | INFO: Starting glTF 2.0 export
+11:28:25 | INFO: Extracting primitive: bus_baraat
+11:28:25 | INFO: Primitives created: 1
+11:28:25 | INFO: Finished glTF 2.0 export in 0.006916999816894531 s
+
+[asset] bus_baraat         1955 tris   156 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_missi_roti
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.005883216857910156 s
+
+[asset] pass_missi_roti     420 tris    23 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_lahsun_roti
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.006195783615112305 s
+
+[asset] pass_lahsun_roti    408 tris    20 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_baati
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.006136894226074219 s
+
+[asset] pass_baati          492 tris    23 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_rabri
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.005876064300537109 s
+
+[asset] pass_rabri          338 tris    18 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_dal_baati
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.005908966064453125 s
+
+[asset] pass_dal_baati      490 tris    27 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_gatte
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.006079912185668945 s
+
+[asset] pass_gatte          340 tris    20 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_ker_sangri
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.005830049514770508 s
+
+[asset] pass_ker_sangri     348 tris    19 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_laal_maas
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.006043910980224609 s
+
+[asset] pass_laal_maas      346 tris    21 KB
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pass_shikanji
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.005979299545288086 s
+
+[asset] pass_shikanji       318 tris    17 KB
+[check] bus_baraat inside bus bounds: True  (-3.370, -1.310, 0.000)..(3.525, 1.315, 2.585) vs (-3.370, -1.310, 0.000)..(3.525, 1.315, 2.740)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: dhaba_v3
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dhaba__fairy_bulb_gate_board
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dhaba__fairy_bulb_gate_posts
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dhaba__fairy_bulb_parapet
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dhaba__fairy_bulb_sign_bottom
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dhaba__fairy_bulb_sign_top
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dhaba__fairy_bulb_verandah
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: fairy_wire_dhaba
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.030927181243896484 s
+
+[asset] dhaba_v3          23391 tris  1604 KB  nodes: dhaba_v3(18921) + 224 fairy bulbs in 7 nodes
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_courtyard_front
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_courtyard_zig
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_gumti
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_neem_branches
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_neem_trunk
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_parking_board
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_peepal_trunk
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_yard_front
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street__fairy_bulb_yard_zig
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: fairy_wire_street
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: milestone_text
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: street_v3
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.0385737419128418 s
+
+[asset] street_v3         32691 tris  2485 KB  nodes: street_v3(23563) + 422 fairy bulbs in 11 nodes
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_trucker__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_trucker__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_trucker__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_trucker__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_trucker__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_trucker__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.01010894775390625 s
+
+[asset] trav_trucker       1704 tris    73 KB  nodes: body(460),head(740),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_family_m__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_m__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_m__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_m__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_m__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_m__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.01032400131225586 s
+
+[asset] trav_family_m      1416 tris    64 KB  nodes: body(356),head(556),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_family_f__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_f__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_f__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_f__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_f__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_family_f__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.011182069778442383 s
+
+[asset] trav_family_f      1664 tris    77 KB  nodes: body(368),head(736),arm_l(192),arm_r(192),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_biker__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_biker__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_biker__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_biker__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_biker__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_biker__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010417938232421875 s
+
+[asset] trav_biker         1472 tris    65 KB  nodes: body(300),head(668),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_student__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_student__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_student__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_student__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_student__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_student__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009804010391235352 s
+
+[asset] trav_student       1380 tris    66 KB  nodes: body(388),head(488),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_elder__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_elder__stick
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_elder__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_elder__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_elder__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_elder__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_elder__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.01116490364074707 s
+
+[asset] trav_elder         1784 tris    87 KB  nodes: body(640),head(608),arm_l(164),arm_r(164),leg_l(88),leg_r(88),stick(32)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_sardar__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_sardar__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_sardar__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_sardar__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_sardar__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_sardar__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010395050048828125 s
+
+[asset] trav_sardar        1612 tris    73 KB  nodes: body(244),head(836),arm_l(164),arm_r(192),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_farmer__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_farmer__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_farmer__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_farmer__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_farmer__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_farmer__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010050773620605469 s
+
+[asset] trav_farmer        1724 tris    78 KB  nodes: body(456),head(764),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_techie__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_techie__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_techie__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_techie__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_techie__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_techie__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010289192199707031 s
+
+[asset] trav_techie        1776 tris    83 KB  nodes: body(364),head(908),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_baraati_m__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_m__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_m__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_m__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_m__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_m__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010023355484008789 s
+
+[asset] trav_baraati_m     1540 tris    72 KB  nodes: body(340),head(668),arm_l(192),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: trav_baraati_f__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_f__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_f__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_f__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_f__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: trav_baraati_f__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010924816131591797 s
+
+[asset] trav_baraati_f     1744 tris    83 KB  nodes: body(392),head(784),arm_l(196),arm_r(196),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pinky__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pinky__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pinky__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pinky__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pinky__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pinky__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010140180587768555 s
+
+[asset] pinky              1776 tris    85 KB  nodes: body(596),head(676),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munna__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munna__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munna__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munna__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munna__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munna__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010171890258789062 s
+
+[asset] munna              1388 tris    65 KB  nodes: body(344),head(512),arm_l(192),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: bablu__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bablu__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bablu__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bablu__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bablu__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bablu__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009966135025024414 s
+
+[asset] bablu              1548 tris    74 KB  nodes: body(212),head(832),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: balwant__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: balwant__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: balwant__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: balwant__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: balwant__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: balwant__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.00997781753540039 s
+
+[asset] balwant            1782 tris    80 KB  nodes: body(346),head(836),arm_l(192),arm_r(232),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: raju__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: raju__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: raju__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: raju__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: raju__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: raju__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010870933532714844 s
+
+[asset] raju               1748 tris    79 KB  nodes: body(512),head(556),arm_l(340),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: pappu__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pappu__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pappu__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pappu__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pappu__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: pappu__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010105133056640625 s
+
+[asset] pappu              1728 tris    78 KB  nodes: body(664),head(560),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: sonu__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: sonu__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: sonu__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: sonu__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: sonu__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: sonu__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.01101994514465332 s
+
+[asset] sonu               1728 tris    77 KB  nodes: body(520),head(704),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: lakhan__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lakhan__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lakhan__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lakhan__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lakhan__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lakhan__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010354995727539062 s
+
+[asset] lakhan             1472 tris    68 KB  nodes: body(388),head(552),arm_l(192),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: gopal__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: gopal__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: gopal__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: gopal__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: gopal__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: gopal__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010158061981201172 s
+
+[asset] gopal              1796 tris    79 KB  nodes: body(664),head(628),arm_l(164),arm_r(164),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: cow__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: cow__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: cow__tail
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.008020162582397461 s
+
+[asset] cow                1820 tris    79 KB  nodes: body(1208),head(468),tail(144)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: lassi_station__base
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lassi_station__madhani
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.00803995132446289 s
+
+[asset] lassi_station      2484 tris   137 KB  nodes: base(2276),madhani(208)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: kadai_station__base
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: kadai_station__karchhi
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.008556127548217773 s
+
+[asset] kadai_station      2492 tris   130 KB  nodes: base(2400),karchhi(92)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: lassi_wala__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lassi_wala__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lassi_wala__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lassi_wala__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lassi_wala__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: lassi_wala__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010245084762573242 s
+
+[asset] lassi_wala         1734 tris    85 KB  nodes: body(346),head(856),arm_l(164),arm_r(192),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: bhurji_wala__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bhurji_wala__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bhurji_wala__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bhurji_wala__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bhurji_wala__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bhurji_wala__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010010004043579102 s
+
+[asset] bhurji_wala        1796 tris    81 KB  nodes: body(524),head(732),arm_l(164),arm_r(200),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: dal_wala__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dal_wala__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dal_wala__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dal_wala__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dal_wala__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dal_wala__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009936809539794922 s
+
+[asset] dal_wala           1776 tris    85 KB  nodes: body(456),head(672),arm_l(196),arm_r(276),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: neetu__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: neetu__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: neetu__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: neetu__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: neetu__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: neetu__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010483980178833008 s
+
+[asset] neetu              1784 tris    87 KB  nodes: body(568),head(652),arm_l(164),arm_r(224),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: bittu__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bittu__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bittu__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bittu__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bittu__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: bittu__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009887933731079102 s
+
+[asset] bittu              1504 tris    69 KB  nodes: body(256),head(684),arm_l(164),arm_r(224),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: kallu__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: kallu__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: kallu__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: kallu__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: kallu__leg_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: kallu__leg_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.00992274284362793 s
+
+[asset] kallu              1748 tris    85 KB  nodes: body(628),head(520),arm_l(164),arm_r(260),leg_l(88),leg_r(88)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_idle__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_idle__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_idle__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_idle__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010263681411743164 s
+
+[asset] munshi_idle        2922 tris    95 KB  nodes: body(648),head(1476),arm_l(462),arm_r(336)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_cheer__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_cheer__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_cheer__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_cheer__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.00961160659790039 s
+
+[asset] munshi_cheer       2930 tris    94 KB  nodes: body(648),head(1484),arm_l(462),arm_r(336)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_worried__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_worried__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_worried__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_worried__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009273767471313477 s
+
+[asset] munshi_worried     2728 tris    84 KB  nodes: body(648),head(1408),arm_l(336),arm_r(336)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_point__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_point__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_point__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_point__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009417057037353516 s
+
+[asset] munshi_point       2988 tris    97 KB  nodes: body(648),head(1476),arm_l(476),arm_r(388)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_namaste__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_namaste__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_namaste__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_namaste__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009556293487548828 s
+
+[asset] munshi_namaste     2752 tris    92 KB  nodes: body(648),head(1432),arm_l(336),arm_r(336)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_ledger__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_ledger__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_ledger__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_ledger__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009418249130249023 s
+
+[asset] munshi_ledger      2888 tris    90 KB  nodes: body(648),head(1376),arm_l(476),arm_r(388)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: munshi_chai__arm_l
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_chai__arm_r
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_chai__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: munshi_chai__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009483098983764648 s
+
+[asset] munshi_chai        2922 tris    98 KB  nodes: body(648),head(1432),arm_l(462),arm_r(380)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: seats_board__board
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: seats_board__full_plate
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.006445169448852539 s
+
+[asset] seats_board         222 tris    21 KB  nodes: board(174),full_plate(48)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: tv_set__tv_body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: tv_set__tv_screen
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.00660395622253418 s
+
+[asset] tv_set              294 tris    26 KB  nodes: tv_body(292),tv_screen(2)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: hall__fairy_bulb_hall
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: fairy_wire_hall
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: family_hall
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.008869171142578125 s
+
+[asset] family_hall        1909 tris   158 KB  nodes: family_hall(1513) + 21 fairy bulbs in 2 nodes
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: deco_baraat
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: baraat__fairy_bulb_baraat
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.009313106536865234 s
+
+[asset] deco_baraat        3414 tris   339 KB  nodes: deco_baraat(3030) + 32 fairy bulbs in 1 nodes
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: hoarding__hoarding_l1
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: hoarding__hoarding_l2
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: hoarding__fairy_bulb_hoarding
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: hoarding__hoarding_l4
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: hoarding__hoarding_star_1
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: hoarding__hoarding_star_2
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.010184764862060547 s
+
+[asset] hoarding            948 tris    91 KB  nodes: hoarding_l1(294),hoarding_l2(70),hoarding_l4(108),hoarding_star_1(52),hoarding_star_2(52),fairy_bulb_hoarding(372)
+11:28:26 | INFO: Starting glTF 2.0 export
+11:28:26 | INFO: Extracting primitive: dog_sit__body
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dog_sit__head
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Extracting primitive: dog_sit__tail
+11:28:26 | INFO: Primitives created: 1
+11:28:26 | INFO: Finished glTF 2.0 export in 0.008234024047851562 s
+
+[asset] dog_sit            1008 tris    43 KB  nodes: body(592),head(284),tail(132)
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:49:19)
+
+Blender quit
+       18.12 real        23.66 user         6.56 sys
+           343769088  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               21934  page reclaims
+                7721  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                1162  voluntary context switches
+             1214199  involuntary context switches
+        239722914423  instructions retired
+         87132827812  cycles elapsed
+           245728528  peak memory footprint
+exit=0

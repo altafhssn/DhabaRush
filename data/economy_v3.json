@@ -1001,15 +1001,15 @@
           0.95,
           0.86
         ],
-        "sun_energy": 0.5,
+        "sun_energy": 0.42,
         "sun_pitch": -50.0,
-        "sun_yaw": -70.0,
+        "sun_yaw": -45.0,
         "amb": [
-          1.0,
           0.96,
-          0.9
+          0.96,
+          0.94
         ],
-        "amb_energy": 0.34,
+        "amb_energy": 0.4,
         "bg": [
           0.6,
           0.74,
@@ -1026,15 +1026,15 @@
           0.95,
           0.86
         ],
-        "sun_energy": 0.5,
+        "sun_energy": 0.42,
         "sun_pitch": -50.0,
-        "sun_yaw": -70.0,
+        "sun_yaw": -45.0,
         "amb": [
-          1.0,
           0.96,
-          0.9
+          0.96,
+          0.94
         ],
-        "amb_energy": 0.34,
+        "amb_energy": 0.4,
         "bg": [
           0.6,
           0.74,
@@ -1105,15 +1105,15 @@
         "sun_pitch": -42.0,
         "sun_yaw": -25.0,
         "amb": [
-          0.45,
-          0.45,
-          0.9
+          0.42,
+          0.4,
+          0.62
         ],
         "amb_energy": 0.42,
         "bg": [
-          0.26,
-          0.28,
-          0.45
+          0.2,
+          0.2,
+          0.32
         ],
         "shadow": 0.3,
         "night": 0.8
@@ -1122,23 +1122,23 @@
         "t": 0.72,
         "name": "night",
         "sun": [
-          0.5,
-          0.66,
-          1.0
+          0.55,
+          0.6,
+          0.8
         ],
-        "sun_energy": 0.3,
+        "sun_energy": 0.25,
         "sun_pitch": -55.0,
         "sun_yaw": -40.0,
         "amb": [
-          0.24,
-          0.34,
-          0.92
+          0.3,
+          0.32,
+          0.5
         ],
-        "amb_energy": 0.4,
+        "amb_energy": 0.3,
         "bg": [
-          0.1,
-          0.13,
-          0.25
+          0.07,
+          0.08,
+          0.16
         ],
         "shadow": 0.42,
         "night": 1.0
@@ -1147,23 +1147,23 @@
         "t": 0.96,
         "name": "night_end",
         "sun": [
-          0.5,
-          0.66,
-          1.0
+          0.55,
+          0.6,
+          0.8
         ],
-        "sun_energy": 0.3,
+        "sun_energy": 0.25,
         "sun_pitch": -55.0,
         "sun_yaw": -40.0,
         "amb": [
-          0.24,
-          0.34,
-          0.92
+          0.3,
+          0.32,
+          0.5
         ],
-        "amb_energy": 0.4,
+        "amb_energy": 0.3,
         "bg": [
-          0.1,
-          0.13,
-          0.25
+          0.07,
+          0.08,
+          0.16
         ],
         "shadow": 0.42,
         "night": 1.0
@@ -1177,9 +1177,9 @@
     },
     "lights": {
       "_comment": "fairy_boost / fairy_low = FairyLights shader boost and twinkle floor at day / full night. glows = fixed NightGlow quads (unshaded additive, one mesh): kind pool (flat radial on the ground, r = radius m), bulb (camera-facing, steady) or fire (flickers); colour is added light (keep it dim). The fire mouths of the chai bhatti, tandoor and kadai are in DayNight.STATION_FIRES (prop space).",
-      "fairy_boost_day": 1.25,
-      "fairy_boost_night": 3.0,
-      "fairy_low_day": 0.6,
+      "fairy_boost_day": 0.8,
+      "fairy_boost_night": 4.5,
+      "fairy_low_day": 0.9,
       "fairy_low_night": 0.8,
       "glow_gain": 1.0,
       "headlight_beam_m": 4.5,
@@ -1191,7 +1191,7 @@
             10.7
           ],
           "kind": "pool",
-          "r": 2.6,
+          "r": 3.64,
           "color": [
             1.08,
             0.675,
@@ -1233,7 +1233,7 @@
             18.2
           ],
           "kind": "pool",
-          "r": 1.9,
+          "r": 2.66,
           "color": [
             0.81,
             0.54,
@@ -1247,7 +1247,7 @@
             19.3
           ],
           "kind": "pool",
-          "r": 1.8,
+          "r": 2.52,
           "color": [
             0.945,
             0.567,
@@ -1261,7 +1261,7 @@
             16.9
           ],
           "kind": "pool",
-          "r": 2.2,
+          "r": 3.08,
           "color": [
             0.54,
             0.675,
@@ -1289,7 +1289,7 @@
             6.3
           ],
           "kind": "pool",
-          "r": 2.0,
+          "r": 2.8,
           "color": [
             0.608,
             0.378,
@@ -1303,7 +1303,7 @@
             5.0
           ],
           "kind": "pool",
-          "r": 2.4,
+          "r": 3.36,
           "color": [
             0.54,
             0.338,
@@ -1317,7 +1317,7 @@
             5.0
           ],
           "kind": "pool",
-          "r": 2.4,
+          "r": 3.36,
           "color": [
             0.54,
             0.338,
@@ -1331,11 +1331,25 @@
             3.0
           ],
           "kind": "pool",
-          "r": 2.0,
+          "r": 2.8,
           "color": [
             0.54,
             0.338,
             0.108
+          ]
+        },
+        {
+          "p": [
+            1.6,
+            0.06,
+            2.2
+          ],
+          "kind": "pool",
+          "r": 2.2,
+          "color": [
+            0.95,
+            0.55,
+            0.18
           ]
         }
       ]

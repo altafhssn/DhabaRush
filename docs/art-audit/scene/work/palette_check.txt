@@ -1,0 +1,52 @@
+96 swatches
+== near-duplicate pairs (dE<7): 41
+  dE  1.3  20 WHITE         #F7F4EE   74 COW           #F6F2EA
+  dE  1.6   1 LINE          #F2F2E9   74 COW           #F6F2EA
+  dE  1.7  36 MUD           #D69C64   95 DOG           #D9A066
+  dE  1.8   9 RUST          #B8643A   26 CLAY          #B5653A
+  dE  1.9  69 PAVER         #DEDAD3   88 SMOKE         #DED8CE
+  dE  2.0  71 LIME          #93CB4E   90 NEEM_LT       #8CC84B
+  dE  2.0   0 ASPHALT       #4A4A52   82 TANK          #474B55
+  dE  2.1   1 LINE          #F2F2E9   20 WHITE         #F7F4EE
+  dE  2.6  31 ROPE          #E4D3A8   80 DUST_LT       #E8D2A4
+  dE  3.1  20 WHITE         #F7F4EE   94 WHITEWASH     #FFFDF6
+  dE  3.2  10 CREAM         #FFF1D6   54 KURTA         #FFF5DF
+  dE  3.3  70 KERB          #B4AFA8   77 CONCRETE      #BDB8B0
+  dE  3.7  72 LIME_DARK     #5DA238   89 NEEM          #4F9B30
+  dE  3.8  74 COW           #F6F2EA   94 WHITEWASH     #FFFDF6
+  dE  4.0   3 DUST_DARK     #C9935A   36 MUD           #D69C64
+  dE  4.2   1 LINE          #F2F2E9   94 WHITEWASH     #FFFDF6
+  dE  4.3  36 MUD           #D69C64   64 SKIN_M        #D99A6A
+  dE  4.3  70 KERB          #B4AFA8   91 POLE          #A7A59C
+  dE  4.7  16 ORANGE        #F28C28   21 SAFFRON       #FF9933
+  dE  4.8   3 DUST_DARK     #C9935A    7 WOOD          #C68A4E
+  dE  5.0  31 ROPE          #E4D3A8   75 HORN          #DBC7A2
+  dE  5.1  25 DARK_STEEL    #5E646B   68 ROAD          #5D6170
+  dE  5.1  19 HAIR          #2B2420   34 TYRE          #2A2A2A
+  dE  5.1  13 YELLOW        #F5C431   46 PAINT_YELLOW  #FFD23F
+  dE  5.1   3 DUST_DARK     #C9935A   95 DOG           #D9A066
+  dE  5.2  52 BRICK_RED     #C9553B   78 ROOF_RED      #C64A3A
+  dE  5.4  64 SKIN_M        #D99A6A   95 DOG           #D9A066
+  dE  5.7  30 ROTI          #E9C27B   76 BAMBOO        #D9B36A
+  dE  5.8  48 TILE_A        #CFA273   86 TRACK         #BC9566
+  dE  5.9  17 SKIN1         #C98A5C   64 SKIN_M        #D99A6A
+  dE  6.0  75 HORN          #DBC7A2   80 DUST_LT       #E8D2A4
+  dE  6.1   3 DUST_DARK     #C9935A   49 TILE_B        #B98957
+  dE  6.3  49 TILE_B        #B98957   86 TRACK         #BC9566
+  dE  6.3   6 TRUNK         #7A4E2D   18 SKIN2         #8D5A3B
+  dE  6.4  45 TARP          #3B4A5C   82 TANK          #474B55
+  dE  6.5  67 KHAKI         #B89B62   86 TRACK         #BC9566
+  dE  6.6   3 DUST_DARK     #C9935A   64 SKIN_M        #D99A6A
+  dE  6.7   3 DUST_DARK     #C9935A   17 SKIN1         #C98A5C
+  dE  6.7   2 DUST          #E8B77A   30 ROTI          #E9C27B
+  dE  7.0  17 SKIN1         #C98A5C   49 TILE_B        #B98957
+  dE  7.0  73 FOLIAGE       #3F8A34   83 MANGO         #2E7D32
+== hue families (saturated S>0.3)
+  red 0-20              6: RED MAROON BRICK BRICK_RED BLUSH ROOF_RED
+  orange/ochre 20-50   33: DUST DUST_DARK TRUNK WOOD RUST YELLOW ORANGE SKIN1 SKIN2 SAFFRON CLAY FIRE CHAI DAL ROTI MUD PAINT_YELLOW TILE_A TILE_B PLASTER GOLD GOLD_DARK MARKER_TOP MARIGOLD MARIGOLD_DARK SKIN_L SKIN_M KHAKI BAMBOO DUST_LOT TRACK WALL_CREAM DOG
+  yellow 50-70          1: BULB
+  green 70-160         15: GRASS LEAF GREEN CASH DARK_GREEN LEAF_LIGHT NOTE NOTE_DARK LIME LIME_DARK FOLIAGE MANGO NEEM NEEM_LT WALL_GREEN
+  teal/cyan 160-200     4: TEAL NEON_CYAN DADO TRUCK_TEAL
+  blue 200-260          5: BLUE NAVY TARP DENIM WALL_BLUE
+  purple/pink 260-360   5: PINK PURPLE NEON_PINK JACKET WALL_PINK
+  neutral S<=0.3       27: ASPHALT LINE TIN CREAM HAIR WHITE STEEL DARK_STEEL ROPE GLASS TYRE SLATE GRAVEL MORTAR KURTA ROAD PAVER KERB COW HORN CONCRETE TIN_BLUE DUST_LT TANK SMOKE POLE WHITEWASH

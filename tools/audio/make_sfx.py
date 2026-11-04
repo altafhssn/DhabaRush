@@ -584,6 +584,16 @@ def sfx_defs():
 
     d["build_done"] = (build_done, -2.5)
 
+    # Art audit UA2 (4 Nov): a hire gets its own sound (a soft wooden tok under two
+    # steel-tray clinks, D major) and a table a short build knock, so the long
+    # fanfare stays for counters, the renovation and the move.
+    d["hire"] = (lambda r: room(mix(0.5, [(wood(294, 0.12, r, 0.03, 0.05, 0.35), 0.0, 0.6),
+                                          (bell(note(86), 0.3, 0.09, r), 0.03, 0.75),
+                                          (bell(note(93), 0.35, 0.12, r), 0.11, 0.85)]), r, 0.45, 0.14), -3.0)
+    d["table_knock"] = (lambda r: room(mix(0.6, [(wood(196, 0.16, r, 0.04, 0.05, 0.5), 0.0, 1.0),
+                                                 (wood(247, 0.14, r, 0.035, 0.05, 0.45), 0.12, 0.85),
+                                                 (bell(note(81), 0.28, 0.09, r), 0.22, 0.3)]), r, 0.5, 0.14), -3.0)
+
     def menu_unlock(r):
         parts = [(bell(note(m), 0.6, 0.14, r), i * 0.09, 0.8 if i < 2 else 1.0) for i, m in enumerate((86, 90, 93))]
         parts += [(swoosh(0.25, 0.1, 0.6, 0.0, r), 0.0, 0.3)]

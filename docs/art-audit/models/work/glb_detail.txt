@@ -1,0 +1,631 @@
+auto: auto                         MESH tris    240 verts    456 mats 1 dims (1.762, 1.15, 1.36) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+auto: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bablu: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.156, 0.122, 0.369) loc (0.196, 0.0, 0.573) scale (1.0, 1.0, 1.0) vcol False
+bablu: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.156, 0.122, 0.369) loc (-0.196, -0.0, 0.573) scale (1.0, 1.0, 1.0) vcol False
+bablu: body                         MESH tris    212 verts    224 mats 1 dims (0.355, 0.247, 0.419) loc (0.0, 0.0, 0.294) scale (1.0, 1.0, 1.0) vcol False
+bablu: head                         MESH tris    832 verts    908 mats 1 dims (0.41, 0.42, 0.412) loc (0.0, 0.0, 0.627) scale (1.0, 1.0, 1.0) vcol False
+bablu: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.123, 0.191, 0.304) loc (0.083, 0.0, 0.294) scale (1.0, 1.0, 1.0) vcol False
+bablu: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.123, 0.191, 0.304) loc (-0.083, -0.0, 0.294) scale (1.0, 1.0, 1.0) vcol False
+bablu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+balwant: arm_l                        MESH tris    192 verts    326 mats 1 dims (0.169, 0.136, 0.4) loc (0.212, 0.0, 0.62) scale (1.0, 1.0, 1.0) vcol False
+balwant: arm_r                        MESH tris    232 verts    390 mats 1 dims (0.181, 0.157, 0.427) loc (-0.212, -0.0, 0.62) scale (1.0, 1.0, 1.0) vcol False
+balwant: body                         MESH tris    346 verts    372 mats 1 dims (0.424, 0.332, 0.572) loc (0.0, 0.0, 0.318) scale (1.0, 1.0, 1.0) vcol False
+balwant: head                         MESH tris    836 verts    758 mats 1 dims (0.443, 0.469, 0.551) loc (0.0, 0.0, 0.678) scale (1.0, 1.0, 1.0) vcol False
+balwant: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.132, 0.207, 0.329) loc (0.09, 0.0, 0.318) scale (1.0, 1.0, 1.0) vcol False
+balwant: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.132, 0.207, 0.329) loc (-0.09, -0.0, 0.318) scale (1.0, 1.0, 1.0) vcol False
+balwant: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+banknote: banknote                     MESH tris    454 verts    662 mats 1 dims (0.8, 0.51, 0.054) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+banknote: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+banknote_saffron: banknote_saffron             MESH tris    454 verts    662 mats 1 dims (0.8, 0.51, 0.054) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+banknote_saffron: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bhaiya: bhaiya                       MESH tris    452 verts    984 mats 1 dims (0.691, 0.525, 1.176) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+bhaiya: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bhurji_wala: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+bhurji_wala: arm_r                        MESH tris    200 verts    340 mats 1 dims (0.159, 0.334, 0.487) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+bhurji_wala: body                         MESH tris    524 verts    570 mats 1 dims (0.43, 0.338, 0.428) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+bhurji_wala: head                         MESH tris    732 verts    684 mats 1 dims (0.418, 0.433, 0.39) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+bhurji_wala: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+bhurji_wala: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+bhurji_wala: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bike: bike                         MESH tris    180 verts    348 mats 1 dims (1.564, 0.62, 0.89) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+bike: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bittu: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+bittu: arm_r                        MESH tris    224 verts    376 mats 1 dims (0.159, 0.152, 0.377) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+bittu: body                         MESH tris    256 verts    272 mats 1 dims (0.372, 0.271, 0.428) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+bittu: head                         MESH tris    684 verts    622 mats 1 dims (0.418, 0.429, 0.43) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+bittu: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+bittu: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+bittu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bus: bus                          MESH tris   1075 verts   1922 mats 1 dims (6.895, 2.625, 2.74) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+bus: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+bus_baraat: bus_baraat                   MESH tris   1955 verts   4526 mats 1 dims (6.895, 2.625, 2.585) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+bus_baraat: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+camel_cart: camel_cart                   MESH tris   1626 verts   2776 mats 1 dims (4.198, 1.5, 1.61) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+camel_cart: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+canopy_blue: canopy_blue                  MESH tris    301 verts    601 mats 1 dims (4.24, 3.64, 4.27) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+canopy_blue: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+canopy_pink: canopy_pink                  MESH tris    301 verts    601 mats 1 dims (4.24, 3.64, 4.27) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+canopy_pink: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+canopy_red: canopy_red                   MESH tris    301 verts    601 mats 1 dims (4.24, 3.64, 4.27) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+canopy_red: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+canopy_teal: canopy_teal                  MESH tris    301 verts    601 mats 1 dims (4.24, 3.64, 4.27) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+canopy_teal: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+canopy_yellow: canopy_yellow                MESH tris    301 verts    601 mats 1 dims (4.24, 3.64, 4.27) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+canopy_yellow: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+car: car                          MESH tris    292 verts    536 mats 1 dims (2.452, 1.28, 1.19) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+car: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+car_blue: car_blue                     MESH tris    292 verts    536 mats 1 dims (2.452, 1.28, 1.19) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+car_blue: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+car_red: car_red                      MESH tris    292 verts    536 mats 1 dims (2.452, 1.28, 1.19) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+car_red: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+car_taxi: car_taxi                     MESH tris    292 verts    536 mats 1 dims (2.452, 1.28, 1.19) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+car_taxi: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+cash: cash                         MESH tris     24 verts     48 mats 1 dims (0.23, 0.42, 0.095) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+cash: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+cash_brick: cash_brick                   MESH tris   1240 verts   1376 mats 1 dims (0.86, 0.545, 0.278) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+cash_brick: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+cash_table: cash_table                   MESH tris     76 verts    152 mats 1 dims (1.0, 0.6, 0.86) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+cash_table: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+cashier_desk: cashier_desk                 MESH tris    409 verts    777 mats 1 dims (2.555, 1.402, 2.78) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+cashier_desk: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+chai_counter_v3: chai_counter_v3              MESH tris   3214 verts   5122 mats 1 dims (2.52, 0.905, 1.705) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+chai_counter_v3: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+chai_tapri: chai_tapri                   MESH tris    786 verts   1558 mats 1 dims (2.82, 2.41, 3.265) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+chai_tapri: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+charpai: charpai                      MESH tris    358 verts    636 mats 1 dims (1.6, 0.864, 0.45) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+charpai: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+chotu: chotu                        MESH tris    364 verts    792 mats 1 dims (0.481, 0.348, 0.818) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+chotu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+compound: compound                     MESH tris   2114 verts   4542 mats 1 dims (21.0, 20.58, 3.15) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+compound: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+cow: body                         MESH tris   1208 verts   1332 mats 1 dims (1.403, 0.732, 0.69) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+cow: head                         MESH tris    468 verts    498 mats 1 dims (0.404, 0.404, 0.498) loc (0.6, -0.06, 0.55) scale (1.0, 1.0, 1.0) vcol False
+cow: tail                         MESH tris    144 verts    218 mats 1 dims (0.362, 0.369, 0.405) loc (-0.6, -0.0, 0.4) scale (1.0, 1.0, 1.0) vcol False
+cow: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+customer_a: customer_a                   MESH tris    352 verts    768 mats 1 dims (0.601, 0.435, 1.023) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+customer_a: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+customer_b: customer_b                   MESH tris    428 verts    924 mats 1 dims (0.601, 0.48, 1.023) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+customer_b: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+customer_c: customer_c                   MESH tris    500 verts   1100 mats 1 dims (0.631, 0.487, 1.21) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+customer_c: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+customer_d: customer_d                   MESH tris    376 verts    816 mats 1 dims (0.571, 0.508, 1.035) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+customer_d: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+dal_wala: arm_l                        MESH tris    196 verts    342 mats 1 dims (0.154, 0.12, 0.366) loc (0.194, 0.0, 0.567) scale (1.0, 1.0, 1.0) vcol False
+dal_wala: arm_r                        MESH tris    276 verts    492 mats 1 dims (0.154, 0.194, 0.566) loc (-0.194, -0.0, 0.567) scale (1.0, 1.0, 1.0) vcol False
+dal_wala: body                         MESH tris    456 verts    488 mats 1 dims (0.427, 0.436, 0.626) loc (0.0, 0.0, 0.291) scale (1.0, 1.0, 1.0) vcol False
+dal_wala: head                         MESH tris    672 verts    684 mats 1 dims (0.405, 0.448, 0.378) loc (0.0, 0.0, 0.621) scale (1.0, 1.0, 1.0) vcol False
+dal_wala: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.121, 0.189, 0.301) loc (0.082, 0.0, 0.291) scale (1.0, 1.0, 1.0) vcol False
+dal_wala: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.121, 0.189, 0.301) loc (-0.082, -0.0, 0.291) scale (1.0, 1.0, 1.0) vcol False
+dal_wala: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+deco_baraat: deco_baraat                  MESH tris   3030 verts   8648 mats 1 dims (6.261, 0.219, 3.065) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+deco_baraat: fairy_bulb_baraat            MESH tris    384 verts   1152 mats 1 dims (6.146, 0.147, 1.528) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+deco_baraat: materials ['fairy_bulb', 'palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular,KHR_materials_unlit
+
+dhaba_v3: dhaba_v3                     MESH tris  18921 verts  33000 mats 1 dims (23.1, 14.044, 5.47) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+dhaba_v3: fairy_bulb_gate_board        MESH tris    144 verts    432 mats 1 dims (2.507, 0.1, 0.1) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+dhaba_v3: fairy_bulb_gate_posts        MESH tris    504 verts   1512 mats 1 dims (2.183, 0.378, 2.037) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+dhaba_v3: fairy_bulb_parapet           MESH tris    732 verts   2196 mats 1 dims (8.922, 8.786, 0.23) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+dhaba_v3: fairy_bulb_sign_bottom       MESH tris    312 verts    936 mats 1 dims (6.087, 0.1, 0.1) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+dhaba_v3: fairy_bulb_sign_top          MESH tris    312 verts    936 mats 1 dims (6.087, 0.1, 0.1) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+dhaba_v3: fairy_bulb_verandah          MESH tris    684 verts   2052 mats 1 dims (6.006, 0.432, 2.575) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+dhaba_v3: fairy_wire_dhaba             MESH tris   1782 verts   3564 mats 1 dims (15.121, 9.09, 2.638) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+dhaba_v3: materials ['fairy_bulb', 'palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular,KHR_materials_unlit
+
+dining_table: dining_table                 MESH tris    430 verts    640 mats 1 dims (1.7, 0.8, 0.666) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+dining_table: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+dog: dog                          MESH tris    768 verts    712 mats 1 dims (0.74, 0.56, 0.27) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+dog: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+dog_sit: body                         MESH tris    592 verts    508 mats 1 dims (0.335, 0.433, 0.442) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+dog_sit: head                         MESH tris    284 verts    322 mats 1 dims (0.167, 0.252, 0.211) loc (0.0, -0.07, 0.4) scale (1.0, 1.0, 1.0) vcol False
+dog_sit: tail                         MESH tris    132 verts    210 mats 1 dims (0.282, 0.251, 0.104) loc (0.0, 0.2, 0.08) scale (1.0, 1.0, 1.0) vcol False
+dog_sit: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+family_hall: fairy_bulb_hall              MESH tris    252 verts    756 mats 1 dims (5.966, 0.09, 0.18) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+family_hall: fairy_wire_hall              MESH tris    144 verts    288 mats 1 dims (6.252, 0.01, 0.103) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+family_hall: family_hall                  MESH tris   1513 verts   3313 mats 1 dims (6.99, 8.03, 2.91) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+family_hall: materials ['fairy_bulb', 'palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_unlit,KHR_materials_specular
+
+family_table: family_table                 MESH tris    702 verts   1004 mats 1 dims (1.741, 2.761, 0.745) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+family_table: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+famous_board: famous_board                 MESH tris     64 verts    120 mats 1 dims (3.6, 0.225, 1.5) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+famous_board: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+galla_desk: galla_desk                   MESH tris   1184 verts   1484 mats 1 dims (1.33, 0.733, 1.005) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+galla_desk: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+gopal: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.161, 0.125, 0.381) loc (0.202, 0.0, 0.591) scale (1.0, 1.0, 1.0) vcol False
+gopal: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.161, 0.125, 0.381) loc (-0.202, -0.0, 0.591) scale (1.0, 1.0, 1.0) vcol False
+gopal: body                         MESH tris    664 verts    664 mats 1 dims (0.374, 0.328, 0.432) loc (0.0, 0.0, 0.303) scale (1.0, 1.0, 1.0) vcol False
+gopal: head                         MESH tris    628 verts    578 mats 1 dims (0.422, 0.433, 0.394) loc (0.0, 0.0, 0.646) scale (1.0, 1.0, 1.0) vcol False
+gopal: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.126, 0.197, 0.313) loc (0.086, 0.0, 0.303) scale (1.0, 1.0, 1.0) vcol False
+gopal: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.126, 0.197, 0.313) loc (-0.086, -0.0, 0.303) scale (1.0, 1.0, 1.0) vcol False
+gopal: tray_socket                  EMPTY loc (0.0, -0.323, 0.555)
+gopal: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+ground: ground                       MESH tris    442 verts   1022 mats 1 dims (100.0, 100.0, 0.522) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+ground: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+hoarding: fairy_bulb_hoarding          MESH tris    372 verts   1116 mats 1 dims (2.718, 0.09, 1.43) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+hoarding: hoarding_l1                  MESH tris    294 verts    604 mats 1 dims (2.6, 0.34, 3.3) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+hoarding: hoarding_l2                  MESH tris     70 verts    148 mats 1 dims (1.8, 0.044, 0.47) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+hoarding: hoarding_l3                  EMPTY loc (0.0, 0.0, 0.0)
+hoarding: hoarding_l4                  MESH tris    108 verts    206 mats 1 dims (1.2, 0.073, 0.56) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+hoarding: hoarding_star_1              MESH tris     52 verts     86 mats 1 dims (0.418, 0.05, 0.5) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+hoarding: hoarding_star_2              MESH tris     52 verts     86 mats 1 dims (0.418, 0.05, 0.5) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+hoarding: text_l1                      EMPTY loc (0.0, -0.05, 2.65)
+hoarding: text_l2                      EMPTY loc (0.0, -0.047, 1.72)
+hoarding: materials ['fairy_bulb', 'palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular,KHR_materials_unlit
+
+hut_1: hut_1                        MESH tris    743 verts   1547 mats 1 dims (8.9, 3.137, 3.96) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+hut_1: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+icon_chai: icon_chai                    MESH tris     56 verts     96 mats 1 dims (0.22, 0.22, 0.22) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+icon_chai: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+icon_roti: icon_roti                    MESH tris    120 verts    204 mats 1 dims (0.323, 0.34, 0.095) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+icon_roti: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+kadai_station: base                         MESH tris   2400 verts   3418 mats 1 dims (1.32, 0.905, 1.295) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+kadai_station: karchhi                      MESH tris     92 verts    142 mats 1 dims (0.621, 0.343, 0.457) loc (0.08, -0.08, 0.95) scale (1.0, 1.0, 1.0) vcol False
+kadai_station: steam_socket                 EMPTY loc (-0.22, 0.02, 1.05)
+kadai_station: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+kallu: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.162, 0.126, 0.385) loc (0.204, 0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+kallu: arm_r                        MESH tris    260 verts    460 mats 1 dims (0.181, 0.184, 0.385) loc (-0.204, -0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+kallu: body                         MESH tris    628 verts    722 mats 1 dims (0.459, 0.354, 0.436) loc (0.0, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+kallu: head                         MESH tris    520 verts    526 mats 1 dims (0.426, 0.432, 0.367) loc (0.0, 0.0, 0.653) scale (1.0, 1.0, 1.0) vcol False
+kallu: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (0.087, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+kallu: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (-0.087, -0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+kallu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+lakhan: arm_l                        MESH tris    192 verts    326 mats 1 dims (0.162, 0.126, 0.385) loc (0.204, 0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+lakhan: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.162, 0.126, 0.385) loc (-0.204, -0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+lakhan: body                         MESH tris    388 verts    416 mats 1 dims (0.377, 0.272, 0.436) loc (0.0, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+lakhan: head                         MESH tris    552 verts    478 mats 1 dims (0.426, 0.438, 0.398) loc (0.0, 0.0, 0.653) scale (1.0, 1.0, 1.0) vcol False
+lakhan: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (0.087, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+lakhan: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (-0.087, -0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+lakhan: tray_socket                  EMPTY loc (0.0, -0.326, 0.561)
+lakhan: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+lamp: lamp                         MESH tris    108 verts    220 mats 1 dims (0.721, 0.32, 3.06) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+lamp: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+lassi_station: base                         MESH tris   2276 verts   3454 mats 1 dims (1.645, 2.128, 1.54) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+lassi_station: madhani                      MESH tris    208 verts    358 mats 1 dims (0.072, 0.072, 0.582) loc (0.25, 0.08, 1.02) scale (1.0, 1.0, 1.0) vcol False
+lassi_station: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+lassi_wala: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.162, 0.126, 0.385) loc (0.204, 0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+lassi_wala: arm_r                        MESH tris    192 verts    326 mats 1 dims (0.162, 0.126, 0.385) loc (-0.204, -0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+lassi_wala: body                         MESH tris    346 verts    350 mats 1 dims (0.408, 0.408, 0.541) loc (0.0, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+lassi_wala: head                         MESH tris    856 verts   1038 mats 1 dims (0.426, 0.442, 0.444) loc (0.0, 0.0, 0.653) scale (1.0, 1.0, 1.0) vcol False
+lassi_wala: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (0.087, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+lassi_wala: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (-0.087, -0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+lassi_wala: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+marker: marker                       MESH tris    452 verts   1316 mats 1 dims (1.149, 1.145, 1.004) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+marker: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munna: arm_l                        MESH tris    192 verts    326 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+munna: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+munna: body                         MESH tris    344 verts    368 mats 1 dims (0.36, 0.267, 0.428) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+munna: head                         MESH tris    512 verts    446 mats 1 dims (0.418, 0.429, 0.39) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+munna: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+munna: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+munna: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_chai: arm_l                        MESH tris    462 verts    350 mats 1 dims (0.378, 0.394, 0.585) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_chai: arm_r                        MESH tris    380 verts    276 mats 1 dims (0.63, 0.611, 0.565) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_chai: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_chai: head                         MESH tris   1432 verts   1318 mats 1 dims (0.724, 0.732, 0.713) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_chai: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_cheer: arm_l                        MESH tris    462 verts    350 mats 1 dims (0.655, 0.35, 0.724) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_cheer: arm_r                        MESH tris    336 verts    226 mats 1 dims (0.462, 0.309, 0.716) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_cheer: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_cheer: head                         MESH tris   1484 verts   1246 mats 1 dims (0.727, 0.734, 0.713) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_cheer: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_idle: arm_l                        MESH tris    462 verts    350 mats 1 dims (0.378, 0.394, 0.585) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_idle: arm_r                        MESH tris    336 verts    234 mats 1 dims (0.447, 0.518, 0.564) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_idle: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_idle: head                         MESH tris   1476 verts   1248 mats 1 dims (0.72, 0.723, 0.712) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_idle: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_ledger: arm_l                        MESH tris    476 verts    378 mats 1 dims (0.726, 0.777, 0.452) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_ledger: arm_r                        MESH tris    388 verts    322 mats 1 dims (0.618, 0.639, 0.499) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_ledger: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_ledger: head                         MESH tris   1376 verts    990 mats 1 dims (0.713, 0.71, 0.725) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_ledger: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_namaste: arm_l                        MESH tris    336 verts    234 mats 1 dims (0.557, 0.693, 0.392) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_namaste: arm_r                        MESH tris    336 verts    234 mats 1 dims (0.557, 0.693, 0.392) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_namaste: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_namaste: head                         MESH tris   1432 verts   1318 mats 1 dims (0.724, 0.711, 0.726) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_namaste: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_point: arm_l                        MESH tris    476 verts    378 mats 1 dims (0.673, 0.756, 0.452) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_point: arm_r                        MESH tris    388 verts    268 mats 1 dims (0.785, 0.456, 0.522) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_point: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_point: head                         MESH tris   1476 verts   1248 mats 1 dims (0.712, 0.709, 0.716) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_point: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+munshi_worried: arm_l                        MESH tris    336 verts    234 mats 1 dims (0.41, 0.485, 0.631) loc (0.38, 0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_worried: arm_r                        MESH tris    336 verts    234 mats 1 dims (0.41, 0.485, 0.631) loc (-0.38, -0.0, 0.56) scale (1.0, 1.0, 1.0) vcol False
+munshi_worried: body                         MESH tris    648 verts    480 mats 1 dims (0.867, 0.756, 1.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+munshi_worried: head                         MESH tris   1408 verts   1070 mats 1 dims (0.724, 0.723, 0.716) loc (0.0, 0.0, 0.66) scale (1.0, 1.0, 1.0) vcol False
+munshi_worried: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+neetu: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.151, 0.118, 0.358) loc (0.19, 0.0, 0.556) scale (1.0, 1.0, 1.0) vcol False
+neetu: arm_r                        MESH tris    224 verts    376 mats 1 dims (0.151, 0.133, 0.358) loc (-0.19, -0.0, 0.556) scale (1.0, 1.0, 1.0) vcol False
+neetu: body                         MESH tris    568 verts    706 mats 1 dims (0.358, 0.376, 0.504) loc (0.0, 0.0, 0.285) scale (1.0, 1.0, 1.0) vcol False
+neetu: head                         MESH tris    652 verts    684 mats 1 dims (0.397, 0.425, 0.541) loc (0.0, 0.0, 0.608) scale (1.0, 1.0, 1.0) vcol False
+neetu: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.119, 0.185, 0.294) loc (0.081, 0.0, 0.285) scale (1.0, 1.0, 1.0) vcol False
+neetu: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.119, 0.185, 0.294) loc (-0.081, -0.0, 0.285) scale (1.0, 1.0, 1.0) vcol False
+neetu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+padlock: padlock                      MESH tris    304 verts    540 mats 1 dims (0.4, 0.205, 0.552) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+padlock: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pappu: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+pappu: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+pappu: body                         MESH tris    664 verts    664 mats 1 dims (0.414, 0.373, 0.48) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+pappu: head                         MESH tris    560 verts    546 mats 1 dims (0.418, 0.429, 0.405) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+pappu: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+pappu: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+pappu: tray_socket                  EMPTY loc (0.0, -0.32, 0.55)
+pappu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+parking_mark: parking_mark                 MESH tris     30 verts     60 mats 1 dims (2.32, 4.06, 0.015) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+parking_mark: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_baati: pass_baati                   MESH tris    492 verts    574 mats 1 dims (0.27, 0.27, 0.079) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_baati: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_bhurji: pass_bhurji                  MESH tris    580 verts    812 mats 1 dims (0.27, 0.27, 0.08) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_bhurji: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_chaas: pass_chaas                   MESH tris    176 verts    224 mats 1 dims (0.146, 0.15, 0.163) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_chaas: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_chole: pass_chole                   MESH tris    356 verts    490 mats 1 dims (0.201, 0.2, 0.072) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_chole: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_coffee: pass_coffee                  MESH tris    142 verts    156 mats 1 dims (0.148, 0.148, 0.118) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_coffee: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_dal: pass_dal                     MESH tris    214 verts    248 mats 1 dims (0.195, 0.2, 0.077) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_dal: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_dal_baati: pass_dal_baati               MESH tris    490 verts    692 mats 1 dims (0.272, 0.272, 0.071) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_dal_baati: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_gatte: pass_gatte                   MESH tris    340 verts    500 mats 1 dims (0.195, 0.2, 0.075) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_gatte: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_green_tea: pass_green_tea               MESH tris    216 verts    288 mats 1 dims (0.15, 0.15, 0.096) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_green_tea: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_keema_paratha: pass_keema_paratha           MESH tris    396 verts    632 mats 1 dims (0.27, 0.27, 0.043) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_keema_paratha: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_ker_sangri: pass_ker_sangri              MESH tris    348 verts    446 mats 1 dims (0.195, 0.2, 0.095) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_ker_sangri: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_kesar_doodh: pass_kesar_doodh             MESH tris    240 verts    348 mats 1 dims (0.184, 0.184, 0.132) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_kesar_doodh: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_kulcha: pass_kulcha                  MESH tris    334 verts    392 mats 1 dims (0.27, 0.27, 0.066) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_kulcha: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_kulhad: pass_kulhad                  MESH tris    180 verts    186 mats 1 dims (0.192, 0.184, 0.132) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_kulhad: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_laal_maas: pass_laal_maas               MESH tris    346 verts    510 mats 1 dims (0.195, 0.2, 0.089) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_laal_maas: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_lahsun_roti: pass_lahsun_roti             MESH tris    408 verts    476 mats 1 dims (0.27, 0.27, 0.045) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_lahsun_roti: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_lassi: pass_lassi                   MESH tris    220 verts    270 mats 1 dims (0.146, 0.15, 0.199) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_lassi: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_mango_lassi: pass_mango_lassi             MESH tris    294 verts    354 mats 1 dims (0.146, 0.15, 0.194) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_mango_lassi: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_missi_roti: pass_missi_roti              MESH tris    420 verts    570 mats 1 dims (0.27, 0.27, 0.07) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_missi_roti: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_naan: pass_naan                    MESH tris    236 verts    322 mats 1 dims (0.27, 0.27, 0.05) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_naan: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_paneer: pass_paneer                  MESH tris    338 verts    602 mats 1 dims (0.201, 0.2, 0.072) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_paneer: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_patiala: pass_patiala                 MESH tris    230 verts    274 mats 1 dims (0.175, 0.18, 0.279) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_patiala: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_plate: pass_plate                   MESH tris    174 verts    186 mats 1 dims (0.122, 0.122, 0.125) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_plate: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_rabri: pass_rabri                   MESH tris    338 verts    428 mats 1 dims (0.154, 0.158, 0.085) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_rabri: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_roti: pass_roti                    MESH tris    284 verts    318 mats 1 dims (0.27, 0.27, 0.055) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_roti: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pass_shikanji: pass_shikanji                MESH tris    318 verts    396 mats 1 dims (0.14, 0.144, 0.185) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pass_shikanji: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pinky: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.153, 0.119, 0.362) loc (0.192, 0.0, 0.562) scale (1.0, 1.0, 1.0) vcol False
+pinky: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.153, 0.119, 0.362) loc (-0.192, -0.0, 0.562) scale (1.0, 1.0, 1.0) vcol False
+pinky: body                         MESH tris    596 verts    738 mats 1 dims (0.384, 0.384, 0.499) loc (0.0, 0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+pinky: head                         MESH tris    676 verts    696 mats 1 dims (0.401, 0.425, 0.547) loc (0.0, 0.0, 0.614) scale (1.0, 1.0, 1.0) vcol False
+pinky: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.12, 0.187, 0.298) loc (0.082, 0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+pinky: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.12, 0.187, 0.298) loc (-0.082, -0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+pinky: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+plant_pot: plant_pot                    MESH tris    332 verts    832 mats 1 dims (0.609, 0.58, 0.842) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+plant_pot: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+plate_stool: plate_stool                  MESH tris    248 verts    324 mats 1 dims (0.576, 0.576, 0.664) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+plate_stool: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_chaas_jug: prop_chaas_jug               MESH tris    176 verts    268 mats 1 dims (0.128, 0.087, 0.175) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_chaas_jug: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_chole_sack: prop_chole_sack              MESH tris    172 verts    286 mats 1 dims (0.268, 0.23, 0.328) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_chole_sack: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_coffee_kettle: prop_coffee_kettle           MESH tris    216 verts    280 mats 1 dims (0.177, 0.104, 0.235) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_coffee_kettle: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_dal_handi: prop_dal_handi               MESH tris    242 verts    276 mats 1 dims (0.182, 0.152, 0.145) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_dal_handi: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_green_tea_jar: prop_green_tea_jar           MESH tris    242 verts    326 mats 1 dims (0.149, 0.11, 0.17) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_green_tea_jar: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_keema_pot: prop_keema_pot               MESH tris    232 verts    306 mats 1 dims (0.271, 0.26, 0.406) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_keema_pot: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_kulcha_board: prop_kulcha_board            MESH tris    204 verts    294 mats 1 dims (0.28, 0.28, 0.397) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_kulcha_board: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_mango_crate: prop_mango_crate             MESH tris    174 verts    280 mats 1 dims (0.16, 0.11, 0.108) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_mango_crate: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_milk_can: prop_milk_can                MESH tris    216 verts    264 mats 1 dims (0.166, 0.144, 0.294) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_milk_can: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_naan_basket: prop_naan_basket             MESH tris    220 verts    300 mats 1 dims (0.3, 0.3, 0.515) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_naan_basket: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_paneer_block: prop_paneer_block            MESH tris    136 verts    192 mats 1 dims (0.14, 0.14, 0.058) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_paneer_block: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+prop_patiala_glass: prop_patiala_glass           MESH tris    152 verts    174 mats 1 dims (0.124, 0.13, 0.258) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+prop_patiala_glass: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+pump: pump                         MESH tris    112 verts    208 mats 1 dims (1.1, 0.95, 1.401) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+pump: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+raju: arm_l                        MESH tris    340 verts    470 mats 1 dims (0.162, 0.159, 0.385) loc (0.204, 0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+raju: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.162, 0.126, 0.385) loc (-0.204, -0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+raju: body                         MESH tris    512 verts    560 mats 1 dims (0.381, 0.285, 0.436) loc (0.0, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+raju: head                         MESH tris    556 verts    494 mats 1 dims (0.426, 0.438, 0.398) loc (0.0, 0.0, 0.653) scale (1.0, 1.0, 1.0) vcol False
+raju: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (0.087, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+raju: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (-0.087, -0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+raju: tray_socket                  EMPTY loc (0.0, -0.326, 0.561)
+raju: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+road: road                         MESH tris     72 verts    144 mats 1 dims (100.0, 4.0, 0.042) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+road: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+scenery: scenery                      MESH tris   5908 verts  12418 mats 1 dims (100.0, 65.343, 16.0) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+scenery: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+seats_board: board                        MESH tris    174 verts    404 mats 1 dims (1.08, 0.373, 0.721) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+seats_board: full_plate                   MESH tris     48 verts    104 mats 1 dims (0.92, 0.148, 0.308) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+seats_board: text_socket                  EMPTY loc (0.0, 0.127, 0.392)
+seats_board: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+signboard: signboard                    MESH tris    546 verts   1208 mats 1 dims (4.72, 0.72, 4.88) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+signboard: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+sikka: sikka                        MESH tris    280 verts    316 mats 1 dims (0.5, 0.084, 0.5) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+sikka: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+sonu: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+sonu: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+sonu: body                         MESH tris    520 verts    560 mats 1 dims (0.36, 0.311, 0.54) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+sonu: head                         MESH tris    704 verts    628 mats 1 dims (0.418, 0.46, 0.442) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+sonu: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+sonu: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+sonu: tray_socket                  EMPTY loc (0.0, -0.32, 0.55)
+sonu: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+station_chai: station_chai                 MESH tris    336 verts    628 mats 1 dims (1.64, 0.84, 1.46) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+station_chai: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+station_tandoor: station_tandoor              MESH tris    298 verts    526 mats 1 dims (1.671, 1.012, 1.433) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+station_tandoor: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+street_v3: fairy_bulb_courtyard_front   MESH tris    264 verts    792 mats 1 dims (5.653, 1.984, 0.21) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_courtyard_zig     MESH tris    780 verts   2340 mats 1 dims (6.128, 3.091, 0.357) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_gumti             MESH tris    108 verts    324 mats 1 dims (0.069, 1.421, 0.133) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_neem_branches     MESH tris    708 verts   2124 mats 1 dims (2.419, 2.103, 1.522) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_neem_trunk        MESH tris    588 verts   1764 mats 1 dims (0.525, 0.539, 1.664) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_parking_board     MESH tris    504 verts   1512 mats 1 dims (3.478, 0.09, 0.81) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_peepal_trunk      MESH tris    780 verts   2340 mats 1 dims (0.978, 0.989, 1.94) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_yard_front        MESH tris    240 verts    720 mats 1 dims (6.49, 0.1, 0.281) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_bulb_yard_zig          MESH tris   1092 verts   3276 mats 1 dims (6.688, 9.385, 1.002) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol True
+street_v3: fairy_wire_street            MESH tris   3570 verts   7140 mats 1 dims (22.51, 21.117, 3.006) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+street_v3: milestone_text               MESH tris    494 verts    447 mats 1 dims (0.36, 0.002, 0.486) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+street_v3: street_v3                    MESH tris  23563 verts  46402 mats 1 dims (102.0, 100.0, 6.175) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+street_v3: materials ['fairy_bulb', 'palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_unlit,KHR_materials_specular
+
+string_bulbs: string_bulbs                 MESH tris    104 verts    312 mats 1 dims (3.8, 0.2, 0.457) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+string_bulbs: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+string_wire: string_wire                  MESH tris     72 verts    144 mats 1 dims (4.208, 0.03, 0.379) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+string_wire: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+tandoor_lock: tandoor_lock                 MESH tris   1450 verts   2834 mats 1 dims (3.287, 7.838, 1.485) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+tandoor_lock: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+tandoor_station: tandoor_station              MESH tris   1404 verts   1744 mats 1 dims (1.98, 1.091, 1.254) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+tandoor_station: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_baraati_f: arm_l                        MESH tris    196 verts    342 mats 1 dims (0.153, 0.119, 0.362) loc (0.192, 0.0, 0.562) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_f: arm_r                        MESH tris    196 verts    342 mats 1 dims (0.153, 0.119, 0.362) loc (-0.192, -0.0, 0.562) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_f: body                         MESH tris    392 verts    416 mats 1 dims (0.461, 0.461, 0.619) loc (0.0, 0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_f: head                         MESH tris    784 verts    836 mats 1 dims (0.401, 0.439, 0.374) loc (0.0, 0.0, 0.614) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_f: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.12, 0.187, 0.298) loc (0.082, 0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_f: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.12, 0.187, 0.298) loc (-0.082, -0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_f: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_baraati_m: arm_l                        MESH tris    192 verts    326 mats 1 dims (0.165, 0.129, 0.392) loc (0.208, 0.0, 0.608) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_m: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.165, 0.129, 0.392) loc (-0.208, -0.0, 0.608) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_m: body                         MESH tris    340 verts    392 mats 1 dims (0.426, 0.426, 0.562) loc (0.0, 0.0, 0.312) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_m: head                         MESH tris    668 verts    612 mats 1 dims (0.472, 0.468, 0.489) loc (0.0, 0.0, 0.666) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_m: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.13, 0.203, 0.322) loc (0.088, 0.0, 0.312) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_m: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.13, 0.203, 0.322) loc (-0.088, -0.0, 0.312) scale (1.0, 1.0, 1.0) vcol False
+trav_baraati_m: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_biker: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.162, 0.126, 0.385) loc (0.204, 0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+trav_biker: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.162, 0.126, 0.385) loc (-0.204, -0.0, 0.597) scale (1.0, 1.0, 1.0) vcol False
+trav_biker: body                         MESH tris    300 verts    320 mats 1 dims (0.379, 0.269, 0.436) loc (0.0, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+trav_biker: head                         MESH tris    668 verts    550 mats 1 dims (0.439, 0.481, 0.43) loc (0.0, 0.0, 0.653) scale (1.0, 1.0, 1.0) vcol False
+trav_biker: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (0.087, 0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+trav_biker: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.127, 0.199, 0.316) loc (-0.087, -0.0, 0.306) scale (1.0, 1.0, 1.0) vcol False
+trav_biker: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_elder: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.156, 0.122, 0.369) loc (0.196, 0.0, 0.573) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.156, 0.122, 0.369) loc (-0.196, -0.0, 0.573) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: body                         MESH tris    640 verts    786 mats 1 dims (0.396, 0.396, 0.529) loc (0.0, 0.0, 0.294) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: head                         MESH tris    608 verts    636 mats 1 dims (0.41, 0.415, 0.353) loc (0.0, 0.0, 0.627) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.123, 0.191, 0.304) loc (0.083, 0.0, 0.294) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.123, 0.191, 0.304) loc (-0.083, -0.0, 0.294) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: stick                        MESH tris     32 verts     60 mats 1 dims (0.044, 0.092, 0.383) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+trav_elder: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_family_f: arm_l                        MESH tris    192 verts    326 mats 1 dims (0.153, 0.119, 0.362) loc (0.192, 0.0, 0.562) scale (1.0, 1.0, 1.0) vcol False
+trav_family_f: arm_r                        MESH tris    192 verts    326 mats 1 dims (0.153, 0.119, 0.362) loc (-0.192, -0.0, 0.562) scale (1.0, 1.0, 1.0) vcol False
+trav_family_f: body                         MESH tris    368 verts    392 mats 1 dims (0.422, 0.422, 0.619) loc (0.0, 0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+trav_family_f: head                         MESH tris    736 verts    716 mats 1 dims (0.401, 0.439, 0.374) loc (0.0, 0.0, 0.614) scale (1.0, 1.0, 1.0) vcol False
+trav_family_f: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.12, 0.187, 0.298) loc (0.082, 0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+trav_family_f: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.12, 0.187, 0.298) loc (-0.082, -0.0, 0.288) scale (1.0, 1.0, 1.0) vcol False
+trav_family_f: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_family_m: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+trav_family_m: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+trav_family_m: body                         MESH tris    356 verts    328 mats 1 dims (0.36, 0.295, 0.428) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+trav_family_m: head                         MESH tris    556 verts    494 mats 1 dims (0.418, 0.429, 0.39) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+trav_family_m: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+trav_family_m: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+trav_family_m: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_farmer: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (0.2, 0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+trav_farmer: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.159, 0.124, 0.377) loc (-0.2, -0.0, 0.585) scale (1.0, 1.0, 1.0) vcol False
+trav_farmer: body                         MESH tris    456 verts    488 mats 1 dims (0.4, 0.4, 0.53) loc (0.0, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+trav_farmer: head                         MESH tris    764 verts    722 mats 1 dims (0.454, 0.456, 0.47) loc (0.0, 0.0, 0.64) scale (1.0, 1.0, 1.0) vcol False
+trav_farmer: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (0.085, 0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+trav_farmer: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.125, 0.195, 0.31) loc (-0.085, -0.0, 0.3) scale (1.0, 1.0, 1.0) vcol False
+trav_farmer: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_sardar: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.172, 0.134, 0.407) loc (0.216, 0.0, 0.632) scale (1.0, 1.0, 1.0) vcol False
+trav_sardar: arm_r                        MESH tris    192 verts    326 mats 1 dims (0.172, 0.134, 0.407) loc (-0.216, -0.0, 0.632) scale (1.0, 1.0, 1.0) vcol False
+trav_sardar: body                         MESH tris    244 verts    288 mats 1 dims (0.415, 0.296, 0.462) loc (0.0, 0.0, 0.324) scale (1.0, 1.0, 1.0) vcol False
+trav_sardar: head                         MESH tris    836 verts    758 mats 1 dims (0.451, 0.477, 0.562) loc (0.0, 0.0, 0.691) scale (1.0, 1.0, 1.0) vcol False
+trav_sardar: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.135, 0.211, 0.335) loc (0.092, 0.0, 0.324) scale (1.0, 1.0, 1.0) vcol False
+trav_sardar: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.135, 0.211, 0.335) loc (-0.092, -0.0, 0.324) scale (1.0, 1.0, 1.0) vcol False
+trav_sardar: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_student: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.149, 0.117, 0.354) loc (0.188, 0.0, 0.55) scale (1.0, 1.0, 1.0) vcol False
+trav_student: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.149, 0.117, 0.354) loc (-0.188, -0.0, 0.55) scale (1.0, 1.0, 1.0) vcol False
+trav_student: body                         MESH tris    388 verts    416 mats 1 dims (0.34, 0.388, 0.402) loc (0.0, 0.0, 0.282) scale (1.0, 1.0, 1.0) vcol False
+trav_student: head                         MESH tris    488 verts    484 mats 1 dims (0.393, 0.403, 0.386) loc (0.0, 0.0, 0.602) scale (1.0, 1.0, 1.0) vcol False
+trav_student: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.117, 0.183, 0.291) loc (0.08, 0.0, 0.282) scale (1.0, 1.0, 1.0) vcol False
+trav_student: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.117, 0.183, 0.291) loc (-0.08, -0.0, 0.282) scale (1.0, 1.0, 1.0) vcol False
+trav_student: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_techie: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.154, 0.12, 0.366) loc (0.194, 0.0, 0.567) scale (1.0, 1.0, 1.0) vcol False
+trav_techie: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.154, 0.12, 0.366) loc (-0.194, -0.0, 0.567) scale (1.0, 1.0, 1.0) vcol False
+trav_techie: body                         MESH tris    364 verts    408 mats 1 dims (0.379, 0.394, 0.529) loc (0.0, 0.0, 0.291) scale (1.0, 1.0, 1.0) vcol False
+trav_techie: head                         MESH tris    908 verts    950 mats 1 dims (0.405, 0.472, 0.378) loc (0.0, 0.0, 0.621) scale (1.0, 1.0, 1.0) vcol False
+trav_techie: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.121, 0.189, 0.301) loc (0.082, 0.0, 0.291) scale (1.0, 1.0, 1.0) vcol False
+trav_techie: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.121, 0.189, 0.301) loc (-0.082, -0.0, 0.291) scale (1.0, 1.0, 1.0) vcol False
+trav_techie: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+trav_trucker: arm_l                        MESH tris    164 verts    278 mats 1 dims (0.172, 0.134, 0.407) loc (0.216, 0.0, 0.632) scale (1.0, 1.0, 1.0) vcol False
+trav_trucker: arm_r                        MESH tris    164 verts    278 mats 1 dims (0.172, 0.134, 0.407) loc (-0.216, -0.0, 0.632) scale (1.0, 1.0, 1.0) vcol False
+trav_trucker: body                         MESH tris    460 verts    488 mats 1 dims (0.475, 0.475, 0.653) loc (0.0, 0.0, 0.324) scale (1.0, 1.0, 1.0) vcol False
+trav_trucker: head                         MESH tris    740 verts    592 mats 1 dims (0.451, 0.467, 0.524) loc (0.0, 0.0, 0.691) scale (1.0, 1.0, 1.0) vcol False
+trav_trucker: leg_l                        MESH tris     88 verts     96 mats 1 dims (0.135, 0.211, 0.335) loc (0.092, 0.0, 0.324) scale (1.0, 1.0, 1.0) vcol False
+trav_trucker: leg_r                        MESH tris     88 verts     96 mats 1 dims (0.135, 0.211, 0.335) loc (-0.092, -0.0, 0.324) scale (1.0, 1.0, 1.0) vcol False
+trav_trucker: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+tray: tray                         MESH tris    192 verts    200 mats 1 dims (0.416, 0.416, 0.036) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+tray: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+tray_rack: tray_rack                    MESH tris   1546 verts   2096 mats 1 dims (0.676, 0.402, 1.098) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+tray_rack: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+tray_wide: tray_wide                    MESH tris    220 verts    256 mats 1 dims (0.694, 0.396, 0.036) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+tray_wide: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+truck: truck                        MESH tris   1773 verts   2957 mats 1 dims (4.723, 2.34, 2.654) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+truck: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+truck_green: truck_green                  MESH tris   1773 verts   2957 mats 1 dims (4.723, 2.34, 2.654) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+truck_green: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+tv_set: tv_body                      MESH tris    292 verts    670 mats 1 dims (0.74, 0.423, 0.771) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+tv_set: tv_screen                    MESH tris      2 verts      4 mats 1 dims (0.4, 0.0, 0.3) loc (-0.06, -0.208, 0.215) scale (1.0, 1.0, 1.0) vcol False
+tv_set: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+wall_bulbs: wall_bulbs                   MESH tris    576 verts   1728 mats 1 dims (19.407, 14.378, 1.616) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+wall_bulbs: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+
+wall_wire: wall_wire                    MESH tris    432 verts    864 mats 1 dims (19.459, 14.459, 1.619) loc (0.0, 0.0, 0.0) scale (1.0, 1.0, 1.0) vcol False
+wall_wire: materials ['palette'] images [('palette', 128, 192)] generator 'Khronos glTF Blender I/O v5.2.40' ext KHR_materials_specular
+

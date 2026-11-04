@@ -187,8 +187,8 @@ extends Node3D
 
 const GfxQuality := preload("res://scripts/v3/core/gfx_quality.gd")
 const SHADOW_DISTANCE := 60.0
-const AMBIENT_ENERGY := 0.34
-const SUN_ENERGY := 0.5
+const AMBIENT_ENERGY := 0.40
+const SUN_ENERGY := 0.42
 ## Name board text area on dhaba_v3 (ART report): centre (3.8, 2.33, 10.112),
 ## 2.4 x 0.44 m, facing +Z. Core and feel C8.2: two lines, "DHABA RUSH" (as
 ## big as before, raised) over the Hindi line (plan 5.5, BI fixed text).
@@ -671,7 +671,7 @@ func _build_environment() -> void:
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.60, 0.74, 0.50)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(1.0, 0.96, 0.9)
+	env.ambient_light_color = Color(0.96, 0.96, 0.94)
 	# Tuned down 2026-10-19 after "looks very bright": the palette atlas already
 	# carries the colour, so light should sit near 1.0 combined, not ~1.25.
 	env.ambient_light_energy = AMBIENT_ENERGY
@@ -684,7 +684,7 @@ func _build_environment() -> void:
 	# Same direction as the Blender review renders (SUN_TO_LIGHT_BL).
 	sun = DirectionalLight3D.new()
 	sun.name = "Sun"
-	sun.rotation_degrees = Vector3(-50.0, -70.0, 0.0)
+	sun.rotation_degrees = Vector3(-50.0, -45.0, 0.0)
 	sun.light_color = Color(1.0, 0.95, 0.86)
 	sun.light_energy = SUN_ENERGY
 	sun.shadow_enabled = not low_tier

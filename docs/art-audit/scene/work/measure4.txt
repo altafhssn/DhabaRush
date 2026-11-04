@@ -1,0 +1,8 @@
+clipped (R,G >= 250) share of the home view: 8.3 %; in the top-left 250x300 yard box: 19.2 %
+  TILE_A (light tile)    swatch #CFA273 L*  69.7  -> rendered #FFC87D L*  84.0  (+14.3)
+  TILE_B (dark tile)     swatch #B98957 L*  60.7  -> rendered #F0A561 L*  73.7  (+13.1)
+  DUST_LT (yard)         swatch #E8D2A4 L*  85.0  -> rendered #FFFFAC L*  98.3  (+13.4)
+  WHITEWASH (gate post)  swatch #FFFDF6 L*  99.3  -> rendered #FFF2A2 L*  94.9  (-4.3)
+  KERB                   swatch #B4AFA8 L*  71.7  -> rendered #FFF8A6 L*  96.6  (+24.9)
+  TEAL wall              swatch #2E8C8C L*  53.2  -> rendered #146354 L*  37.3  (-15.9)
+  DADO (wall band)       swatch #26A69A L*  61.7  -> rendered #146354 L*  37.3  (-24.3)

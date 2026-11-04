@@ -167,6 +167,7 @@ func _apply(force: bool) -> void:
 	if fairy != null:
 		fairy.set_brightness(lerpf(_fairy_low.x, _fairy_low.y, night), 1.0)
 		fairy.set_boost(lerpf(_fairy_boost.x, _fairy_boost.y, night))
+		fairy.set_lit(night > 0.02)
 	_glow_mat.set_shader_parameter("night", night)
 	var on: bool = night > 0.01
 	if on != _glow_on or force:

@@ -1,0 +1,7 @@
+files compared 145 byte-identical 68 geometry-identical(order-free) 139 geometry-different 6
+  dal_wala.glb head(normal/uv 672/672 tris)
+  galla_desk.glb galla_desk(pos 1184/1184 tris)
+  munshi_chai.glb head(normal/uv 1432/1432 tris)
+  munshi_worried.glb head(normal/uv 1408/1408 tris)
+  scenery.glb scenery(pos 5908/5916 tris)
+  tray_rack.glb tray_rack(pos 1546/1546 tris)

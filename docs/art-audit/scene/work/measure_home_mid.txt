@@ -1,0 +1,82 @@
+== hue bands (S>0.25,V>0.2) for mid
+  red/terracotta 0-20        4.5 %
+  orange/ochre 20-50        55.2 %
+  yellow 50-70               6.6 %
+  green 70-160               3.0 %
+  teal/cyan 160-200          4.6 %
+  blue 200-260               1.1 %
+  magenta/maroon 260-360     1.7 %
+  neutral (S<=0.25 or V<=0.2)  23.3 %   mean S 0.49 mean V 0.81
+== top colour bins (bin centre hex, share)
+  #FCCC84  10.1 %
+  #FC9C6C   8.7 %
+  #E4B46C   5.8 %
+  #CC8454   5.1 %
+  #FCFCB4   5.0 %
+  #FCFCE4   4.6 %
+  #FCE49C   4.0 %
+  #9C8454   3.4 %
+  #E4CCB4   3.3 %
+  #0C6C54   2.5 %
+  #FCE4B4   1.9 %
+  #6C6C6C   1.8 %
+  #FCB46C   1.6 %
+  #FC9C54   1.6 %
+  #E49C54   1.4 %
+  #FCFCCC   1.4 %
+  #CC843C   1.3 %
+  #CCCCCC   1.0 %
+== samples (5x5 mean)
+  tile light (360,760)               #F0A561
+  tile dark (250,900)                #FFC87D
+  tile in shadow (560,430)           #CD8C51
+  tile light shadow (300,650)        #DE9A5B
+  teal wall (560,120)                #DBD2B6
+  wall dado red (100,520)            #C46E44
+  wall top cream (300,300)           #212020
+  outside sand top-left (60,60)      #FFFFAC
+  courtyard sand (680,440)           #F7B66F
+  road asphalt (60,1200)             #828084
+  kerb yellow (120,1150)             #FFF8A6
+  charpai top (560,600)              #423228
+  charpai wood (470,640)             #374570
+  galla top (230,640)                #D1EFEC
+  galla front red (200,700)          #6C401F
+  chai counter top (300,560)         #FEE234
+  skin head (360,640)                #211812
+  waiter yellow shirt (370,665)      #EB9B2C
+  plate (355,690)                    #FEF8EA
+  blue cap (460,650)                 #394772
+  navy kurta (460,690)               #FF4B2C
+  cook white kurta (215,520)         #FFFED3
+  cashier green shirt (150,600)      #8E5A34
+  pink dupatta cook (390,380)        #AB4860
+  diner yellow (570,620)             #271C15
+  awning blue (60,860)               #B3CAD3
+  flower pot red (300,1130)          #EBD7BB
+== contrast people vs floor (WCAG ratio / dE)
+  skin head (360,640)        vs tile light: 8.51 / dE 78.2  vs tile dark: 11.45 / dE 84.8  vs tile in shadow: 6.19 / dE 66.8
+  waiter yellow shirt (370,6 vs tile light: 1.10 / dE 20.0  vs tile dark: 1.48 / dE 26.9  vs tile in shadow: 1.25 / dE 25.8
+  plate (355,690)            vs tile light: 1.93 / dE 50.1  vs tile dark: 1.44 / dE 41.3  vs tile in shadow: 2.66 / dE 51.5
+  blue cap (460,650)         vs tile light: 4.39 / dE 85.3  vs tile dark: 5.91 / dE 89.0  vs tile in shadow: 3.20 / dE 76.0
+  navy kurta (460,690)       vs tile light: 1.62 / dE 48.7  vs tile dark: 2.19 / dE 61.8  vs tile in shadow: 1.18 / dE 49.9
+  cook white kurta (215,520) vs tile light: 1.99 / dE 45.0  vs tile dark: 1.48 / dE 33.2  vs tile in shadow: 2.73 / dE 47.9
+  cashier green shirt (150,6 vs tile light: 2.77 / dE 34.1  vs tile dark: 3.73 / dE 43.4  vs tile in shadow: 2.02 / dE 22.7
+  diner yellow (570,620)     vs tile light: 8.07 / dE 75.2  vs tile dark: 10.86 / dE 81.9  vs tile in shadow: 5.87 / dE 63.9
+  charpai top (560,600)      vs tile light: 5.92 / dE 64.9  vs tile dark: 7.98 / dE 71.1  vs tile in shadow: 4.31 / dE 53.6
+  charpai wood (470,640)     vs tile light: 4.54 / dE 85.8  vs tile dark: 6.12 / dE 89.5  vs tile in shadow: 3.31 / dE 76.4
+  chai counter top (300,560) vs tile light: 1.58 / dE 47.3  vs tile dark: 1.17 / dE 40.5  vs tile in shadow: 2.17 / dE 54.0
+  galla top (230,640)        vs tile light: 1.69 / dE 60.3  vs tile dark: 1.26 / dE 52.1  vs tile in shadow: 2.32 / dE 59.4
+== wall top vs outside
+  wall top cream (300,300) vs outside sand top-left (60,60): ratio 15.47 dE 95.1
+  wall top cream (300,300) vs courtyard sand (680,440): ratio 9.17 dE 81.5
+  tile light (360,760) vs courtyard sand (680,440): ratio 1.16 dE 7.3
+  teal wall (560,120) vs tile light (360,760): ratio 1.36 dE 39.6
+  charpai top (560,600) vs plate (355,690): ratio 11.45 dE 75.4
+== rough area shares (nearest sample, dE<14)
+  floor tiles                         35.0 %
+  teal wall                            8.0 %
+  cream/sand (wall tops, outside)     14.1 %
+  charpai/white tops                   7.0 %
+  road grey                            3.3 %
+  everything else (people, props, signs)  32.7 %

@@ -1,0 +1,44 @@
+verified samples: tileL #FFC87D tileD #F0A561 tileShadow #CD8C51 teal #146354 plaster #F8C579 yard #FFFFAC road #828084 charpai #FEF8EC plate #FEF8EA kurta #FFFED3 yellow shirt #EB9B2C galla top #D1EFEC
+== WCAG contrast ratio / CIELAB dE (verified points)
+  yellow shirt vs light tile              1.48   dE  26.9
+  yellow shirt vs dark tile               1.10   dE  20.0
+  plate vs charpai top                    1.01   dE   1.0
+  plate vs light tile                     1.44   dE  41.3
+  white kurta vs charpai/counter top      1.02   dE  15.5
+  white kurta vs light tile               1.48   dE  33.2
+  galla top vs light tile                 1.26   dE  52.1
+  charpai top vs light tile               1.44   dE  42.1
+  light tile vs dark tile                 1.35   dE  14.4
+  teal wall vs light tile                 4.69   dE  73.8
+  plaster band vs light tile              1.03   dE   2.3
+  yard sand vs light tile                 1.46   dE  27.6
+  yard sand vs plaster band               1.51   dE  26.7
+  blue cap vs light tile                  5.91   dE  89.0
+  red kurta vs light tile                 2.22   dE  62.6
+== palette: skin / food swatches against the floor-tile swatches (dE)
+  SKIN1    vs TILE_A  11.4   vs TILE_B   7.0   vs DUST  17.5
+  SKIN_M   vs TILE_A   8.5   vs TILE_B   9.9   vs DUST  12.3
+  SKIN_L   vs TILE_A  15.5   vs TILE_B  25.1   vs DUST  14.8
+  SKIN2    vs TILE_A  27.8   vs TILE_B  19.7   vs DUST  36.9
+  ROTI     vs TILE_A  15.7   vs TILE_B  22.2   vs DUST   6.7
+  DAL      vs TILE_A  35.2   vs TILE_B  34.1   vs DUST  28.7
+  WOOD     vs TILE_A  13.9   vs TILE_B   8.4   vs DUST  16.8
+  CHAI     vs TILE_A  25.9   vs TILE_B  16.5   vs DUST  31.8
+== floor-tile class: 40.3 % of frame; mean S 0.56 V 0.93; everything else mean S 0.44 V 0.73
+   floor share in the centre 360 px column: 45.4 %; in rows 640-1000 (lower middle): 75.4 %
+   floor share per 90x160 cell (rows top->bottom):
+     42  26  26   2   2  17   1   0
+     34  23  21   2   6  41  12  13
+      7   0  14  61  42  49  69  32
+     36  58  43  42  45  46  31  29
+     93  88  49  82  71  69  66  95
+      9  41  80 100  85  73  29  87
+      8  26  37  84  64  46  57  55
+      0  17  30  10  46  51  18  11
+== pale lemon/cream (V>0.88,S<0.45,hue 35-75): 18.0 % of frame
+== saturated red share: 1.7 %; red in top-right 140x330 box (hoarding): 6.1 %
+  night galla pool: centre #BE9383 vs floor 100 px away #585780: ratio 2.50 dE 45.8
+  night chai bhatti glow: centre #A84B23 vs floor 100 px away #826378: ratio 1.09 dE 51.6
+  night door pool: centre #B6B9A4 vs floor 100 px away #535780: ratio 3.47 dE 51.7
+  night table pool: centre #172B84 vs floor 100 px away #464971: ratio 1.42 dE 35.4
+  night: pixels with V<0.3: 13.3 %, V<0.2: 7.1 %; day V<0.3: 4.0 %

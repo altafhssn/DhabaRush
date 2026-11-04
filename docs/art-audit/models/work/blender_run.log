@@ -1,0 +1,770 @@
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node auto
+11:21:00 | INFO: glTF import finished in 0.01s
+DONE auto tris=240 meshes=1 mats=1 imgs=1 size=19264
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node bablu__arm_l
+11:21:00 | INFO: Blender create Mesh node bablu__arm_r
+11:21:00 | INFO: Blender create Mesh node bablu__body
+11:21:00 | INFO: Blender create Mesh node bablu__head
+11:21:00 | INFO: Blender create Mesh node bablu__leg_l
+11:21:00 | INFO: Blender create Mesh node bablu__leg_r
+11:21:00 | INFO: glTF import finished in 0.01s
+DONE bablu tris=1548 meshes=6 mats=1 imgs=1 size=76404
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node balwant__arm_l
+11:21:00 | INFO: Blender create Mesh node balwant__arm_r
+11:21:00 | INFO: Blender create Mesh node balwant__body
+11:21:00 | INFO: Blender create Mesh node balwant__head
+11:21:00 | INFO: Blender create Mesh node balwant__leg_l
+11:21:00 | INFO: Blender create Mesh node balwant__leg_r
+11:21:00 | INFO: glTF import finished in 0.01s
+DONE balwant tris=1782 meshes=6 mats=1 imgs=1 size=82860
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node banknote
+11:21:00 | INFO: glTF import finished in 0.00s
+DONE banknote tris=454 meshes=1 mats=1 imgs=1 size=27172
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node banknote_saffron
+11:21:00 | INFO: glTF import finished in 0.00s
+DONE banknote_saffron tris=454 meshes=1 mats=1 imgs=1 size=27188
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node bhaiya
+11:21:00 | INFO: glTF import finished in 0.00s
+DONE bhaiya tris=452 meshes=1 mats=1 imgs=1 size=37444
+11:21:00 | INFO: Data are loaded, start creating Blender stuff
+11:21:00 | INFO: Blender create Mesh node bhurji_wala__arm_l
+11:21:01 | INFO: Blender create Mesh node bhurji_wala__arm_r
+11:21:01 | INFO: Blender create Mesh node bhurji_wala__body
+11:21:01 | INFO: Blender create Mesh node bhurji_wala__head
+11:21:01 | INFO: Blender create Mesh node bhurji_wala__leg_l
+11:21:01 | INFO: Blender create Mesh node bhurji_wala__leg_r
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE bhurji_wala tris=1796 meshes=6 mats=1 imgs=1 size=83780
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node bike
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE bike tris=180 meshes=1 mats=1 imgs=1 size=15448
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node bittu__arm_l
+11:21:01 | INFO: Blender create Mesh node bittu__arm_r
+11:21:01 | INFO: Blender create Mesh node bittu__body
+11:21:01 | INFO: Blender create Mesh node bittu__head
+11:21:01 | INFO: Blender create Mesh node bittu__leg_l
+11:21:01 | INFO: Blender create Mesh node bittu__leg_r
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE bittu tris=1504 meshes=6 mats=1 imgs=1 size=71628
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node bus
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE bus tris=1075 meshes=1 mats=1 imgs=1 size=71192
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node bus_baraat
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE bus_baraat tris=1955 meshes=1 mats=1 imgs=1 size=159820
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node camel_cart
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE camel_cart tris=1626 meshes=1 mats=1 imgs=1 size=101816
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node canopy_blue
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE canopy_blue tris=301 meshes=1 mats=1 imgs=1 size=24284
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node canopy_pink
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE canopy_pink tris=301 meshes=1 mats=1 imgs=1 size=24284
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node canopy_red
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE canopy_red tris=301 meshes=1 mats=1 imgs=1 size=24284
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node canopy_teal
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE canopy_teal tris=301 meshes=1 mats=1 imgs=1 size=24284
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node canopy_yellow
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE canopy_yellow tris=301 meshes=1 mats=1 imgs=1 size=24288
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node car
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE car tris=292 meshes=1 mats=1 imgs=1 size=22132
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node car_blue
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE car_blue tris=292 meshes=1 mats=1 imgs=1 size=22144
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node car_red
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE car_red tris=292 meshes=1 mats=1 imgs=1 size=22140
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node car_taxi
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE car_taxi tris=292 meshes=1 mats=1 imgs=1 size=22144
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node cash
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE cash tris=24 meshes=1 mats=1 imgs=1 size=4904
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node cash_brick
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE cash_brick tris=1240 meshes=1 mats=1 imgs=1 size=54748
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node cash_table
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE cash_table tris=76 meshes=1 mats=1 imgs=1 size=8532
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node cashier_desk
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE cashier_desk tris=409 meshes=1 mats=1 imgs=1 size=30572
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node chai_counter_v3
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE chai_counter_v3 tris=3214 meshes=1 mats=1 imgs=1 size=186456
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node chai_tapri
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE chai_tapri tris=786 meshes=1 mats=1 imgs=1 size=57824
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node charpai
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE charpai tris=358 meshes=1 mats=1 imgs=1 size=25744
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node chotu
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE chotu tris=364 meshes=1 mats=1 imgs=1 size=30768
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node compound
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE compound tris=2114 meshes=1 mats=1 imgs=1 size=161256
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node cow__body
+11:21:01 | INFO: Blender create Mesh node cow__head
+11:21:01 | INFO: Blender create Mesh node cow__tail
+11:21:01 | INFO: glTF import finished in 0.01s
+DONE cow tris=1820 meshes=3 mats=1 imgs=1 size=81436
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node customer_a
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE customer_a tris=352 meshes=1 mats=1 imgs=1 size=29936
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node customer_b
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE customer_b tris=428 meshes=1 mats=1 imgs=1 size=35388
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node customer_c
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE customer_c tris=500 meshes=1 mats=1 imgs=1 size=41456
+11:21:01 | INFO: Data are loaded, start creating Blender stuff
+11:21:01 | INFO: Blender create Mesh node customer_d
+11:21:01 | INFO: glTF import finished in 0.00s
+DONE customer_d tris=376 meshes=1 mats=1 imgs=1 size=31616
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node dal_wala__arm_l
+11:21:02 | INFO: Blender create Mesh node dal_wala__arm_r
+11:21:02 | INFO: Blender create Mesh node dal_wala__body
+11:21:02 | INFO: Blender create Mesh node dal_wala__head
+11:21:02 | INFO: Blender create Mesh node dal_wala__leg_l
+11:21:02 | INFO: Blender create Mesh node dal_wala__leg_r
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE dal_wala tris=1776 meshes=6 mats=1 imgs=1 size=87960
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node deco_baraat
+11:21:02 | INFO: Blender create Mesh node baraat__fairy_bulb_baraat
+11:21:02 | INFO: glTF import finished in 0.03s
+DONE deco_baraat tris=3414 meshes=2 mats=2 imgs=1 size=347716
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node dhaba_v3
+11:21:02 | INFO: Blender create Mesh node dhaba__fairy_bulb_gate_board
+11:21:02 | INFO: Blender create Mesh node dhaba__fairy_bulb_gate_posts
+11:21:02 | INFO: Blender create Mesh node dhaba__fairy_bulb_parapet
+11:21:02 | INFO: Blender create Mesh node dhaba__fairy_bulb_sign_bottom
+11:21:02 | INFO: Blender create Mesh node dhaba__fairy_bulb_sign_top
+11:21:02 | INFO: Blender create Mesh node dhaba__fairy_bulb_verandah
+11:21:02 | INFO: Blender create Mesh node fairy_wire_dhaba
+11:21:02 | INFO: glTF import finished in 0.16s
+DONE dhaba_v3 tris=23391 meshes=8 mats=2 imgs=1 size=1643272
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node dining_table
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE dining_table tris=430 meshes=1 mats=1 imgs=1 size=26312
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node dog
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE dog tris=768 meshes=1 mats=1 imgs=1 size=30628
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node dog_sit__body
+11:21:02 | INFO: Blender create Mesh node dog_sit__head
+11:21:02 | INFO: Blender create Mesh node dog_sit__tail
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE dog_sit tris=1008 meshes=3 mats=1 imgs=1 size=44312
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node hall__fairy_bulb_hall
+11:21:02 | INFO: Blender create Mesh node fairy_wire_hall
+11:21:02 | INFO: Blender create Mesh node family_hall
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE family_hall tris=1909 meshes=3 mats=2 imgs=1 size=162136
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node family_table
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE family_table tris=702 meshes=1 mats=1 imgs=1 size=39596
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node famous_board
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE famous_board tris=64 meshes=1 mats=1 imgs=1 size=7488
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node galla_desk
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE galla_desk tris=1184 meshes=1 mats=1 imgs=1 size=57848
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node gopal__arm_l
+11:21:02 | INFO: Blender create Mesh node gopal__arm_r
+11:21:02 | INFO: Blender create Mesh node gopal__body
+11:21:02 | INFO: Blender create Mesh node gopal__head
+11:21:02 | INFO: Blender create Mesh node gopal__leg_l
+11:21:02 | INFO: Blender create Mesh node gopal__leg_r
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE gopal tris=1796 meshes=6 mats=1 imgs=1 size=81488
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node ground
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE ground tris=442 meshes=1 mats=1 imgs=1 size=38556
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node hoarding__hoarding_l1
+11:21:02 | INFO: Blender create Mesh node hoarding__hoarding_l2
+11:21:02 | INFO: Blender create Mesh node hoarding__fairy_bulb_hoarding
+11:21:02 | INFO: Blender create Mesh node hoarding__hoarding_l4
+11:21:02 | INFO: Blender create Mesh node hoarding__hoarding_star_1
+11:21:02 | INFO: Blender create Mesh node hoarding__hoarding_star_2
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE hoarding tris=948 meshes=6 mats=2 imgs=1 size=93972
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node hut_1
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE hut_1 tris=743 meshes=1 mats=1 imgs=1 size=57224
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node icon_chai
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE icon_chai tris=56 meshes=1 mats=1 imgs=1 size=6648
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node icon_roti
+11:21:02 | INFO: glTF import finished in 0.00s
+DONE icon_roti tris=120 meshes=1 mats=1 imgs=1 size=10492
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node kadai_station__base
+11:21:02 | INFO: Blender create Mesh node kadai_station__karchhi
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE kadai_station tris=2492 meshes=2 mats=1 imgs=1 size=133128
+11:21:02 | INFO: Data are loaded, start creating Blender stuff
+11:21:02 | INFO: Blender create Mesh node kallu__arm_l
+11:21:02 | INFO: Blender create Mesh node kallu__arm_r
+11:21:02 | INFO: Blender create Mesh node kallu__body
+11:21:02 | INFO: Blender create Mesh node kallu__head
+11:21:02 | INFO: Blender create Mesh node kallu__leg_l
+11:21:02 | INFO: Blender create Mesh node kallu__leg_r
+11:21:02 | INFO: glTF import finished in 0.01s
+DONE kallu tris=1748 meshes=6 mats=1 imgs=1 size=87128
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node lakhan__arm_l
+11:21:03 | INFO: Blender create Mesh node lakhan__arm_r
+11:21:03 | INFO: Blender create Mesh node lakhan__body
+11:21:03 | INFO: Blender create Mesh node lakhan__head
+11:21:03 | INFO: Blender create Mesh node lakhan__leg_l
+11:21:03 | INFO: Blender create Mesh node lakhan__leg_r
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE lakhan tris=1472 meshes=6 mats=1 imgs=1 size=69944
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node lamp
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE lamp tris=108 meshes=1 mats=1 imgs=1 size=10920
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node lassi_station__base
+11:21:03 | INFO: Blender create Mesh node lassi_station__madhani
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE lassi_station tris=2484 meshes=2 mats=1 imgs=1 size=141032
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node lassi_wala__arm_l
+11:21:03 | INFO: Blender create Mesh node lassi_wala__arm_r
+11:21:03 | INFO: Blender create Mesh node lassi_wala__body
+11:21:03 | INFO: Blender create Mesh node lassi_wala__head
+11:21:03 | INFO: Blender create Mesh node lassi_wala__leg_l
+11:21:03 | INFO: Blender create Mesh node lassi_wala__leg_r
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE lassi_wala tris=1734 meshes=6 mats=1 imgs=1 size=87268
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node marker
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE marker tris=452 meshes=1 mats=1 imgs=1 size=48068
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munna__arm_l
+11:21:03 | INFO: Blender create Mesh node munna__arm_r
+11:21:03 | INFO: Blender create Mesh node munna__body
+11:21:03 | INFO: Blender create Mesh node munna__head
+11:21:03 | INFO: Blender create Mesh node munna__leg_l
+11:21:03 | INFO: Blender create Mesh node munna__leg_r
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munna tris=1388 meshes=6 mats=1 imgs=1 size=66760
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_chai__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_chai__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_chai__body
+11:21:03 | INFO: Blender create Mesh node munshi_chai__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_chai tris=2922 meshes=4 mats=1 imgs=1 size=100968
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_cheer__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_cheer__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_cheer__body
+11:21:03 | INFO: Blender create Mesh node munshi_cheer__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_cheer tris=2930 meshes=4 mats=1 imgs=1 size=97112
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_idle__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_idle__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_idle__body
+11:21:03 | INFO: Blender create Mesh node munshi_idle__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_idle tris=2922 meshes=4 mats=1 imgs=1 size=97380
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_ledger__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_ledger__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_ledger__body
+11:21:03 | INFO: Blender create Mesh node munshi_ledger__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_ledger tris=2888 meshes=4 mats=1 imgs=1 size=92640
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_namaste__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_namaste__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_namaste__body
+11:21:03 | INFO: Blender create Mesh node munshi_namaste__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_namaste tris=2752 meshes=4 mats=1 imgs=1 size=94904
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_point__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_point__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_point__body
+11:21:03 | INFO: Blender create Mesh node munshi_point__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_point tris=2988 meshes=4 mats=1 imgs=1 size=99764
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node munshi_worried__arm_l
+11:21:03 | INFO: Blender create Mesh node munshi_worried__arm_r
+11:21:03 | INFO: Blender create Mesh node munshi_worried__body
+11:21:03 | INFO: Blender create Mesh node munshi_worried__head
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE munshi_worried tris=2728 meshes=4 mats=1 imgs=1 size=86792
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node neetu__arm_l
+11:21:03 | INFO: Blender create Mesh node neetu__arm_r
+11:21:03 | INFO: Blender create Mesh node neetu__body
+11:21:03 | INFO: Blender create Mesh node neetu__head
+11:21:03 | INFO: Blender create Mesh node neetu__leg_l
+11:21:03 | INFO: Blender create Mesh node neetu__leg_r
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE neetu tris=1784 meshes=6 mats=1 imgs=1 size=89208
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node padlock
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE padlock tris=304 meshes=1 mats=1 imgs=1 size=22348
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pappu__arm_l
+11:21:03 | INFO: Blender create Mesh node pappu__arm_r
+11:21:03 | INFO: Blender create Mesh node pappu__body
+11:21:03 | INFO: Blender create Mesh node pappu__head
+11:21:03 | INFO: Blender create Mesh node pappu__leg_l
+11:21:03 | INFO: Blender create Mesh node pappu__leg_r
+11:21:03 | INFO: glTF import finished in 0.01s
+DONE pappu tris=1728 meshes=6 mats=1 imgs=1 size=80024
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node parking_mark
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE parking_mark tris=30 meshes=1 mats=1 imgs=1 size=5320
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_baati
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_baati tris=492 meshes=1 mats=1 imgs=1 size=24572
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_bhurji
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_bhurji tris=580 meshes=1 mats=1 imgs=1 size=32720
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_chaas
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_chaas tris=176 meshes=1 mats=1 imgs=1 size=11472
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_chole
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_chole tris=356 meshes=1 mats=1 imgs=1 size=21068
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_coffee
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_coffee tris=142 meshes=1 mats=1 imgs=1 size=9092
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_dal
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_dal tris=214 meshes=1 mats=1 imgs=1 size=12464
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_dal_baati
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_dal_baati tris=490 meshes=1 mats=1 imgs=1 size=28344
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_gatte
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_gatte tris=340 meshes=1 mats=1 imgs=1 size=21292
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_green_tea
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_green_tea tris=216 meshes=1 mats=1 imgs=1 size=13768
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_keema_paratha
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_keema_paratha tris=396 meshes=1 mats=1 imgs=1 size=25868
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_ker_sangri
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_ker_sangri tris=348 meshes=1 mats=1 imgs=1 size=19624
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_kesar_doodh
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_kesar_doodh tris=240 meshes=1 mats=1 imgs=1 size=15840
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_kulcha
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_kulcha tris=334 meshes=1 mats=1 imgs=1 size=17800
+11:21:03 | INFO: Data are loaded, start creating Blender stuff
+11:21:03 | INFO: Blender create Mesh node pass_kulhad
+11:21:03 | INFO: glTF import finished in 0.00s
+DONE pass_kulhad tris=180 meshes=1 mats=1 imgs=1 size=10280
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_laal_maas
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_laal_maas tris=346 meshes=1 mats=1 imgs=1 size=21656
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_lahsun_roti
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_lahsun_roti tris=408 meshes=1 mats=1 imgs=1 size=20944
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_lassi
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_lassi tris=220 meshes=1 mats=1 imgs=1 size=13208
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_mango_lassi
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_mango_lassi tris=294 meshes=1 mats=1 imgs=1 size=16352
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_missi_roti
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_missi_roti tris=420 meshes=1 mats=1 imgs=1 size=24024
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_naan
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_naan tris=236 meshes=1 mats=1 imgs=1 size=14968
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_paneer
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_paneer tris=338 meshes=1 mats=1 imgs=1 size=24548
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_patiala
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_patiala tris=230 meshes=1 mats=1 imgs=1 size=13400
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_plate
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_plate tris=174 meshes=1 mats=1 imgs=1 size=10232
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_rabri
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_rabri tris=338 meshes=1 mats=1 imgs=1 size=18976
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_roti
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_roti tris=284 meshes=1 mats=1 imgs=1 size=15128
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pass_shikanji
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pass_shikanji tris=318 meshes=1 mats=1 imgs=1 size=17836
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pinky__arm_l
+11:21:04 | INFO: Blender create Mesh node pinky__arm_r
+11:21:04 | INFO: Blender create Mesh node pinky__body
+11:21:04 | INFO: Blender create Mesh node pinky__head
+11:21:04 | INFO: Blender create Mesh node pinky__leg_l
+11:21:04 | INFO: Blender create Mesh node pinky__leg_r
+11:21:04 | INFO: glTF import finished in 0.01s
+DONE pinky tris=1776 meshes=6 mats=1 imgs=1 size=87428
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node plant_pot
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE plant_pot tris=332 meshes=1 mats=1 imgs=1 size=31864
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node plate_stool
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE plate_stool tris=248 meshes=1 mats=1 imgs=1 size=15104
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_chaas_jug
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_chaas_jug tris=176 meshes=1 mats=1 imgs=1 size=12888
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_chole_sack
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_chole_sack tris=172 meshes=1 mats=1 imgs=1 size=13460
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_coffee_kettle
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_coffee_kettle tris=216 meshes=1 mats=1 imgs=1 size=13524
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_dal_handi
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_dal_handi tris=242 meshes=1 mats=1 imgs=1 size=13540
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_green_tea_jar
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_green_tea_jar tris=242 meshes=1 mats=1 imgs=1 size=15152
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_keema_pot
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_keema_pot tris=232 meshes=1 mats=1 imgs=1 size=14440
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_kulcha_board
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_kulcha_board tris=204 meshes=1 mats=1 imgs=1 size=13896
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_mango_crate
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_mango_crate tris=174 meshes=1 mats=1 imgs=1 size=13264
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_milk_can
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_milk_can tris=216 meshes=1 mats=1 imgs=1 size=12996
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_naan_basket
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_naan_basket tris=220 meshes=1 mats=1 imgs=1 size=14180
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_paneer_block
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_paneer_block tris=136 meshes=1 mats=1 imgs=1 size=10220
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node prop_patiala_glass
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE prop_patiala_glass tris=152 meshes=1 mats=1 imgs=1 size=9736
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node pump
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE pump tris=112 meshes=1 mats=1 imgs=1 size=10556
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node raju__arm_l
+11:21:04 | INFO: Blender create Mesh node raju__arm_r
+11:21:04 | INFO: Blender create Mesh node raju__body
+11:21:04 | INFO: Blender create Mesh node raju__head
+11:21:04 | INFO: Blender create Mesh node raju__leg_l
+11:21:04 | INFO: Blender create Mesh node raju__leg_r
+11:21:04 | INFO: glTF import finished in 0.01s
+DONE raju tris=1748 meshes=6 mats=1 imgs=1 size=81320
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node road
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE road tris=72 meshes=1 mats=1 imgs=1 size=8204
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node scenery
+11:21:04 | INFO: glTF import finished in 0.02s
+DONE scenery tris=5908 meshes=1 mats=1 imgs=1 size=436036
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node seats_board__board
+11:21:04 | INFO: Blender create Mesh node seats_board__full_plate
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE seats_board tris=222 meshes=2 mats=1 imgs=1 size=21796
+11:21:04 | INFO: Data are loaded, start creating Blender stuff
+11:21:04 | INFO: Blender create Mesh node signboard
+11:21:04 | INFO: glTF import finished in 0.00s
+DONE signboard tris=546 meshes=1 mats=1 imgs=1 size=45164
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node sikka
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE sikka tris=280 meshes=1 mats=1 imgs=1 size=15020
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node sonu__arm_l
+11:21:05 | INFO: Blender create Mesh node sonu__arm_r
+11:21:05 | INFO: Blender create Mesh node sonu__body
+11:21:05 | INFO: Blender create Mesh node sonu__head
+11:21:05 | INFO: Blender create Mesh node sonu__leg_l
+11:21:05 | INFO: Blender create Mesh node sonu__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE sonu tris=1728 meshes=6 mats=1 imgs=1 size=79316
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node station_chai
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE station_chai tris=336 meshes=1 mats=1 imgs=1 size=25364
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node station_tandoor
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE station_tandoor tris=298 meshes=1 mats=1 imgs=1 size=21876
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_courtyard_front
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_courtyard_zig
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_gumti
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_neem_branches
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_neem_trunk
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_parking_board
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_peepal_trunk
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_yard_front
+11:21:05 | INFO: Blender create Mesh node street__fairy_bulb_yard_zig
+11:21:05 | INFO: Blender create Mesh node fairy_wire_street
+11:21:05 | INFO: Blender create Mesh node milestone_text
+11:21:05 | INFO: Blender create Mesh node street_v3
+11:21:05 | INFO: glTF import finished in 0.11s
+DONE street_v3 tris=32691 meshes=12 mats=2 imgs=1 size=2545564
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node string_bulbs
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE string_bulbs tris=104 meshes=1 mats=1 imgs=1 size=13840
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node string_wire
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE string_wire tris=72 meshes=1 mats=1 imgs=1 size=8300
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node tandoor_lock
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE tandoor_lock tris=1450 meshes=1 mats=1 imgs=1 size=102660
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node tandoor_station
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE tandoor_station tris=1404 meshes=1 mats=1 imgs=1 size=67516
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_baraati_f__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_baraati_f__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_baraati_f__body
+11:21:05 | INFO: Blender create Mesh node trav_baraati_f__head
+11:21:05 | INFO: Blender create Mesh node trav_baraati_f__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_baraati_f__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_baraati_f tris=1744 meshes=6 mats=1 imgs=1 size=85564
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_baraati_m__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_baraati_m__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_baraati_m__body
+11:21:05 | INFO: Blender create Mesh node trav_baraati_m__head
+11:21:05 | INFO: Blender create Mesh node trav_baraati_m__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_baraati_m__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_baraati_m tris=1540 meshes=6 mats=1 imgs=1 size=73848
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_biker__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_biker__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_biker__body
+11:21:05 | INFO: Blender create Mesh node trav_biker__head
+11:21:05 | INFO: Blender create Mesh node trav_biker__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_biker__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_biker tris=1472 meshes=6 mats=1 imgs=1 size=67576
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_elder__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_elder__stick
+11:21:05 | INFO: Blender create Mesh node trav_elder__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_elder__body
+11:21:05 | INFO: Blender create Mesh node trav_elder__head
+11:21:05 | INFO: Blender create Mesh node trav_elder__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_elder__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_elder tris=1784 meshes=7 mats=1 imgs=1 size=89860
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_family_f__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_family_f__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_family_f__body
+11:21:05 | INFO: Blender create Mesh node trav_family_f__head
+11:21:05 | INFO: Blender create Mesh node trav_family_f__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_family_f__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_family_f tris=1664 meshes=6 mats=1 imgs=1 size=79448
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_family_m__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_family_m__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_family_m__body
+11:21:05 | INFO: Blender create Mesh node trav_family_m__head
+11:21:05 | INFO: Blender create Mesh node trav_family_m__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_family_m__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_family_m tris=1416 meshes=6 mats=1 imgs=1 size=65696
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_farmer__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_farmer__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_farmer__body
+11:21:05 | INFO: Blender create Mesh node trav_farmer__head
+11:21:05 | INFO: Blender create Mesh node trav_farmer__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_farmer__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_farmer tris=1724 meshes=6 mats=1 imgs=1 size=79960
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_sardar__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_sardar__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_sardar__body
+11:21:05 | INFO: Blender create Mesh node trav_sardar__head
+11:21:05 | INFO: Blender create Mesh node trav_sardar__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_sardar__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_sardar tris=1612 meshes=6 mats=1 imgs=1 size=75600
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_student__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_student__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_student__body
+11:21:05 | INFO: Blender create Mesh node trav_student__head
+11:21:05 | INFO: Blender create Mesh node trav_student__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_student__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_student tris=1380 meshes=6 mats=1 imgs=1 size=68012
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_techie__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_techie__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_techie__body
+11:21:05 | INFO: Blender create Mesh node trav_techie__head
+11:21:05 | INFO: Blender create Mesh node trav_techie__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_techie__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_techie tris=1776 meshes=6 mats=1 imgs=1 size=85036
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node trav_trucker__arm_l
+11:21:05 | INFO: Blender create Mesh node trav_trucker__arm_r
+11:21:05 | INFO: Blender create Mesh node trav_trucker__body
+11:21:05 | INFO: Blender create Mesh node trav_trucker__head
+11:21:05 | INFO: Blender create Mesh node trav_trucker__leg_l
+11:21:05 | INFO: Blender create Mesh node trav_trucker__leg_r
+11:21:05 | INFO: glTF import finished in 0.01s
+DONE trav_trucker tris=1704 meshes=6 mats=1 imgs=1 size=75708
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node tray
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE tray tris=192 meshes=1 mats=1 imgs=1 size=10788
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node tray_rack
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE tray_rack tris=1546 meshes=1 mats=1 imgs=1 size=79604
+11:21:05 | INFO: Data are loaded, start creating Blender stuff
+11:21:05 | INFO: Blender create Mesh node tray_wide
+11:21:05 | INFO: glTF import finished in 0.00s
+DONE tray_wide tris=220 meshes=1 mats=1 imgs=1 size=12756
+11:21:06 | INFO: Data are loaded, start creating Blender stuff
+11:21:06 | INFO: Blender create Mesh node truck
+11:21:06 | INFO: glTF import finished in 0.01s
+DONE truck tris=1773 meshes=1 mats=1 imgs=1 size=108512
+11:21:06 | INFO: Data are loaded, start creating Blender stuff
+11:21:06 | INFO: Blender create Mesh node truck_green
+11:21:06 | INFO: glTF import finished in 0.01s
+DONE truck_green tris=1773 meshes=1 mats=1 imgs=1 size=108524
+11:21:06 | INFO: Data are loaded, start creating Blender stuff
+11:21:06 | INFO: Blender create Mesh node tv_set__tv_body
+11:21:06 | INFO: Blender create Mesh node tv_set__tv_screen
+11:21:06 | INFO: glTF import finished in 0.00s
+DONE tv_set tris=294 meshes=2 mats=1 imgs=1 size=27608
+11:21:06 | INFO: Data are loaded, start creating Blender stuff
+11:21:06 | INFO: Blender create Mesh node wall_bulbs
+11:21:06 | INFO: glTF import finished in 0.00s
+DONE wall_bulbs tris=576 meshes=1 mats=1 imgs=1 size=62016
+11:21:06 | INFO: Data are loaded, start creating Blender stuff
+11:21:06 | INFO: Blender create Mesh node wall_wire
+11:21:06 | INFO: glTF import finished in 0.00s
+DONE wall_wire tris=432 meshes=1 mats=1 imgs=1 size=33500
+WROTE 145 rows
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:49:19)
+
+Blender quit

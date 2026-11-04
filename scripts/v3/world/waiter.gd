@@ -306,6 +306,7 @@ func setup(p_sim: Sim, i: int) -> void:
 	rig = CharacterRig.new()
 	rig.name = "Rig"
 	rig.idle_amount = 0.6
+	rig.leg_swing_mult = 1.3
 	add_child(rig)
 	rig.setup(mid, CharacterRig.height_of(mid))
 	position = Layout3.waiter_home(i)
@@ -408,6 +409,8 @@ func _on_tray_changed(i: int, _orders: int) -> void:
 func refresh_speed() -> void:
 	var base: float = Traveller.WALK_HEIGHTS_PER_S * CharacterRig.DEFAULT_HEIGHT
 	speed = base * Game.waiter_walk_mult(index)
+	if rig != null:
+		rig.stride_speed = speed
 
 
 func is_free() -> bool:

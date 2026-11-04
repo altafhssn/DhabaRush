@@ -38,20 +38,20 @@ from mathutils import Euler, Matrix, Vector
 
 # ------------------------------------------------------------------ palette
 PALETTE = [
-    "4A4A52", "F2F2E9", "E8B77A", "C9935A", "8DBF5A", "4E8A3E", "7A4E2D", "C68A4E",  # 0-7
+    "4A4A52", "F2F2E9", "E8B77A", "C9935A", "9DB36A", "4E8A3E", "7A4E2D", "A8673A",  # 0-7
     "9FB4BF", "B8643A", "FFF1D6", "2E8C8C", "D9412B", "F5C431", "2F9E5A", "2D6FD1",  # 8-15
     "F28C28", "C98A5C", "8D5A3B", "2B2420", "F7F4EE", "FF9933", "E86A9A", "7B5EA7",  # 16-23
     "C9CDD2", "5E646B", "B5653A", "FF6A1A", "A0622D", "E3A72F", "E9C27B", "E4D3A8",  # 24-31
     "6FBF73", "A9D8E6", "2A2A2A", "FFF2A8", "D69C64", "2F6B3A", "2B3A67", "8A2C2C",  # 32-39
     "6E7C8C", "9A9187", "FF4FA3", "38E1FF", "B5543A", "3B4A5C", "FFD23F", "A6D96A",  # 40-47
     # v0.3 diorama swatches (rows 6-9): cleaner, more saturated tones for the store rebuild
-    "CFA273", "B98957", "F4D58D", "26A69A", "C9553B", "EBD8BB", "FFF5DF", "8E2436",  # 48-55 (floor tiles darkened 2026-10-19)
+    "D6BC9F", "BFA285", "F4D58D", "26A69A", "C9553B", "EBD8BB", "FFF5DF", "8E2436",  # 48-55 (floor tiles calmer 2026-11-04, art audit S2)
     "F7C548", "C98B1C", "86D07A", "2C6E55", "FFB23F", "FF8A1F", "E0611A", "F4C9A4",  # 56-63
-    "D99A6A", "F08A7A", "4167A8", "B89B62", "5D6170", "DEDAD3", "B4AFA8", "93CB4E",  # 64-71
+    "D99A6A", "F08A7A", "4167A8", "B89B62", "5D6170", "DEDAD3", "B4AFA8", "86A94A",  # 64-71
     "5DA238", "3F8A34", "F6F2EA", "DBC7A2", "D9B36A", "BDB8B0", "C64A3A", "8FA9BF",  # 72-79
     # v0.3 exterior row (2026-10-19, Indian highway restyle): unpaved dust, lot dust, Sintex
     # tank grey, mango-leaf green, painted-wall blue, pastel plaster pink, tyre tracks, truck teal
-    "E8D2A4", "D6B47E", "474B55", "2E7D32", "5C9BD6", "F2A7B8", "BC9566", "3FB8BE",  # 80-87
+    "D9BF8E", "C9A872", "474B55", "2E7D32", "5C9BD6", "F2A7B8", "BC9566", "3FB8BE",  # 80-87
     # 2026-10-20 exterior + fairy lights: tandoor smoke, neem greens, concrete pole, pastel
     # green wall, cream wall, lime-wash white, street-dog tan
     "DED8CE", "4F9B30", "8CC84B", "A7A59C", "9ED98B", "FFE6B0", "FFFDF6", "D9A066",  # 88-95

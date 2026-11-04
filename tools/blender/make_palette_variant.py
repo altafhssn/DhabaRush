@@ -38,7 +38,9 @@ NH48 = {
     "GRASS": "B8A26A", "LIME": "B8A26A", "LEAF_LIGHT": "B8A26A", "NEEM_LT": "B8A26A",
     "LEAF": "8C8A4E", "LIME_DARK": "8C8A4E", "FOLIAGE": "8C8A4E", "NEEM": "8C8A4E",
     # earth / dust -> light sand (and its shades)
-    "DUST": "E6C99A", "DUST_LT": "EFDDB4", "DUST_DARK": "D6B57F", "DUST_LOT": "DDC08C", "TRACK": "C9AA76",
+    # art audit S11 (4 Nov): a rosy sandstone floor and a Jodhpur-blue wall wash, so the move shows
+    "TILE_A": "D99A7E", "TILE_B": "B97A62", "TEAL": "5C9BD6", "DADO": "3E6FA3",
+    "DUST": "E6C99A", "DUST_LT": "DCC69C", "DUST_DARK": "D6B57F", "DUST_LOT": "DDC08C", "TRACK": "C9AA76",
 }
 VARIANTS = {"nh48": NH48}
 

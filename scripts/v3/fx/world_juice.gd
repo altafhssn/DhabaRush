@@ -937,7 +937,7 @@ func _arrive(n: Node3D, delay: float) -> void:
 func _arrive_fx(pos: Vector3) -> void:
 	_floor_fx(pos, 0.8)
 	_sparkles_at(pos + Vector3(0.0, 1.2, 0.0), 6, 40.0, Color.WHITE)
-	Sfx.play("pop", 0.03)
+	Sfx.play("hire")
 
 
 ## Fx.build_fx: the building at `world_pos` appeared (or will, at its reveal).

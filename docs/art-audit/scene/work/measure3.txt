@@ -1,0 +1,38 @@
+== NH 48 vs roadside at the home view (verified probes)
+  teal wall (40,545)         roadside #146354  NH48 #126053  dE 1.7
+  plaster band (520,160)     roadside #F8C579  NH48 #E1A870  dE 13.5
+  yard sand (60,60)          roadside #FFFFAC  NH48 #FFFFC7  dE 13.3
+  light tile (250,900)       roadside #FFC87D  NH48 #FFC37D  dE 3.2
+  kerb (120,1150)            roadside #FFF8A6  NH48 #FFFEC1  dE 10.9
+  wall cap (640,185)         roadside #D9D0B4  NH48 #E2D1B7  dE 3.3
+  gate post cream (130,1110) roadside #FFF2A2  NH48 #FFFCBC  dE 9.9
+== exterior samples
+  kadai view green field (600,1000)       #B1E558  S 0.62 V 0.90
+  kadai view courtyard ground (300,1000)  #F7411E  S 0.88 V 0.97
+  kadai view annex tiles (330,330)        #F5BB7B  S 0.49 V 0.96
+  kadai view verandah tin roof (650,60)   #97A3A1  S 0.07 V 0.64
+  kadai view road (100,1200)              #6C6B6E  S 0.03 V 0.43
+  kadai view lot-side strip (470,870)     #FFFFAB  S 0.33 V 1.00
+  truck parking lot ground (360,700)     #FFFFAB  S 0.33 V 1.00
+  truck parking lot ground 2 (200,950)   #E9B771  S 0.52 V 0.91
+  truck parking green strip (600,1180)   #FFE2A6  S 0.35 V 1.00
+  front view shoulder green (420,560) #E9AE71  S 0.51 V 0.91
+  front view road (300,700)           #716F74  S 0.04 V 0.45
+  front view zebra (330,620)          #716F74  S 0.04 V 0.45
+  backdrop-coloured pixels (within 12 of #99BD80) in free_truck_parking: 0.00 %
+  backdrop-coloured pixels (within 12 of #99BD80) in free_exterior_roof: 0.01 %
+  backdrop-coloured pixels (within 12 of #99BD80) in free_exterior_west: 0.00 %
+  backdrop-coloured pixels (within 12 of #99BD80) in free_exterior_courtyard: 0.00 %
+  backdrop-coloured pixels (within 12 of #99BD80) in free_lorry_in_1: 0.01 %
+  bright green (S>0.4,hue 70-160) share in free_exterior_front: 1.9 %
+  bright green (S>0.4,hue 70-160) share in free_exterior_courtyard: 11.7 %
+  bright green (S>0.4,hue 70-160) share in free_truck_parking: 9.1 %
+  L* light tile    84.0
+  L* dark tile     73.7
+  L* yellow shirt  76.7
+  L* white kurta   99.0
+  L* plate         97.7
+  L* charpai top   98.1
+  L* teal wall     37.3
+  L* yard sand     98.3
+  L* red kurta     58.4

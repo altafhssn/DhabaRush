@@ -1,0 +1,12 @@
+  0.4 %  #C38C6A  ochre / peach (floor tiles, wood, skin)
+  0.2 %  #FAF6CA  pale lemon (yard sand, kerb, plaster band)
+  0.1 %  #FAF8F7  white tops (charpais, plates, kurtas, galla)
+  0.5 %  #194D4D  teal (walls)
+  8.1 %  #695C69  grey (road, tin, steel)
+ 10.1 %  #181425  dark (hair, ink, deep shadow)
+  0.9 %  #86332E  red / maroon accents
+  0.3 %  #EBD346  yellow / marigold accents
+  1.0 %  #537236  green (leaves, shirts)
+ 58.6 %  #3F5296  blue (caps, denim, awning)
+  0.6 %  #652A72  pink / purple
+ 19.5 %  #5E4F5D  other

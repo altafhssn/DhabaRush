@@ -207,6 +207,14 @@ const TRAVELLER_MODELS := [
 	["trav_biker", "customer_d"],
 	["trav_student", "customer_d"],
 ]
+## Art audit C2 (4 Nov): after the tutorial the four counter fans also come as
+## ordinary travellers (9 looks instead of 5). The tutorial keeps the 5.
+const MORE_TRAVELLERS := [
+	["trav_elder", "customer_a"],
+	["trav_sardar", "customer_c"],
+	["trav_farmer", "customer_c"],
+	["trav_techie", "customer_b"],
+]
 ## The tutorial's first traveller.
 const SCRIPTED_MODELS := ["trav_trucker", "trav_family_m", "customer_c"]
 const FIRST_STEP_DELAY := 0.35    # s after parking before the first rider climbs down
@@ -1988,11 +1996,12 @@ func _make_traveller(at: Vector3, model_id: String) -> Traveller:
 	var mid: String = model_id
 	var fan: Dictionary = {}
 	if mid == "":
-		var i: int = rng.randi() % TRAVELLER_MODELS.size()
+		var pool: Array = TRAVELLER_MODELS + MORE_TRAVELLERS if Game.is_tutorial_done() else TRAVELLER_MODELS
+		var i: int = rng.randi() % pool.size()
 		if i == _last_model:
-			i = (i + 1) % TRAVELLER_MODELS.size()
+			i = (i + 1) % pool.size()
 		_last_model = i
-		mid = CharacterRig.first_existing(TRAVELLER_MODELS[i])
+		mid = CharacterRig.first_existing(pool[i])
 		# C3.5: a fan instead (fan_rng only: rng drew as before)
 		fan = _fan_pick()
 		if not fan.is_empty():
@@ -3009,7 +3018,7 @@ func _add_table(i: int, with_fx: bool) -> void:
 		tw.tween_interval(0.07 * float(k))
 		tw.tween_property(p, "scale", Vector3.ONE, TABLE_POP).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		k += 1
-	Fx.build_fx(root.position)
+	Fx.build_fx(root.position, null, "table_knock")
 
 
 ## dining_table + one charpai on each long side; returns the three nodes.

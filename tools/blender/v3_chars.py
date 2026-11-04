@@ -352,7 +352,7 @@ def _build_fans_and_guests(mat):
         h.tube((0, 0.192, 0.944), (0, 0.222, 0.958), 0.04, NEON_PINK, seg=8)                # scrunchie
         h.tube((0, 0.235, 0.92), (0, 0.265, 0.73), 0.048, HAIR, r1=0.02, seg=8)
     out.append(chibi("trav_techie", 0.97,
-                     Look(skin=SKIN_L, top=TEAL, sleeve=TEAL, legs=DENIM, hips=TEAL, shoes=WHITE,
+                     Look(skin=SKIN2, top=TEAL, sleeve=TEAL, legs=DENIM, hips=TEAL, shoes=WHITE,
                           torso=(0.33, 0.24, 0.33)), techie, hair="short").finish(mat, CHAR_SMOOTH))
 
     # -- trav_baraati_m (baraat guest): a turquoise kurta to the knee with a gold placket and
@@ -582,7 +582,7 @@ def build_menu_cooks(mat):
         g.ell((LX, LY - 0.07, 0.1), (0.04, 0.04, 0.02), STEEL, seg=6, rings=3)
         g.ell((LX, LY - 0.07, 0.112), (0.028, 0.028, 0.006), MARKER_TOP, seg=5, rings=2)
     out.append(chibi("dal_wala", 0.97,
-                     Look(skin=SKIN2, top=DARK_GREEN, sleeve=MAROON, legs=DARK_GREEN, hips=DARK_GREEN,
+                     Look(skin=SKIN_L, top=DARK_GREEN, sleeve=MAROON, legs=DARK_GREEN, hips=DARK_GREEN,
                           shoes=GOLD_DARK, torso=(0.33, 0.24, 0.33)), kamla, hair="long").finish(mat, CHAR_SMOOTH))
     return out
 
@@ -647,7 +647,7 @@ def build_menu_helpers(mat):
                      Look(skin=SKIN1, top=DADO, legs=NAVY, shoes=WHITE, torso=(0.36, 0.25, 0.34)), bittu,
                      hair="short").finish(mat, CHAR_SMOOTH))
 
-    # -- Kallu (kadai): big and dark, orange half-sleeve shirt, black trousers, green
+    # -- Kallu (kadai): big build, orange half-sleeve shirt, black trousers, green
     #    gamchha round the neck, thick moustache, bald crown with a fringe; a stack of three
     #    steel plates held flat in the right hand, palm under them
     def kallu(P, L):
@@ -718,7 +718,7 @@ def build_waiters(mat):
         g.rbox((0.092, 0.024, 0.022), (0.247, -0.071, 0.325), RED, bevel=0.006)
         h.rbox((0.12, 0.03, 0.024), (0, -0.176, 0.775), HAIR, bevel=0.012)            # moustache
     P = chibi("raju", WAITER_SCALES["raju"],
-              Look(skin=SKIN1, top=WHITE, sleeve=WHITE, legs=NAVY, shoes=TRUNK), raju, hair="side")
+              Look(skin=SKIN2, top=WHITE, sleeve=WHITE, legs=NAVY, shoes=TRUNK), raju, hair="side")
     g = P.finish(mat, CHAR_SMOOTH)
     g.extras.append(_tray_socket(WAITER_SCALES["raju"]))
     out.append(g)
@@ -741,7 +741,7 @@ def build_waiters(mat):
             h.ell((sx * 0.118, -0.15, 0.8), (0.042, 0.016, 0.03), BLUSH, seg=6, rings=3)
         h.ell((0.02, -0.07, 1.0), (0.09, 0.08, 0.055), HAIR, seg=8, rings=5)          # tuft
     P = chibi("pappu", WAITER_SCALES["pappu"],
-              Look(skin=SKIN_M, top=SAFFRON, legs=KHAKI, shoes=HAIR, torso=(0.4, 0.28, 0.34)), pappu,
+              Look(skin=SKIN_M, top=JACKET, sleeve=SAFFRON, legs=KHAKI, shoes=HAIR, torso=(0.4, 0.28, 0.34)), pappu,
               hair="short")
     g = P.finish(mat, CHAR_SMOOTH)
     g.extras.append(_tray_socket(WAITER_SCALES["pappu"]))
@@ -787,7 +787,7 @@ def build_waiters(mat):
         h.rbox((0.11, 0.026, 0.02), (0, -0.177, 0.778), SKIN2, bevel=0.009)
         P["arm_l"].tube((0.245, -0.012, 0.37), (0.246, -0.012, 0.39), 0.05, TYRE, seg=8)   # watch
     P = chibi("lakhan", WAITER_SCALES["lakhan"],
-              Look(skin=SKIN_M, top=DAL, legs=KHAKI, shoes=HAIR, torso=(0.37, 0.26, 0.34)), lakhan,
+              Look(skin=SKIN_L, top=JACKET, sleeve=DAL, legs=KHAKI, shoes=HAIR, torso=(0.37, 0.26, 0.34)), lakhan,
               hair="short")
     g = P.finish(mat, CHAR_SMOOTH)
     g.extras.append(_tray_socket(WAITER_SCALES["lakhan"]))
@@ -808,7 +808,7 @@ def build_waiters(mat):
         for sx in (-1, 1):
             h.ell((sx * 0.172, 0.02, 0.87), (0.04, 0.09, 0.06), CONCRETE, seg=6, rings=4)   # grey temples
     P = chibi("gopal", WAITER_SCALES["gopal"],
-              Look(skin=SKIN1, top=WHITE, legs=KHAKI, shoes=TRUNK, torso=(0.37, 0.26, 0.34)), gopal,
+              Look(skin=SKIN1, top=JACKET, sleeve=WHITE, legs=KHAKI, shoes=TRUNK, torso=(0.37, 0.26, 0.34)), gopal,
               hair="side")
     g = P.finish(mat, CHAR_SMOOTH)
     g.extras.append(_tray_socket(WAITER_SCALES["gopal"]))

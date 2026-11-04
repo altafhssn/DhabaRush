@@ -128,8 +128,9 @@ def build_dhaba_v3(mat, extra=None):
                       for q in range(n)], y, col)
 
     # ---- tall back walls (inner faces at z=0 and x=0), plaster + teal dado + maroon trim
-    gbox(a, -0.3, 9.15, 0.0, WALL_H, -0.3, 0.0, PLASTER)
-    gbox(a, -0.3, 0.0, 0.0, WALL_H, 0.0, 9.15, PLASTER)
+    # art audit S6 (4 Nov): whitewash above the teal, so the walls part from the floor
+    gbox(a, -0.3, 9.15, 0.0, WALL_H, -0.3, 0.0, WHITEWASH)
+    gbox(a, -0.3, 0.0, 0.0, WALL_H, 0.0, 9.15, WHITEWASH)
     gbox(a, -0.36, 9.2, WALL_H, WALL_H + CAP_H, -0.36, 0.06, CONCRETE)
     gbox(a, -0.36, 0.06, WALL_H, WALL_H + CAP_H, 0.06, 9.2, CONCRETE)
     gbox(a, -0.34, 9.18, WALL_H + CAP_H, WALL_H + CAP_H + 0.02, -0.34, 0.04, KERB)

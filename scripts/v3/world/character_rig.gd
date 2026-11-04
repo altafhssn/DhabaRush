@@ -64,6 +64,14 @@ const SLAP_ARM_REST := -0.7       # rad: right forearm out over the drum
 const SLAP_ARM_HIT := -1.55       # rad: arm thrust at the drum wall
 ## Hand position on arm_r (x height, below the shoulder pivot) for the props.
 const HAND_DROP := 0.24
+## Art audit (4 Nov): idle staff glance about now and then and shift their
+## weight (C5); the stride follows the walk speed (C7).
+const GLANCE_S := 1.8              # s per glance (left, then right)
+const GLANCE_YAW := 0.45           # rad
+const GLANCE_GAP := Vector2(6.0, 12.0)  # s between glances
+const SHIFT := 0.012               # x height: idle weight shift
+const SHIFT_PERIOD := 4.5          # s
+const STRIDE_REF_SPEED := 1.9      # m/s walked at WALK_CYCLE
 ## Height (m) per model id; speed and shadow scale with it.
 const HEIGHTS := {
 	"trav_trucker": 1.12, "trav_family_m": 1.08, "trav_family_f": 1.0,
@@ -96,6 +104,18 @@ var model_id: String = ""
 var height: float = 1.0
 ## Idle breathe / sway strength (staff use ~0.5: "staff idle sway is small").
 var idle_amount: float = 1.0
+## Walk speed (m/s) for the stride: > 0 scales the cycle so faster walkers
+## step faster (art audit C7). 0 = WALK_CYCLE.
+var stride_speed: float = 0.0
+## Leg swing multiplier (waiters 1.3: a longer stride).
+var leg_swing_mult: float = 1.0
+## Idle staff glance about and shift their weight (art audit C5).
+var idle_glance: bool = false
+## Top of the model (m) measured from its meshes at setup (art audit C8).
+var visual_height: float = 0.0
+var _glance_rng := RandomNumberGenerator.new()
+var _glance_at: float = 0.0
+var _glance_left: float = 0.0
 ## How far the model rises while seated (set_sit_height computes it).
 var sit_lift: float = 0.14
 
@@ -206,6 +226,9 @@ func setup(p_model_id: String, h: float = -1.0) -> void:
 	model = Models.make(p_model_id, Vector3(0.42 * height, height, 0.34 * height), Color(0.35, 0.55, 0.85))
 	add_child(model)
 	_rest_model = model.position
+	visual_height = _measure_top(model)
+	_glance_rng.seed = hash(p_model_id) ^ get_instance_id()
+	_glance_at = _glance_rng.randf_range(2.0, 10.0)
 	_body = _part("body")
 	_head = _part("head")
 	_arm_l = _part("arm_l")
@@ -354,7 +377,8 @@ func _process(delta: float) -> void:
 
 	_walk_w = move_toward(_walk_w, 1.0 if _walking else 0.0, delta / WALK_BLEND)
 	if _walking:
-		_phase = fmod(_phase + delta / WALK_CYCLE, 1.0)
+		var cyc: float = WALK_CYCLE if stride_speed <= 0.0 else clampf(WALK_CYCLE * STRIDE_REF_SPEED / stride_speed, 0.26, 0.6)
+		_phase = fmod(_phase + delta / cyc, 1.0)
 	var w: float = _walk_w
 	var s: float = sin(_phase * TAU) * w
 	var still: float = 1.0 - w
@@ -422,6 +446,13 @@ func _process(delta: float) -> void:
 		tl = -0.6
 		tr = lerpf(SLAP_ARM_REST, SLAP_ARM_HIT, hit)
 		lean = SLAP_LEAN + 0.06 * hit
+	if idle_glance and _pose == "idle" and not _walking:
+		if _glance_left > 0.0:
+			_glance_left -= delta
+			hy = GLANCE_YAW * sin((1.0 - _glance_left / GLANCE_S) * TAU)
+		elif _t >= _glance_at:
+			_glance_left = GLANCE_S
+			_glance_at = _t + _glance_rng.randf_range(GLANCE_GAP.x, GLANCE_GAP.y)
 	var k: float = 1.0 - exp(-POSE_K * delta)
 	_arm_l_off = lerpf(_arm_l_off, tl, k)
 	_arm_r_off = lerpf(_arm_r_off, tr, k)
@@ -432,7 +463,8 @@ func _process(delta: float) -> void:
 
 	# Whole model: step bob (twice per stride), side sway, idle breathe, seat lift.
 	var bob: float = (1.0 - absf(sin(_phase * TAU))) * BOB * height * w
-	model.position = _rest_model + Vector3(s * SWAY * height, bob + breathe * 0.004 + sit_lift * sw, 0.0)
+	var shift: float = SHIFT * height * sin(_t * TAU / SHIFT_PERIOD) * still if idle_glance else 0.0
+	model.position = _rest_model + Vector3(s * SWAY * height + shift, bob + breathe * 0.004 + sit_lift * sw, 0.0)
 
 	if _body == null:
 		# Single-mesh fallback: roll the whole model instead of the body.
@@ -447,9 +479,27 @@ func _process(delta: float) -> void:
 		_arm_r.rotation = _rest_arm_r + Vector3(s * ARM_SWING * swing + _arm_r_off, 0.0, 0.0)
 	var leg_sit: float = SIT_LEG * sw
 	if _leg_l != null:
-		_leg_l.rotation = _rest_leg_l + Vector3(s * LEG_SWING * (1.0 - sw) + leg_sit, 0.0, 0.0)
+		_leg_l.rotation = _rest_leg_l + Vector3(s * LEG_SWING * leg_swing_mult * (1.0 - sw) + leg_sit, 0.0, 0.0)
 	if _leg_r != null:
-		_leg_r.rotation = _rest_leg_r + Vector3(-s * LEG_SWING * (1.0 - sw) + leg_sit - 0.08 * sw, 0.0, 0.0)
+		_leg_r.rotation = _rest_leg_r + Vector3(-s * LEG_SWING * leg_swing_mult * (1.0 - sw) + leg_sit - 0.08 * sw, 0.0, 0.0)
+
+
+## Highest point of the model's meshes in the model's own space (m).
+static func _measure_top(root: Node3D) -> float:
+	var top: float = 0.0
+	var stack: Array = [[root, Transform3D.IDENTITY]]
+	while not stack.is_empty():
+		var e: Array = stack.pop_back()
+		var n: Node = e[0]
+		var xf: Transform3D = e[1]
+		for c in n.get_children():
+			if c is Node3D:
+				var cx: Transform3D = xf * (c as Node3D).transform
+				if c is MeshInstance3D and (c as MeshInstance3D).mesh != null:
+					var b: AABB = cx * (c as MeshInstance3D).get_aabb()
+					top = maxf(top, b.end.y)
+				stack.append([c, cx])
+	return top
 
 
 # ================================================================ hand props (C6.6)

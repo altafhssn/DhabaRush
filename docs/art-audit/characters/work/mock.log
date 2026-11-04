@@ -1,0 +1,196 @@
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node raju__arm_l
+11:32:50 | INFO: Blender create Mesh node raju__arm_r
+11:32:50 | INFO: Blender create Mesh node raju__body
+11:32:50 | INFO: Blender create Mesh node raju__head
+11:32:50 | INFO: Blender create Mesh node raju__leg_l
+11:32:50 | INFO: Blender create Mesh node raju__leg_r
+11:32:50 | INFO: glTF import finished in 0.02s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.046  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/raju__mock_before.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node raju__arm_l
+11:32:50 | INFO: Blender create Mesh node raju__arm_r
+11:32:50 | INFO: Blender create Mesh node raju__body
+11:32:50 | INFO: Blender create Mesh node raju__head
+11:32:50 | INFO: Blender create Mesh node raju__leg_l
+11:32:50 | INFO: Blender create Mesh node raju__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.073  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/raju__mock_after.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pappu__arm_l
+11:32:50 | INFO: Blender create Mesh node pappu__arm_r
+11:32:50 | INFO: Blender create Mesh node pappu__body
+11:32:50 | INFO: Blender create Mesh node pappu__head
+11:32:50 | INFO: Blender create Mesh node pappu__leg_l
+11:32:50 | INFO: Blender create Mesh node pappu__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.100  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/pappu__mock_before.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pappu__arm_l
+11:32:50 | INFO: Blender create Mesh node pappu__arm_r
+11:32:50 | INFO: Blender create Mesh node pappu__body
+11:32:50 | INFO: Blender create Mesh node pappu__head
+11:32:50 | INFO: Blender create Mesh node pappu__leg_l
+11:32:50 | INFO: Blender create Mesh node pappu__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.128  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/pappu__mock_after.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node lakhan__arm_l
+11:32:50 | INFO: Blender create Mesh node lakhan__arm_r
+11:32:50 | INFO: Blender create Mesh node lakhan__body
+11:32:50 | INFO: Blender create Mesh node lakhan__head
+11:32:50 | INFO: Blender create Mesh node lakhan__leg_l
+11:32:50 | INFO: Blender create Mesh node lakhan__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.155  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/lakhan__mock_before.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node lakhan__arm_l
+11:32:50 | INFO: Blender create Mesh node lakhan__arm_r
+11:32:50 | INFO: Blender create Mesh node lakhan__body
+11:32:50 | INFO: Blender create Mesh node lakhan__head
+11:32:50 | INFO: Blender create Mesh node lakhan__leg_l
+11:32:50 | INFO: Blender create Mesh node lakhan__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.182  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/lakhan__mock_after.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node gopal__arm_l
+11:32:50 | INFO: Blender create Mesh node gopal__arm_r
+11:32:50 | INFO: Blender create Mesh node gopal__body
+11:32:50 | INFO: Blender create Mesh node gopal__head
+11:32:50 | INFO: Blender create Mesh node gopal__leg_l
+11:32:50 | INFO: Blender create Mesh node gopal__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.209  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/gopal__mock_before.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node gopal__arm_l
+11:32:50 | INFO: Blender create Mesh node gopal__arm_r
+11:32:50 | INFO: Blender create Mesh node gopal__body
+11:32:50 | INFO: Blender create Mesh node gopal__head
+11:32:50 | INFO: Blender create Mesh node gopal__leg_l
+11:32:50 | INFO: Blender create Mesh node gopal__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node tray
+11:32:50 | INFO: glTF import finished in 0.00s
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node pass_plate
+11:32:50 | INFO: glTF import finished in 0.00s
+00:01.237  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/gopal__mock_after.png'
+11:32:50 | INFO: Data are loaded, start creating Blender stuff
+11:32:50 | INFO: Blender create Mesh node trav_biker__arm_l
+11:32:50 | INFO: Blender create Mesh node trav_biker__arm_r
+11:32:50 | INFO: Blender create Mesh node trav_biker__body
+11:32:50 | INFO: Blender create Mesh node trav_biker__head
+11:32:50 | INFO: Blender create Mesh node trav_biker__leg_l
+11:32:50 | INFO: Blender create Mesh node trav_biker__leg_r
+11:32:50 | INFO: glTF import finished in 0.01s
+00:01.258  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_biker__cw0.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_biker__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_biker__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_biker__body
+11:32:51 | INFO: Blender create Mesh node trav_biker__head
+11:32:51 | INFO: Blender create Mesh node trav_biker__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_biker__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.282  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_biker__cw1.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_family_m__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_family_m__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_family_m__body
+11:32:51 | INFO: Blender create Mesh node trav_family_m__head
+11:32:51 | INFO: Blender create Mesh node trav_family_m__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_family_m__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.303  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_family_m__cw0.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_family_m__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_family_m__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_family_m__body
+11:32:51 | INFO: Blender create Mesh node trav_family_m__head
+11:32:51 | INFO: Blender create Mesh node trav_family_m__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_family_m__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.325  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_family_m__cw1.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_trucker__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_trucker__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_trucker__body
+11:32:51 | INFO: Blender create Mesh node trav_trucker__head
+11:32:51 | INFO: Blender create Mesh node trav_trucker__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_trucker__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.347  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_trucker__cw0.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_trucker__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_trucker__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_trucker__body
+11:32:51 | INFO: Blender create Mesh node trav_trucker__head
+11:32:51 | INFO: Blender create Mesh node trav_trucker__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_trucker__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.370  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_trucker__cw1.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_student__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_student__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_student__body
+11:32:51 | INFO: Blender create Mesh node trav_student__head
+11:32:51 | INFO: Blender create Mesh node trav_student__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_student__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.390  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_student__cw0.png'
+11:32:51 | INFO: Data are loaded, start creating Blender stuff
+11:32:51 | INFO: Blender create Mesh node trav_student__arm_l
+11:32:51 | INFO: Blender create Mesh node trav_student__arm_r
+11:32:51 | INFO: Blender create Mesh node trav_student__body
+11:32:51 | INFO: Blender create Mesh node trav_student__head
+11:32:51 | INFO: Blender create Mesh node trav_student__leg_l
+11:32:51 | INFO: Blender create Mesh node trav_student__leg_r
+11:32:51 | INFO: glTF import finished in 0.01s
+00:01.412  render           | Saved: '/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/art/characters/work/mock/trav_student__cw1.png'
+MOCK DONE
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:49:19)
+
+Blender quit

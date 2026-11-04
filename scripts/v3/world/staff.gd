@@ -18,6 +18,7 @@ func setup(model_ids: Array, p_yaw: float, p_name: String = "") -> void:
 	rig = CharacterRig.new()
 	rig.name = "Rig"
 	rig.idle_amount = 0.5
+	rig.idle_glance = true
 	add_child(rig)
 	var id: String = CharacterRig.first_existing(model_ids)
 	rig.setup(id, CharacterRig.height_of(id))

@@ -183,6 +183,7 @@ func setup(p_sim: Sim, p_model_id: String, at: Vector3) -> void:
 	rig.set_sit_height(Layout3.SEAT_TOP_Y)
 	height = rig.height
 	speed = WALK_HEIGHTS_PER_S * height
+	rig.stride_speed = speed
 	_bubble_t = randf() * 3.0
 
 
@@ -384,7 +385,8 @@ func show_order() -> void:
 		_bubble.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(_bubble)
 	var lift: float = rig.sit_lift if rig != null else 0.0
-	_bubble_base_y = height + lift + BUBBLE_Y
+	var top: float = rig.visual_height if rig != null and rig.visual_height > 0.0 else height
+	_bubble_base_y = top + lift + BUBBLE_Y
 	_bubble.position = Vector3(0.0, _bubble_base_y, 0.0)
 	if key != _bubble_key or not _bubble.visible:
 		_bubble_key = key

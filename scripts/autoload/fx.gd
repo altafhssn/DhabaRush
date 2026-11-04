@@ -310,8 +310,8 @@ func marker_visible() -> bool:
 ## it. Feel sprint: unlike the reference (no reveal FX), the building also
 ## gets a dust puff, a floor ring and rising sparkles when it appears (now,
 ## or at a pad station's reveal after the panel closes): WorldJuice.build_at.
-func build_fx(world_pos: Vector3, check_control: Control = null) -> void:
-	Sfx.play("build_done")
+func build_fx(world_pos: Vector3, check_control: Control = null, sound: String = "build_done") -> void:
+	Sfx.play(sound)
 	if _juice != null:
 		_juice.call("build_at", world_pos)
 	if check_control == null or not is_instance_valid(check_control) or not check_control.is_inside_tree():

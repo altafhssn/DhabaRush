@@ -1,0 +1,146 @@
+file,family,status,size_kb,tris,verts,budget,budget_source,pct_of_budget,over_budget,meshes,materials,images,dim_x,dim_y,dim_z,base_y,centre_x,centre_z,empties,vertex_color
+auto,vehicles,loaded,18.8,240,456,2600,VEHICLES,9,False,1,1,1,1.762,1.36,1.15,0.0,0.031,-0.015,0,False
+bablu,characters,loaded,74.6,1548,1880,1800,V3_CHAR_BUDGET,86,False,6,1,1,0.586,1.049,0.42,0.0,0.0,-0.012,0,False
+balwant,characters,loaded; no .import yet,80.9,1782,2038,1800,V3_BUDGETS,99,False,6,1,1,0.647,1.171,0.469,0.0,-0.006,-0.012,0,False
+banknote,ui/fx,loaded,26.5,454,662,700,V3_BUDGETS,65,False,1,1,1,0.8,0.054,0.51,-0.027,0.0,-0.0,0,False
+banknote_saffron,ui/fx,dead (excluded from export),26.6,454,662,700,V3_BUDGETS,65,False,1,1,1,0.8,0.054,0.51,-0.027,0.0,-0.0,0,False
+bhaiya,characters,dead (excluded from export),36.6,452,984,1800,V3_CHAR_BUDGET,25,False,1,1,1,0.691,1.176,0.525,0.0,0.0,-0.008,0,False
+bhurji_wala,characters,loaded,81.8,1796,2064,1800,V3_CHAR_BUDGET,100,False,6,1,1,0.598,1.04,0.505,0.0,0.0,0.022,0,False
+bike,vehicles,loaded,15.1,180,348,2600,VEHICLES,7,False,1,1,1,1.564,0.89,0.62,0.0,0.025,-0.0,0,False
+bittu,characters,loaded,69.9,1504,1740,1800,V3_BUDGETS,84,False,6,1,1,0.598,1.08,0.429,0.0,0.0,-0.013,0,False
+bus,vehicles,loaded,69.5,1075,1922,2600,VEHICLES,41,False,1,1,1,6.895,2.74,2.625,0.0,0.078,-0.003,0,False
+bus_baraat,vehicles,loaded; no .import yet,156.1,1955,4526,2000,V3_BUDGETS,98,False,1,1,1,6.895,2.585,2.625,0.0,0.078,-0.003,0,False
+camel_cart,vehicles,loaded; no .import yet,99.4,1626,2776,1800,V3_BUDGETS,90,False,1,1,1,4.198,1.61,1.5,0.0,1.219,-0.0,0,False
+canopy_blue,world,dead (excluded from export),23.7,301,601,400,CANOPIES,75,False,1,1,1,4.24,4.27,3.64,0.0,0.0,-0.0,0,False
+canopy_pink,world,dead (excluded from export),23.7,301,601,400,CANOPIES,75,False,1,1,1,4.24,4.27,3.64,0.0,0.0,-0.0,0,False
+canopy_red,world,dead (excluded from export),23.7,301,601,400,CANOPIES,75,False,1,1,1,4.24,4.27,3.64,0.0,0.0,-0.0,0,False
+canopy_teal,world,dead (excluded from export),23.7,301,601,400,CANOPIES,75,False,1,1,1,4.24,4.27,3.64,0.0,0.0,-0.0,0,False
+canopy_yellow,world,dead (excluded from export),23.7,301,601,400,CANOPIES,75,False,1,1,1,4.24,4.27,3.64,0.0,0.0,-0.0,0,False
+car,vehicles,loaded,21.6,292,536,2600,VEHICLES,11,False,1,1,1,2.452,1.19,1.28,0.0,0.005,-0.0,0,False
+car_blue,vehicles,loaded,21.6,292,536,2600,VEHICLES,11,False,1,1,1,2.452,1.19,1.28,0.0,0.005,-0.0,0,False
+car_red,vehicles,loaded,21.6,292,536,2600,VEHICLES,11,False,1,1,1,2.452,1.19,1.28,0.0,0.005,-0.0,0,False
+car_taxi,vehicles,loaded,21.6,292,536,2600,VEHICLES,11,False,1,1,1,2.452,1.19,1.28,0.0,0.005,-0.0,0,False
+cash,ui/fx,unused but shipped,4.8,24,48,800,default,3,False,1,1,1,0.23,0.095,0.42,0.0,0.0,-0.0,0,False
+cash_brick,ui/fx,dead (excluded from export),53.5,1240,1376,2000,V3_BUDGETS,62,False,1,1,1,0.86,0.278,0.545,-0.004,0.0,0.03,0,False
+cash_table,stations+furniture,dead (excluded from export),8.3,76,152,800,default,10,False,1,1,1,1.0,0.86,0.6,0.0,0.0,-0.0,0,False
+cashier_desk,stations+furniture,dead (excluded from export),29.9,409,777,800,default,51,False,1,1,1,2.555,2.78,1.402,0.0,0.197,-0.259,0,False
+chai_counter_v3,stations+furniture,loaded,182.1,3214,5122,4000,V3_BUDGETS,80,False,1,1,1,2.52,1.705,0.905,0.0,0.0,0.142,0,False
+chai_tapri,world,dead (excluded from export),56.5,786,1558,800,default,98,False,1,1,1,2.82,3.265,2.41,0.0,0.0,0.425,0,False
+charpai,stations+furniture,loaded,25.1,358,636,1200,V3_BUDGETS,30,False,1,1,1,1.6,0.45,0.864,0.0,0.0,-0.0,0,False
+chotu,characters,dead (excluded from export),30.0,364,792,1800,V3_CHAR_BUDGET,20,False,1,1,1,0.481,0.818,0.348,0.0,0.0,-0.014,0,False
+compound,world,dead (excluded from export),157.5,2114,4542,3000,BUDGETS,70,False,1,1,1,21.0,3.15,20.58,0.0,0.0,-0.01,0,False
+cow,characters,loaded,79.5,1820,2048,2000,V3_BUDGETS,91,False,3,1,1,1.595,0.912,0.732,0.0,0.076,-0.0,0,False
+customer_a,characters,"fallback only (shipped, never loaded)",29.2,352,768,1800,V3_CHAR_BUDGET,20,False,1,1,1,0.601,1.023,0.435,0.0,0.0,-0.017,0,False
+customer_b,characters,"fallback only (shipped, never loaded)",34.6,428,924,1800,V3_CHAR_BUDGET,24,False,1,1,1,0.601,1.023,0.48,0.0,0.0,-0.03,0,False
+customer_c,characters,"fallback only (shipped, never loaded)",40.5,500,1100,1800,V3_CHAR_BUDGET,28,False,1,1,1,0.631,1.21,0.487,0.0,0.0,-0.019,0,False
+customer_d,characters,"fallback only (shipped, never loaded)",30.9,376,816,1800,V3_CHAR_BUDGET,21,False,1,1,1,0.571,1.035,0.508,0.0,0.0,0.031,0,False
+dal_wala,characters,loaded,85.9,1776,2198,1800,V3_CHAR_BUDGET,99,False,6,1,1,0.58,1.009,0.475,0.0,0.0,-0.015,0,False
+deco_baraat,world,loaded; no .import yet,339.6,3414,9800,4000,V3_BUDGETS,85,False,2,2,1,6.261,3.065,0.255,0.5,4.5,9.085,0,True
+dhaba_v3,world,loaded,1604.8,23391,44628,24000,V3_BUDGETS,97,False,8,2,1,23.1,5.47,14.044,-0.25,4.0,3.322,0,True
+dining_table,stations+furniture,loaded,25.7,430,640,1000,V3_BUDGETS,43,False,1,1,1,1.7,0.666,0.8,0.0,0.0,-0.0,0,False
+dog,characters,loaded,29.9,768,712,1200,V3_BUDGETS,64,False,1,1,1,0.74,0.27,0.56,0.0,0.015,0.06,0,False
+dog_sit,characters,loaded; no .import yet,43.3,1008,1040,1200,V3_BUDGETS,84,False,3,1,1,0.425,0.598,0.568,-0.002,0.045,-0.012,0,False
+family_hall,world,loaded; no .import yet,158.3,1909,4357,6500,V3_BUDGETS,29,False,3,2,1,6.99,2.91,8.03,0.0,18.545,4.125,0,True
+family_table,stations+furniture,loaded; no .import yet,38.7,702,1004,900,V3_BUDGETS,78,False,1,1,1,1.741,0.745,2.761,0.0,0.0,0.001,0,False
+famous_board,world,dead (excluded from export),7.3,64,120,800,default,8,False,1,1,1,3.6,1.5,0.225,-0.3,0.0,-0.038,0,False
+galla_desk,stations+furniture,loaded,56.5,1184,1484,3000,V3_BUDGETS,39,False,1,1,1,1.33,1.005,0.733,0.0,0.0,0.026,0,False
+gopal,characters,loaded; no .import yet,79.6,1796,1990,1800,V3_BUDGETS,100,False,6,1,1,0.604,1.05,0.433,0.0,0.0,-0.013,1,False
+ground,world,dead (excluded from export),37.7,442,1022,800,BUDGETS,55,False,1,1,1,100.0,0.522,100.0,-0.04,0.0,-0.0,0,False
+hoarding,world,loaded; no .import yet,91.8,948,2246,1600,V3_BUDGETS,59,False,6,2,1,2.718,3.84,0.355,0.0,0.0,-0.053,3,True
+hut_1,world,dead (excluded from export),55.9,743,1547,800,default,93,False,1,1,1,8.9,3.96,3.137,-0.02,0.0,0.811,0,False
+icon_chai,ui/fx,dead (excluded from export),6.5,56,96,800,default,7,False,1,1,1,0.22,0.22,0.22,0.0,0.0,-0.0,0,False
+icon_roti,ui/fx,dead (excluded from export),10.2,120,204,800,default,15,False,1,1,1,0.323,0.095,0.34,0.0,0.0,-0.0,0,False
+kadai_station,stations+furniture,loaded,130.0,2492,3560,3200,V3_BUDGETS,78,False,2,1,1,1.32,1.331,0.905,0.0,0.0,0.098,1,False
+kallu,characters,loaded,85.1,1748,2178,1800,V3_CHAR_BUDGET,97,False,6,1,1,0.628,1.03,0.432,0.0,-0.009,-0.01,0,False
+lakhan,characters,loaded; no .import yet,68.3,1472,1690,1800,V3_BUDGETS,82,False,6,1,1,0.61,1.061,0.438,0.0,0.0,-0.013,1,False
+lamp,world,dead (excluded from export),10.7,108,220,800,default,14,False,1,1,1,0.721,3.06,0.32,0.0,0.3,-0.0,0,False
+lassi_station,stations+furniture,loaded,137.7,2484,3812,3000,V3_BUDGETS,83,False,2,1,1,1.645,1.54,2.128,0.0,-0.352,-0.513,0,False
+lassi_wala,characters,loaded,85.2,1734,2184,1800,V3_CHAR_BUDGET,96,False,6,1,1,0.61,1.107,0.442,0.0,0.0,-0.011,0,False
+marker,ui/fx,loaded,46.9,452,1316,900,V3_BUDGETS,50,False,1,1,1,1.149,1.004,1.145,0.0,0.0,-0.0,0,False
+munna,characters,loaded,65.2,1388,1610,1800,V3_CHAR_BUDGET,77,False,6,1,1,0.598,1.04,0.429,0.0,0.0,-0.013,0,False
+munshi_chai,ui/fx,unused but shipped,98.6,2922,2424,3000,V3_BUST_BUDGET,97,False,4,1,1,1.291,1.553,0.914,-0.2,0.02,0.057,0,False
+munshi_cheer,ui/fx,loaded,94.8,2930,2302,3000,V3_BUST_BUDGET,98,False,4,1,1,1.692,1.553,0.803,-0.2,0.096,-0.011,0,False
+munshi_idle,ui/fx,loaded,95.1,2922,2312,3000,V3_BUST_BUDGET,97,False,4,1,1,1.251,1.55,0.786,-0.2,0.04,0.028,0,False
+munshi_ledger,ui/fx,loaded,90.5,2888,2170,3000,V3_BUST_BUDGET,96,False,4,1,1,1.271,1.56,1.045,-0.2,0.01,0.158,0,False
+munshi_namaste,ui/fx,loaded,92.7,2752,2266,3000,V3_BUST_BUDGET,92,False,4,1,1,1.093,1.56,0.961,-0.2,0.0,0.116,0,False
+munshi_point,ui/fx,loaded,97.4,2988,2374,3000,V3_BUST_BUDGET,100,False,4,1,1,1.738,1.554,1.024,-0.2,-0.204,0.147,0,False
+munshi_worried,ui/fx,loaded,84.8,2728,2018,3000,V3_BUST_BUDGET,91,False,4,1,1,1.171,1.554,0.756,-0.2,0.0,0.013,0,False
+neetu,characters,loaded,87.1,1784,2236,1800,V3_CHAR_BUDGET,99,False,6,1,1,0.568,0.988,0.425,0.0,0.0,-0.02,0,False
+padlock,ui/fx,dead (excluded from export),21.8,304,540,800,default,38,False,1,1,1,0.4,0.552,0.205,0.0,0.0,0.002,0,False
+pappu,characters,loaded,78.1,1728,1958,1800,V3_CHAR_BUDGET,96,False,6,1,1,0.598,1.055,0.429,0.0,0.0,-0.013,1,False
+parking_mark,world,dead (excluded from export),5.2,30,60,800,default,4,False,1,1,1,2.32,0.015,4.06,0.0,0.0,0.03,0,False
+pass_baati,dishes,loaded; no .import yet,24.0,492,574,550,V3_BUDGETS,89,False,1,1,1,0.27,0.079,0.27,0.0,0.0,-0.0,0,False
+pass_bhurji,dishes,loaded,32.0,580,812,600,V3_BUDGETS,97,False,1,1,1,0.27,0.08,0.27,0.0,0.0,-0.0,0,False
+pass_chaas,dishes,loaded,11.2,176,224,400,V3_BUDGETS,44,False,1,1,1,0.146,0.163,0.15,0.0,0.0,-0.0,0,False
+pass_chole,dishes,loaded,20.6,356,490,500,V3_BUDGETS,71,False,1,1,1,0.201,0.072,0.2,0.0,-0.003,-0.0,0,False
+pass_coffee,dishes,loaded,8.9,142,156,400,V3_BUDGETS,36,False,1,1,1,0.148,0.118,0.148,0.0,0.0,-0.0,0,False
+pass_dal,dishes,loaded,12.2,214,248,500,V3_BUDGETS,43,False,1,1,1,0.195,0.077,0.2,0.0,0.0,-0.0,0,False
+pass_dal_baati,dishes,loaded; no .import yet,27.7,490,692,550,V3_BUDGETS,89,False,1,1,1,0.272,0.071,0.272,0.0,0.0,-0.0,0,False
+pass_gatte,dishes,loaded; no .import yet,20.8,340,500,550,V3_BUDGETS,62,False,1,1,1,0.195,0.075,0.2,0.0,0.0,-0.0,0,False
+pass_green_tea,dishes,loaded,13.4,216,288,400,V3_BUDGETS,54,False,1,1,1,0.15,0.096,0.15,0.0,0.0,-0.0,0,False
+pass_keema_paratha,dishes,loaded,25.3,396,632,600,V3_BUDGETS,66,False,1,1,1,0.27,0.043,0.27,0.0,0.0,-0.0,0,False
+pass_ker_sangri,dishes,loaded; no .import yet,19.2,348,446,550,V3_BUDGETS,63,False,1,1,1,0.195,0.095,0.2,0.0,0.0,-0.0,0,False
+pass_kesar_doodh,dishes,loaded,15.5,240,348,400,V3_BUDGETS,60,False,1,1,1,0.184,0.132,0.184,0.0,0.0,-0.0,0,False
+pass_kulcha,dishes,loaded,17.4,334,392,600,V3_BUDGETS,56,False,1,1,1,0.27,0.066,0.27,0.0,0.0,-0.0,0,False
+pass_kulhad,dishes,loaded; no .import yet,10.0,180,186,450,V3_BUDGETS,40,False,1,1,1,0.192,0.132,0.184,0.0,0.004,-0.0,0,False
+pass_laal_maas,dishes,loaded; no .import yet,21.1,346,510,550,V3_BUDGETS,63,False,1,1,1,0.195,0.089,0.2,0.0,0.0,-0.0,0,False
+pass_lahsun_roti,dishes,loaded; no .import yet,20.5,408,476,550,V3_BUDGETS,74,False,1,1,1,0.27,0.045,0.27,0.0,0.0,-0.0,0,False
+pass_lassi,dishes,loaded,12.9,220,270,400,V3_BUDGETS,55,False,1,1,1,0.146,0.199,0.15,0.0,0.0,-0.0,0,False
+pass_mango_lassi,dishes,loaded,16.0,294,354,400,V3_BUDGETS,74,False,1,1,1,0.146,0.194,0.15,0.0,0.0,-0.0,0,False
+pass_missi_roti,dishes,loaded; no .import yet,23.5,420,570,550,V3_BUDGETS,76,False,1,1,1,0.27,0.07,0.27,0.0,0.0,-0.0,0,False
+pass_naan,dishes,loaded,14.6,236,322,600,V3_BUDGETS,39,False,1,1,1,0.27,0.05,0.27,0.0,0.0,-0.0,0,False
+pass_paneer,dishes,loaded,24.0,338,602,500,V3_BUDGETS,68,False,1,1,1,0.201,0.072,0.2,0.0,0.0,-0.0,0,False
+pass_patiala,dishes,loaded,13.1,230,274,400,V3_BUDGETS,58,False,1,1,1,0.175,0.279,0.18,0.0,0.0,-0.0,0,False
+pass_plate,dishes,loaded,10.0,174,186,450,V3_BUDGETS,39,False,1,1,1,0.122,0.125,0.122,0.0,0.0,-0.0,0,False
+pass_rabri,dishes,loaded; no .import yet,18.5,338,428,550,V3_BUDGETS,61,False,1,1,1,0.154,0.085,0.158,0.0,0.0,-0.0,0,False
+pass_roti,dishes,loaded,14.8,284,318,600,V3_BUDGETS,47,False,1,1,1,0.27,0.055,0.27,0.0,0.0,-0.0,0,False
+pass_shikanji,dishes,loaded; no .import yet,17.4,318,396,550,V3_BUDGETS,58,False,1,1,1,0.14,0.185,0.144,0.0,0.0,-0.0,0,False
+pinky,characters,loaded,85.4,1776,2182,1800,V3_CHAR_BUDGET,99,False,6,1,1,0.574,0.998,0.425,0.0,0.0,-0.019,0,False
+plant_pot,world,dead (excluded from export),31.1,332,832,800,default,42,False,1,1,1,0.609,0.842,0.58,0.0,0.003,-0.0,0,False
+plate_stool,stations+furniture,loaded; no .import yet,14.8,248,324,300,V3_BUDGETS,83,False,1,1,1,0.576,0.664,0.576,0.0,0.0,-0.0,0,False
+prop_chaas_jug,props,loaded,12.6,176,268,250,V3_BUDGETS,70,False,1,1,1,0.128,0.175,0.087,0.0,-0.0,-0.0,0,False
+prop_chole_sack,props,loaded,13.1,172,286,250,V3_BUDGETS,69,False,1,1,1,0.268,0.328,0.23,-0.002,0.0,-0.0,0,False
+prop_coffee_kettle,props,loaded,13.2,216,280,250,V3_BUDGETS,86,False,1,1,1,0.177,0.235,0.104,0.0,0.001,-0.0,0,False
+prop_dal_handi,props,loaded,13.2,242,276,250,V3_BUDGETS,97,False,1,1,1,0.182,0.145,0.152,0.0,0.015,-0.0,0,False
+prop_green_tea_jar,props,loaded,14.8,242,326,250,V3_BUDGETS,97,False,1,1,1,0.149,0.17,0.11,0.0,-0.0,-0.003,0,False
+prop_keema_pot,props,loaded,14.1,232,306,250,V3_BUDGETS,93,False,1,1,1,0.271,0.406,0.26,0.0,0.005,0.0,0,False
+prop_kulcha_board,props,loaded,13.6,204,294,250,V3_BUDGETS,82,False,1,1,1,0.28,0.397,0.28,0.0,0.0,-0.0,0,False
+prop_mango_crate,props,loaded,13.0,174,280,250,V3_BUDGETS,70,False,1,1,1,0.16,0.108,0.11,0.0,0.0,0.0,0,False
+prop_milk_can,props,loaded,12.7,216,264,250,V3_BUDGETS,86,False,1,1,1,0.166,0.294,0.144,0.0,0.011,-0.0,0,False
+prop_naan_basket,props,loaded,13.8,220,300,250,V3_BUDGETS,88,False,1,1,1,0.3,0.515,0.3,0.0,0.0,-0.0,0,False
+prop_paneer_block,props,loaded,10.0,136,192,250,V3_BUDGETS,54,False,1,1,1,0.14,0.058,0.14,0.0,-0.0,-0.0,0,False
+prop_patiala_glass,props,loaded,9.5,152,174,250,V3_BUDGETS,61,False,1,1,1,0.124,0.258,0.13,0.0,-0.0,0.0,0,False
+pump,world,dead (excluded from export),10.3,112,208,800,default,14,False,1,1,1,1.1,1.401,0.95,0.0,0.1,0.075,0,False
+raju,characters,loaded,79.4,1748,1994,1800,V3_CHAR_BUDGET,97,False,6,1,1,0.61,1.061,0.438,0.0,0.0,-0.013,1,False
+road,world,dead (excluded from export),8.0,72,144,400,BUDGETS,18,False,1,1,1,100.0,0.042,4.0,0.0,0.0,-0.0,0,False
+scenery,world,dead (excluded from export),425.8,5908,12418,6000,BUDGETS,98,False,1,1,1,100.0,16.0,65.343,-8.0,0.0,-15.283,0,False
+seats_board,stations+furniture,loaded; no .import yet,21.3,222,508,300,V3_BUDGETS,74,False,2,1,1,1.08,0.721,0.373,0.0,0.0,-0.116,1,False
+signboard,world,dead (excluded from export),44.1,546,1208,800,default,68,False,1,1,1,4.72,4.88,0.72,0.0,0.0,0.14,0,False
+sikka,ui/fx,unused but shipped,14.7,280,316,900,V3_BUDGETS,31,False,1,1,1,0.5,0.5,0.084,-0.25,0.0,-0.0,0,False
+sonu,characters,loaded,77.5,1728,1936,1800,V3_BUDGETS,96,False,6,1,1,0.598,1.092,0.46,0.0,0.0,-0.028,1,False
+station_chai,stations+furniture,dead (excluded from export),24.8,336,628,800,default,42,False,1,1,1,1.64,1.46,0.84,0.0,0.0,-0.0,0,False
+station_tandoor,stations+furniture,dead (excluded from export),21.4,298,526,800,default,37,False,1,1,1,1.671,1.433,1.012,0.0,-0.046,-0.05,0,False
+street_v3,world,loaded,2485.9,32691,69181,38000,V3_BUDGETS,86,False,12,2,1,102.0,6.175,100.0,-0.175,9.0,10.0,0,True
+string_bulbs,world,dead (excluded from export),13.5,104,312,800,default,13,False,1,1,1,3.8,0.457,0.2,2.5,0.0,0.1,0,False
+string_wire,world,dead (excluded from export),8.1,72,144,800,default,9,False,1,1,1,4.208,0.379,0.03,2.685,0.0,0.1,0,False
+tandoor_lock,world,loaded,100.3,1450,2834,3500,V3_BUDGETS,41,False,1,1,1,3.287,1.485,7.838,-0.015,7.2,4.269,0,False
+tandoor_station,stations+furniture,loaded,65.9,1404,1744,3000,V3_BUDGETS,47,False,1,1,1,1.98,1.254,1.091,-0.002,0.0,0.005,0,False
+trav_baraati_f,characters,loaded; no .import yet,83.6,1744,2128,1800,V3_BUDGETS,97,False,6,1,1,0.574,0.998,0.475,0.0,0.0,-0.007,0,False
+trav_baraati_m,characters,loaded; no .import yet,72.1,1540,1800,1800,V3_BUDGETS,86,False,6,1,1,0.622,1.165,0.468,0.0,0.0,-0.01,0,False
+trav_biker,characters,loaded,66.0,1472,1618,1800,V3_CHAR_BUDGET,82,False,6,1,1,0.61,1.093,0.481,0.0,0.0,-0.035,0,False
+trav_elder,characters,loaded; no .import yet,87.8,1784,2230,1800,V3_BUDGETS,99,False,7,1,1,0.586,0.991,0.415,-0.001,0.0,-0.01,0,False
+trav_family_f,characters,loaded,77.6,1664,1952,1800,V3_CHAR_BUDGET,92,False,6,1,1,0.574,0.998,0.456,0.0,0.0,-0.017,0,False
+trav_family_m,characters,loaded,64.2,1416,1570,1800,V3_CHAR_BUDGET,79,False,6,1,1,0.598,1.04,0.429,0.0,0.0,-0.013,0,False
+trav_farmer,characters,loaded; no .import yet,78.1,1724,1958,1800,V3_BUDGETS,96,False,6,1,1,0.598,1.12,0.456,0.0,0.0,-0.013,0,False
+trav_sardar,characters,loaded; no .import yet,73.8,1612,1842,1800,V3_BUDGETS,90,False,6,1,1,0.646,1.193,0.477,0.0,0.0,-0.012,0,False
+trav_student,characters,loaded,66.4,1380,1648,1800,V3_CHAR_BUDGET,77,False,6,1,1,0.562,0.997,0.439,0.0,0.0,-0.03,0,False
+trav_techie,characters,loaded; no .import yet,83.0,1776,2106,1800,V3_BUDGETS,99,False,6,1,1,0.58,1.009,0.472,0.0,0.0,-0.04,0,False
+trav_trucker,characters,loaded,73.9,1704,1828,1800,V3_CHAR_BUDGET,95,False,6,1,1,0.646,1.188,0.486,0.0,0.0,-0.005,0,False
+tray,props,loaded,10.5,192,200,300,V3_BUDGETS,64,False,1,1,1,0.416,0.036,0.416,0.0,0.0,-0.0,0,False
+tray_rack,stations+furniture,loaded,77.7,1546,2096,1800,V3_BUDGETS,86,False,1,1,1,0.676,1.098,0.402,0.0,0.008,0.011,0,False
+tray_wide,props,loaded; no .import yet,12.5,220,256,300,V3_BUDGETS,73,False,1,1,1,0.694,0.036,0.396,0.0,0.0,-0.0,0,False
+truck,vehicles,loaded,106.0,1773,2957,2600,VEHICLES,68,False,1,1,1,4.723,2.654,2.34,0.0,-0.037,-0.0,0,False
+truck_green,vehicles,loaded,106.0,1773,2957,2600,VEHICLES,68,False,1,1,1,4.723,2.654,2.34,0.0,-0.037,-0.0,0,False
+tv_set,stations+furniture,loaded; no .import yet,27.0,294,674,300,V3_BUDGETS,98,False,2,1,1,0.74,0.771,0.423,-0.34,0.0,0.07,0,False
+wall_bulbs,world,dead (excluded from export),60.6,576,1728,700,BUDGETS,82,False,1,1,1,19.407,1.616,14.378,0.63,0.097,2.389,0,False
+wall_wire,world,dead (excluded from export),32.7,432,864,600,BUDGETS,72,False,1,1,1,19.459,1.619,14.459,0.813,0.005,2.495,0,False

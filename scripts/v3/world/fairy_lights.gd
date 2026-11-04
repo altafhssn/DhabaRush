@@ -30,6 +30,8 @@ static var _mat_chase: ShaderMaterial = null
 
 ## Every bulb string node driven by this node.
 var strings: Array[MeshInstance3D] = []
+## False by day: the strings are hidden (art audit M4 / S9, 4 Nov).
+var _lit: bool = true
 
 
 ## Finds every fairy_bulb_* mesh under `root` and gives it the shared
@@ -52,6 +54,7 @@ func attach(root: Node) -> int:
 			mi.material_override = _mat_chase if _is_chase(key) else _mat_twinkle
 			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			mi.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+			mi.visible = _lit
 			strings.append(mi)
 			n += 1
 	return n
@@ -72,6 +75,17 @@ func set_boost(boost: float) -> void:
 	for m in [_mat_twinkle, _mat_chase]:
 		var sm: ShaderMaterial = m
 		sm.set_shader_parameter("boost", boost)
+
+
+## Shows the bulb strings only from dusk (art audit M4 / S9, 4 Nov): hidden by
+## day, which also saves their triangles. DayNight calls it with night > 0.02.
+func set_lit(on: bool) -> void:
+	if on == _lit:
+		return
+	_lit = on
+	for mi in strings:
+		if is_instance_valid(mi):
+			mi.visible = on
 
 
 ## Animation speed multiplier (1 = spec rates).
