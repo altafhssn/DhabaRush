@@ -195,6 +195,8 @@ const QuitPopupScript := preload("res://scripts/v3/ui/quit_popup.gd")
 ## Core and feel (W2-ROOT): no class_name, loaded by path.
 const PromoPopupScript := preload("res://scripts/v3/ui/promo_popup.gd")
 const EventPanelScript := preload("res://scripts/v3/ui/event_panel.gd")
+## 5 Nov (owner): MENU, every counter's dish upgrades.
+const MenuPanelScript := preload("res://scripts/v3/ui/menu_panel.gd")
 const WorldNoteTagScript := preload("res://scripts/v3/ui/world_note_tag.gd")
 ## C3.1: the quick waiter card's tip this high over the oldest waiting plate.
 const PLATE_CARD_Y := 0.55
@@ -248,6 +250,7 @@ var quit_popup: QuitPopupScript
 ## baraat panel ("event").
 var promo_popup: PromoPopupScript
 var event_panel: EventPanelScript
+var menu_panel: MenuPanelScript
 ## World note tags: one per counter, then the gate tag.
 var note_tags: Array = []
 var gate_tag: WorldNoteTagScript
@@ -435,6 +438,12 @@ func _ready() -> void:
 	event_panel.hud = hud
 	event_panel.close_pressed.connect(_on_panel_x)
 	event_panel.action.connect(_relay)
+	menu_panel = MenuPanelScript.new()
+	menu_panel.name = "MenuPanel"
+	_panel_root.add_child(menu_panel)
+	menu_panel.gate = can_press
+	menu_panel.close_pressed.connect(_on_panel_x)
+	menu_panel.action.connect(_on_menu_action)
 
 	add_child(UiJuice.new())
 
@@ -841,6 +850,30 @@ func open_promo(kind: String, target: String = "") -> void:
 
 
 ## C6.4: the weekend baraat panel (full panel "event").
+## 5 Nov: MENU (every counter's dish upgrades) as panel "menu".
+func open_menu() -> void:
+	if current_popup != "" or current_panel == "menu":
+		return
+	if current_panel != "":
+		_close_panel(true)
+	menu_panel.open()
+	hud.set_mode("panel")
+	current_panel = "menu"
+	Sfx.play("tap", 0.02)
+	panel_opened.emit("menu")
+	Analytics.event("menu_open", {})
+
+
+## MENU's actions: a level bought (relayed as button_pressed), or MORE ›:
+## MENU closes and that counter's sheet opens.
+func _on_menu_action(id: String) -> void:
+	if id.begins_with("menu_open_"):
+		var st: String = id.substr(10)
+		_close_panel(false)
+		open_station(st)
+	button_pressed.emit(id)
+
+
 func open_event() -> void:
 	if current_popup != "":
 		return
@@ -1130,6 +1163,8 @@ func _close_panel(restore_cam: bool) -> void:
 		daftar.close()
 	elif pname == "event":
 		event_panel.close()
+	elif pname == "menu":
+		menu_panel.close()
 	hud.set_mode("gameplay")
 	panel_closed.emit(pname)
 
@@ -1444,7 +1479,7 @@ func _process(delta: float) -> void:
 func _sync_world_cover() -> void:
 	# _world_covered starts true, so a new UiRoot (a promotion's scene reload
 	# keeps the root viewport) always writes disable_3d once.
-	var covered: bool = visible and (_covers(staff_panel) or _covers(daftar) or _covers(event_panel))
+	var covered: bool = visible and (_covers(staff_panel) or _covers(daftar) or _covers(event_panel) or _covers(menu_panel))
 	if covered == _world_covered:
 		return
 	_world_covered = covered
@@ -1601,6 +1636,8 @@ func _on_hud_button(id: String) -> void:
 			open_settings()
 		"phone_button":
 			open_phone()
+		"menu_button":
+			open_menu()
 		"home_button":
 			if not _cam_call("fly_home", []):
 				_cam_call("fly_to", [Main3.home_view(), CameraRig.GAME])

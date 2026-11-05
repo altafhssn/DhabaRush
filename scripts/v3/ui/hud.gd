@@ -77,11 +77,11 @@ signal rate_rose(before: float, after: float, secs: float, what: String)
 
 const EXTRAS := ["task_bar", "manager_button", "medal_button", "stats_button",
 		"shop_button", "staff_button", "build_button", "settings_button", "home_button",
-		"bottleneck_meter", "event_button", "phone_button"]
+		"bottleneck_meter", "event_button", "phone_button", "menu_button"]
 ## Round 2 step 2: HUD control -> reveal element (revealed()).
 const REVEAL_EL := {"task_bar": "tasks", "staff_button": "staff", "build_button": "build",
 		"stats_button": "stats", "settings_button": "gear", "bottleneck_meter": "meter",
-		"phone_button": "phone"}
+		"phone_button": "phone", "menu_button": "build"}
 ## Core and feel C2.6: the meter sits this far under the task strip.
 const METER_GAP := 16.0
 ## C6.4: the BARAAT button sits this far under the meter.
@@ -110,6 +110,8 @@ const HOME_POLL := 0.25
 ## HOME now shows as soon as the home point leaves the screen.
 const HOME_MARGIN := 0.0
 const CAPTION_PX := 21
+## 5 Nov: MENU sits this far right of STAFF.
+const MENU_GAP := 14.0
 ## Story: PHONE sits this far under STATS's caption; its wiggle on a new
 ## message (degrees, seconds).
 const PHONE_GAP := 18.0
@@ -152,6 +154,8 @@ var _staff_plus_badge: UiIcon
 var _phone_badge: Panel
 var _phone_count: Label
 var _buzz_pending: bool = false
+## 5 Nov: the rush kind last seen ("" = none), for the rush toast.
+var _rush_kind: String = ""
 var _badge_t: float = 0.0
 ## Element reveal states seen so far (id -> bool) and the poll timer.
 var _rev: Dictionary = {}
@@ -492,6 +496,7 @@ func _build_buttons() -> void:
 	_build_phone_button()
 	_caption(bb, "BUILD", Rect2(0, 100, 104, 26))
 	_build_staff_button()
+	_build_menu_button()
 	# Round 2 step 2: HOME is a pill at the bottom centre.
 	var home := UiButton.new("HOME", UiKit.CREAM_BTN, HOME_PILL)
 	home.name = "home_button"
@@ -541,6 +546,13 @@ func _build_staff_button() -> void:
 	_staff_plus_badge.position = Vector2(-8, -8)
 	_staff_plus_badge.visible = false
 	b.add_child(_staff_plus_badge)
+
+
+## 5 Nov (owner): MENU, a cream square like STAFF right of it (the menu card
+## glyph, caption MENU); shows with BUILD. Tap -> UiRoot.open_menu().
+func _build_menu_button() -> void:
+	var b: UiButton = _square("menu_button", "menu", UiKit.CREAM_BTN, STAFF_SIZE, Vector2(72, 72))
+	_caption(b, "MENU", Rect2(0, 102, STAFF_SIZE.x, 26))
 
 
 ## Story: PHONE, a cream square like STATS with the phone glyph, caption
@@ -626,6 +638,7 @@ func _layout() -> void:
 	_event_btn.position = Vector2(EVENT_X, _meter.position.y + BottleneckMeter.SIZE.y + EVENT_GAP)
 	(_buttons["shop_button"] as Control).position = Vector2(15, _bottom - 102.0)
 	(_buttons["staff_button"] as Control).position = Vector2(15, _bottom - 102.0 - 4.0)
+	(_buttons["menu_button"] as Control).position = Vector2(15 + STAFF_SIZE.x + MENU_GAP, _bottom - 102.0 - 4.0)
 	(_buttons["home_button"] as Control).position = Vector2((w - HOME_PILL.x) * 0.5, _bottom - HOME_PILL.y - 6.0)
 	(_buttons["build_button"] as Control).position = Vector2(w - 15.0 - 104.0, _bottom - 98.0)
 	(_buttons["settings_button"] as Control).position = Vector2(w - 41.0 - 24.0, _bottom - 148.0 - 24.0)
@@ -924,6 +937,7 @@ func _process(delta: float) -> void:
 		refresh_phone()
 		if _buzz_pending:
 			_buzz()
+		_check_rush()
 	_rev_t += delta
 	if _rev_t >= HOME_POLL:
 		_rev_t = 0.0
@@ -1189,6 +1203,20 @@ func _on_hud_button(id: String, b: UiButton) -> void:
 		return
 	b.juice()
 	button_pressed.emit(id)
+
+
+# ================================================================ rush hours (5 Nov)
+## A toast when the signboard's lunch or dinner rush starts (Game.rush_now()).
+func _check_rush() -> void:
+	var r: Variant = UiKit.gcall("rush_now", [], {})
+	var kind: String = str((r as Dictionary).get("kind", "")) if r is Dictionary and bool((r as Dictionary).get("active", false)) else ""
+	if kind == _rush_kind:
+		return
+	_rush_kind = kind
+	if kind == "" or mode != "gameplay":
+		return
+	toast(tr("LUNCH RUSH! The highway is busy") if kind == "lunch" else tr("DINNER RUSH! The highway is busy"), 0.3)
+	Sfx.play("horn", 0.0)
 
 
 # ================================================================ story: PHONE

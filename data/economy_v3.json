@@ -547,7 +547,16 @@
     "walk_station_to_station_s": 2.5,
     "walk_station_to_galla_s": 2.8,
     "max_station_queue": 5,
-    "tutorial_inject": 5
+    "tutorial_inject": 5,
+    "_follow_comment": "design 2026-11-05 (owner): after the tutorial the road follows the dhaba. With follow_dhaba the arrival target is follow_k x the slowest serving stage, with no road cap (ramp_max_tpm and the signboard no longer cap it; the tutorial and its reference pacing are unchanged), a bus may bring up to bus_load_extra_max more than bus_riders_max, and travellers linger after eating (linger: min_s..max_s seated idles) while the door line is empty, a seat stays free for every traveller on the way and fewer than full x the seats are in use; they stand up the moment a seat is wanted. Target: about 80 % of the seats in use.",
+    "follow_dhaba": true,
+    "follow_k": 1.0,
+    "bus_load_extra_max": 12,
+    "linger": {
+      "min_s": 30.0,
+      "max_s": 60.0,
+      "full": 0.8
+    }
   },
   "tasks": {
     "_comment": "ref: 3 slots; claims fill ~10% of the chest track each (6 segments drawn); 'Attend 20' paid 48 and 'Generate 100' paid 53; earned tasks count sales AND rewards (W4-FIX-core: so texts.earned reads 'for the dhaba', not 'at the galla'). Other rewards are design. Texts are original dhaba wording; {n} = target, {money} = Rs amount, {station} = station noun, {g} = galla number, {staff} = galla cashier. ROUND 2 (0.3.3, docs/round2/economy-proposal.md §5, owner decisions 2026-10-22): only the first four cards keep fixed rewards (chai_l25, chai_serve20, chai_l50, earn_100); every other card has reward 0 = sized when it is handed out (generators.reward_minutes x the reward rate), or by its own reward_minutes (build_kadai, chai_l100: 1 min). The chest pays chest_reward.cash_minutes (1.5) of the reward rate. ROUND 2 STEP 2 (0.3.4, owner decisions 4 and 5): texts use only the three verbs, HIRE (a new person), UPGRADE (someone or something you have) and BUILD (a new counter or table); waiter cards point at STAFF; build cards read 'Build the <counter>'.",
@@ -1409,7 +1418,19 @@
     "max_levels_family": 6,
     "tpm_per_level": 1.5,
     "offer_payback_min": 10.0,
-    "reset_on_move": true
+    "reset_on_move": true,
+    "_rush_comment": "design 2026-11-05 (owner): with traffic.follow_dhaba the signboard no longer raises the road; it makes the lunch and dinner rushes bigger: during each rush_windows [from, to) of the day phase the arrival target is x (1 + rush_per_level x level). No signboard, no rush.",
+    "rush_per_level": 0.25,
+    "rush_windows": [
+      [
+        0.3,
+        0.4
+      ],
+      [
+        0.62,
+        0.72
+      ]
+    ]
   },
   "renovation": {
     "_comment": "C6.1 Family Dhaba: unlock when every counter is built and at L100; x2 on every price forever.",

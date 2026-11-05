@@ -1110,6 +1110,13 @@ func _refresh_signboard_row() -> void:
 	if maxed:
 		gain.text = UiKit.t("BIGGEST BOARD ON THE HIGHWAY")
 		gain.add_theme_color_override("font_color", UiKit.MAROON)
+	elif unlocked and bool(UiKit.gcall("road_follows", [], false)):
+		# 5 Nov (owner): the signboard makes the lunch and dinner rushes bigger.
+		var a: float = float(UiKit.gcall("rush_mult", [lv], 1.0))
+		var b: float = float(UiKit.gcall("rush_mult", [lv + 1], 1.0))
+		gain.text = UiKit.t("Bigger rush: x{a} → x{b}").replace("{a}", _mult_text(a)).replace("{b}", _mult_text(b)) \
+				if lv > 0 else UiKit.t("Lunch and dinner rush: x{b}").replace("{b}", _mult_text(b))
+		gain.add_theme_color_override("font_color", UiKit.GAIN)
 	elif unlocked:
 		var g: float = Game.signboard_gain_per_min()
 		if g > 0.005:
@@ -1126,6 +1133,14 @@ func _refresh_signboard_row() -> void:
 		btn.set_cost(Fmt.price(c))
 		btn.set_affordable(Game.can_afford(c))
 	_mark_ready(d, unlocked and not maxed and bool(Game.signboard_offer().get("offer", false)))
+
+
+## "1.25", "1.5", "2" (no trailing zeros).
+static func _mult_text(m: float) -> String:
+	var t: String = "%.2f" % m
+	while t.ends_with("0"):
+		t = t.left(t.length() - 1)
+	return t.trim_suffix(".")
 
 
 func _refresh_promo_row(kind: String) -> void:

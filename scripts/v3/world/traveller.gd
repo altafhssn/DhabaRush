@@ -13,6 +13,10 @@ extends Node3D
 ## joins the shortest galla line, pays the sum of the prices locked when each
 ## item was cooked, and walks back to his vehicle.
 ##
+## 5 Nov: after eating he may LINGER (still EATING: seated idles for
+## Sim.linger_time() s when Sim.linger_ok() as he finishes; the Sim stands
+## him up early when someone waits at the door), so a quiet dhaba looks
+## lived in.
 ## FSM: ARRIVING -> (DOOR_WAIT ->) TO_SEAT -> SITTING -> SEATED -> EATING ->
 ##      STANDING -> TO_GALLA -> GALLA_QUEUE -> PAYING -> LEAVING -> GONE
 ##      (DOOR_WAIT -> GIVING_UP -> GONE when no seat frees up).
@@ -40,7 +44,7 @@ enum S { ARRIVING, DOOR_WAIT, TO_SEAT, SITTING, SEATED, EATING, STANDING, TO_GAL
 ## What reaching the end of the current path means.
 enum A { NONE, ENTER, QUEUE, SPOT, HOME, SEAT, DOOR_SLOT, BUS_SLOT }
 ## Timed actions (frozen while the sim is paused).
-enum ACT { NONE, HOP, SIT, STAND, EAT, SAD }
+enum ACT { NONE, HOP, SIT, STAND, EAT, SAD, LINGER }
 
 const WALK_HEIGHTS_PER_S := 1.8
 ## On the carriageway (the zebra crossing) people step out briskly: this x
@@ -155,6 +159,8 @@ var _act_t: float = 0.0
 var _act_from: Vector3 = Vector3.ZERO
 var _act_to: Vector3 = Vector3.ZERO
 var _eat_left: float = 0.0
+## 5 Nov: seconds left to linger after eating (ACT.LINGER).
+var _linger_left: float = 0.0
 var _bubble: Sprite3D = null
 ## Order key the bubble shows (bubble_texture), "" = none / hiding.
 var _bubble_key: String = ""
@@ -614,6 +620,21 @@ func _tick_seated_idle(delta: float) -> void:
 	rig.play(str(SEATED_IDLES[randi() % SEATED_IDLES.size()]))
 
 
+## 5 Nov: lingering after eating (ACT.LINGER).
+func is_lingering() -> bool:
+	return _act == ACT.LINGER
+
+
+func linger_left() -> float:
+	return _linger_left if _act == ACT.LINGER else 0.0
+
+
+## The Sim wants his seat (a door line): he stands up next frame.
+func stop_lingering() -> void:
+	if _act == ACT.LINGER:
+		_linger_left = 0.0
+
+
 ## The seated idle he is playing ("" = none; debug / tests).
 func seated_idle() -> String:
 	if _idle_left > 0.0 and rig != null and SEATED_IDLES.has(rig.get_pose()):
@@ -785,6 +806,26 @@ func _tick_act(delta: float) -> void:
 			_eat_left -= delta
 			if _eat_left <= 0.0:
 				_act = ACT.NONE
+				# 5 Nov: while the dhaba has seats to spare he sits on a while
+				# (Sim.linger_ok / linger_time), still EATING for the Sim.
+				var lg: float = _sim.linger_time() if _sim != null and seated else 0.0
+				if lg > 0.0:
+					_linger_left = lg
+					_act = ACT.LINGER
+					_act_t = 0.0
+					if rig != null:
+						rig.play("sit")
+					_idle_left = 0.0
+					_idle_in = 0.4
+				else:
+					_stand_up()
+		ACT.LINGER:
+			_linger_left -= delta
+			_tick_seated_idle(delta)
+			if _linger_left <= 0.0 or _sim == null:
+				_act = ACT.NONE
+				_linger_left = 0.0
+				_idle_left = 0.0
 				_stand_up()
 		ACT.SAD:
 			if _act_t >= SAD_TIME:

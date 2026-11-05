@@ -38,7 +38,7 @@ extends Node3D
 ##                       (= daftar), stats (= hisaab), tables (the ghost
 ##                       table's 2-tap card, else BUILD › TABLES),
 ##                       quick:waiters, quick:tables, vip, settings, phone
-##                       (story: Simran's chat); the old
+##                       (story: Simran's chat), menu (every counter); the old
 ##                       names galla / waiters / seating still work (STAFF ›
 ##                       CASHIERS / STAFF › WAITERS / tables) (use with
 ##                       --skip-tutorial)
@@ -1164,6 +1164,8 @@ func _debug_open(what: String) -> void:
 			ui.open_settings()
 		"phone":
 			ui.open_phone()
+		"menu":
+			ui.open_menu()
 		"waiters":
 			ui.open_waiters()
 		"seating", "tables":
@@ -1762,10 +1764,10 @@ func _stats_core_feel(cap: Dictionary) -> String:
 		var h: int = int(sim.call("hall_seated_total"))
 		hall = "%d (%.1f%%)" % [h, 100.0 * float(h) / maxf(1.0, float(sim.call("seated_total_scene")))]
 	var ramp_cap: float = float(cap["cap"]) if cap.has("cap") else _ramp_cap_formula()
-	return " | door max %s | passed %s | held %s | trip orders %s | home walks %s | cap %.1f | hall seated %s | hall food %s road food %s" % [
+	return " | door max %s | passed %s | held %s | trip orders %s | home walks %s | cap %.1f | hall seated %s | hall food %s road food %s | linger %s" % [
 		_sim_val("door_line_max_seen", "%d"), ("%d" % _game_int("passed_session")) if "passed_session" in Game else "-",
 		held, _sim_val("trip_orders_mean", "%.2f"), _sim_val("home_walks", "%d"), ramp_cap,
-		hall, _sim_val("hall_food_wait_mean", "%.1f"), _sim_val("road_food_wait_mean", "%.1f")]
+		hall, _sim_val("hall_food_wait_mean", "%.1f"), _sim_val("road_food_wait_mean", "%.1f"), _sim_val("lingering_count", "%d")]
 
 
 ## A wave-1 Sim getter by name, formatted; "-" when this build's Sim lacks it.

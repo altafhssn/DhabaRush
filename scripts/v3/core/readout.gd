@@ -23,6 +23,8 @@ extends RefCounted
 
 ## Seconds a computed state is reused (a purchase recomputes at once).
 const CACHE_S := 0.5
+## 5 Nov: the road's rate while it follows the dhaba (Game.road_follows): never the limit.
+const FOLLOW_ROAD := 999.0
 ## = Game.BOTTLENECK_TIE: stages within 1 % of the minimum tie.
 const TIE := 0.01
 ## Tie order of the four rows (= Game.BOTTLENECK_ORDER without "arrivals":
@@ -265,10 +267,12 @@ func _rates_now() -> Dictionary:
 	var src: String = "model"
 	var seats_cap: float = 0.0
 	var room: float = INF
+	# 5 Nov (owner): while the road follows the dhaba it is never the limit.
+	var follows: bool = bool(_gcall("road_follows", [], false))
 	if not lc.is_empty() and lc.has("waiters") and lc.has("stations"):
 		src = "live"
 		var k: float = clampf(float(game.traffic_value("ramp_station_k", STATION_K)), 0.1, 1.0)
-		var road: float = float(game.traffic_value("ramp_max_tpm", ROAD_CAP_LIVE)) + bonus
+		var road: float = FOLLOW_ROAD if follows else float(game.traffic_value("ramp_max_tpm", ROAD_CAP_LIVE)) + bonus
 		seats_cap = _num(lc.get("seats", 0.0))
 		# W4-FIX-core (C2.1): the arrival-room gate, when clearly below the road.
 		var room_now: float = float(_gcall("room_rate_now", [], INF))
@@ -284,7 +288,7 @@ func _rates_now() -> Dictionary:
 		r = {
 			"seats": _num(br.get("seats", 0.0)), "cooks": _num(br.get("kitchen", 0.0)),
 			"waiters": _num(br.get("waiters", 0.0)), "cashiers": _num(br.get("gallas", 0.0)),
-			"road": float(game.travellers_per_min()) + bonus,
+			"road": FOLLOW_ROAD if follows else float(game.travellers_per_min()) + bonus,
 		}
 		seats_cap = float(r["seats"])
 	var lo_stage: float = INF

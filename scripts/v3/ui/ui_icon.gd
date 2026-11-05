@@ -357,6 +357,7 @@ static func paint(ci: CanvasItem, n: String, r: Rect2, tint: Color = Color.WHITE
 		"tamgha": _tamgha(ci, o, s)
 		"hisaab": _hisaab(ci, o, s)
 		"phone": _phone(ci, o, s)
+		"menu": _menu(ci, o, s)
 		"hammer": _hammer(ci, o, s)
 		"kettle": _kettle(ci, o, s)
 		"kulhad": _kulhad(ci, o, s)
@@ -631,6 +632,22 @@ static func _hisaab(ci: CanvasItem, o: Vector2, s: float) -> void:
 	fill(ci, _pts(o, s, [0.32, 0.6, 0.42, 0.6, 0.42, 0.82, 0.32, 0.82]), UiKit.TEAL)
 	fill(ci, _pts(o, s, [0.48, 0.46, 0.58, 0.46, 0.58, 0.82, 0.48, 0.82]), UiKit.SAFFRON)
 	fill(ci, _pts(o, s, [0.64, 0.28, 0.74, 0.28, 0.74, 0.82, 0.64, 0.82]), UiKit.MAROON)
+
+
+## 5 Nov: MENU, a maroon menu card with a gold border, a steaming kulhad and
+## three dish lines.
+static func _menu(ci: CanvasItem, o: Vector2, s: float) -> void:
+	var card := Rect2(_p(o, s, 0.17, 0.06), Vector2(s * 0.66, s * 0.88))
+	fill(ci, rrect_pts(card, s * 0.07), UiKit.MAROON)
+	outline(ci, rrect_pts(Rect2(card.position + Vector2(s * 0.04, s * 0.04), card.size - Vector2(s * 0.08, s * 0.08)), s * 0.05),
+			UiKit.MARIGOLD, maxf(1.0, s * 0.025))
+	fill(ci, _pts(o, s, [0.4, 0.2, 0.6, 0.2, 0.57, 0.36, 0.43, 0.36]), Color(0.78, 0.45, 0.25))
+	for k in 2:
+		var x: float = 0.45 + 0.1 * float(k)
+		ci.draw_line(_p(o, s, x, 0.17), _p(o, s, x + 0.02, 0.11), Color(1, 1, 1, 0.7), maxf(1.0, s * 0.02), true)
+	for k in 3:
+		var y: float = 0.5 + 0.12 * float(k)
+		ci.draw_line(_p(o, s, 0.3, y), _p(o, s, 0.7, y), UiKit.MARIGOLD_PALE, maxf(1.0, s * 0.035), true)
 
 
 ## Story (4 Nov): Simran's phone, a dark handset with a pink heart on its

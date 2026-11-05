@@ -4897,6 +4897,55 @@ func _sbdef() -> Dictionary:
 	return _dict(eco, "signboard")
 
 
+# ---------------------------------------------------------------- traffic follows the dhaba (5 Nov)
+## Owner decision 5 Nov: after the tutorial the road follows the dhaba
+## (economy traffic.follow_dhaba): no road cap on the arrival target, bigger
+## buses, travellers linger while seats are plentiful, and the signboard
+## makes the lunch and dinner rushes bigger instead of raising the road.
+func road_follows() -> bool:
+	return is_tutorial_done() and bool(_traffic().get("follow_dhaba", false))
+
+
+## traffic.linger: {min_s, max_s, full} (defaults when missing).
+func linger_cfg() -> Dictionary:
+	var d: Dictionary = _dict(_traffic(), "linger")
+	return {"min_s": float(d.get("min_s", 18.0)), "max_s": float(d.get("max_s", 40.0)), "full": float(d.get("full", 0.8))}
+
+
+## The rush multiplier at signboard level `level` (-1 = the current level).
+func rush_mult(level: int = -1) -> float:
+	var lv: int = _signboard if level < 0 else level
+	return 1.0 + maxf(0.0, float(_sbdef().get("rush_per_level", 0.25))) * float(maxi(0, lv))
+
+
+## The rush now: {active, kind ("lunch" | "dinner" | ""), mult, left_s}. Only
+## while the road follows the dhaba and with a signboard; the windows are
+## signboard.rush_windows of the day phase.
+func rush_now() -> Dictionary:
+	var out: Dictionary = {"active": false, "kind": "", "mult": 1.0, "left_s": 0.0}
+	if not road_follows() or _signboard <= 0:
+		return out
+	var w: Variant = _sbdef().get("rush_windows", [])
+	if not (w is Array):
+		return out
+	var cyc: float = maxf(1.0, float(daynight_cfg().get("cycle_s", 600.0)))
+	var kinds: Array = ["lunch", "dinner"]
+	var arr: Array = w
+	for i in arr.size():
+		var r: Variant = arr[i]
+		if not (r is Array) or (r as Array).size() < 2:
+			continue
+		var a: float = float(r[0])
+		var b: float = float(r[1])
+		if day_phase >= a and day_phase < b:
+			out["active"] = true
+			out["kind"] = str(kinds[i]) if i < kinds.size() else "rush"
+			out["mult"] = rush_mult()
+			out["left_s"] = (b - day_phase) * cyc
+			return out
+	return out
+
+
 func signboard_level() -> int:
 	return _signboard
 
@@ -4934,7 +4983,7 @@ func signboard_cost() -> float:
 ## Travellers / min the signboard adds to the arrival cap (level x
 ## tpm_per_level; 0 in the tutorial).
 func signboard_bonus_tpm() -> float:
-	if not is_tutorial_done():
+	if not is_tutorial_done() or road_follows():
 		return 0.0
 	return float(_signboard) * float(_sbdef().get("tpm_per_level", 1.5))
 

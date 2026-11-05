@@ -230,6 +230,10 @@ const BUS_BOARD := 0.25           # s between passengers climbing aboard
 ## riders beyond bus_riders_max when 4 bays and one bus a trip cannot carry
 ## the arrival target (_bus_load_max); the load wanted gets this margin.
 const BUS_LOAD_EXTRA_MAX := 4
+## 5 Nov: the road cap while the road follows the dhaba (never reached).
+const FOLLOW_CAP_TPM := 999.0
+## 5 Nov: seats kept free while travellers linger.
+const LINGER_SPARE := 2
 const BUS_LOAD_MARGIN := 1.2
 ## Reference pacing (the tutorial up to "ramp_tutorial_from"): a bus every
 ## this many s ("tutorial_bus_interval_s"), the bays get the rest of
@@ -852,6 +856,64 @@ func seats_total() -> int:
 	return tables_built * Layout3.SEATS_PER_TABLE
 
 
+## 5 Nov: a traveller who has eaten may linger in his seat (seated idles) only
+## while the road follows the dhaba, nobody waits at the door, at least
+## LINGER_SPARE seats are free, and fewer than traffic.linger.full of the
+## seats are in use. Lingerers stay in state EATING, so _seats_freeing()
+## counts them and the arrival room and the room rate never wait for them.
+## A door line releases as many lingerers as wait there (less those already
+## standing up), the longest-lingering first (_tick_linger_release).
+func linger_ok() -> bool:
+	if not Game.road_follows() or _ref_pacing() or not door_queue.is_empty():
+		return false
+	var total: int = seats_total()
+	if total <= 0 or seats_free() < LINGER_SPARE:
+		return false
+	return float(seats_in_use()) < float(total) * float(Game.linger_cfg()["full"])
+
+
+## 5 Nov: one lingerer stands up per traveller waiting at the door (less the
+## seated travellers already standing up), longest lingering first, so a full
+## bus at the door frees just the seats it needs.
+func _tick_linger_release() -> void:
+	if door_queue.is_empty():
+		return
+	var standing: int = 0
+	var lingerers: Array = []
+	for v in seats_occ:
+		if not is_instance_valid(v):
+			continue
+		var t: Traveller = v
+		if t.state == Traveller.S.STANDING:
+			standing += 1
+		elif t.is_lingering():
+			lingerers.append(t)
+	var need: int = door_queue.size() - standing
+	if need <= 0 or lingerers.is_empty():
+		return
+	lingerers.sort_custom(func(a: Traveller, b: Traveller) -> bool: return a.linger_left() < b.linger_left())
+	for i in mini(need, lingerers.size()):
+		(lingerers[i] as Traveller).stop_lingering()
+
+
+## Travellers lingering after eating now (debug / [stats]).
+func lingering_count() -> int:
+	var n: int = 0
+	for v in seats_occ:
+		if is_instance_valid(v) and (v as Traveller).is_lingering():
+			n += 1
+	return n
+
+
+## 5 Nov: how long a traveller lingers (traffic.linger min_s..max_s; Sim.rng,
+## so a seed replays); 0 when lingering is not allowed now.
+func linger_time() -> float:
+	if not linger_ok():
+		return 0.0
+	var c: Dictionary = Game.linger_cfg()
+	return rng.randf_range(float(c["min_s"]), maxf(float(c["min_s"]), float(c["max_s"])))
+
+
 ## Seats taken or reserved by a traveller walking to them.
 func seats_in_use() -> int:
 	var n: int = 0
@@ -1258,6 +1320,7 @@ func _process(delta: float) -> void:
 		_age_t = 0.0
 		_sample_ticket_age()
 	_tick_door_line(delta)
+	_tick_linger_release()
 	_tick_dispatch(delta)
 	_rate_t -= delta
 	if _rate_t <= 0.0:
@@ -1523,6 +1586,10 @@ func waiter_trip_s(key: String) -> float:
 ## its way counts half), between ramp_backlog_min and 1, smoothed over
 ## ramp_backlog_tau_s ("damp"; "damp_now" unsmoothed).
 ## target = clamp(ramp_capacity_k x min, ramp_min_tpm, ramp_max_tpm) x damp.
+## 5 Nov (owner): once Game.road_follows() (free play, traffic.follow_dhaba)
+## there is no road cap: target = max(traffic.follow_k x min, ramp_min_tpm)
+## x damp, x the signboard's rush multiplier during a rush (Game.rush_now()).
+## The tutorial and its reference pacing are unchanged.
 func capacity_estimate() -> Dictionary:
 	var assume: Array = []
 	if _tutorial_plans_tandoor() and not stations.has("tandoor"):
@@ -1599,8 +1666,16 @@ func capacity_estimate() -> Dictionary:
 	var lo: float = _bus_value("ramp_min_tpm", RAMP_MIN_TPM)
 	# C5.3: the highway signboard raises the cap (free play; W1-CORE, by name)
 	var hi: float = maxf(lo, _bus_value("ramp_max_tpm", Game.travellers_per_min()) + _signboard_bonus())
+	# 5 Nov: the road follows the dhaba (no road cap after the tutorial).
+	var k_cap: float = _bus_value("ramp_capacity_k", RAMP_K)
+	var follows: bool = Game.road_follows() and not _ref_pacing()
+	if follows:
+		k_cap = _bus_value("follow_k", k_cap)
+		hi = maxf(hi, FOLLOW_CAP_TPM)
 	# The floor keeps the dhaba busy; only a backlog takes arrivals below it.
-	var target: float = clampf(_bus_value("ramp_capacity_k", RAMP_K) * m, lo, hi) * _damp
+	var target: float = clampf(k_cap * m, lo, hi) * _damp
+	if follows:
+		target *= float(Game.rush_now().get("mult", 1.0))
 	if debug_arrivals_tpm > 0.0:
 		target = debug_arrivals_tpm
 	elif _ref_pacing():
@@ -1678,7 +1753,10 @@ func _bus_load_max() -> int:
 		return hi
 	var trip: float = maxf(traffic.bus_trip_avg(), traffic.bus_lead_time())
 	var want: float = maxf(0.0, arrivals_target - lorry_supply()) * trip / 60.0 * BUS_LOAD_MARGIN
-	return clampi(ceili(want - 0.001), hi, hi + BUS_LOAD_EXTRA_MAX)
+	# 5 Nov: the extra is data (traffic.bus_load_extra_max; 12 while the road
+	# follows the dhaba, so one bus may bring up to 18).
+	var extra: int = maxi(0, int(_bus_value("bus_load_extra_max", float(BUS_LOAD_EXTRA_MAX))))
+	return clampi(ceili(want - 0.001), hi, hi + extra)
 
 
 func _bus_mean_riders() -> float:
