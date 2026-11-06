@@ -1914,6 +1914,9 @@ V3_BUDGETS.update({n: 550 for n in ("pass_missi_roti", "pass_lahsun_roti", "pass
                                     "pass_shikanji")})
 # Story (4 Nov): the father is a hero character seen up close on his visits (pagdi, shawl, cane).
 V3_BUDGETS.update({"story_father": 2600, "story_simran": 2000})
+# Story (5 Nov): Rani, the narrator, is a 3D bust shown alone and large in the dialogue box; the
+# owner asked for better modelling at no more than the first draft's ~6100 triangles.
+V3_BUDGETS.update({"rani_" + p: 6100 for p in ("idle", "cheer", "worried", "point", "namaste", "ledger")})
 V3_CHAR_BUDGET, V3_BUST_BUDGET = 1800, 3000
 
 
@@ -1950,7 +1953,8 @@ def build_v3(mat):
     groups = (w_groups + chars.build_travellers(mat) + chars.build_staff(mat) + chars.build_waiters(mat)
               + [props.build_cow(mat)] + props.build_menu_stations(mat) + chars.build_menu_cooks(mat)
               + chars.build_menu_helpers(mat)
-              + chars.build_munshi(mat) + props.build_core_feel_prop_groups(mat) + cf_groups)
+              + chars.build_munshi(mat) + chars.build_rani(mat) + props.build_core_feel_prop_groups(mat)
+              + cf_groups)
     return singles, groups, common, render
 
 

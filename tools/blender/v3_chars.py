@@ -1203,3 +1203,481 @@ def build_munshi(mat, poses=None):
             with_matrix(P["arm_r"], kulhad, Matrix.Translation(Vector(c)) @ _rot4(rot) @ Matrix.Translation((0, 0, -0.05)))
         out.append(P.finish(mat, BUST_SMOOTH))
     return out
+
+
+# ------------------------------------------------------------------ Rani (narrator bust)
+# Story (5 Nov): Rani, the hero's younger sister, narrates as a 3D bust in the game's chibi
+# style instead of the 2D art. Same nodes as munshi_* (body / head / arm_l / arm_r, body
+# origin at the waist, head pivot at the neck, arms at the shoulders), so MunshiBust's rig
+# drives her unchanged. Look (the owner's 2D art, mirrored so the waving arm_r is free): a
+# mustard kurti with a gold-trimmed V neck and 3/4 sleeves, a brown open vest, a teal dupatta
+# round the neck with one end down her right side, black hair with a middle parting and a
+# long plait over her left shoulder, maroon bindi, gold nose stud and jhumkas, bangles, and
+# the red bahi-khata in her left arm.
+# Built from lofted cross-sections (torso, vest, hair, dupatta, sleeves) rather than stacked
+# primitives, so the forms read smooth at the same triangle count (owner, 5 Nov).
+R_SKIN, R_KURTI, R_VEST, R_DUP = SKIN1, DAL, WOOD, TEAL
+R_LIPS = JACKET
+R_NECK = Vector((0, 0, 0.66))
+R_SR, R_SL = Vector((-0.3, 0, 0.545)), Vector((0.3, 0, 0.545))
+R_HEAD_SCALE = 1.12
+# torso cross-sections (z, half width, front depth, back depth): superellipses of power R_TP
+R_TORSO = ((-0.16, 0.29, 0.23, 0.21), (0.0, 0.265, 0.205, 0.195), (0.12, 0.245, 0.19, 0.18),
+           (0.26, 0.25, 0.2, 0.18), (0.38, 0.262, 0.212, 0.175), (0.46, 0.272, 0.198, 0.165),
+           (0.52, 0.278, 0.17, 0.15), (0.565, 0.252, 0.135, 0.125), (0.6, 0.185, 0.108, 0.1),
+           (0.625, 0.1, 0.085, 0.085))
+R_TP = 2.3
+
+
+def _paint_faces(a, faces, color):
+    uv = swatch_uv(color)
+    for f in faces:
+        for l in f.loops:
+            l[a.uv].uv = uv
+
+
+def _bridge(a, rings, color, closed=True, col=None):
+    """Quads between consecutive rings (equal-length point lists); col(i, j) -> swatch for the
+    quad between ring i..i+1 and point j..j+1 (default `color`). Returns (verts, faces)."""
+    V = [[a.bm.verts.new(Vector(p)) for p in r] for r in rings]
+    n = len(V[0])
+    faces = []
+    for i in range(len(V) - 1):
+        for j in range(n if closed else n - 1):
+            k = (j + 1) % n
+            f = a.bm.faces.new((V[i][j], V[i][k], V[i + 1][k], V[i + 1][j]))
+            _paint_faces(a, [f], col(i, j) if col else color)
+            faces.append(f)
+    return V, faces
+
+
+def _cap(a, verts, color):
+    f = a.bm.faces.new(verts)
+    _paint_faces(a, [f], color)
+    return [f]
+
+
+def _strip(a, va, vb, color):
+    """Quads joining two equal-length open vertex rows."""
+    out = []
+    for k in range(len(va) - 1):
+        f = a.bm.faces.new((va[k], va[k + 1], vb[k + 1], vb[k]))
+        out.append(f)
+    _paint_faces(a, out, color)
+    return out
+
+
+def _closed(a, faces):
+    """Point the normals of a closed shell outward."""
+    bmesh.ops.recalc_face_normals(a.bm, faces=faces)
+
+
+def _sup(t, w, df, db, p=R_TP):
+    c, s_ = math.cos(t), math.sin(t)
+    x = w * math.copysign(abs(c) ** (2 / p), c)
+    d = db if s_ > 0 else df
+    return x, d * math.copysign(abs(s_) ** (2 / p), s_)
+
+
+def _torso_at(z):
+    T = R_TORSO
+    if z <= T[0][0]:
+        return list(T[0][1:])
+    for a0, a1 in zip(T, T[1:]):
+        if a0[0] <= z <= a1[0]:
+            t = (z - a0[0]) / (a1[0] - a0[0])
+            return [u + (v - u) * t for u, v in zip(a0[1:], a1[1:])]
+    return list(T[-1][1:])
+
+
+def _torso_front(x, z, out=0.0):
+    w, df, db = _torso_at(z)
+    u = max(0.0, 1 - abs(x / w) ** R_TP)
+    return Vector((x, -df * u ** (1 / R_TP) - out, z))
+
+
+def _catmull(pts, steps, closed=False):
+    """Smooth curve through pts (Catmull-Rom), `steps` samples per span."""
+    P = [Vector(p) for p in pts]
+    n = len(P)
+    out = []
+    spans = n if closed else n - 1
+    for i in range(spans):
+        p0 = P[(i - 1) % n] if closed or i > 0 else P[0] * 2 - P[1]
+        p1, p2 = P[i % n], P[(i + 1) % n]
+        p3 = P[(i + 2) % n] if closed or i + 2 < n else P[-1] * 2 - P[-2]
+        for k in range(steps):
+            t = k / steps
+            t2, t3 = t * t, t * t * t
+            out.append(0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2
+                              + (3 * p1 - p0 - 3 * p2 + p3) * t3))
+    if not closed:
+        out.append(P[-1])
+    return out
+
+
+def _tangents(P, closed=False):
+    n = len(P)
+    T = []
+    for i in range(n):
+        a = P[(i - 1) % n] if closed or i > 0 else P[i]
+        b = P[(i + 1) % n] if closed or i < n - 1 else P[i]
+        T.append((b - a).normalized())
+    return T
+
+
+def _tube_path(a, pts, radii, color, n=10, col=None, cap_color=None):
+    """Closed tube along pts (parallel-transported frame), radius radii[i] at pts[i]."""
+    P = [Vector(p) for p in pts]
+    T = _tangents(P)
+    up = Vector((0, 0, 1)) if abs(T[0].z) < 0.9 else Vector((1, 0, 0))
+    N = (up - T[0] * up.dot(T[0])).normalized()
+    rings = []
+    for i, p in enumerate(P):
+        N = (N - T[i] * N.dot(T[i])).normalized()
+        Bv = T[i].cross(N)
+        rings.append([p + (N * math.cos(2 * math.pi * k / n) + Bv * math.sin(2 * math.pi * k / n)) * radii[i]
+                      for k in range(n)])
+    V, faces = _bridge(a, rings, color, col=col)
+    faces += _cap(a, V[0], cap_color or color) + _cap(a, V[-1], cap_color or color)
+    _closed(a, faces)
+    return V
+
+
+def _ribbon(a, pts, half_w, half_t, color, closed=False, n=6, col=None):
+    """Flat cloth band along pts lying on the body: its width runs across the path, tangent
+    to the body (the outward direction is horizontal from the body axis)."""
+    P = [Vector(p) for p in pts]
+    T = _tangents(P, closed)
+    rings = []
+    for i, p in enumerate(P):
+        out = Vector((p.x, p.y, 0))
+        out = out - T[i] * out.dot(T[i])
+        out = out.normalized() if out.length > 1e-6 else Vector((0, -1, 0))
+        W = T[i].cross(out).normalized()
+        w = half_w[i] if isinstance(half_w, (list, tuple)) else half_w
+        rings.append([p + W * math.cos(2 * math.pi * k / n) * w + out * math.sin(2 * math.pi * k / n) * half_t
+                      for k in range(n)])
+    if closed:
+        rings.append(rings[0])
+        V = [[a.bm.verts.new(q) for q in r] for r in rings[:-1]]
+        V.append(V[0])
+        faces = []
+        for i in range(len(V) - 1):
+            for j in range(n):
+                k = (j + 1) % n
+                f = a.bm.faces.new((V[i][j], V[i][k], V[i + 1][k], V[i + 1][j]))
+                _paint_faces(a, [f], col(i, j) if col else color)
+                faces.append(f)
+    else:
+        V, faces = _bridge(a, rings, color, col=col)
+        faces += _cap(a, V[0], color) + _cap(a, V[-1], col(len(V) - 2, 0) if col else color)
+    _closed(a, faces)
+
+
+def rani_body(b):
+    # torso: kurti, with the skirt below the vest (the dialogue box hides z < 0.1)
+    rings = []
+    NT = 20
+    for z, w, df, db in R_TORSO:
+        rings.append([Vector((*_sup(2 * math.pi * k / NT, w, df, db), z)) for k in range(NT)])
+    V, faces = _bridge(b, rings, R_KURTI)
+    faces += _cap(b, V[0], R_KURTI) + _cap(b, V[-1], R_SKIN)
+    _closed(b, faces)
+    # open vest: a C-shaped shell round the sides and back, open at the front
+    m = 15
+    rings = []
+    for z in (0.0, 0.13, 0.26, 0.38, 0.46, 0.53):
+        w, df, db = _torso_at(z)
+        ow = 0.11 + 0.045 * max(0.0, (z - 0.3) / 0.23)
+        ph = math.asin(min(0.99, (ow / w) ** (R_TP / 2)))
+        ts = [1.5 * math.pi + ph + (2 * math.pi - 2 * ph) * k / (m - 1) for k in range(m)]
+        outer = [Vector((*_sup(t, w + 0.014, df + 0.014, db + 0.014), z)) for t in ts]
+        inner = [Vector((*_sup(t, w - 0.02, df - 0.02, db - 0.02), z)) for t in ts]
+        rings.append(outer + inner[::-1])
+    V, faces = _bridge(b, rings, R_VEST)
+    for r in (V[0], V[-1]):
+        faces += _strip(b, r[:m], r[m:][::-1], R_VEST)
+    _closed(b, faces)
+    b.tube((0, 0, 0.58), (0, 0, 0.8), 0.074, R_SKIN, seg=10, caps=False)            # neck
+    # V neck: skin fill and gold trim, gold buttons down the placket
+    top_l, top_r, low = _torso_front(0.07, 0.6, 0.005), _torso_front(-0.07, 0.6, 0.005), _torso_front(0, 0.49, 0.005)
+    rows = [[low], [_torso_front(x, 0.545, 0.005) for x in (-0.035, 0.0, 0.035)],
+            [_torso_front(x, 0.6, 0.005) for x in (-0.07, -0.035, 0.0, 0.035, 0.07)]]
+    R0 = [b.bm.verts.new(q) for q in rows[0]]
+    R1 = [b.bm.verts.new(q) for q in rows[1]]
+    R2 = [b.bm.verts.new(q) for q in rows[2]]
+    tris = [(R0[0], R1[0], R1[1]), (R0[0], R1[1], R1[2])]
+    for k in range(2):
+        tris += [(R1[k], R2[2 * k], R2[2 * k + 1]), (R1[k], R2[2 * k + 1], R1[k + 1]),
+                 (R1[k + 1], R2[2 * k + 1], R2[2 * k + 2])]
+    vfaces = []
+    for t in tris:
+        f = b.bm.faces.new(t)
+        f.normal_update()
+        if f.normal.y > 0:
+            f.normal_flip()
+        vfaces.append(f)
+    _paint_faces(b, vfaces, R_SKIN)
+    for t in (top_l, top_r):
+        b.tube(t, low, 0.009, GOLD_DARK, seg=6)
+    for k in range(3):
+        b.ico(0.011, _torso_front(0, 0.43 - 0.07 * k, 0.004), GOLD_DARK, subdiv=0)
+    # dupatta: a soft loop round the neck, low across the chest ...
+    loop = [(0, 0.13, 0.665), (0.15, 0.085, 0.645), (0.215, -0.035, 0.6), (0.165, -0.17, 0.525),
+            (0, -0.232, 0.475), (-0.165, -0.17, 0.525), (-0.215, -0.035, 0.6), (-0.15, 0.085, 0.645)]
+    _ribbon(b, _catmull(loop, 3, closed=True), 0.052, 0.02, R_DUP, closed=True)
+    # ... and one end down her right side with a gold border
+    tail = _catmull([(-0.185, -0.08, 0.6), (-0.205, -0.16, 0.5), (-0.205, -0.18, 0.36),
+                     (-0.2, -0.18, 0.2), (-0.195, -0.178, 0.04)], 2)
+    hw = [0.045 + 0.022 * i / (len(tail) - 1) for i in range(len(tail))]
+    _ribbon(b, tail, hw, 0.016, R_DUP, col=lambda i, j: GOLD if i == len(tail) - 2 else R_DUP)
+    # plait over her left shoulder (in the body so it rests on the chest when the head moves)
+    pts = [(0.2, 0.12, 0.7), (0.255, -0.06, 0.62), (0.24, -0.16, 0.47), (0.228, -0.16, 0.35),
+           (0.218, -0.152, 0.23)]
+    # one smooth braid: a tube whose radius swells per lobe and whose centre zigzags left/right
+    path = _catmull(pts, 6)
+    L = len(path)
+    T = _tangents(path)
+    rings = []
+    NB = 8
+    for i, c in enumerate(path):
+        t = i / (L - 1)
+        ph = t * 9.0 * math.pi                    # about nine lobes
+        r = (0.046 - 0.014 * t) * (0.78 + 0.22 * abs(math.sin(ph)))
+        side = T[i].cross(Vector((0, -1, 0))).normalized()
+        c = c + side * 0.012 * math.cos(ph)
+        N = Vector((0, -1, 0)) - T[i] * T[i].y * -1
+        N = (N - T[i] * N.dot(T[i])).normalized()
+        Bv = T[i].cross(N)
+        rings.append([c + (N * math.cos(2 * math.pi * k / NB) * 0.85 + Bv * math.sin(2 * math.pi * k / NB)) * r
+                      for k in range(NB)])
+    V, faces = _bridge(b, rings, HAIR)
+    faces += _cap(b, V[0], HAIR) + _cap(b, V[-1], HAIR)
+    _closed(b, faces)
+    b.tube((0.217, -0.15, 0.2), (0.215, -0.149, 0.165), 0.028, R_DUP, seg=8)           # ribbon
+    b.tube((0.215, -0.149, 0.165), (0.213, -0.147, 0.08), 0.02, HAIR, r1=0.032, seg=8)  # tassel end
+    return b
+
+
+# hair cap: lowest elevation (deg from the head centre) at each azimuth (deg from the front)
+R_HAIRLINE = ((0, 50), (15, 45), (30, 31), (45, 14), (60, 0), (75, -6), (180, -6))
+
+
+def _hairline(phi):
+    a = abs((phi + 180) % 360 - 180)
+    for (a0, e0), (a1, e1) in zip(R_HAIRLINE, R_HAIRLINE[1:]):
+        if a0 <= a <= a1:
+            return e0 + (e1 - e0) * (a - a0) / (a1 - a0)
+    return R_HAIRLINE[-1][1]
+
+
+def _hair_pt(phi, e, th):
+    rx, ry, rz = HEAD_R
+    p, q = math.radians(phi), math.radians(e)
+    return HEAD_C + Vector((math.sin(p) * math.cos(q) * (rx + th), -math.cos(p) * math.cos(q) * (ry + th),
+                            math.sin(q) * (rz + th)))
+
+
+def rani_hair(h):
+    # cap: outer surface, a coarse inner surface inside the skull, a rim along the hairline
+    NC, NR = 28, 10
+    outer, inner = [], []
+    for i in range(NR + 1):                       # row 0 near the crown, row NR on the hairline
+        orow, irow = [], []
+        for j in range(NC):
+            phi = 360.0 * j / NC
+            e_end = _hairline(phi)
+            e = 86.0 - (86.0 - e_end) * i / NR
+            a = abs((phi + 180) % 360 - 180)
+            th = 0.042
+            if i == NR:
+                th = 0.02 if a < 70 else 0.034
+            elif i == NR - 1 and a < 60:
+                th = 0.034
+            if a < 8 and 30 < e < 72:             # middle parting (not up to the crown)
+                th *= 0.55
+            elif a < 35 and e > 40:               # hair rising either side of the parting
+                th += 0.012
+            if 15 <= a <= 50 and i >= NR - 3:     # fringe swept over the temples
+                th += 0.01
+            orow.append(_hair_pt(phi, e, th))
+            if i in (0, NR // 2, NR):
+                irow.append(_hair_pt(phi, e, -0.02))
+        outer.append(orow)
+        if irow:
+            inner.append(irow)
+    Vo, faces = _bridge(h, outer, HAIR)
+    Vi, fi = _bridge(h, inner, HAIR)
+    faces += fi + _cap(h, Vo[0], HAIR) + _cap(h, Vi[0], HAIR)
+    faces += _strip(h, Vo[-1] + [Vo[-1][0]], Vi[-1] + [Vi[-1][0]], HAIR)
+    _closed(h, faces)
+    # the fall: hair swept back behind the ears and gathered at the nape into the plait,
+    # open at the face; it narrows and tucks in as it goes down
+    m = 15
+    rings = []
+    levels = ((0.97, 60, 0.04, 1.0), (0.9, 64, 0.04, 1.0), (0.84, 72, 0.034, 0.97),
+              (0.79, 84, 0.022, 0.92), (0.75, 100, 0.0, 0.84), (0.72, 120, -0.02, 0.72))
+    for z, ph0, ext, sc in levels:
+        e = math.degrees(math.asin(min(1.0, (z - HEAD_C.z) / HEAD_R[2]))) if z > HEAD_C.z else 0.0
+        ce = math.cos(math.radians(e))
+        outer = []
+        for k in range(m):
+            phi = math.radians(ph0 + (360.0 - 2 * ph0) * k / (m - 1))
+            outer.append(Vector((math.sin(phi) * ce * (HEAD_R[0] + ext) * sc,
+                                 -math.cos(phi) * ce * (HEAD_R[1] + ext) * sc + 0.03 * (1 - sc) / 0.28, z)))
+        inner = [Vector((q.x * 0.86, q.y * 0.86, z)) for q in outer]
+        rings.append(outer + inner[::-1])
+    V, faces = _bridge(h, rings, HAIR)
+    for r in (V[0], V[-1]):
+        faces += _strip(h, r[:m], r[m:][::-1], HAIR)
+    _closed(h, faces)
+    # gathered knot at the nape, where the plait starts (the plait itself is in the body)
+    h.ell((0.1, 0.2, 0.76), (0.12, 0.09, 0.08), HAIR, seg=10, rings=6)
+
+
+def rani_head(h, face):
+    """face: dict(eyes='open'|'happy'|'closed'|'wide'|'down', mouth='smile'|'grin'|'o'|'soft'|'hmm',
+    brows=((tilt_l, raise_l), (tilt_r, raise_r)); tilt > 0 lifts the inner end (worried))."""
+    before = set(h.bm.verts)
+    h.ell(HEAD_C, HEAD_R, R_SKIN, seg=18, rings=12)
+    for v in h.bm.verts:                          # softer, narrower jaw
+        if v not in before and v.co.z < 0.9:
+            k = (0.9 - v.co.z) / 0.24
+            v.co.x *= 1 - 0.14 * k * k
+    rani_hair(h)
+    for sx in (-1, 1):
+        _face_ell(h, sx * 0.168, 0.862, 0.008, 0.046, 0.028, BLUSH, out=-0.004, seg=12, rings=4)  # cheeks
+        # jhumka below the hair: stud, dome, bead
+        c = Vector((sx * 0.272, -0.045, 0.78))
+        h.ball(0.014, c + Vector((0, 0, 0.03)), GOLD, seg=6, rings=3)
+        h.tube(c + Vector((0, 0, 0.022)), c - Vector((0, 0, 0.03)), 0.01, GOLD, r1=0.032, seg=8)
+        h.ball(0.01, c - Vector((0, 0, 0.042)), GOLD_DARK, seg=5, rings=3)
+    # nose, stud, bindi
+    _face_ell(h, 0, 0.885, 0.028, 0.026, 0.03, R_SKIN, out=0.008, seg=8, rings=5)
+    q = _head_surface(0.028, 0.872)
+    h.ico(0.008, q + _head_normal(q) * 0.026, GOLD, subdiv=0)
+    _face_ell(h, 0, 1.045, 0.006, 0.015, 0.015, MAROON, out=0.002, seg=10, rings=3)
+    eyes = face.get("eyes", "open")
+    for sx in (-1, 1):
+        x, z = sx * 0.1, 0.955
+        if eyes in ("open", "wide", "down"):
+            k = 1.12 if eyes == "wide" else 1.0
+            _face_ell(h, x, z, 0.02, 0.05 * k, 0.058 * k, WHITE, out=-0.006, seg=14, rings=5)
+            pz = -0.02 if eyes == "down" else 0.0
+            pr = 0.8 if eyes == "wide" else 1.0
+            q = _head_surface(x - sx * 0.004, z + pz - 0.004)
+            nq = _head_normal(q)
+            F = frame(nq, (0, 0, 1))
+            h.ell(q + nq * 0.011, (0.012, 0.036 * pr, 0.042 * pr), TRUNK, frame=F, seg=12, rings=5)   # iris
+            h.ell(q + nq * 0.018, (0.01, 0.019 * pr, 0.023 * pr), INK_DARK, frame=F, seg=8, rings=4)  # pupil
+            hl = _head_surface(x + 0.014, z + pz + 0.012)
+            h.ball(0.009, hl + _head_normal(hl) * 0.023, WHITE, seg=4, rings=3)
+            lid = 0.018 if eyes != "down" else 0.006
+            _face_arc(h, x, z + lid, 0.048, 0.04, 0.0105, INK_DARK, n=4)                # lash line
+        elif eyes == "happy":                      # upside-down U (cheer)
+            _face_arc(h, x, z - 0.01, 0.046, 0.03, 0.012, INK_DARK, n=4)
+        else:                                      # closed, content (U)
+            _face_arc(h, x, z + 0.004, 0.046, -0.02, 0.012, INK_DARK, n=4)
+    br = face.get("brows", ((0, 0), (0, 0)))
+    for sx, (tilt, rise) in zip((1, -1), br):
+        q = _head_surface(sx * 0.105, 1.045 + rise)
+        n = _head_normal(q)
+        F = frame(n, (0, 0, 1)) @ Matrix.Rotation(math.radians(-sx * tilt), 3, "X")
+        h.ell(q + n * 0.005, (0.012, 0.05, 0.014), HAIR, frame=F, seg=6, rings=4)
+    mouth = face.get("mouth", "smile")
+    if mouth == "smile":
+        _face_arc(h, 0, 0.805, 0.054, -0.024, 0.0105, R_LIPS, n=6)
+    elif mouth == "soft":
+        _face_arc(h, 0, 0.805, 0.04, -0.012, 0.01, R_LIPS)
+    elif mouth == "grin":
+        _face_ell(h, 0, 0.792, 0.02, 0.064, 0.042, INK_DARK, out=-0.004, seg=10, rings=5)
+        _face_ell(h, 0, 0.814, 0.012, 0.048, 0.013, WHITE, out=0.002, seg=8, rings=3)
+        _face_ell(h, 0, 0.77, 0.014, 0.038, 0.015, PINK, out=0.004, seg=8, rings=3)
+    elif mouth == "o":
+        _face_ell(h, 0, 0.785, 0.018, 0.03, 0.038, INK_DARK, out=-0.002, seg=8, rings=5)
+    elif mouth == "hmm":                           # pursed, to one side
+        _face_ell(h, 0.03, 0.8, 0.014, 0.026, 0.016, R_LIPS, out=0.0, seg=8, rings=4)
+    return h
+
+
+def _rani_arm(a, S, E, W, hand, bangles):
+    S, E, W = Vector(S), Vector(E), Vector(W)
+    cuff = E.lerp(W, 0.42)                                       # 3/4 sleeve ends mid-forearm
+    S_in = S + (Vector((0, 0, S.z)) - S).normalized() * 0.06     # start inside the shoulder
+    pts = _catmull([S_in, S, E, cuff], 3)
+    L = len(pts)
+    prof = [0.07, 0.078, 0.074, 0.068, 0.064, 0.062, 0.062, 0.063, 0.065, 0.067]
+    radii = [prof[min(i, len(prof) - 1)] for i in range(L)]
+    _tube_path(a, pts, radii, R_KURTI, n=10, col=lambda i, j: GOLD_DARK if i == L - 2 else R_KURTI,
+               cap_color=GOLD_DARK)
+    d = (W - E).normalized()
+    _tube_path(a, [cuff - d * 0.04, cuff.lerp(W, 0.5), W], [0.047, 0.043, 0.037], R_SKIN, n=8)
+    for j, c in enumerate(bangles):
+        p = W - d * (0.02 + 0.016 * j)
+        a.tube(p, p + d * 0.011, 0.047, c, seg=8)
+    if hand:
+        _hand(a, W + d * 0.004, *hand, k=0.9, skin=R_SKIN)
+    return a
+
+
+RANI_POSES = {
+    # pose: head tilt (deg x, y, z), face, right arm (elbow, wrist, (fwd, palm normal, hand, thumb)),
+    # left arm, ledger (side, centre, rot, open)
+    "idle": dict(
+        head=(0, 6, 0), face=dict(eyes="open", mouth="smile"),
+        R=((-0.4, -0.08, 0.3), (-0.24, -0.27, 0.22), ((0.6, -0.3, -0.2), (0, 1, 0), "hold", 1)),
+        L=((0.42, -0.08, 0.3), (0.27, -0.32, 0.3), ((-0.7, 0, 0.7), (0, 1, 0), "hold", -1)),
+        ledger=("L", (0.14, -0.255, 0.43), (0, 10, -12), False)),
+    "cheer": dict(
+        head=(-7, 5, 0), face=dict(eyes="happy", mouth="grin", brows=((0, 0.02), (0, 0.02))),
+        R=((-0.56, -0.06, 0.7), (-0.56, -0.13, 0.98), ((0.05, -0.1, 1), (0, -1, 0), "open", -1)),
+        L=((0.58, -0.08, 0.55), (0.7, -0.16, 0.78), ((0.1, -0.05, 1), (0, -1, 0), "hold", 1)),
+        ledger=("L", (0.7, -0.2, 0.96), (0, -8, 0), False)),
+    "worried": dict(
+        head=(0, 0, 0), face=dict(eyes="wide", mouth="o", brows=((18, 0.03), (18, 0.03))),
+        R=((-0.44, -0.3, 0.38), (-0.235, -0.27, 0.74), ((0.0, 0.05, 1), (0.68, 0.63, 0.33), "open", 1)),
+        L=((0.44, -0.3, 0.38), (0.235, -0.27, 0.74), ((0.0, 0.05, 1), (-0.68, 0.63, 0.33), "open", -1)),
+        ledger=None),
+    "point": dict(
+        head=(0, 0, -14), face=dict(eyes="open", mouth="smile", brows=((0, 0.025), (-6, 0))),
+        R=((-0.58, -0.14, 0.64), (-0.8, -0.26, 0.82), ((-1, -0.45, 0.45), (0, -1, 0), "point", 1)),
+        L=((0.5, -0.12, 0.3), (0.3, -0.42, 0.34), ((-0.6, -0.4, 0.5), (0, 0, 1), "hold", 1)),
+        ledger=("L", (0.16, -0.48, 0.44), (-55, 0, -10), True)),
+    "namaste": dict(
+        head=(9, 0, 0), face=dict(eyes="closed", mouth="soft", brows=((0, 0.01), (0, 0.01))),
+        R=((-0.42, -0.24, 0.34), (-0.04, -0.42, 0.47), ((0, -0.15, 1), (1, 0, 0), "open", 1)),
+        L=((0.42, -0.24, 0.34), (0.04, -0.42, 0.47), ((0, -0.15, 1), (-1, 0, 0), "open", -1)),
+        ledger=None),
+    "ledger": dict(
+        head=(8, 0, 6), face=dict(eyes="down", mouth="hmm", brows=((0, 0), (-8, 0.02))),
+        R=((-0.48, -0.28, 0.4), (-0.18, -0.48, 0.66), ((0.6, 0.2, 0.5), (0, 1, 0), "hold", 1)),
+        L=((0.5, -0.16, 0.3), (0.27, -0.46, 0.42), ((-0.6, -0.3, 0.6), (0, 0, 1), "hold", 1)),
+        ledger=("L", (0.11, -0.53, 0.5), (-48, 0, -6), True),
+        pencil=((-0.15, -0.47, 0.7), (-0.02, -0.33, 0.73))),
+}
+
+
+def build_rani(mat, poses=None):
+    out = []
+    S = Matrix.Translation(R_NECK) @ Matrix.Diagonal((R_HEAD_SCALE, R_HEAD_SCALE, R_HEAD_SCALE, 1.0)) \
+        @ Matrix.Translation(-R_NECK)
+    for pose, cfg in RANI_POSES.items():
+        if poses and pose not in poses:
+            continue
+        P = Parts("rani_" + pose, {"body": (0, 0, 0), "head": tuple(R_NECK),
+                                   "arm_l": tuple(R_SL), "arm_r": tuple(R_SR)})
+        rani_body(P["body"])
+        rani_head(P["head"], cfg["face"])
+        _xform(P["head"], Matrix.Translation(R_NECK) @ _rot4(cfg["head"]) @ Matrix.Translation(-R_NECK) @ S)
+        for side, Sh in (("R", R_SR), ("L", R_SL)):
+            E, W, hand = cfg[side]
+            _rani_arm(P["arm_r" if side == "R" else "arm_l"], Sh, E, W, hand,
+                      (R_DUP, GOLD, R_DUP) if side == "L" else (GOLD, GOLD))
+        if cfg.get("ledger"):
+            side, c, rot, opened = cfg["ledger"]
+            _ledger_at(P["arm_l" if side == "L" else "arm_r"], c, rot, opened)
+        if cfg.get("pencil"):
+            pencil(P["arm_r"], *cfg["pencil"])
+        out.append(P.finish(mat, BUST_SMOOTH))
+    return out

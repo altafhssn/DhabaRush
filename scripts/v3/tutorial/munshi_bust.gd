@@ -18,6 +18,9 @@ extends Control
 ## 2D art (4 Nov): when the narrator sprites exist (SPRITE_PATH, one per pose)
 ## they replace the 3D bust: no SubViewport, and the head wobble becomes a
 ## small tilt of the sprite; the 2D sway, bob and entrances are unchanged.
+## 3D Rani (5 Nov): when her busts exist (MODEL_PREFIX + pose, built by
+## tools/blender/v3_chars.py build_rani with Munshi-ji's nodes and pivots)
+## they win over the 2D art and the old munshi_* glbs; the rig is the same.
 ##
 ## DialogueBox owns placement (layout_for) and fades `modulate` on dismiss.
 
@@ -29,6 +32,8 @@ const POSES := ["idle", "cheer", "worried", "point", "namaste", "ledger"]
 ## each RECT-sized and drawn 1:1, head centre at _head_px(), hair top 58 px
 ## down, mirrored so the gestures reach towards screen centre.
 const SPRITE_PATH := "res://assets/textures/narrator/narrator_%s.png"
+## Rani's 3D busts: rani_<pose>.glb in Models.DIR.
+const MODEL_PREFIX := "rani_"
 ## Framing (fix 0.3.4: the old square 576 px view, fitted to the idle pose,
 ## was only ±0.81 m wide around the head, so the point / ledger / cheer arms
 ## were cut by the view's own edge in mid-screen: a flat white wedge with no
@@ -117,7 +122,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size = RECT
 	pivot_offset = Vector2(_head_px(), RECT.y + PIVOT_BELOW)
-	_two_d = ResourceLoader.exists(SPRITE_PATH % "idle")
+	_two_d = not has_rani_models() and ResourceLoader.exists(SPRITE_PATH % "idle")
 	if _two_d:
 		_build_sprites()
 		visible = false
@@ -488,8 +493,15 @@ func _build_world() -> void:
 	_fit_camera()
 
 
+## True when Rani's 3D busts are in the build (the idle one decides).
+static func has_rani_models() -> bool:
+	return ResourceLoader.exists(Models.DIR + MODEL_PREFIX + "idle.glb")
+
+
 func _make_pose(pose: String) -> Node3D:
-	var id := "munshi_" + pose
+	var id := MODEL_PREFIX + pose
+	if not ResourceLoader.exists(Models.DIR + id + ".glb"):
+		id = "munshi_" + pose
 	var m: Node3D
 	if ResourceLoader.exists(Models.DIR + id + ".glb"):
 		m = Models.make(id)

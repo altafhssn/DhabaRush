@@ -5,15 +5,19 @@ extends RefCounted
 ## top 58 on its 748 x 517 canvas). Used where the old 2D "munshi" glyph was:
 ## Rani's chip (ReactChip) and her row in STAFF › WAITERS. Without the art it
 ## falls back to that glyph.
+## 3D Rani (5 Nov): her face rendered from the idle bust (FACE_3D, square,
+## transparent) wins over the 2D cut when it exists.
 
 const SPRITE := "res://assets/textures/narrator/narrator_idle.png"
 ## Her face on the idle sprite: a square from the hair top to the chin.
 const FACE := Rect2(330, 72, 190, 190)
+const FACE_3D := "res://assets/textures/narrator/rani_face.png"
 
 
 ## A `sz` px round face on `bg` with a `ring` border.
 static func make(sz: float, bg: Color = UiKit.MARIGOLD_PALE, ring: Color = Color.WHITE) -> Control:
-	if not ResourceLoader.exists(SPRITE):
+	var three_d: bool = ResourceLoader.exists(FACE_3D)
+	if not three_d and not ResourceLoader.exists(SPRITE):
 		var ic := UiIcon.new("munshi", Vector2(sz, sz), Color.WHITE, bg)
 		ic.pad = 0.08
 		return ic
@@ -23,11 +27,14 @@ static func make(sz: float, bg: Color = UiKit.MARIGOLD_PALE, ring: Color = Color
 	disc.custom_minimum_size = Vector2(sz, sz)
 	disc.size = Vector2(sz, sz)
 	disc.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
-	var at := AtlasTexture.new()
-	at.atlas = load(SPRITE) as Texture2D
-	at.region = FACE
 	var pic := TextureRect.new()
-	pic.texture = at
+	if three_d:
+		pic.texture = load(FACE_3D) as Texture2D
+	else:
+		var at := AtlasTexture.new()
+		at.atlas = load(SPRITE) as Texture2D
+		at.region = FACE
+		pic.texture = at
 	pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
