@@ -641,9 +641,14 @@ func _refresh_table_row() -> void:
 
 
 ## Lock text of a station row: "AFTER TANDOOR", "AFTER LASSI", "NEEDS 3
-## WAITERS" or "SOON" (not enabled).
+## WAITERS", "NEEDS THE SHACK" / "NEEDS THE DHABA" (growth stage) or "SOON"
+## (not enabled).
 static func reason_text(id: String) -> String:
 	var r: String = Game.build_block_reason(id)
+	if r == "stage:shack":
+		return UiKit.t("NEEDS THE SHACK")
+	if r == "stage:dhaba":
+		return UiKit.t("NEEDS THE DHABA")
 	if r.begins_with("requires:"):
 		return UiKit.t("AFTER %s") % UiKit.station_name(r.substr(9))
 	if r.begins_with("waiters:"):

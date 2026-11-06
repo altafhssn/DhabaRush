@@ -55,7 +55,7 @@ func setup(i: int) -> void:
 	queue_poly = Layout3.galla_queue(i)
 	_look = desk_pos - pay_spot
 	_look.y = 0.0
-	desk = Models.make("galla_desk", Vector3(1.2, 0.8, 0.6), Color(0.55, 0.36, 0.2))
+	desk = Models.make(Layout3.galla_model(), Vector3(1.2, 0.8, 0.6), Color(0.55, 0.36, 0.2))
 	desk.position = desk_pos
 	desk.rotation.y = Layout3.GALLA_YAW
 	add_child(desk)

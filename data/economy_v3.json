@@ -393,6 +393,16 @@
     },
     "max_items": 2
   },
+  "growth": {
+    "_comment": "Dhaba growth (6 Nov, docs/growth/plan.md): the chai cart (0), the tin shack (1), the dhaba (2). Positions never change between stages; each stage caps what can be hired and bought (a missing key keeps the dhaba's value). start_stage stays 2 (a new game is a dhaba) until the tutorial runs on the cart (plan step 4).",
+    "start_stage": 2,
+    "station_stage": {"chai": 0, "tandoor": 1, "lassi": 2, "kadai": 2},
+    "stages": [
+      {"id": "cart", "tables_max": 2, "gallas_max": 1, "waiters_max": 1},
+      {"id": "shack", "tables_max": 3, "gallas_max": 2, "waiters_max": 2},
+      {"id": "dhaba"}
+    ]
+  },
   "galla": {
     "_comment": "ref: 5.0 s base (12.0/min), /1.02 per level, upgrade cost x1.2 per level from 4 (galla 1) / 10 (galla 2), hire galla 2 = 50, max 2. restart_delay ref 0.15 s after each sale.",
     "service_base": 5.0,

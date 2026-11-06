@@ -1917,6 +1917,14 @@ V3_BUDGETS.update({"story_father": 2600, "story_simran": 2000})
 # Story (5 Nov): Rani, the narrator, is a 3D bust shown alone and large in the dialogue box; the
 # owner asked for better modelling at no more than the first draft's ~6100 triangles.
 V3_BUDGETS.update({"rani_" + p: 6100 for p in ("idle", "cheer", "worried", "point", "namaste", "ledger")})
+# Dhaba growth (6 Nov): the cart stage, the tin shack (world-coord, in place of dhaba_v3's 24000)
+# and the construction set shown while a stage is being built.
+V3_BUDGETS.update({"growth_cart": 2800, "growth_neem": 2600, "growth_bench": 300, "growth_cart_yard": 3200,
+                   "growth_cash_box": 900, "growth_crate_table": 600, "growth_kulhad_crate": 900,
+                   "growth_shack": 4200, "growth_shack_tin": 2000, "growth_scaffold": 1000,
+                   "growth_bricks": 1200, "growth_sand": 500, "growth_cement": 500, "growth_barrow": 800,
+                   "growth_ladder": 600, "growth_wall_rising": 1500, "growth_site_board": 1100,
+                   "worker_mistri": 1800, "worker_majdoorin": 1800})
 V3_CHAR_BUDGET, V3_BUST_BUDGET = 1800, 3000
 
 
@@ -1945,6 +1953,8 @@ def build_v3(mat):
     # core-and-feel: NH 48 pass items (W1-ART2's module), loaded by path only when the file exists
     nh48 = _load_helper("v3_dishes_nh48", ns) if os.path.exists(os.path.join(_HERE, "v3_dishes_nh48.py")) else None
     render = _load_helper("v3_render", ns)
+    # Dhaba growth (6 Nov, docs/growth/plan.md): the cart, the shack and the construction set
+    growth = _load_helper("v3_growth", ns) if os.path.exists(os.path.join(_HERE, "v3_growth.py")) else None
     w_singles, w_groups = ext.build_world_ext(mat)
     cf_singles, cf_groups = ext.build_core_feel_ext(mat)
     singles = (w_singles + props.build_props_v3(mat) + props.build_menu_items(mat)
@@ -1955,6 +1965,9 @@ def build_v3(mat):
               + chars.build_menu_helpers(mat)
               + chars.build_munshi(mat) + chars.build_rani(mat) + props.build_core_feel_prop_groups(mat)
               + cf_groups)
+    if growth is not None:
+        for o in growth.build_growth_exports(mat):
+            (groups if hasattr(o, "objs") else singles).append(o)
     return singles, groups, common, render
 
 

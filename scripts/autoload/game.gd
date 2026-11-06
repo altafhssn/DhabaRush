@@ -670,6 +670,16 @@ var _locations_done: Array = []
 var _dish_floor: Dictionary = {}
 ## The promotion the next scene reveals (one-shot, set before the reload).
 var _promo_reveal: String = ""
+## Dhaba growth (6 Nov, docs/growth/plan.md; saved "stage"): 0 the chai cart,
+## 1 the tin shack, 2 the dhaba (today's building; the Family Dhaba and the
+## highway moves come after it). Every Layout3 position is the same at every
+## stage: only the models the world draws and what can be built, hired or
+## bought change (economy "growth"). A save without the key is a dhaba.
+const STAGE_IDS := ["cart", "shack", "dhaba"]
+const STAGE_DHABA := 2
+var _stage: int = STAGE_DHABA
+## Debug --stage=cart|shack|dhaba: forced after the load (-1 = not forced).
+var _debug_stage: int = -1
 ## C7.2: UiRoot holds the wall-ad bubble while the FREE / VIP popup is open.
 var _ad_hold: bool = false
 ## W4-FIX-core (C7.6 data): ad_bubble_tapped was sent for the bubble on screen.
@@ -705,6 +715,13 @@ func _ready() -> void:
 	_load_systems()
 	_reset_state()
 	var had_save: bool = load_game()
+	if _debug_stage >= 0:
+		_stage = _debug_stage
+		print("[growth] stage %s (forced)" % stage_id())
+	if OS.is_debug_build():
+		print("[growth] stage %s: tables max %d, gallas max %d, waiters max %d, build %s" % [stage_id(), table_max(),
+				galla_max(), waiter_max(), ", ".join(PackedStringArray(station_ids().map(func(i): return "%s=%s" % [i,
+				build_block_reason(str(i)) if build_block_reason(str(i)) != "" else "ok"])))])
 	# D6: the format first, then the task texts the load built with the default.
 	Fmt.set_indian(indian_numbers())
 	_retext_tasks()
@@ -811,6 +828,7 @@ func _reset_state() -> void:
 	_locations_done = []
 	_apply_location(_location)
 	_renovations = 0
+	_stage = clampi(int(_growth().get("start_stage", STAGE_DHABA)), 0, STAGE_DHABA)
 	_dish_floor = {}
 	_signboard = 0
 	_promo_reveal = ""
@@ -1615,6 +1633,8 @@ func build_block_reason(id: String) -> String:
 		return "built"
 	if station_def(id).is_empty() or not is_enabled(id):
 		return "disabled"
+	if _stage < station_stage(id):
+		return "stage:" + str(STAGE_IDS[station_stage(id)])
 	var req: String = str(station_def(id).get("requires", ""))
 	if req != "" and not is_built(req):
 		return "requires:" + req
@@ -1631,6 +1651,8 @@ func next_build_id() -> String:
 	for id: String in station_ids():
 		if is_built(id) or not is_enabled(id):
 			continue
+		if _stage < station_stage(id):
+			return ""
 		var req: String = str(station_def(id).get("requires", ""))
 		if req == "" or is_built(req):
 			return id
@@ -1909,7 +1931,7 @@ func galla_count() -> int:
 
 
 func galla_max() -> int:
-	return int(_gdef().get("max", 2))
+	return _stage_cap("gallas_max", int(_gdef().get("max", 2)))
 
 
 func galla_level(i: int) -> int:
@@ -2059,7 +2081,7 @@ func waiter_count() -> int:
 func waiter_max() -> int:
 	if layout_variant() == "family":
 		return maxi(waiters_start(), int(_wdef().get("max_family", _wdef().get("max", 3))))
-	return maxi(waiters_start(), int(_wdef().get("max", 3)))
+	return maxi(waiters_start(), _stage_cap("waiters_max", int(_wdef().get("max", 3))))
 
 
 ## The waiter a no-index call refers to: lowest level, ties -> the first.
@@ -2285,7 +2307,7 @@ func table_count() -> int:
 func table_max() -> int:
 	if layout_variant() == "family":
 		return maxi(_tables_start_now(), int(_sdef().get("tables_max_family", _sdef().get("tables_max", 5))))
-	return maxi(tables_start(), int(_sdef().get("tables_max", 5)))
+	return maxi(tables_start(), _stage_cap("tables_max", int(_sdef().get("tables_max", 5))))
 
 
 ## The tables a dhaba of this layout starts with: tables_start (2) roadside,
@@ -5137,6 +5159,52 @@ func _fame_for(loc: String, renovated: int = -1) -> float:
 	return m
 
 
+# ================================================================ growth stages
+func _growth() -> Dictionary:
+	return _dict(eco, "growth")
+
+
+## 0 cart, 1 shack, 2 dhaba (STAGE_IDS).
+func stage() -> int:
+	return _stage
+
+
+func stage_id() -> String:
+	return str(STAGE_IDS[clampi(_stage, 0, STAGE_IDS.size() - 1)])
+
+
+## The economy's "growth.stages" entry of stage n (default: the current one).
+func stage_def(n: int = -1) -> Dictionary:
+	var k: int = _stage if n < 0 else n
+	var arr: Variant = _growth().get("stages", [])
+	if arr is Array and k >= 0 and k < (arr as Array).size() and (arr as Array)[k] is Dictionary:
+		return (arr as Array)[k]
+	return {}
+
+
+## A limit of today's dhaba, capped by the current stage's "key" (the dhaba
+## and anything after it keep `fallback`).
+func _stage_cap(key: String, fallback: int) -> int:
+	if _stage >= STAGE_DHABA:
+		return fallback
+	var d: Dictionary = stage_def()
+	if not d.has(key):
+		return fallback
+	return mini(fallback, int(d[key]))
+
+
+## The first stage at which station `id` can be built (growth.station_stage;
+## 0 = from the cart).
+func station_stage(id: String) -> int:
+	return clampi(int(_dict(_growth(), "station_stage").get(id, 0)), 0, STAGE_DHABA)
+
+
+## Step 3 (timed construction) moves the stage on; debug and tests set it here.
+func set_stage(n: int) -> void:
+	_stage = clampi(n, 0, STAGE_DHABA)
+	save_game()
+
+
 ## "family" once renovated (the AC hall layout), else "roadside".
 func layout_variant() -> String:
 	return "family" if _renovations > 0 else "roadside"
@@ -5824,6 +5892,10 @@ func _parse_debug_args() -> void:
 				print("[game] date pinned %s" % ds)
 			else:
 				print("[game] --date=%s ignored (want YYYY-MM-DD)" % ds)
+		elif a.begins_with("--stage="):
+			_debug_stage = STAGE_IDS.find(a.substr(8))
+			if _debug_stage < 0:
+				print("[growth] --stage=%s ignored (want cart, shack or dhaba)" % a.substr(8))
 		elif a.begins_with("--away="):
 			var s: String = a.substr(7)
 			if s.is_valid_float():
@@ -5972,6 +6044,7 @@ func save_game() -> void:
 		"eco": int(eco.get("version", 3)),
 		# Core and feel (build plan 2.5): optional keys, defaults on load.
 		"renovations": _renovations,
+		"stage": _stage,
 		"location": _location,
 		"locations_done": _locations_done.duplicate(),
 		"dish_floor": _dish_floor.duplicate(),
@@ -6034,7 +6107,7 @@ func load_game() -> bool:
 	# changes the menus), then the promotion state that raises the caps,
 	# before the station, galla, waiter and table clamps below.
 	var defaulted: PackedStringArray = PackedStringArray()
-	for nk in ["renovations", "location", "locations_done", "dish_floor", "signboard", "passed_total", "sys"]:
+	for nk in ["renovations", "stage", "location", "locations_done", "dish_floor", "signboard", "passed_total", "sys"]:
 		if not d.has(nk):
 			defaulted.append(nk)
 	var loc: String = str(d.get("location", LOCATION_HOME))
@@ -6049,6 +6122,9 @@ func load_game() -> bool:
 			if _location_known(str(v)) and not _locations_done.has(str(v)) and str(v) != _location:
 				_locations_done.append(str(v))
 	_renovations = maxi(0, int(d.get("renovations", 0)))
+	_stage = clampi(int(d.get("stage", STAGE_DHABA)), 0, STAGE_DHABA)
+	if _renovations > 0 or not _locations_done.is_empty():
+		_stage = STAGE_DHABA
 	_dish_floor = {}
 	var dfv: Variant = d.get("dish_floor", {})
 	if dfv is Dictionary:
@@ -6422,6 +6498,8 @@ func wipe_save() -> void:
 	var keep_ads: bool = remove_ads
 	hide_ad_bubble()
 	_reset_state()
+	if _debug_stage >= 0:
+		_stage = _debug_stage
 	vip = keep_vip
 	remove_ads = keep_ads
 	sessions = 1

@@ -637,6 +637,42 @@ static func is_family() -> bool:
 	return variant() == "family"
 
 
+# ================================================================== growth stage (6 Nov)
+## "cart", "shack" or "dhaba" (Game.stage_id(), read live like variant()).
+## Positions never change between stages; these pick the models drawn there.
+static func stage_id() -> String:
+	if Game.has_method("stage_id"):
+		return str(Game.call("stage_id"))
+	return "dhaba"
+
+
+## The world-coord building of the stage: [] on the cart (the neem tree and
+## the yard are placed props), the shack's two pieces, or dhaba_v3.
+static func stage_world_models() -> Array:
+	match stage_id():
+		"cart":
+			return ["growth_cart_yard"]
+		"shack":
+			return ["growth_shack", "growth_shack_tin"]
+	return ["dhaba_v3"]
+
+
+## The billing desk, the waiter stand and a table set's three models
+## ([table, back seat (local z -CHARPAI_Z), front seat]) of the stage.
+static func galla_model() -> String:
+	return "growth_cash_box" if stage_id() == "cart" else "galla_desk"
+
+
+static func tray_rack_model() -> String:
+	return "growth_kulhad_crate" if stage_id() == "cart" else "tray_rack"
+
+
+static func set_models() -> Array:
+	if stage_id() == "cart":
+		return ["growth_crate_table", "growth_bench", "charpai"]
+	return ["dining_table", "charpai", "charpai"]
+
+
 static func cam_min() -> Vector2:
 	return CAM_MIN
 
@@ -800,7 +836,7 @@ static func station_timer_anchor(id: String, k: int = 0) -> Vector3:
 static func station_model(id: String) -> String:
 	match id:
 		"chai":
-			return "chai_counter_v3"
+			return "growth_cart" if stage_id() == "cart" else "chai_counter_v3"
 		"tandoor":
 			return "tandoor_station"
 	return id + "_station"

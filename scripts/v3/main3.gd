@@ -448,8 +448,11 @@ func _ready() -> void:
 	var signs: Array = _sign_lines()
 	_sign_hi = str(signs[0])
 	_sign_en = str(signs[1])
-	_add_name_board()
-	_add_signboard()
+	# Dhaba growth (6 Nov): the cart and the shack have no dhaba front, so no
+	# "DHABA RUSH" board over the door and no rooftop signboard text.
+	if Layout3.stage_id() == "dhaba":
+		_add_name_board()
+		_add_signboard()
 	print("[main3] signs: %s | %s" % [_sign_hi, _sign_en])
 	fairy_lights = FairyLights.new()
 	fairy_lights.name = "FairyLights"

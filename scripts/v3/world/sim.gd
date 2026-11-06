@@ -324,6 +324,11 @@ const AGE_POLL := 1.0
 const GATE_BOARD_PATH := "res://scripts/v3/world/gate_board.gd"
 const HOARDING_PATH := "res://scripts/v3/world/hoarding_node.gd"
 const TV_PATH := "res://scripts/v3/world/tv_node.gd"
+## Dhaba growth (6 Nov): the cart stage's neem tree, in the tandoor slab's back
+## corner and a little smaller, so its canopy (2.35 m across at full size)
+## stays clear of the home view and table set 0.
+const CART_NEEM_POS := Vector3(8.0, 0.0, 1.0)
+const CART_NEEM_SCALE := 0.72
 const EVENT_DECO_PATH := "res://scripts/v3/world/event_deco.gd"
 const REGION_LOOK_PATH := "res://scripts/v3/world/region_look.gd"
 ## W4-FIX-world (startup): the five prop scripts compile with this script,
@@ -3111,12 +3116,14 @@ func _make_set_models(root: Node3D, i: int = -1) -> Array:
 		root.add_child(ft)
 		out.append(ft)
 		return out
-	var tbl: Node3D = Models.make("dining_table", Vector3(1.7, 0.5, 0.8), Color(0.55, 0.36, 0.2))
+	var sm: Array = Layout3.set_models()
+	var tbl: Node3D = Models.make(str(sm[0]), Vector3(1.7, 0.5, 0.8), Color(0.55, 0.36, 0.2))
 	root.add_child(tbl)
 	out.append(tbl)
-	for sz in [-Layout3.CHARPAI_Z, Layout3.CHARPAI_Z]:
-		var cp: Node3D = Models.make("charpai", Vector3(1.6, 0.42, 0.86), Color(0.72, 0.52, 0.3))
-		cp.position = Vector3(0.0, 0.0, float(sz))
+	for k in 2:
+		var sz: float = -Layout3.CHARPAI_Z if k == 0 else Layout3.CHARPAI_Z
+		var cp: Node3D = Models.make(str(sm[k + 1]), Vector3(1.6, 0.42, 0.86), Color(0.72, 0.52, 0.3))
+		cp.position = Vector3(0.0, 0.0, sz)
 		root.add_child(cp)
 		out.append(cp)
 	return out
@@ -3165,7 +3172,7 @@ func _remove_ghost() -> void:
 
 # ================================================================ waiters
 func _build_waiter_stand() -> void:
-	tray_rack = Models.make("tray_rack", Vector3(0.66, 1.05, 0.38), Color(0.76, 0.78, 0.82))
+	tray_rack = Models.make(Layout3.tray_rack_model(), Vector3(0.66, 1.05, 0.38), Color(0.76, 0.78, 0.82))
 	tray_rack.name = "TrayRack"
 	tray_rack.position = Layout3.TRAY_RACK
 	tray_rack.rotation.y = Layout3.TRAY_RACK_YAW
@@ -3782,11 +3789,21 @@ func _pop_text(at: Vector3, text: String, col: Color) -> void:
 
 # ================================================================ static world
 func _build_static() -> void:
-	if CharacterRig.model_exists("dhaba_v3"):
-		var d: Node3D = Models.make("dhaba_v3")
-		add_child(d)
-	else:
-		_fallback_store()
+	# Dhaba growth (6 Nov): the cart's yard, the tin shack or the dhaba; the
+	# neem tree stands in the tandoor corner while the stall is a cart.
+	for wm in Layout3.stage_world_models():
+		if CharacterRig.model_exists(str(wm)):
+			var d: Node3D = Models.make(str(wm))
+			d.name = str(wm)
+			add_child(d)
+		elif str(wm) == "dhaba_v3":
+			_fallback_store()
+	if Layout3.stage_id() == "cart" and CharacterRig.model_exists("growth_neem"):
+		var tree: Node3D = Models.make("growth_neem")
+		tree.name = "CartNeem"
+		tree.position = CART_NEEM_POS
+		tree.scale = Vector3.ONE * CART_NEEM_SCALE
+		add_child(tree)
 	if CharacterRig.model_exists("street_v3"):
 		var s: Node3D = Models.make("street_v3")
 		add_child(s)
@@ -3797,7 +3814,7 @@ func _build_static() -> void:
 		var fh: Node3D = Models.make("family_hall")
 		fh.name = "FamilyHall"
 		add_child(fh)
-	if not Game.is_built("tandoor"):
+	if not Game.is_built("tandoor") and Layout3.stage_id() != "cart":
 		_add_tandoor_lock()
 
 
@@ -3808,7 +3825,8 @@ func _build_static() -> void:
 func _add_world_props() -> void:
 	gate_board = _add_prop(GATE_BOARD_PATH)
 	hoarding = _add_prop(HOARDING_PATH)
-	tv = _add_prop(TV_PATH)
+	if Layout3.stage_id() == "dhaba":
+		tv = _add_prop(TV_PATH)
 	shaadi_gate = _add_prop(EVENT_DECO_PATH)
 	if _variant_s == "family":
 		_add_hall_sign()
