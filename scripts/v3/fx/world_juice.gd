@@ -704,6 +704,7 @@ func _start_reveal(kind: String, rig: Variant) -> void:
 	_rv_kind = kind
 	_rv_rig = rig
 	_rv_t = _clock
+	Fx.reveal_started.emit(kind)
 	_rv_pause = 0.0
 	_rv_refs_t = Refs.clock
 	_rv_phase = 0
@@ -727,6 +728,10 @@ func _start_reveal(kind: String, rig: Variant) -> void:
 			_rv_home = o.call("target_point")
 			_rv_mult = float(o.call("get_size_mult"))
 			o.call("transfer_to", MOVE_PAN_POINT, -1.0, MOVE_PAN_S)
+		"shack", "dhaba":
+			# Dhaba growth step 3: the new stage opens with a burst over the floor.
+			_reveal_burst(Vector3(4.5, 1.6, 4.5))
+			_finish_reveal("stage")
 		_:
 			_finish_reveal("unknown kind")
 

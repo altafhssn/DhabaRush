@@ -128,6 +128,21 @@ extends Node
 ##   - Closing FREE BONUS without the video is a decline (rewarded ads are
 ##     opt-in): the beat moves on to L15 / L16 and the BUILD beat ("[tutorial]
 ##     ad beat: FREE BONUS closed without the video").
+## Dhaba growth step 4 (7 Nov, docs/growth/plan.md; owner: a 3-minute shack
+## build with one free FINISH NOW). A new game starts on the chai cart
+## (Game.stage() 0): L1c instead of L1, the first traveller, the first sale
+## and the chai lesson run as before, then (instead of the transfer) the
+## GROW BEAT, checkpoint "grow": spawns resume and the camera goes home, G1
+## ("Chai is selling fast! This cart needs a roof now."), G2 brings BUILD in
+## and names it -> hand on BUILD -> hand on THE SHACK's BUILD (a one-time
+## top-up "gift_shack" keeps it affordable) -> the construction starts
+## (Game.build_job_changed) -> fly to the site, G3 -> hand on the tag's
+## "FINISH NOW · FREE" -> Game finishes the build, saves and the scene reloads
+## as the shack -> checkpoint "shack": the reveal plays, then "shack_done",
+## then the transfer and every later beat exactly as before (the shack has a
+## second cash counter, waiter and table). If the player waits instead, the
+## build finishes by time and the same reload follows. A game that starts on
+## the dhaba (old saves) never sees the grow beat.
 ##
 ## hold_spawns is on from the start until the transfer (nobody else walks in
 ## between the first sale and the transfer — critic). Pause dialogues are
@@ -206,6 +221,11 @@ const S_LEVEL := "level"
 const S_LINE7 := "line7"
 const S_TAP_OUT := "tap_out"
 const S_TRANSFER := "transfer"
+const S_GROW_LINES := "grow_lines"
+const S_GROW_BTN := "grow_btn"
+const S_GROW_ROW := "grow_row"
+const S_GROW_SITE := "grow_site"
+const S_SHACK_OPEN := "shack_open"
 const S_TAP_GALLA := "tap_galla"
 const S_HIRE := "hire"
 const S_CLOSE_GALLA := "close_galla"
@@ -232,7 +252,7 @@ const S_OUTRO := "outro"
 const S_DONE := "done"
 
 ## Saved checkpoints, in order.
-const CHECKPOINTS := ["intro", "first_sale", "transfer", "hired", "waiter", "free", "seats", "ad_deal", "build", "done"]
+const CHECKPOINTS := ["intro", "first_sale", "grow", "shack", "transfer", "hired", "waiter", "free", "seats", "ad_deal", "build", "done"]
 ## Steps that keep the marker alive (it is cleared on any other step).
 const KEEP_MARKER := ["tap_chai", "level", "tap_galla", "hire"]
 ## The seats beat's steps (a claim during them is remembered).
@@ -397,12 +417,20 @@ const ANCHOR_WAIT := 1.0
 ## C7.2 (W3-FIX): on a relaunch at the ad beat, the longest wait (s) for the
 ## first rewarded load before the beat is left out.
 const AD_READY_WAIT := 8.0
+## Step 4: where the camera looks at the shack's building site (the tag hangs
+## at BuildSiteTag.POINTS["shack"]), the pause before G3, and the longest
+## wait for the shack's reveal after the reload.
+const GROW_SITE_VIEW := Vector3(4.2, 0.0, 2.2)
+const GROW_SITE_DELAY := 1.0
+const SHACK_REVEAL_MAX := 6.0
+const SHACK_OPEN_DELAY := 0.8
 ## Soft launch analytics: every beat in its canonical order. tutorial_step
 ## carries its 1-based index "i" (GameAnalytics design id
 ## tutorial:step:<ii>_<step>, so the funnel sorts in play order) and "t", the
 ## seconds of play since the tutorial started or resumed this session.
 const STEP_ORDER := ["intro", "follow", "seated", "chai_pause", "brew", "deliver", "to_galla", "galla_pause",
-		"wait_sale", "first_sale", "tap_chai", "level", "line7", "tap_out", "transfer", "tap_galla", "hire",
+		"wait_sale", "first_sale", "tap_chai", "level", "line7", "tap_out", "grow_lines", "grow_btn", "grow_row",
+		"grow_site", "shack_open", "transfer", "tap_galla", "hire",
 		"close_galla", "wrap", "waiter_lines", "tap_staff", "hire_waiter", "close_waiters", "waiter_done", "free",
 		"seats_lines", "tap_table", "add_table", "seats_done", "ad_deal", "bubble", "vip", "ad_lines", "build_btn",
 		"build_row", "build_close", "outro", "done"]
@@ -488,6 +516,9 @@ var _ad_skipped: bool = false
 ## W3-FIX (C7.2): resumed at "ad_deal": the beat waits for the first
 ## rewarded load (AD_READY_WAIT) before it decides there is no ad.
 var _ad_wait_load: bool = false
+## Step 4: WorldJuice's promotion reveal is playing (Fx.reveal_started /
+## reveal_finished).
+var _reveal_on: bool = false
 
 
 func _ready() -> void:
@@ -627,7 +658,13 @@ func _resume(cp: String) -> void:
 	if order < CHECKPOINTS.find("hired") and Game.galla_count() >= 2:
 		cp = "hired"
 	elif cp == "intro" and Game.station_level("chai") >= LEVEL_GATE:
-		cp = "transfer"
+		cp = "grow" if Game.stage() == 0 else "transfer"
+	# Step 4: the grow beat follows the stage (the build may have finished
+	# while the game was closed, or the save is older than the reload).
+	if cp == "grow" and Game.stage() >= 1:
+		cp = "shack"
+	elif cp == "shack" and Game.stage() == 0:
+		cp = "grow"
 	# Only the re-entry beat shortens its lines (L6 only / no LW3 / L16 only).
 	_resume_once = cp == "first_sale" or cp == "hired" or cp == "waiter" or cp == "build"
 	Game.sim_paused = false
@@ -644,6 +681,12 @@ func _resume(cp: String) -> void:
 			_reveal(REVEAL_MONEY)
 			_hold_spawns(true)
 			_goto(S_FIRST_SALE)
+		"grow":
+			_reveal(REVEAL_RATE)
+			_goto(S_GROW_LINES)
+		"shack":
+			_reveal(REVEAL_RATE)
+			_goto(S_SHACK_OPEN)
 		"transfer":
 			_reveal(REVEAL_RATE)
 			_goto(S_TRANSFER)
@@ -736,7 +779,8 @@ func _enter_intro() -> void:
 	await _wait(INTRO_DELAY)
 	if g != _gen:
 		return
-	await _say(["l1", "l2"])
+	# Step 4: on the chai cart Rani says "Our stall is open!" (L1c).
+	await _say(["l1c" if Game.stage() == 0 else "l1", "l2"])
 	if g != _gen:
 		return
 	_goto(S_FOLLOW)
@@ -919,7 +963,7 @@ func _enter_line7() -> void:
 
 func _enter_tap_out() -> void:
 	if not _panel_open("chai"):
-		_goto(S_TRANSFER)
+		_goto(_after_chai())
 		return
 	# The sheet closes on its X (A6.1) or a tap above it (whether UiRoot routes
 	# that through WorldInput or its own catcher), so world taps stay allowed.
@@ -929,6 +973,159 @@ func _enter_tap_out() -> void:
 		_hand.point_at(x)
 	else:
 		_hand.point_at(_anchor(["sheet_outside"]), SHEET_HAND_REL)
+
+
+## Step 4: after the chai lesson, the cart builds the shack; a game that
+## started on the dhaba goes straight to the transfer.
+func _after_chai() -> String:
+	return S_GROW_LINES if Game.stage() == 0 else S_TRANSFER
+
+
+## The grow beat (cart): travellers come back and chai sells while G1 / G2
+## set the goal; BUILD comes in as G2 names it.
+func _enter_grow_lines() -> void:
+	var g := _gen
+	_checkpoint("grow")
+	if Game.stage() > 0:
+		_goto(S_SHACK_OPEN)
+		return
+	if Game.build_job_active():
+		_goto(S_GROW_SITE)
+		return
+	_reveal(REVEAL_RATE)
+	_allow_taps(["none"])
+	_allow_buttons(["*"])
+	_lock_input(true)
+	_hold_spawns(false)
+	var cam := _cam()
+	if cam != null:
+		cam.panel_min_size_mult = 0.0
+		cam.fly_home()
+	await _wait(WRAP_DELAY)
+	if g != _gen:
+		return
+	await _say(["g1", "g2"])
+	if g != _gen:
+		return
+	_goto(S_GROW_BTN)
+
+
+## Hand on BUILD (the shack's price topped up once per save: "gift_shack").
+func _enter_grow_btn() -> void:
+	var g := _gen
+	if Game.build_job_active() or Game.stage() > 0:
+		_goto(S_GROW_SITE)
+		return
+	Game.reveal_hud("build")
+	_allow_taps(["none"])
+	_allow_buttons(["*"])
+	_lock_input(true)
+	_hud_mode("gameplay")
+	_gift_once("shack", float(Game.growth_state().get("cost", 0.0)))
+	if _panel_open("daftar"):
+		_goto(S_GROW_ROW)
+		return
+	await _wait(BUILD_HAND_DELAY)
+	if g != _gen:
+		return
+	_hand.point_at(_anchor(["build_button"], true))
+
+
+## BUILD is open: hand on THE SHACK's BUILD. Never soft-lock: when the chai
+## lesson was cut short (an unaffordable level) and the shack is still
+## locked, it is built free.
+func _enter_grow_row() -> void:
+	var g := _gen
+	if Game.build_job_active():
+		_goto(S_GROW_SITE)
+		return
+	var ui: Node = Refs.ui
+	if ui != null and is_instance_valid(ui):
+		var df: Variant = ui.get("daftar")
+		if df is Object and (df as Object).has_method("focus_row"):
+			(df as Object).call("focus_row", "grow")
+	if str(Game.growth_state().get("reason", "")) == "needs":
+		print("[tutorial] grow beat: the shack is locked (chai L%d); building it free" % Game.station_level("chai"))
+		Game.start_growth_build(true)
+		return
+	await _wait(HAND_DELAY)
+	if g != _gen:
+		return
+	_hand.point_at(_anchor(["build_row_grow"]))
+
+
+## The construction runs: fly to the site, G3, hand on the tag's free
+## FINISH NOW. The build finishing (that tap, or the 3 minutes) saves and
+## reloads the scene as the shack (checkpoint "shack").
+func _enter_grow_site() -> void:
+	var g := _gen
+	_checkpoint("grow")
+	if Game.stage() > 0:
+		_goto(S_SHACK_OPEN)
+		return
+	if not Game.build_job_active():
+		_goto(S_GROW_BTN)
+		return
+	if not _open_panels.is_empty():
+		_call(Refs.ui, "close_all")
+	_allow_taps(["none"])
+	_allow_buttons(["*"])
+	_lock_input(true)
+	var cam := _cam()
+	if cam != null:
+		_cam_wait_for("fly")
+		cam.fly_to(GROW_SITE_VIEW, CameraRig.GAME)
+		await _await_cam(FLY_TIMEOUT)
+		if g != _gen:
+			return
+	await _wait(GROW_SITE_DELAY)
+	if g != _gen:
+		return
+	if not Game.build_free_skip_ready():
+		# The free skip is spent: the workers just keep going.
+		_lock_input(false)
+		return
+	await _say(["g3"])
+	if g != _gen:
+		return
+	var tag: Control = await _anchor_soon(["build_site_tag"])
+	if g != _gen:
+		return
+	if tag != null:
+		_hand.point_at(tag, BuildSiteTag.capsule_rel())
+	else:
+		_lock_input(false)
+
+
+## The new scene (the shack): WorldJuice's reveal plays, then "shack_done",
+## then the transfer and the rest of the tutorial as before.
+func _enter_shack_open() -> void:
+	var g := _gen
+	_checkpoint("shack")
+	_reveal(REVEAL_RATE)
+	Game.reveal_hud("build")
+	_allow_taps(["none"])
+	_allow_buttons(["*"])
+	_lock_input(true)
+	_hold_spawns(false)
+	await _wait(0.1)
+	if g != _gen:
+		return
+	var t := 0.0
+	while (_reveal_on or Game.promo_reveal_pending()) and t < SHACK_REVEAL_MAX:
+		await get_tree().process_frame
+		if g != _gen:
+			return
+		t += get_process_delta_time()
+	await _wait(SHACK_OPEN_DELAY)
+	if g != _gen:
+		return
+	if Game.stage() == 1 and not Game.note_seen("shack_done"):
+		Game.mark_note("shack_done")
+		await _say(["shack_done"])
+		if g != _gen:
+			return
+	_goto(S_TRANSFER)
 
 
 func _enter_transfer() -> void:
@@ -1867,6 +2064,11 @@ func _on_line_started(id: String = "") -> void:
 				if cam != null:
 					cam.fly_to(TableTag.table_point(Game.table_count()) + SEATS_VIEW_OFFSET, CameraRig.GAME)
 				_allow_taps(["tables"])
+		"g2":
+			# Step 4: BUILD comes in as G2 names it, as with L16.
+			if _step == S_GROW_LINES:
+				_call(Refs.hud, "set_mode", ["dialogue", ["build_button"]])
+				Game.reveal_hud("build")
 		"l16":
 			# Round 2 step 2: BUILD appears as the line says "Tap BUILD". The
 			# HUD keeps that one button through the hidden-HUD line, so its
@@ -1962,6 +2164,9 @@ func _on_panel_opened(panel: Variant = "") -> void:
 		S_BUILD_BTN:
 			if k == "daftar":
 				_goto(S_BUILD_ROW)
+		S_GROW_BTN:
+			if k == "daftar":
+				_goto(S_GROW_ROW)
 		S_FREE:
 			_hand.hide_hand()
 
@@ -1975,7 +2180,10 @@ func _on_panel_closed(panel: Variant = "") -> void:
 				_goto(S_TAP_CHAI)
 		S_TAP_OUT:
 			if k == "chai":
-				_goto(S_TRANSFER)
+				_goto(_after_chai())
+		S_GROW_ROW:
+			if k == "daftar" and not Game.build_job_active():
+				_goto(S_GROW_BTN)
 		S_HIRE:
 			if k == "staff":
 				_goto(S_TAP_GALLA)
@@ -2076,6 +2284,25 @@ func _on_building_built(id: String = "") -> void:
 			_goto(S_BUILD_CLOSE)
 
 
+## Step 4: the shack's construction started from BUILD (or the free
+## fallback): on to the site. Its end saves the checkpoint for the reload.
+func _on_build_job_changed(kind: String = "") -> void:
+	if kind == "shack" and (_step == S_GROW_BTN or _step == S_GROW_ROW or _step == S_GROW_LINES):
+		_hand.hide_hand()
+		_goto(S_GROW_SITE)
+	elif kind == "" and _step == S_GROW_SITE:
+		_hand.hide_hand()
+		_checkpoint("shack")
+
+
+func _on_reveal_started(_kind: String = "") -> void:
+	_reveal_on = true
+
+
+func _on_reveal_finished(_kind: String = "") -> void:
+	_reveal_on = false
+
+
 func _on_task_claimed(_slot: int = -1, _reward: float = 0.0) -> void:
 	Game.tutorial_set("claimed", true)
 	if _step == S_FREE and _seats_done():
@@ -2111,6 +2338,9 @@ func _wire() -> void:
 	_connect(Game, "task_claimed", _on_task_claimed)
 	_connect(Game, "waiter_hired", _on_waiter_hired)
 	_connect(Game, "table_added", _on_table_added)
+	_connect(Game, "build_job_changed", _on_build_job_changed)
+	_connect(Fx, "reveal_started", _on_reveal_started)
+	_connect(Fx, "reveal_finished", _on_reveal_finished)
 	_connect(_dialogue, "line_started", _on_line_started)
 	_connect(Refs.camera, "move_finished", _on_cam_finished)
 	_connect(Refs.ui, "panel_opened", _on_panel_opened)

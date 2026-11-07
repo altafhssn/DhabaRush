@@ -1,13 +1,19 @@
 # Dhaba growth: build plan
 
-6 Nov 2026, for the owner's OK. Nothing is built yet. Decisions come from the 6 Nov design talk (chai cart → shack → dhaba → Family Dhaba → NH 48, paid stages, timed construction with an ad speed-up).
+6 Nov 2026, updated 7 Nov. Decisions come from the 6 Nov design talk (chai cart → shack → dhaba → Family Dhaba → NH 48, paid stages, timed construction with an ad speed-up) and the 7 Nov changes below.
+
+**7 Nov owner changes.**
+- The shack's 3-minute build has one free FINISH NOW the first time ("the builder owes us a favour").
+- The dhaba build is 5 minutes, not 10.
+- Lassi opens with the shack. The pacing simulator showed that lassi behind any dhaba wait opens when chai already sells for more, so building it would shrink the bill.
+- Prices from the simulator: the shack 75 (what the chai lesson leaves a tutorial player), the dhaba 450.
 
 ## What the player sees
 
 1. **Chai cart** under a neem tree by the highway: a wooden cart, a kettle on a stove, one bench, a charpai, a hand-painted CHAI board. Chai only, you serve it. The tutorial starts here. Simran's "he says you run a tea stall" message lands while you really are one.
 2. **Build the shack** (paid goal). For 3 minutes, workers put up bamboo and a tin roof around the cart while you keep selling chai. An ad finishes it now.
-3. **Shack**: tin roof, a few tables, the tandoor, your first waiter (Raju) and cashier. The rest of today's tutorial (waiter, cashier, tables, tandoor) happens here.
-4. **Build the dhaba** (10 min): brick walls and the painted dhaba front rise around the shack. Then today's dhaba opens, with lassi and kadai to build.
+3. **Shack**: tin roof, a few tables, the tandoor and the lassi counter, a second waiter and cashier. The rest of today's tutorial (waiter, cashier, tables, tandoor) happens here.
+4. **Build the dhaba** (5 min, after lassi): brick walls and the painted dhaba front rise around the shack. Then today's dhaba opens, with the kadai, a third waiter and more tables.
 5. **Family Dhaba** (about 20 min) and **NH 48** (about 30 min) get the same construction wait, where today they are instant.
 
 ## Work, in order
@@ -27,3 +33,25 @@
 - **Old saves.** Anyone past the tutorial is put straight on the dhaba stage. A test covers it.
 - **Timed builds and the app closing.** The build must finish correctly after the phone was off, and an ad interrupted mid-way must still pay off on the next launch.
 - **The 10-hour plan** (docs/content-10h) also touches layouts and hotels. This plan goes first, and the hotels later build on the same construction system.
+
+## Status (7 Nov)
+
+| Step | State |
+|---|---|
+| 1 Art | Done, committed (fa6f53e) |
+| 2 Stages | Done, committed (fa6f53e) |
+| 3 Timed construction | Applied to the project, not committed |
+| 4 Tutorial on the cart | Applied to the project, not committed |
+| 5 Story and money | Applied, not committed. Prices and the lassi move; father's visit 1 already lands in the shack (it needs the 3rd table), Simran's "tea stall" message lands there too |
+| 6 Test | Full suite clean (274 SDK checks, tap and zoom checks, 5 tutorial runs); new tutorial baseline in tools/testkit/qa/logs/baseline_cart; windowed captures done 7 Nov (tutorial on the cart, the free FINISH NOW tag, the shack reveal, both BUILD rows, the dhaba site with the ad button): no layout problems |
+
+**Pacing** (`python3 tools/sim/pacing_v3.py --growth`, from the end of the tutorial in the shack):
+
+| Run | Lassi | Dhaba bought | Dhaba open | Kadai |
+|---|---|---|---|---|
+| With ads | 2:26 | 7:28 | 12:28 | 15:56 |
+| No ads | 2:26 | 9:02 | 14:02 | 18:59 |
+| FINISH NOW ad on the dhaba | 2:26 | 7:28 | 7:29 | 15:11 |
+| Before growth (today's dhaba) | 2:25 | - | - | 9:30 |
+
+Every build raises the bill by more than 15 % (the simulator's bill check) in all three runs.

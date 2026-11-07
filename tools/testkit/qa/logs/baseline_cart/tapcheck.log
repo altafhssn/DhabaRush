@@ -1,0 +1,249 @@
+Initializing GameAnalytics
+GameAnalytics - Initializing http client
+GameAnalytics - Initializing Log
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[analytics] GameAnalytics not started: consent unknown
+[analytics] consent card skipped: debug run with flags (add --consent=ask to see it)
+[ads] backend: stub, units: { "rewarded": "ca-app-pub-3940256099942544/5224354917", "interstitial": "ca-app-pub-3940256099942544/1033173712" }
+[iap] fake store (use_stub_store)
+[game] modules: readout, special, event, delegation, offers, story
+[growth] stage cart: tables max 2, gallas max 1, waiters max 1, build chai=built, tandoor=stage:shack, lassi=stage:shack, kadai=stage:dhaba
+[analytics] session_start { "n": 1, "save": false }
+[special] none: off (debug run with flags)
+[analytics] hud_reveal { "id": "hud_staff", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] hud_reveal { "id": "hud_build", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] hud_reveal { "id": "hud_gear", "min_since_tutorial": 0.0, "tutorial": false }
+[analytics] hud_reveal { "id": "hud_meter", "min_since_tutorial": 0.0, "tutorial": false }
+[world] region look nh44: default
+[main3] signs: ढाबा · होटल | HOTEL & DHABA
+[main3] ready (low_tier=false, auto=false, shots=0, fairy strings=17, graphics=auto, max_fps=0)
+[analytics] session_settings { "lang": "en", "gfx": "auto", "low": false, "music": true, "sound": true }
+[ads] consent: can request ads = true
+[analytics] ad_consent { "can_request": true }
+[ads] backend stub ready: true
+[iap] backend: stub, products: ["vip_x2", "remove_ads", "sikke_small", "starter_pack"]
+[ads] loading rewarded (attempt 1)
+[ads] rewarded loaded
+[special] tutorial day 2026-11-07
+[readout] limit cashiers src model fix=HIRE CASHIER
+[analytics] next_chip_show { "id": "build" }
+[chip] build panel=daftar
+[hud] meter: limit cashiers
+[hud] road: Road: 12/min · all seated
+[analytics] build_affordable { "id": "tandoor", "min_since_tutorial": 0.0, "waiters": 1, "legacy": false }
+[tapcheck] zoom x1.00
+[analytics] building_built { "id": "tandoor", "cost": 200.0, "min_since_tutorial": 0.0 }
+[analytics] upgrade_bought { "id": "galla_1", "kind": "galla_hire", "value": 2, "cost": 50.0 }
+[analytics] upgrade_bought { "id": "waiter_1", "kind": "waiter_hire", "value": 2, "cost": 40.0 }
+[hud] rate 29.63 -> 34.95 in 0.00 s (waiter_hire)
+[analytics] upgrade_bought { "id": "waiter_2", "kind": "waiter_hire", "value": 3, "cost": 120.0 }
+[analytics] upgrade_bought { "id": "table_2", "kind": "table", "value": 3, "cost": 30.0 }
+[hud] rate 34.95 -> 35.80 in 0.27 s (table)
+[analytics] build_affordable { "id": "lassi", "min_since_tutorial": 0.0, "waiters": 3, "legacy": false }
+[readout] limit cooks src live fix=HIRE COOK
+[hud] meter: limit cooks
+[tapcheck] stage A: ghost pad 'lassi', build tag 'lassi' shown
+[analytics] not_bottleneck_shown { "button": "cooks", "station": "chai" }
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK A chai_top want=station:chai got=station:chai PASS
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK A chai_pass0_item want=station:chai got=station:chai PASS
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK A chai_pass_end want=station:chai got=station:chai PASS
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK A pinky want=station:chai got=station:chai PASS
+[analytics] renovation_card_shown { "tutorial": false }
+[ui] build rows: tables 3/5, chai built, tandoor built, lassi open, kadai locked, signboard 0/4 locked, family_dhaba locked
+[analytics] build_prompt { "id": "lassi", "source": "pad", "min_since_tutorial": 0.1 }
+TAPCHECK A lassi_pad_top want=daftar got=daftar PASS
+[ui] build rows: tables 3/5, chai built, tandoor built, lassi open, kadai locked, signboard 0/4 locked, family_dhaba locked
+[analytics] build_prompt { "id": "lassi", "source": "pad", "min_since_tutorial": 0.1 }
+TAPCHECK A matka_mouth want=daftar got=daftar PASS
+TAPCHECK A tray_rack want=staff:waiters got=staff:waiters PASS
+TAPCHECK A raju_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK A raju_free_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK A idle_spot_2 want=staff:waiters got=staff:waiters PASS
+TAPCHECK A idle_spot_1 want=staff:waiters got=staff:waiters PASS
+TAPCHECK A galla1_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A galla1_cashier want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A galla2_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK A galla2_cashier want=staff:cashiers got=staff:cashiers PASS
+[ui] build rows: tables 3/5, chai built, tandoor built, lassi open, kadai locked, signboard 0/4 locked, family_dhaba locked
+TAPCHECK A table0_top want=daftar got=daftar PASS
+[ui] build rows: tables 3/5, chai built, tandoor built, lassi open, kadai locked, signboard 0/4 locked, family_dhaba locked
+TAPCHECK A table0_front_charpai want=daftar got=daftar PASS
+[analytics] building_built { "id": "lassi", "cost": 170.0, "min_since_tutorial": 0.2 }
+[analytics] upgrade_bought { "id": "lassi", "kind": "hire", "value": 2, "cost": 50.0 }
+[analytics] upgrade_bought { "id": "lassi", "kind": "hire", "value": 3, "cost": 300.0 }
+[analytics] build_affordable { "id": "kadai", "min_since_tutorial": 0.2, "waiters": 3, "legacy": false }
+ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+   at: call (modules/gdscript/gdscript_lambda_callable.cpp:110)
+[tapcheck] stage B: ghost pad 'kadai', build tag 'kadai' shown
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK B chai_top want=station:chai got=station:chai PASS
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK B chai_pass0_item want=station:chai got=station:chai PASS
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK B chai_pass_end want=station:chai got=station:chai PASS
+[ui] sheet chai ribbons: cooks,speed fix=HIRE COOK
+TAPCHECK B pinky want=station:chai got=station:chai PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_pad_top want=station:lassi got=station:lassi PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B matka_mouth want=station:lassi got=station:lassi PASS
+TAPCHECK B tray_rack want=staff:waiters got=staff:waiters PASS
+TAPCHECK B raju_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK B raju_free_spot want=staff:waiters got=staff:waiters PASS
+TAPCHECK B idle_spot_2 want=staff:waiters got=staff:waiters PASS
+TAPCHECK B idle_spot_1 want=staff:waiters got=staff:waiters PASS
+TAPCHECK B galla1_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B galla1_cashier want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B galla2_desk want=staff:cashiers got=staff:cashiers PASS
+TAPCHECK B galla2_cashier want=staff:cashiers got=staff:cashiers PASS
+[ui] build rows: tables 3/5, chai built, tandoor built, lassi built, kadai open, signboard 0/4 locked, family_dhaba locked
+TAPCHECK B table0_top want=daftar got=daftar PASS
+[ui] build rows: tables 3/5, chai built, tandoor built, lassi built, kadai open, signboard 0/4 locked, family_dhaba locked
+TAPCHECK B table0_front_charpai want=daftar got=daftar PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_pass0_item want=station:lassi got=station:lassi PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_cook0 want=station:lassi got=station:lassi PASS
+ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+   at: call (modules/gdscript/gdscript_lambda_callable.cpp:110)
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_cook1 want=station:lassi got=station:lassi PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_cook2 want=station:lassi got=station:lassi PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_cook1_head want=station:lassi got=station:lassi PASS
+[ui] sheet lassi ribbons: speed fix=HIRE COOK
+TAPCHECK B lassi_cook2_head want=station:lassi got=station:lassi PASS
+[analytics] upgrade_bought { "id": "table_3", "kind": "table", "value": 4, "cost": 75.0 }
+[hud] rate 70.21 -> 70.49 in 0.00 s (table)
+[analytics] upgrade_bought { "id": "table_4", "kind": "table", "value": 5, "cost": 180.0 }
+[tapcheck] stage C: ghost pad 'kadai', build tag 'kadai' shown
+[ui] build rows: tables 5/5, chai built, tandoor built, lassi built, kadai open, signboard 0/4 locked, family_dhaba locked
+[analytics] build_prompt { "id": "kadai", "source": "pad", "min_since_tutorial": 0.5 }
+TAPCHECK C kadai_pad_top want=daftar got=daftar PASS (centred: off screen at home)
+[ui] build rows: tables 5/5, chai built, tandoor built, lassi built, kadai open, signboard 0/4 locked, family_dhaba locked
+TAPCHECK C table4_top want=daftar got=daftar PASS (centred: off screen at home)
+[ui] build rows: tables 5/5, chai built, tandoor built, lassi built, kadai open, signboard 0/4 locked, family_dhaba locked
+TAPCHECK C table4_back_charpai want=daftar got=daftar PASS (centred: off screen at home)
+[analytics] building_built { "id": "kadai", "cost": 1000.0, "min_since_tutorial": 0.6 }
+[analytics] hud_reveal { "id": "hud_stats", "min_since_tutorial": 0.6, "tutorial": false }
+[analytics] upgrade_bought { "id": "kadai", "kind": "hire", "value": 2, "cost": 150.0 }
+[analytics] upgrade_bought { "id": "kadai", "kind": "hire", "value": 3, "cost": 900.0 }
+[analytics] upgrade_bought { "id": "kadai", "kind": "level", "value": 100, "cost": 0.0 }
+[menu] kadai L100: kadai.dal unlocked
+[analytics] menu_unlocked { "station": "kadai", "dish": "kadai.dal", "level": 100, "min_since_tutorial": 0.6 }
+[menu_pop] kadai.dal
+[menu] kadai L100: kadai.paneer unlocked
+[analytics] menu_unlocked { "station": "kadai", "dish": "kadai.paneer", "level": 100, "min_since_tutorial": 0.6 }
+[menu] kadai L100: kadai.chole unlocked
+[analytics] menu_unlocked { "station": "kadai", "dish": "kadai.chole", "level": 100, "min_since_tutorial": 0.6 }
+[hud] rate 168.00 -> 792.07 in 0.00 s (hire:kadai)
+[analytics] next_chip_show { "id": "dish" }
+[chip] dish panel=station:chai
+[sim] fan trav_elder arrives for kadai.chole
+[readout] limit cashiers src live fix=UPGRADE CASHIER
+[hud] meter: limit cashiers
+[hud] road: Road: 15/min · all seated
+ERROR: Lambda capture at index 0 was freed. Passed "null" instead.
+   at: call (modules/gdscript/gdscript_lambda_callable.cpp:110)
+[tapcheck] stage D: ghost pad '', build tag hidden
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_counter_top want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[menu_pop] kadai.paneer
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_rim want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_side_counter want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_pass0_item want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[menu_pop] kadai.chole
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_chole_sack want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_cook0 want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_cook0_head want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] note tag kadai: NEW: Pindi Chole
+[game] showcase kadai.chole left 7
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_cook1 want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_cook1_head want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_cook2 want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D kadai_cook2_head want=station:kadai got=station:kadai PASS (centred: off screen at home)
+[ui] build rows: tables 5/5, chai built, tandoor built, lassi built, kadai built, signboard 0/4 open, family_dhaba locked
+TAPCHECK D table4_top want=daftar got=daftar PASS (centred: off screen at home)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_counter_top want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_rim want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_side_counter want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_pass0_item want=station:kadai got=station:kadai PASS
+[game] showcase kadai.chole left 6
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_chole_sack want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+[analytics] phone_message { "id": "day1", "min_since_tutorial": 1.0 }
+[story] message day1 (1 unread)
+TAPCHECK D@kadai_focus kadai_cook0 want=station:kadai got=station:kadai PASS
+[analytics] hud_reveal { "id": "hud_phone", "min_since_tutorial": 1.0, "tutorial": false }
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_cook0_head want=station:kadai got=station:kadai PASS
+[hud] phone buzz (1 unread)
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_cook1 want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_cook1_head want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_cook2 want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@kadai_focus kadai_cook2_head want=station:kadai got=station:kadai PASS
+[ui] build rows: tables 5/5, chai built, tandoor built, lassi built, kadai built, signboard 0/4 open, family_dhaba locked
+TAPCHECK D@kadai_focus table4_top want=daftar got=daftar PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_counter_top want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_rim want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_side_counter want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_pass0_item want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_chole_sack want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_cook0 want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_cook0_head want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_cook1 want=station:kadai got=station:kadai PASS
+[game] showcase kadai.chole left 5
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_cook1_head want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_cook2 want=station:kadai got=station:kadai PASS
+[ui] sheet kadai ribbons: speed fix=UPGRADE CASHIER
+TAPCHECK D@annex kadai_cook2_head want=station:kadai got=station:kadai PASS
+[ui] build rows: tables 5/5, chai built, tandoor built, lassi built, kadai built, signboard 0/4 open, family_dhaba locked
+TAPCHECK D@annex table4_top want=daftar got=daftar PASS
+[tapcheck] stage E: SKIP (roadside layout; E runs after --renovate)
+TAPCHECK fails=0
+[sim] conservation arrived 22 paid 2 inside 20 left_unpaid 0 drove_past 0
+[sim] max ticket age 22.0
+[sim] door line max 0
+[sim] home walks 7 per 13 orders
+[sim] trip orders 1.00 (15 trips)
+[sim] fans 2 | baraat buses 0 guests 0 drove past 0
+WARNING: 22 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 11 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
+rc=0

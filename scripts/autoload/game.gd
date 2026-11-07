@@ -254,6 +254,9 @@ signal cash_spent(amount: float, what: String)
 ## A renovation ("renovation") or a move ("move") reset the dhaba; main3
 ## reloads the scene. Nothing else is emitted into the old scene.
 signal promoted(kind: String, count: int)
+## Dhaba growth step 3 (6 Nov): a timed construction started ("shack", "dhaba",
+## "renovation", "move") or ended ("").
+signal build_job_changed(kind: String)
 signal signboard_changed(level: int)
 signal waiter_tray_changed(index: int, orders: int)
 signal showcase_started(station_id: String, dish_id: String)
@@ -680,6 +683,20 @@ const STAGE_DHABA := 2
 var _stage: int = STAGE_DHABA
 ## Debug --stage=cart|shack|dhaba: forced after the load (-1 = not forced).
 var _debug_stage: int = -1
+## Dhaba growth step 3 (6 Nov; saved "build_job"): a timed construction,
+## {kind: "shack" | "dhaba" | "renovation" | "move", target: the highway of a
+## move, done: s built so far, dur: s, paid}. The old place keeps trading
+## while it runs; it counts while the game runs (_process delta) and the
+## launch adds the time away (the offline pay's _load_away), so it can finish
+## while the game is closed (checked on launch, before the scene is built); a
+## rewarded ad finishes it at once (finish_build_job_now). {} = none.
+const BUILD_KINDS := ["shack", "dhaba", "renovation", "move"]
+var _build_job: Dictionary = {}
+var _build_poll_t: float = 0.0
+## Debug: --build-dur=SEC overrides every construction time (tests);
+## --grow starts the next stage's build for free once the game runs.
+var _debug_build_dur: float = -1.0
+var _debug_grow: bool = false
 ## C7.2: UiRoot holds the wall-ad bubble while the FREE / VIP popup is open.
 var _ad_hold: bool = false
 ## W4-FIX-core (C7.6 data): ad_bubble_tapped was sent for the bubble on screen.
@@ -746,6 +763,10 @@ func _ready() -> void:
 	if had_save:
 		_grant_offline(_load_away)
 		_ad_wait_after_return()
+		if build_job_active():
+			_build_job["done"] = float(_build_job["done"]) + maxf(0.0, _load_away)
+	if build_job_active() and build_job_left() <= 0.0:
+		_complete_build_job("launch")
 	# Module registry: once, after the load (the special picks here).
 	for o in _systems.values():
 		if (o as Object).has_method("on_launch"):
@@ -771,6 +792,12 @@ func _process(delta: float) -> void:
 		if _save_soon <= 0.0:
 			save_game()
 	_update_ad_bubble(delta)
+	if not _build_job.is_empty():
+		_build_job["done"] = float(_build_job["done"]) + delta
+	_build_poll_t += delta
+	if _build_poll_t >= 0.5:
+		_build_poll_t = 0.0
+		_tick_build_job()
 	_stat_t += delta
 	if _stat_t >= STATS_SAMPLE_SECONDS:
 		_sample_stats(_stat_t)
@@ -814,6 +841,9 @@ func _notification(what: int) -> void:
 				_grant_offline(away)
 				_paused_at = 0.0
 				_ad_wait_after_return()
+				# Dhaba growth step 3: the workers kept building while the app slept.
+				if build_job_active():
+					_build_job["done"] = float(_build_job["done"]) + maxf(0.0, away)
 				for o in _systems.values():
 					if (o as Object).has_method("on_resume"):
 						(o as Object).call("on_resume", away)
@@ -829,6 +859,7 @@ func _reset_state() -> void:
 	_apply_location(_location)
 	_renovations = 0
 	_stage = clampi(int(_growth().get("start_stage", STAGE_DHABA)), 0, STAGE_DHABA)
+	_build_job = {}
 	_dish_floor = {}
 	_signboard = 0
 	_promo_reveal = ""
@@ -5124,6 +5155,7 @@ const MOVE_RESETS := ["A Rajasthani menu: 16 dishes to unlock", "Tandoor, lassi 
 const MOVE_ADDS := {"nh48": ["A second dhaba on the Jaipur highway, with a Rajasthani menu."]}
 ## Lock reasons (msgids of build plan 5.1) by reason code.
 const PROMO_REASON_TEXT := {
+	"building": "Building now",
 	"dishes": "Opens when all 16 dishes are on the menu",
 	"renovate": "Opens after the Family Dhaba, with every counter at Lv 100",
 	"counters": "Opens after the Family Dhaba, with every counter at Lv 100",
@@ -5199,10 +5231,162 @@ func station_stage(id: String) -> int:
 	return clampi(int(_dict(_growth(), "station_stage").get(id, 0)), 0, STAGE_DHABA)
 
 
-## Step 3 (timed construction) moves the stage on; debug and tests set it here.
+## Debug and tests set the stage here; play moves it on with a construction.
 func set_stage(n: int) -> void:
 	_stage = clampi(n, 0, STAGE_DHABA)
 	save_game()
+
+
+## growth.builds[kind] ("shack", "dhaba", "renovation", "move").
+func _build_def(kind: String) -> Dictionary:
+	return _dict(_dict(_growth(), "builds"), kind)
+
+
+## Construction time of `kind` in seconds (debug --build-dur overrides).
+func build_dur(kind: String) -> float:
+	if _debug_build_dur >= 0.0:
+		return _debug_build_dur
+	return maxf(0.0, float(_build_def(kind).get("dur_s", 0.0)))
+
+
+## The next stage's purchase: {shown, kind ("shack" | "dhaba"), title, unlocked,
+## affordable, building, cost, short, dur, reason ("" | "needs" | "cash" |
+## "building"), needs (msgid with {n}, e.g. "Chai at Lv {n}"), needs_n}.
+## shown is false on the dhaba.
+func growth_state() -> Dictionary:
+	var kind: String = "shack" if _stage == 0 else ("dhaba" if _stage == 1 else "")
+	if kind == "":
+		return {"shown": false, "kind": "", "unlocked": false, "affordable": false, "building": false}
+	var def: Dictionary = _build_def(kind)
+	var cost: float = snappedf(float(def.get("cost", 0.0)) * difficulty_cost_mult(), 0.01)
+	var req: Dictionary = _dict(def, "requires")
+	var needs: String = ""
+	var needs_n: int = 0
+	if req.has("chai_level") and station_level("chai") < int(req["chai_level"]):
+		needs = "Chai at Lv {n}"
+		needs_n = int(req["chai_level"])
+	elif req.has("built") and not is_built(str(req["built"])):
+		needs = "Build the %s first" % str(req["built"]).to_upper()
+	elif req.has("tables") and table_count() < int(req["tables"]):
+		needs = "{n} tables"
+		needs_n = int(req["tables"])
+	var building: bool = build_job_active() and str(_build_job.get("kind", "")) == kind
+	var reason: String = ""
+	if building or build_job_active():
+		reason = "building"
+	elif needs != "":
+		reason = "needs"
+	elif not can_afford(cost):
+		reason = "cash"
+	var unlocked: bool = reason == "" or reason == "cash"
+	return {"shown": true, "kind": kind, "title": "THE SHACK" if kind == "shack" else "THE DHABA",
+			"unlocked": unlocked, "affordable": reason == "", "building": building, "cost": cost,
+			"short": maxf(0.0, cost - cash), "dur": build_dur(kind), "reason": reason, "needs": needs, "needs_n": needs_n}
+
+
+## Buys the next stage: the cost now, the construction from now. False when
+## it is not ready, not affordable or a construction already runs.
+func start_growth_build(free: bool = false) -> bool:
+	var gs: Dictionary = growth_state()
+	if not bool(gs.get("shown", false)) or str(gs.get("reason", "")) == "building":
+		return false
+	if not free and str(gs.get("reason", "")) != "":
+		return false
+	var cost: float = float(gs["cost"])
+	if not free and not spend(cost, "grow:" + str(gs["kind"])):
+		return false
+	_start_build_job(str(gs["kind"]), "", 0.0 if free else cost, float(gs["dur"]))
+	return true
+
+
+func _start_build_job(kind: String, target: String, paid: float, dur: float) -> void:
+	_build_job = {"kind": kind, "target": target, "done": 0.0, "dur": dur, "paid": paid}
+	print("[build] %s started: %.0f s, paid %.2f" % [kind, dur, paid])
+	Analytics.event("build_started", {"kind": kind, "dur_s": int(dur), "min_since_tutorial": free_play_min()})
+	save_game()
+	build_job_changed.emit(kind)
+	if dur <= 0.0:
+		_complete_build_job("instant")
+
+
+func build_job_active() -> bool:
+	return not _build_job.is_empty()
+
+
+## A copy of the running construction ({} = none).
+func build_job() -> Dictionary:
+	return _build_job.duplicate()
+
+
+func build_job_kind() -> String:
+	return str(_build_job.get("kind", ""))
+
+
+## Seconds left (0 when none or done).
+func build_job_left() -> float:
+	if _build_job.is_empty():
+		return 0.0
+	return maxf(0.0, float(_build_job["dur"]) - float(_build_job["done"]))
+
+
+## 0..1 of the running construction (1 when none).
+func build_job_progress() -> float:
+	if _build_job.is_empty():
+		return 1.0
+	var d: float = float(_build_job["dur"])
+	return 1.0 if d <= 0.0 else clampf(1.0 - build_job_left() / d, 0.0, 1.0)
+
+
+## The rewarded ad's FINISH NOW (or a test): completes it at once. "free" is
+## the one free skip (build_free_skip_ready) and uses it up.
+func finish_build_job_now(source: String = "ad") -> void:
+	if not build_job_active():
+		return
+	if source == "free":
+		if not build_free_skip_ready():
+			return
+		tutorial_set("free_skip_used", true)
+	_complete_build_job(source)
+
+
+## Step 4 (7 Nov, owner): the shack's 3-minute build has one free FINISH NOW,
+## the first time (Rani: "the builder owes us a favour"); later builds need
+## the rewarded ad.
+func build_free_skip_ready() -> bool:
+	return build_job_kind() == "shack" and not bool(tutorial_get("free_skip_used", false))
+
+
+func _tick_build_job() -> void:
+	if _debug_grow and _loaded and _free_play_ready():
+		_debug_grow = false
+		print("[build] debug grow: %s" % str(start_growth_build(true)))
+	if build_job_active() and build_job_left() <= 0.0:
+		_complete_build_job("time")
+
+
+func _free_play_ready() -> bool:
+	return is_tutorial_done() or _stage < STAGE_DHABA
+
+
+## The end of a construction: a stage moves on (and the scene reloads with
+## the reveal), or the renovation / move applies as before (_promote_reset).
+func _complete_build_job(source: String) -> void:
+	var j: Dictionary = _build_job
+	_build_job = {}
+	var kind: String = str(j.get("kind", ""))
+	print("[build] %s finished (%s)" % [kind, source])
+	Analytics.event("build_finished", {"kind": kind, "source": source, "min_since_tutorial": free_play_min()})
+	build_job_changed.emit("")
+	match kind:
+		"shack", "dhaba":
+			_stage = clampi(_stage + 1, 0, STAGE_DHABA)
+			_promo_reveal = kind
+			save_game()
+			promoted.emit(kind, _stage)
+		"renovation":
+			_apply_renovation(float(j.get("paid", 0.0)))
+		"move":
+			_apply_move(str(j.get("target", "")), float(j.get("paid", 0.0)))
 
 
 ## "family" once renovated (the AC hall layout), else "roadside".
@@ -5268,7 +5452,7 @@ func renovation_cost() -> float:
 ## "Save {money}" with {money} = short, the cash still missing) or "".
 func renovation_state() -> Dictionary:
 	var done: bool = _renovations > 0
-	var unlocked: bool = not done and not _rdef().is_empty() and _all_dishes_ready()
+	var unlocked: bool = not done and not _rdef().is_empty() and _all_dishes_ready() and not build_job_active()
 	var cost: float = renovation_cost()
 	var aff: bool = unlocked and can_afford(cost)
 	var reason: String = ""
@@ -5304,6 +5488,17 @@ func renovate(free: bool = false) -> bool:
 	var cost: float = float(rs["cost"])
 	if not free and not spend(cost, "renovate"):
 		return false
+	# Dhaba growth step 3: a paid renovation is built over growth.builds
+	# renovation.dur_s while the old dhaba trades; `free` (debug) is instant.
+	var dur: float = build_dur("renovation")
+	if not free and dur > 0.0:
+		_start_build_job("renovation", "", cost, dur)
+		return true
+	_apply_renovation(0.0 if free else cost)
+	return true
+
+
+func _apply_renovation(paid: float) -> void:
 	# W4-FIX-core: done, unclaimed baraat steps are paid at today's rate first
 	# (the reset would shrink them to the level-1 rate).
 	_sys_call("event", "settle", ["promotion"])
@@ -5311,8 +5506,7 @@ func renovate(free: bool = false) -> bool:
 		_dish_floor[id] = dishes_unlocked(id)
 	_renovations += 1
 	Analytics.event("renovation_done", {"n": _renovations, "mult": fame_mult(), "min_since_tutorial": free_play_min()})
-	_promote_reset("renovation", 0.0 if free else cost)
-	return true
+	_promote_reset("renovation", paid)
 
 
 ## The current highway ("nh44" | "nh48").
@@ -5366,6 +5560,8 @@ func location_state(id: String) -> Dictionary:
 		reason = "renovate"
 	elif not _all_dishes_ready():
 		reason = "counters"
+	if reason == "" and build_job_active():
+		reason = "building"
 	var unlocked: bool = reason == ""
 	var aff: bool = unlocked and can_afford(cost)
 	if unlocked and not aff:
@@ -5398,6 +5594,17 @@ func move_highway(id: String, free: bool = false) -> bool:
 	var cost: float = float(ls["cost"])
 	if not free and not spend(cost, "move:" + id):
 		return false
+	# Dhaba growth step 3: the new dhaba down the highway takes
+	# growth.builds move.dur_s to build; `free` (debug) is instant.
+	var dur: float = build_dur("move")
+	if not free and dur > 0.0:
+		_start_build_job("move", id, cost, dur)
+		return true
+	_apply_move(id, 0.0 if free else cost)
+	return true
+
+
+func _apply_move(id: String, paid: float) -> void:
 	# W4-FIX-core: done, unclaimed baraat steps are paid at today's rate first.
 	_sys_call("event", "settle", ["promotion"])
 	var old: String = _location
@@ -5411,8 +5618,7 @@ func move_highway(id: String, free: bool = false) -> bool:
 	for sid: String in station_ids():
 		menu_seen[sid] = 1
 	Analytics.event("location_move", {"to": id, "min_since_tutorial": free_play_min()})
-	_promote_reset("move", 0.0 if free else cost)
-	return true
+	_promote_reset("move", paid)
 
 
 ## {milestone, sign_en, sign_hi} of the current highway ("" = the default).
@@ -5424,6 +5630,11 @@ func location_signs() -> Dictionary:
 ## The palette texture that recolours the world ("" = the usual one).
 func palette_override() -> String:
 	return str(location_def().get("palette", ""))
+
+
+## Step 4: a reveal is waiting for the new scene (the tutorial waits for it).
+func promo_reveal_pending() -> bool:
+	return _promo_reveal != ""
 
 
 ## The promotion the new scene should reveal, once ("" = none).
@@ -5892,6 +6103,11 @@ func _parse_debug_args() -> void:
 				print("[game] date pinned %s" % ds)
 			else:
 				print("[game] --date=%s ignored (want YYYY-MM-DD)" % ds)
+		elif a.begins_with("--build-dur="):
+			if a.substr(12).is_valid_float():
+				_debug_build_dur = maxf(0.0, a.substr(12).to_float())
+		elif a == "--grow":
+			_debug_grow = true
 		elif a.begins_with("--stage="):
 			_debug_stage = STAGE_IDS.find(a.substr(8))
 			if _debug_stage < 0:
@@ -6045,6 +6261,7 @@ func save_game() -> void:
 		# Core and feel (build plan 2.5): optional keys, defaults on load.
 		"renovations": _renovations,
 		"stage": _stage,
+		"build_job": _build_job.duplicate(),
 		"location": _location,
 		"locations_done": _locations_done.duplicate(),
 		"dish_floor": _dish_floor.duplicate(),
@@ -6125,6 +6342,14 @@ func load_game() -> bool:
 	_stage = clampi(int(d.get("stage", STAGE_DHABA)), 0, STAGE_DHABA)
 	if _renovations > 0 or not _locations_done.is_empty():
 		_stage = STAGE_DHABA
+	_build_job = {}
+	var bjv: Variant = d.get("build_job", {})
+	if bjv is Dictionary and BUILD_KINDS.has(str((bjv as Dictionary).get("kind", ""))):
+		var bj: Dictionary = bjv
+		_build_job = {"kind": str(bj["kind"]), "target": str(bj.get("target", "")), "done": maxf(0.0, float(bj.get("done", 0.0))),
+				"dur": maxf(0.0, float(bj.get("dur", 0.0))), "paid": maxf(0.0, float(bj.get("paid", 0.0)))}
+		if (_build_job["kind"] == "shack" and _stage != 0) or (_build_job["kind"] == "dhaba" and _stage != 1):
+			_build_job = {}
 	_dish_floor = {}
 	var dfv: Variant = d.get("dish_floor", {})
 	if dfv is Dictionary:

@@ -52,6 +52,8 @@ signal reward_chunk(amount: float, last: bool)
 signal reward_finished
 ## W2-FX: the promotion reveal after a renovation / move reload has ended.
 signal reveal_finished(kind: String)
+## Step 4 (7 Nov): the reveal began (the tutorial's shack beat waits for its end).
+signal reveal_started(kind: String)
 
 const CHAR_H := 1.0
 ## Gameplay ortho size (CameraRig.S_GAME_DEFAULT), used when Refs.camera is

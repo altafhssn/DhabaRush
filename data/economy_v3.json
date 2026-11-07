@@ -394,9 +394,18 @@
     "max_items": 2
   },
   "growth": {
-    "_comment": "Dhaba growth (6 Nov, docs/growth/plan.md): the chai cart (0), the tin shack (1), the dhaba (2). Positions never change between stages; each stage caps what can be hired and bought (a missing key keeps the dhaba's value). start_stage stays 2 (a new game is a dhaba) until the tutorial runs on the cart (plan step 4).",
-    "start_stage": 2,
-    "station_stage": {"chai": 0, "tandoor": 1, "lassi": 2, "kadai": 2},
+    "_comment": "Dhaba growth (6 Nov, docs/growth/plan.md): the chai cart (0), the tin shack (1), the dhaba (2). Positions never change between stages; each stage caps what can be hired and bought (a missing key keeps the dhaba's value). Step 4 (7 Nov): a new game starts on the cart (start_stage 0) and the tutorial builds the shack; saves without a stage stay on the dhaba.",
+    "start_stage": 0,
+    "_station_stage_comment": "Step 5 (7 Nov, owner): lassi opens with the shack. Behind the dhaba's build it came when chai already sold for more (tools/sim/pacing_v3.py --growth: bill -5 % even with a 5-minute build), so the dhaba unlocks after lassi and brings the kadai, a third waiter and more tables.",
+    "station_stage": {"chai": 0, "tandoor": 1, "lassi": 1, "kadai": 2},
+    "_builds_comment": "Step 3 (6 Nov): the next stage is bought (cost x the difficulty dial) when its requires are met and built over dur_s on the wall clock while the old place trades (a rewarded ad finishes it). The renovation and the highway move take dur_s too. Placeholder prices until the pacing pass (plan step 5).",
+    "builds": {
+      "_prices_comment": "Step 5 (7 Nov): the shack costs what the chai lesson leaves the tutorial player (76.61, so no top-up); the dhaba 450 (owner: a 5-minute build) is bought about 7.5 min after the tutorial with ads (9 without), opens about 12.5 (14), kadai about 16 (19) (pacing_v3.py --growth).",
+      "shack": {"cost": 75, "dur_s": 180, "requires": {"chai_level": 10}},
+      "dhaba": {"cost": 450, "dur_s": 300, "requires": {"built": "lassi", "tables": 3}},
+      "renovation": {"dur_s": 1200},
+      "move": {"dur_s": 1800}
+    },
     "stages": [
       {"id": "cart", "tables_max": 2, "gallas_max": 1, "waiters_max": 1},
       {"id": "shack", "tables_max": 3, "gallas_max": 2, "waiters_max": 2},

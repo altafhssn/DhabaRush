@@ -56,7 +56,13 @@ extends RefCounted
 
 const KEYWORD_COLOR := "#0E7C86"
 ## The tutorial's lines in play order (word probe, AUTO_DWELL).
-const TUTORIAL_IDS := ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "lw1", "lw2", "lw3",
+## Dhaba growth step 4 (7 Nov): a new game starts on the chai cart: "l1c"
+## replaces L1 there, then "g1" / "g2" send the player to BUILD › THE SHACK
+## after the chai lesson, "g3" points at the building site's free FINISH NOW,
+## and "shack_done" opens the shack, where L8 onwards run as before (L1 stays
+## for a game that starts on the dhaba). English only; Hindi frozen.
+const TUTORIAL_IDS := ["l1c", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "g1", "g2", "g3", "shack_done",
+		"l8", "l9", "l10", "lw1", "lw2", "lw3",
 		"lt1", "lt2", "l14", "l15", "l16", "l17"]
 const NEW_COLOR := "#3E9B3A"
 
@@ -77,6 +83,11 @@ const LINES := {
 	# ---- intro overview (t 0) — namaste entrance, then the head-wobble idle
 	"l1": {
 		"text": "Namaste, Bhaiya! I'm Rani, I keep the books. Our dhaba is open!",
+		"pose": "namaste", "enter": "bottom", "then_pose": "idle", "then_delay": 1.6,
+	},
+	# ---- step 4: L1 on the chai cart (a new game)
+	"l1c": {
+		"text": "Namaste, Bhaiya! I'm Rani, I keep the books. Our stall is open!",
 		"pose": "namaste", "enter": "bottom", "then_pose": "idle", "then_delay": 1.6,
 	},
 	# ---- first traveller climbs down from the parked lorry (crouch-spring into the cheer)
@@ -110,6 +121,20 @@ const LINES := {
 	"l7": {
 		"text": "Nice! Every cup now [k]sells for more[/k].",
 		"pose": "ledger", "enter": "right", "chain": ["cheer"],
+	},
+	# ---- step 4, on the cart: after L7 and the sheet closing, the shack goal
+	"g1": {
+		"text": "Chai is selling fast! This cart needs a roof now.",
+		"pose": "cheer", "enter": "right",
+	},
+	"g2": {
+		"text": "Tap [k]BUILD[/k], then build [k]THE SHACK[/k].",
+		"pose": "point", "enter": "right", "trans": "gesture", "chain": ["ledger"], "dim": false, "box_side": "left",
+	},
+	# ---- the building site is up (3:00 on its tag): the one free skip
+	"g3": {
+		"text": "Tap [k]FINISH NOW[/k]! The builder owes us a favour.",
+		"pose": "point", "enter": "right", "chain": ["cheer"], "dim": false,
 	},
 	# ---- transfer arrived: queue of five at the cash counter (worried)
 	"l8": {
@@ -175,6 +200,7 @@ const LINES := {
 		"text": "Roti + chai = a bigger bill! Next goal: a [n]LASSI[/n] counter.",
 		"pose": "cheer", "enter": "right",
 	},
+
 	# ---- free play, once each (MunshiNotes). D8: these block play, so they
 	#      are instructions only (role first, the exact on-screen label).
 	"menu_lassi": {
@@ -263,6 +289,16 @@ const LINES := {
 	"move_done": {
 		"text": "Welcome to NH 48, Bhaiya! New road, Rajasthani dishes.",
 		"pose": "namaste", "enter": "bottom", "then_pose": "cheer", "then_delay": 1.2, "dim": true,
+	},
+	# ---- Dhaba growth step 3 (6 Nov): after a new stage's reveal (English
+	# only; Hindi frozen)
+	"shack_done": {
+		"text": "A roof over our heads, Bhaiya! Tables, and room for a [n]TANDOOR[/n].",
+		"pose": "cheer", "enter": "bottom", "chain": ["namaste"], "dim": true,
+	},
+	"dhaba_done": {
+		"text": "Brick walls and a painted front! Now it's a real dhaba. Still a tea stall, Papa?",
+		"pose": "cheer", "enter": "bottom", "chain": ["point"], "dim": true,
 	},
 	# ---- C6.4: once per weekend, as the BARAAT button appears (chip)
 	"event_start": {"text": "A baraat is coming this weekend! Tap [k]BARAAT[/k].", "pose": "cheer", "chip": true},

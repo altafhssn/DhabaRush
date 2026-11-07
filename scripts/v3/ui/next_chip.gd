@@ -562,6 +562,14 @@ static func _helps(id: String, kind: String) -> bool:
 ## pays back). {} when none applies.
 func _promo_hint() -> Dictionary:
 	var cash: float = float(cash_fn.call()) if cash_fn.is_valid() else Game.cash
+	# Dhaba growth step 3 (6 Nov): the next stage first (THE SHACK / THE DHABA).
+	var gs: Dictionary = Game.growth_state() if Game.has_method("growth_state") else {}
+	if bool(gs.get("unlocked", false)):
+		var gl1: String = tr("NEXT: %s") % tr(str(gs.get("title", "")))
+		if bool(gs.get("affordable", false)):
+			return _hint("grow", false, gl1, tr("Ready! Tap to build"), "blueprint", "daftar:grow", "build_row_grow")
+		return _promo_save("grow", gl1, cash, float(gs.get("cost", 0.0)), float(gs.get("short", 0.0)), "blueprint",
+				"daftar:grow")
 	var rs: Dictionary = Game.renovation_state()
 	if bool(rs.get("unlocked", false)):
 		var rl1: String = tr("NEXT: %s") % tr("FAMILY DHABA")

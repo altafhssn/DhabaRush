@@ -1,0 +1,2416 @@
+{
+ "format": 1,
+ "logs": {
+  "tut_en_s1": {
+   "cash": {
+    "ad_deal": [
+     50.39
+    ],
+    "ad_lines": [
+     150.39
+    ],
+    "add_table": [
+     30.0
+    ],
+    "brew": [
+     100.0
+    ],
+    "bubble": [
+     50.39
+    ],
+    "build_btn": [
+     200.0
+    ],
+    "build_close": [
+     1.63
+    ],
+    "build_row": [
+     201.63
+    ],
+    "chai_pause": [
+     100.0
+    ],
+    "close_galla": [
+     50.0
+    ],
+    "deliver": [
+     100.0
+    ],
+    "done": [
+     4.89
+    ],
+    "first_sale": [
+     101.0
+    ],
+    "follow": [
+     100.0
+    ],
+    "free": [
+     19.78,
+     3.26
+    ],
+    "galla_pause": [
+     100.0
+    ],
+    "grow_btn": [
+     76.61
+    ],
+    "grow_lines": [
+     76.61
+    ],
+    "grow_row": [
+     76.61
+    ],
+    "grow_site": [
+     1.61
+    ],
+    "hire": [
+     100.0
+    ],
+    "hire_waiter": [
+     58.15
+    ],
+    "intro": [
+     100.0
+    ],
+    "level": [
+     101.0
+    ],
+    "line7": [
+     76.61
+    ],
+    "outro": [
+     3.26
+    ],
+    "seated": [
+     100.0
+    ],
+    "seats_done": [
+     0.0
+    ],
+    "seats_lines": [
+     21.41
+    ],
+    "shack_open": [
+     1.61
+    ],
+    "tap_chai": [
+     101.0
+    ],
+    "tap_galla": [
+     1.61
+    ],
+    "tap_out": [
+     76.61
+    ],
+    "tap_staff": [
+     58.15
+    ],
+    "tap_table": [
+     23.04
+    ],
+    "to_galla": [
+     100.0
+    ],
+    "transfer": [
+     1.61
+    ],
+    "vip": [
+     50.39
+    ],
+    "wait_sale": [
+     100.0
+    ],
+    "waiter_done": [
+     18.15
+    ],
+    "waiter_lines": [
+     53.26
+    ],
+    "wrap": [
+     50.0
+    ]
+   },
+   "cash_done": 4.89,
+   "done": 189.25,
+   "done_state_chai": 10,
+   "home_check": "dist 0.00 m, in view true, next chip true 'save'",
+   "quit_step": "done",
+   "steps": [
+    [
+     "intro",
+     0.03,
+     100.0
+    ],
+    [
+     "follow",
+     9.95,
+     100.0
+    ],
+    [
+     "seated",
+     19.57,
+     100.0
+    ],
+    [
+     "chai_pause",
+     19.92,
+     100.0
+    ],
+    [
+     "brew",
+     23.72,
+     100.0
+    ],
+    [
+     "deliver",
+     25.13,
+     100.0
+    ],
+    [
+     "to_galla",
+     28.05,
+     100.0
+    ],
+    [
+     "galla_pause",
+     33.43,
+     100.0
+    ],
+    [
+     "wait_sale",
+     39.52,
+     100.0
+    ],
+    [
+     "first_sale",
+     43.78,
+     101.0
+    ],
+    [
+     "tap_chai",
+     49.08,
+     101.0
+    ],
+    [
+     "level",
+     50.52,
+     101.0
+    ],
+    [
+     "line7",
+     57.25,
+     76.61
+    ],
+    [
+     "tap_out",
+     59.5,
+     76.61
+    ],
+    [
+     "grow_lines",
+     61.93,
+     76.61
+    ],
+    [
+     "grow_btn",
+     68.78,
+     76.61
+    ],
+    [
+     "grow_row",
+     71.23,
+     76.61
+    ],
+    [
+     "grow_site",
+     72.87,
+     1.61
+    ],
+    [
+     "shack_open",
+     79.03,
+     1.61
+    ],
+    [
+     "transfer",
+     83.85,
+     1.61
+    ],
+    [
+     "tap_galla",
+     89.23,
+     1.61
+    ],
+    [
+     "hire",
+     90.67,
+     100.0
+    ],
+    [
+     "close_galla",
+     92.17,
+     50.0
+    ],
+    [
+     "wrap",
+     93.37,
+     50.0
+    ],
+    [
+     "waiter_lines",
+     99.13,
+     53.26
+    ],
+    [
+     "tap_staff",
+     105.48,
+     58.15
+    ],
+    [
+     "hire_waiter",
+     106.98,
+     58.15
+    ],
+    [
+     "waiter_done",
+     108.57,
+     18.15
+    ],
+    [
+     "free",
+     113.18,
+     19.78
+    ],
+    [
+     "seats_lines",
+     115.2,
+     21.41
+    ],
+    [
+     "tap_table",
+     121.03,
+     23.04
+    ],
+    [
+     "add_table",
+     122.53,
+     30.0
+    ],
+    [
+     "seats_done",
+     124.12,
+     0.0
+    ],
+    [
+     "free",
+     127.38,
+     3.26
+    ],
+    [
+     "ad_deal",
+     161.2,
+     50.39
+    ],
+    [
+     "bubble",
+     166.02,
+     50.39
+    ],
+    [
+     "vip",
+     167.55,
+     50.39
+    ],
+    [
+     "ad_lines",
+     170.62,
+     150.39
+    ],
+    [
+     "build_btn",
+     179.88,
+     200.0
+    ],
+    [
+     "build_row",
+     182.32,
+     201.63
+    ],
+    [
+     "build_close",
+     183.93,
+     1.63
+    ],
+    [
+     "outro",
+     185.8,
+     3.26
+    ],
+    [
+     "done",
+     189.25,
+     4.89
+    ]
+   ],
+   "times": {
+    "ad_deal": [
+     161.2
+    ],
+    "ad_lines": [
+     170.62
+    ],
+    "add_table": [
+     122.53
+    ],
+    "brew": [
+     23.72
+    ],
+    "bubble": [
+     166.02
+    ],
+    "build_btn": [
+     179.88
+    ],
+    "build_close": [
+     183.93
+    ],
+    "build_row": [
+     182.32
+    ],
+    "chai_pause": [
+     19.92
+    ],
+    "close_galla": [
+     92.17
+    ],
+    "deliver": [
+     25.13
+    ],
+    "done": [
+     189.25
+    ],
+    "first_sale": [
+     43.78
+    ],
+    "follow": [
+     9.95
+    ],
+    "free": [
+     113.18,
+     127.38
+    ],
+    "galla_pause": [
+     33.43
+    ],
+    "grow_btn": [
+     68.78
+    ],
+    "grow_lines": [
+     61.93
+    ],
+    "grow_row": [
+     71.23
+    ],
+    "grow_site": [
+     72.87
+    ],
+    "hire": [
+     90.67
+    ],
+    "hire_waiter": [
+     106.98
+    ],
+    "intro": [
+     0.03
+    ],
+    "level": [
+     50.52
+    ],
+    "line7": [
+     57.25
+    ],
+    "outro": [
+     185.8
+    ],
+    "seated": [
+     19.57
+    ],
+    "seats_done": [
+     124.12
+    ],
+    "seats_lines": [
+     115.2
+    ],
+    "shack_open": [
+     79.03
+    ],
+    "tap_chai": [
+     49.08
+    ],
+    "tap_galla": [
+     89.23
+    ],
+    "tap_out": [
+     59.5
+    ],
+    "tap_staff": [
+     105.48
+    ],
+    "tap_table": [
+     121.03
+    ],
+    "to_galla": [
+     28.05
+    ],
+    "transfer": [
+     83.85
+    ],
+    "vip": [
+     167.55
+    ],
+    "wait_sale": [
+     39.52
+    ],
+    "waiter_done": [
+     108.57
+    ],
+    "waiter_lines": [
+     99.13
+    ],
+    "wrap": [
+     93.37
+    ]
+   }
+  },
+  "tut_en_s2": {
+   "cash": {
+    "ad_deal": [
+     50.57
+    ],
+    "ad_lines": [
+     150.57
+    ],
+    "add_table": [
+     30.0
+    ],
+    "brew": [
+     100.0
+    ],
+    "bubble": [
+     50.57
+    ],
+    "build_btn": [
+     200.0
+    ],
+    "build_close": [
+     1.7
+    ],
+    "build_row": [
+     200.0
+    ],
+    "chai_pause": [
+     100.0
+    ],
+    "close_galla": [
+     50.0
+    ],
+    "deliver": [
+     100.0
+    ],
+    "done": [
+     3.4
+    ],
+    "first_sale": [
+     101.0
+    ],
+    "follow": [
+     100.0
+    ],
+    "free": [
+     19.78,
+     3.26
+    ],
+    "galla_pause": [
+     100.0
+    ],
+    "grow_btn": [
+     76.61
+    ],
+    "grow_lines": [
+     76.61
+    ],
+    "grow_row": [
+     76.61
+    ],
+    "grow_site": [
+     1.61
+    ],
+    "hire": [
+     100.0
+    ],
+    "hire_waiter": [
+     58.15
+    ],
+    "intro": [
+     100.0
+    ],
+    "level": [
+     101.0
+    ],
+    "line7": [
+     76.61
+    ],
+    "outro": [
+     3.4
+    ],
+    "seated": [
+     100.0
+    ],
+    "seats_done": [
+     3.26
+    ],
+    "seats_lines": [
+     21.41
+    ],
+    "shack_open": [
+     1.61
+    ],
+    "tap_chai": [
+     101.0
+    ],
+    "tap_galla": [
+     1.61
+    ],
+    "tap_out": [
+     76.61
+    ],
+    "tap_staff": [
+     58.15
+    ],
+    "tap_table": [
+     24.67
+    ],
+    "to_galla": [
+     100.0
+    ],
+    "transfer": [
+     1.61
+    ],
+    "vip": [
+     50.57
+    ],
+    "wait_sale": [
+     100.0
+    ],
+    "waiter_done": [
+     18.15
+    ],
+    "waiter_lines": [
+     53.26
+    ],
+    "wrap": [
+     50.0
+    ]
+   },
+   "cash_done": 3.4,
+   "done": 188.35,
+   "done_state_chai": 11,
+   "home_check": "dist 0.00 m, in view true, next chip true 'save'",
+   "quit_step": "done",
+   "steps": [
+    [
+     "intro",
+     0.03,
+     100.0
+    ],
+    [
+     "follow",
+     9.95,
+     100.0
+    ],
+    [
+     "seated",
+     18.67,
+     100.0
+    ],
+    [
+     "chai_pause",
+     19.02,
+     100.0
+    ],
+    [
+     "brew",
+     22.82,
+     100.0
+    ],
+    [
+     "deliver",
+     24.23,
+     100.0
+    ],
+    [
+     "to_galla",
+     27.15,
+     100.0
+    ],
+    [
+     "galla_pause",
+     32.53,
+     100.0
+    ],
+    [
+     "wait_sale",
+     38.62,
+     100.0
+    ],
+    [
+     "first_sale",
+     42.88,
+     101.0
+    ],
+    [
+     "tap_chai",
+     48.18,
+     101.0
+    ],
+    [
+     "level",
+     49.62,
+     101.0
+    ],
+    [
+     "line7",
+     56.35,
+     76.61
+    ],
+    [
+     "tap_out",
+     58.6,
+     76.61
+    ],
+    [
+     "grow_lines",
+     61.03,
+     76.61
+    ],
+    [
+     "grow_btn",
+     67.88,
+     76.61
+    ],
+    [
+     "grow_row",
+     70.33,
+     76.61
+    ],
+    [
+     "grow_site",
+     71.97,
+     1.61
+    ],
+    [
+     "shack_open",
+     78.13,
+     1.61
+    ],
+    [
+     "transfer",
+     82.95,
+     1.61
+    ],
+    [
+     "tap_galla",
+     88.33,
+     1.61
+    ],
+    [
+     "hire",
+     89.77,
+     100.0
+    ],
+    [
+     "close_galla",
+     91.27,
+     50.0
+    ],
+    [
+     "wrap",
+     92.47,
+     50.0
+    ],
+    [
+     "waiter_lines",
+     98.23,
+     53.26
+    ],
+    [
+     "tap_staff",
+     104.58,
+     58.15
+    ],
+    [
+     "hire_waiter",
+     106.08,
+     58.15
+    ],
+    [
+     "waiter_done",
+     107.67,
+     18.15
+    ],
+    [
+     "free",
+     112.28,
+     19.78
+    ],
+    [
+     "seats_lines",
+     117.32,
+     21.41
+    ],
+    [
+     "tap_table",
+     123.15,
+     24.67
+    ],
+    [
+     "add_table",
+     124.65,
+     30.0
+    ],
+    [
+     "seats_done",
+     126.23,
+     3.26
+    ],
+    [
+     "free",
+     129.5,
+     3.26
+    ],
+    [
+     "ad_deal",
+     160.3,
+     50.57
+    ],
+    [
+     "bubble",
+     165.12,
+     50.57
+    ],
+    [
+     "vip",
+     166.65,
+     50.57
+    ],
+    [
+     "ad_lines",
+     169.72,
+     150.57
+    ],
+    [
+     "build_btn",
+     178.98,
+     200.0
+    ],
+    [
+     "build_row",
+     181.42,
+     200.0
+    ],
+    [
+     "build_close",
+     183.03,
+     1.7
+    ],
+    [
+     "outro",
+     184.9,
+     3.4
+    ],
+    [
+     "done",
+     188.35,
+     3.4
+    ]
+   ],
+   "times": {
+    "ad_deal": [
+     160.3
+    ],
+    "ad_lines": [
+     169.72
+    ],
+    "add_table": [
+     124.65
+    ],
+    "brew": [
+     22.82
+    ],
+    "bubble": [
+     165.12
+    ],
+    "build_btn": [
+     178.98
+    ],
+    "build_close": [
+     183.03
+    ],
+    "build_row": [
+     181.42
+    ],
+    "chai_pause": [
+     19.02
+    ],
+    "close_galla": [
+     91.27
+    ],
+    "deliver": [
+     24.23
+    ],
+    "done": [
+     188.35
+    ],
+    "first_sale": [
+     42.88
+    ],
+    "follow": [
+     9.95
+    ],
+    "free": [
+     112.28,
+     129.5
+    ],
+    "galla_pause": [
+     32.53
+    ],
+    "grow_btn": [
+     67.88
+    ],
+    "grow_lines": [
+     61.03
+    ],
+    "grow_row": [
+     70.33
+    ],
+    "grow_site": [
+     71.97
+    ],
+    "hire": [
+     89.77
+    ],
+    "hire_waiter": [
+     106.08
+    ],
+    "intro": [
+     0.03
+    ],
+    "level": [
+     49.62
+    ],
+    "line7": [
+     56.35
+    ],
+    "outro": [
+     184.9
+    ],
+    "seated": [
+     18.67
+    ],
+    "seats_done": [
+     126.23
+    ],
+    "seats_lines": [
+     117.32
+    ],
+    "shack_open": [
+     78.13
+    ],
+    "tap_chai": [
+     48.18
+    ],
+    "tap_galla": [
+     88.33
+    ],
+    "tap_out": [
+     58.6
+    ],
+    "tap_staff": [
+     104.58
+    ],
+    "tap_table": [
+     123.15
+    ],
+    "to_galla": [
+     27.15
+    ],
+    "transfer": [
+     82.95
+    ],
+    "vip": [
+     166.65
+    ],
+    "wait_sale": [
+     38.62
+    ],
+    "waiter_done": [
+     107.67
+    ],
+    "waiter_lines": [
+     98.23
+    ],
+    "wrap": [
+     92.47
+    ]
+   }
+  },
+  "tut_en_s3": {
+   "cash": {
+    "ad_deal": [
+     49.68
+    ],
+    "ad_lines": [
+     153.08
+    ],
+    "add_table": [
+     30.0
+    ],
+    "brew": [
+     100.0
+    ],
+    "bubble": [
+     49.68
+    ],
+    "build_btn": [
+     200.0
+    ],
+    "build_close": [
+     0.0
+    ],
+    "build_row": [
+     200.0
+    ],
+    "chai_pause": [
+     100.0
+    ],
+    "close_galla": [
+     50.0
+    ],
+    "deliver": [
+     100.0
+    ],
+    "done": [
+     0.0
+    ],
+    "first_sale": [
+     101.0
+    ],
+    "follow": [
+     100.0
+    ],
+    "free": [
+     19.78,
+     1.63
+    ],
+    "galla_pause": [
+     100.0
+    ],
+    "grow_btn": [
+     76.61
+    ],
+    "grow_lines": [
+     76.61
+    ],
+    "grow_row": [
+     76.61
+    ],
+    "grow_site": [
+     1.61
+    ],
+    "hire": [
+     100.0
+    ],
+    "hire_waiter": [
+     58.15
+    ],
+    "intro": [
+     100.0
+    ],
+    "level": [
+     101.0
+    ],
+    "line7": [
+     76.61
+    ],
+    "outro": [
+     0.0
+    ],
+    "seated": [
+     100.0
+    ],
+    "seats_done": [
+     0.0
+    ],
+    "seats_lines": [
+     21.41
+    ],
+    "shack_open": [
+     1.61
+    ],
+    "tap_chai": [
+     101.0
+    ],
+    "tap_galla": [
+     1.61
+    ],
+    "tap_out": [
+     76.61
+    ],
+    "tap_staff": [
+     58.15
+    ],
+    "tap_table": [
+     23.04
+    ],
+    "to_galla": [
+     100.0
+    ],
+    "transfer": [
+     1.61
+    ],
+    "vip": [
+     51.38
+    ],
+    "wait_sale": [
+     100.0
+    ],
+    "waiter_done": [
+     18.15
+    ],
+    "waiter_lines": [
+     53.26
+    ],
+    "wrap": [
+     50.0
+    ]
+   },
+   "cash_done": 0.0,
+   "done": 195.38,
+   "done_state_chai": 11,
+   "home_check": "dist 0.00 m, in view true, next chip true 'save'",
+   "quit_step": "done",
+   "steps": [
+    [
+     "intro",
+     0.03,
+     100.0
+    ],
+    [
+     "follow",
+     9.95,
+     100.0
+    ],
+    [
+     "seated",
+     25.7,
+     100.0
+    ],
+    [
+     "chai_pause",
+     26.05,
+     100.0
+    ],
+    [
+     "brew",
+     29.85,
+     100.0
+    ],
+    [
+     "deliver",
+     31.27,
+     100.0
+    ],
+    [
+     "to_galla",
+     34.18,
+     100.0
+    ],
+    [
+     "galla_pause",
+     39.57,
+     100.0
+    ],
+    [
+     "wait_sale",
+     45.65,
+     100.0
+    ],
+    [
+     "first_sale",
+     49.92,
+     101.0
+    ],
+    [
+     "tap_chai",
+     55.22,
+     101.0
+    ],
+    [
+     "level",
+     56.65,
+     101.0
+    ],
+    [
+     "line7",
+     63.38,
+     76.61
+    ],
+    [
+     "tap_out",
+     65.63,
+     76.61
+    ],
+    [
+     "grow_lines",
+     68.07,
+     76.61
+    ],
+    [
+     "grow_btn",
+     74.92,
+     76.61
+    ],
+    [
+     "grow_row",
+     77.37,
+     76.61
+    ],
+    [
+     "grow_site",
+     79.0,
+     1.61
+    ],
+    [
+     "shack_open",
+     85.17,
+     1.61
+    ],
+    [
+     "transfer",
+     89.98,
+     1.61
+    ],
+    [
+     "tap_galla",
+     95.37,
+     1.61
+    ],
+    [
+     "hire",
+     96.8,
+     100.0
+    ],
+    [
+     "close_galla",
+     98.3,
+     50.0
+    ],
+    [
+     "wrap",
+     99.5,
+     50.0
+    ],
+    [
+     "waiter_lines",
+     105.27,
+     53.26
+    ],
+    [
+     "tap_staff",
+     111.62,
+     58.15
+    ],
+    [
+     "hire_waiter",
+     113.12,
+     58.15
+    ],
+    [
+     "waiter_done",
+     114.7,
+     18.15
+    ],
+    [
+     "free",
+     119.32,
+     19.78
+    ],
+    [
+     "seats_lines",
+     123.22,
+     21.41
+    ],
+    [
+     "tap_table",
+     129.03,
+     23.04
+    ],
+    [
+     "add_table",
+     130.52,
+     30.0
+    ],
+    [
+     "seats_done",
+     132.08,
+     0.0
+    ],
+    [
+     "free",
+     135.35,
+     1.63
+    ],
+    [
+     "ad_deal",
+     167.33,
+     49.68
+    ],
+    [
+     "bubble",
+     172.15,
+     49.68
+    ],
+    [
+     "vip",
+     173.68,
+     51.38
+    ],
+    [
+     "ad_lines",
+     176.75,
+     153.08
+    ],
+    [
+     "build_btn",
+     186.02,
+     200.0
+    ],
+    [
+     "build_row",
+     188.45,
+     200.0
+    ],
+    [
+     "build_close",
+     190.07,
+     0.0
+    ],
+    [
+     "outro",
+     191.93,
+     0.0
+    ],
+    [
+     "done",
+     195.38,
+     0.0
+    ]
+   ],
+   "times": {
+    "ad_deal": [
+     167.33
+    ],
+    "ad_lines": [
+     176.75
+    ],
+    "add_table": [
+     130.52
+    ],
+    "brew": [
+     29.85
+    ],
+    "bubble": [
+     172.15
+    ],
+    "build_btn": [
+     186.02
+    ],
+    "build_close": [
+     190.07
+    ],
+    "build_row": [
+     188.45
+    ],
+    "chai_pause": [
+     26.05
+    ],
+    "close_galla": [
+     98.3
+    ],
+    "deliver": [
+     31.27
+    ],
+    "done": [
+     195.38
+    ],
+    "first_sale": [
+     49.92
+    ],
+    "follow": [
+     9.95
+    ],
+    "free": [
+     119.32,
+     135.35
+    ],
+    "galla_pause": [
+     39.57
+    ],
+    "grow_btn": [
+     74.92
+    ],
+    "grow_lines": [
+     68.07
+    ],
+    "grow_row": [
+     77.37
+    ],
+    "grow_site": [
+     79.0
+    ],
+    "hire": [
+     96.8
+    ],
+    "hire_waiter": [
+     113.12
+    ],
+    "intro": [
+     0.03
+    ],
+    "level": [
+     56.65
+    ],
+    "line7": [
+     63.38
+    ],
+    "outro": [
+     191.93
+    ],
+    "seated": [
+     25.7
+    ],
+    "seats_done": [
+     132.08
+    ],
+    "seats_lines": [
+     123.22
+    ],
+    "shack_open": [
+     85.17
+    ],
+    "tap_chai": [
+     55.22
+    ],
+    "tap_galla": [
+     95.37
+    ],
+    "tap_out": [
+     65.63
+    ],
+    "tap_staff": [
+     111.62
+    ],
+    "tap_table": [
+     129.03
+    ],
+    "to_galla": [
+     34.18
+    ],
+    "transfer": [
+     89.98
+    ],
+    "vip": [
+     173.68
+    ],
+    "wait_sale": [
+     45.65
+    ],
+    "waiter_done": [
+     114.7
+    ],
+    "waiter_lines": [
+     105.27
+    ],
+    "wrap": [
+     99.5
+    ]
+   }
+  },
+  "tut_en_s4": {
+   "cash": {
+    "ad_deal": [
+     52.72
+    ],
+    "ad_lines": [
+     152.72
+    ],
+    "add_table": [
+     30.0
+    ],
+    "brew": [
+     100.0
+    ],
+    "bubble": [
+     52.72
+    ],
+    "build_btn": [
+     200.0
+    ],
+    "build_close": [
+     1.77
+    ],
+    "build_row": [
+     201.77
+    ],
+    "chai_pause": [
+     100.0
+    ],
+    "close_galla": [
+     50.0
+    ],
+    "deliver": [
+     100.0
+    ],
+    "done": [
+     5.31
+    ],
+    "first_sale": [
+     101.0
+    ],
+    "follow": [
+     100.0
+    ],
+    "free": [
+     19.78,
+     3.26
+    ],
+    "galla_pause": [
+     100.0
+    ],
+    "grow_btn": [
+     76.61
+    ],
+    "grow_lines": [
+     76.61
+    ],
+    "grow_row": [
+     76.61
+    ],
+    "grow_site": [
+     1.61
+    ],
+    "hire": [
+     100.0
+    ],
+    "hire_waiter": [
+     58.15
+    ],
+    "intro": [
+     100.0
+    ],
+    "level": [
+     101.0
+    ],
+    "line7": [
+     76.61
+    ],
+    "outro": [
+     1.77
+    ],
+    "seated": [
+     100.0
+    ],
+    "seats_done": [
+     0.0
+    ],
+    "seats_lines": [
+     21.41
+    ],
+    "shack_open": [
+     1.61
+    ],
+    "tap_chai": [
+     101.0
+    ],
+    "tap_galla": [
+     1.61
+    ],
+    "tap_out": [
+     76.61
+    ],
+    "tap_staff": [
+     58.15
+    ],
+    "tap_table": [
+     24.67
+    ],
+    "to_galla": [
+     100.0
+    ],
+    "transfer": [
+     1.61
+    ],
+    "vip": [
+     52.72
+    ],
+    "wait_sale": [
+     100.0
+    ],
+    "waiter_done": [
+     18.15
+    ],
+    "waiter_lines": [
+     53.26
+    ],
+    "wrap": [
+     50.0
+    ]
+   },
+   "cash_done": 5.31,
+   "done": 188.63,
+   "done_state_chai": 12,
+   "home_check": "dist 0.00 m, in view true, next chip true 'save'",
+   "quit_step": "done",
+   "steps": [
+    [
+     "intro",
+     0.03,
+     100.0
+    ],
+    [
+     "follow",
+     9.95,
+     100.0
+    ],
+    [
+     "seated",
+     18.95,
+     100.0
+    ],
+    [
+     "chai_pause",
+     19.3,
+     100.0
+    ],
+    [
+     "brew",
+     23.1,
+     100.0
+    ],
+    [
+     "deliver",
+     24.52,
+     100.0
+    ],
+    [
+     "to_galla",
+     27.43,
+     100.0
+    ],
+    [
+     "galla_pause",
+     32.82,
+     100.0
+    ],
+    [
+     "wait_sale",
+     38.9,
+     100.0
+    ],
+    [
+     "first_sale",
+     43.17,
+     101.0
+    ],
+    [
+     "tap_chai",
+     48.47,
+     101.0
+    ],
+    [
+     "level",
+     49.9,
+     101.0
+    ],
+    [
+     "line7",
+     56.63,
+     76.61
+    ],
+    [
+     "tap_out",
+     58.88,
+     76.61
+    ],
+    [
+     "grow_lines",
+     61.32,
+     76.61
+    ],
+    [
+     "grow_btn",
+     68.17,
+     76.61
+    ],
+    [
+     "grow_row",
+     70.62,
+     76.61
+    ],
+    [
+     "grow_site",
+     72.25,
+     1.61
+    ],
+    [
+     "shack_open",
+     78.42,
+     1.61
+    ],
+    [
+     "transfer",
+     83.23,
+     1.61
+    ],
+    [
+     "tap_galla",
+     88.62,
+     1.61
+    ],
+    [
+     "hire",
+     90.05,
+     100.0
+    ],
+    [
+     "close_galla",
+     91.55,
+     50.0
+    ],
+    [
+     "wrap",
+     92.75,
+     50.0
+    ],
+    [
+     "waiter_lines",
+     98.52,
+     53.26
+    ],
+    [
+     "tap_staff",
+     104.87,
+     58.15
+    ],
+    [
+     "hire_waiter",
+     106.37,
+     58.15
+    ],
+    [
+     "waiter_done",
+     107.95,
+     18.15
+    ],
+    [
+     "free",
+     112.57,
+     19.78
+    ],
+    [
+     "seats_lines",
+     116.18,
+     21.41
+    ],
+    [
+     "tap_table",
+     122.02,
+     24.67
+    ],
+    [
+     "add_table",
+     123.52,
+     30.0
+    ],
+    [
+     "seats_done",
+     125.1,
+     0.0
+    ],
+    [
+     "free",
+     128.37,
+     3.26
+    ],
+    [
+     "ad_deal",
+     160.58,
+     52.72
+    ],
+    [
+     "bubble",
+     165.4,
+     52.72
+    ],
+    [
+     "vip",
+     166.93,
+     52.72
+    ],
+    [
+     "ad_lines",
+     170.0,
+     152.72
+    ],
+    [
+     "build_btn",
+     179.27,
+     200.0
+    ],
+    [
+     "build_row",
+     181.7,
+     201.77
+    ],
+    [
+     "build_close",
+     183.32,
+     1.77
+    ],
+    [
+     "outro",
+     185.18,
+     1.77
+    ],
+    [
+     "done",
+     188.63,
+     5.31
+    ]
+   ],
+   "times": {
+    "ad_deal": [
+     160.58
+    ],
+    "ad_lines": [
+     170.0
+    ],
+    "add_table": [
+     123.52
+    ],
+    "brew": [
+     23.1
+    ],
+    "bubble": [
+     165.4
+    ],
+    "build_btn": [
+     179.27
+    ],
+    "build_close": [
+     183.32
+    ],
+    "build_row": [
+     181.7
+    ],
+    "chai_pause": [
+     19.3
+    ],
+    "close_galla": [
+     91.55
+    ],
+    "deliver": [
+     24.52
+    ],
+    "done": [
+     188.63
+    ],
+    "first_sale": [
+     43.17
+    ],
+    "follow": [
+     9.95
+    ],
+    "free": [
+     112.57,
+     128.37
+    ],
+    "galla_pause": [
+     32.82
+    ],
+    "grow_btn": [
+     68.17
+    ],
+    "grow_lines": [
+     61.32
+    ],
+    "grow_row": [
+     70.62
+    ],
+    "grow_site": [
+     72.25
+    ],
+    "hire": [
+     90.05
+    ],
+    "hire_waiter": [
+     106.37
+    ],
+    "intro": [
+     0.03
+    ],
+    "level": [
+     49.9
+    ],
+    "line7": [
+     56.63
+    ],
+    "outro": [
+     185.18
+    ],
+    "seated": [
+     18.95
+    ],
+    "seats_done": [
+     125.1
+    ],
+    "seats_lines": [
+     116.18
+    ],
+    "shack_open": [
+     78.42
+    ],
+    "tap_chai": [
+     48.47
+    ],
+    "tap_galla": [
+     88.62
+    ],
+    "tap_out": [
+     58.88
+    ],
+    "tap_staff": [
+     104.87
+    ],
+    "tap_table": [
+     122.02
+    ],
+    "to_galla": [
+     27.43
+    ],
+    "transfer": [
+     83.23
+    ],
+    "vip": [
+     166.93
+    ],
+    "wait_sale": [
+     38.9
+    ],
+    "waiter_done": [
+     107.95
+    ],
+    "waiter_lines": [
+     98.52
+    ],
+    "wrap": [
+     92.75
+    ]
+   }
+  },
+  "tut_hi_s1": {
+   "cash": {
+    "ad_deal": [
+     55.28
+    ],
+    "ad_lines": [
+     160.17
+    ],
+    "add_table": [
+     30.0
+    ],
+    "brew": [
+     100.0
+    ],
+    "bubble": [
+     58.54
+    ],
+    "build_btn": [
+     200.0
+    ],
+    "build_close": [
+     0.0
+    ],
+    "build_row": [
+     200.0
+    ],
+    "chai_pause": [
+     100.0
+    ],
+    "close_galla": [
+     50.0
+    ],
+    "deliver": [
+     100.0
+    ],
+    "done": [
+     0.0
+    ],
+    "first_sale": [
+     101.0
+    ],
+    "follow": [
+     100.0
+    ],
+    "free": [
+     19.78,
+     3.26
+    ],
+    "galla_pause": [
+     100.0
+    ],
+    "grow_btn": [
+     76.61
+    ],
+    "grow_lines": [
+     76.61
+    ],
+    "grow_row": [
+     76.61
+    ],
+    "grow_site": [
+     1.61
+    ],
+    "hire": [
+     100.0
+    ],
+    "hire_waiter": [
+     58.15
+    ],
+    "intro": [
+     100.0
+    ],
+    "level": [
+     101.0
+    ],
+    "line7": [
+     76.61
+    ],
+    "outro": [
+     0.0
+    ],
+    "seated": [
+     100.0
+    ],
+    "seats_done": [
+     1.63
+    ],
+    "seats_lines": [
+     21.41
+    ],
+    "shack_open": [
+     1.61
+    ],
+    "tap_chai": [
+     101.0
+    ],
+    "tap_galla": [
+     3.24
+    ],
+    "tap_out": [
+     76.61
+    ],
+    "tap_staff": [
+     58.15
+    ],
+    "tap_table": [
+     23.04
+    ],
+    "to_galla": [
+     100.0
+    ],
+    "transfer": [
+     1.61
+    ],
+    "vip": [
+     58.54
+    ],
+    "wait_sale": [
+     100.0
+    ],
+    "waiter_done": [
+     18.15
+    ],
+    "waiter_lines": [
+     53.26
+    ],
+    "wrap": [
+     50.0
+    ]
+   },
+   "cash_done": 0.0,
+   "done": 189.25,
+   "done_state_chai": 10,
+   "home_check": "dist 0.00 m, in view true, next chip true 'save'",
+   "quit_step": "done",
+   "steps": [
+    [
+     "intro",
+     0.03,
+     100.0
+    ],
+    [
+     "follow",
+     9.95,
+     100.0
+    ],
+    [
+     "seated",
+     19.57,
+     100.0
+    ],
+    [
+     "chai_pause",
+     19.92,
+     100.0
+    ],
+    [
+     "brew",
+     23.72,
+     100.0
+    ],
+    [
+     "deliver",
+     25.13,
+     100.0
+    ],
+    [
+     "to_galla",
+     28.05,
+     100.0
+    ],
+    [
+     "galla_pause",
+     33.43,
+     100.0
+    ],
+    [
+     "wait_sale",
+     39.52,
+     100.0
+    ],
+    [
+     "first_sale",
+     43.78,
+     101.0
+    ],
+    [
+     "tap_chai",
+     48.63,
+     101.0
+    ],
+    [
+     "level",
+     50.07,
+     101.0
+    ],
+    [
+     "line7",
+     56.8,
+     76.61
+    ],
+    [
+     "tap_out",
+     59.05,
+     76.61
+    ],
+    [
+     "grow_lines",
+     61.48,
+     76.61
+    ],
+    [
+     "grow_btn",
+     68.33,
+     76.61
+    ],
+    [
+     "grow_row",
+     70.78,
+     76.61
+    ],
+    [
+     "grow_site",
+     72.42,
+     1.61
+    ],
+    [
+     "shack_open",
+     78.58,
+     1.61
+    ],
+    [
+     "transfer",
+     83.4,
+     1.61
+    ],
+    [
+     "tap_galla",
+     89.23,
+     3.24
+    ],
+    [
+     "hire",
+     90.67,
+     100.0
+    ],
+    [
+     "close_galla",
+     92.17,
+     50.0
+    ],
+    [
+     "wrap",
+     93.37,
+     50.0
+    ],
+    [
+     "waiter_lines",
+     99.13,
+     53.26
+    ],
+    [
+     "tap_staff",
+     105.48,
+     58.15
+    ],
+    [
+     "hire_waiter",
+     106.98,
+     58.15
+    ],
+    [
+     "waiter_done",
+     108.57,
+     18.15
+    ],
+    [
+     "free",
+     113.18,
+     19.78
+    ],
+    [
+     "seats_lines",
+     115.2,
+     21.41
+    ],
+    [
+     "tap_table",
+     121.03,
+     23.04
+    ],
+    [
+     "add_table",
+     122.53,
+     30.0
+    ],
+    [
+     "seats_done",
+     124.12,
+     1.63
+    ],
+    [
+     "free",
+     127.38,
+     3.26
+    ],
+    [
+     "ad_deal",
+     161.2,
+     55.28
+    ],
+    [
+     "bubble",
+     166.02,
+     58.54
+    ],
+    [
+     "vip",
+     167.55,
+     58.54
+    ],
+    [
+     "ad_lines",
+     170.62,
+     160.17
+    ],
+    [
+     "build_btn",
+     179.88,
+     200.0
+    ],
+    [
+     "build_row",
+     182.32,
+     200.0
+    ],
+    [
+     "build_close",
+     183.93,
+     0.0
+    ],
+    [
+     "outro",
+     185.8,
+     0.0
+    ],
+    [
+     "done",
+     189.25,
+     0.0
+    ]
+   ],
+   "times": {
+    "ad_deal": [
+     161.2
+    ],
+    "ad_lines": [
+     170.62
+    ],
+    "add_table": [
+     122.53
+    ],
+    "brew": [
+     23.72
+    ],
+    "bubble": [
+     166.02
+    ],
+    "build_btn": [
+     179.88
+    ],
+    "build_close": [
+     183.93
+    ],
+    "build_row": [
+     182.32
+    ],
+    "chai_pause": [
+     19.92
+    ],
+    "close_galla": [
+     92.17
+    ],
+    "deliver": [
+     25.13
+    ],
+    "done": [
+     189.25
+    ],
+    "first_sale": [
+     43.78
+    ],
+    "follow": [
+     9.95
+    ],
+    "free": [
+     113.18,
+     127.38
+    ],
+    "galla_pause": [
+     33.43
+    ],
+    "grow_btn": [
+     68.33
+    ],
+    "grow_lines": [
+     61.48
+    ],
+    "grow_row": [
+     70.78
+    ],
+    "grow_site": [
+     72.42
+    ],
+    "hire": [
+     90.67
+    ],
+    "hire_waiter": [
+     106.98
+    ],
+    "intro": [
+     0.03
+    ],
+    "level": [
+     50.07
+    ],
+    "line7": [
+     56.8
+    ],
+    "outro": [
+     185.8
+    ],
+    "seated": [
+     19.57
+    ],
+    "seats_done": [
+     124.12
+    ],
+    "seats_lines": [
+     115.2
+    ],
+    "shack_open": [
+     78.58
+    ],
+    "tap_chai": [
+     48.63
+    ],
+    "tap_galla": [
+     89.23
+    ],
+    "tap_out": [
+     59.05
+    ],
+    "tap_staff": [
+     105.48
+    ],
+    "tap_table": [
+     121.03
+    ],
+    "to_galla": [
+     28.05
+    ],
+    "transfer": [
+     83.4
+    ],
+    "vip": [
+     167.55
+    ],
+    "wait_sale": [
+     39.52
+    ],
+    "waiter_done": [
+     108.57
+    ],
+    "waiter_lines": [
+     99.13
+    ],
+    "wrap": [
+     93.37
+    ]
+   }
+  }
+ },
+ "source": "/private/tmp/claude-501/-Users-almeer-Documents-HighwayDhaba/20a19725-cac8-42e1-ad48-3dfadc5d8164/scratchpad/qa/logs/cart4c"
+}

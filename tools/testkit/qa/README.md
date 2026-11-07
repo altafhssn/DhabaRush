@@ -45,6 +45,7 @@
 - Wave 1 runs quick suites with no PREV_BASE (prev = the 0.3.7 baseline); wave 2 `PREV_BASE=$Q/logs/baseline_wave1`;
   wave 3 `PREV_BASE=$Q/logs/baseline_wave2` (W3-TUT adds `ALLOW_MOVE`).
 - Baseline (untouched 0.3.7): `$Q/logs/baseline/` (summary.txt, tut logs, `beats.json`).
+- Baseline since dhaba growth step 4 (7 Nov 2026: the tutorial starts on the chai cart, builds the shack and reloads; every beat from the transfer on is about 16 s later): `logs/baseline_cart/`. Copy its tut logs into `$Q/logs/baseline/` before a suite.
 - "ERROR: N resources still in use at exit" and audio "Failed loading" lines in an un-imported slot are known noise.
 
 ## tutcheck.py (per-beat tutorial bars, plan 6.1 R1-R12)

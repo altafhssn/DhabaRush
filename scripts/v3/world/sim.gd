@@ -647,6 +647,10 @@ func _ready() -> void:
 		_apply_free_play_taps()
 	if build_static_world:
 		_add_world_props()
+	# Dhaba growth step 3 (6 Nov): the building site while a construction runs.
+	if build_static_world and Game.has_signal("build_job_changed"):
+		Game.connect("build_job_changed", _on_build_job_changed)
+		_on_build_job_changed(str(Game.call("build_job_kind")))
 
 
 # ================================================================ public API
@@ -3785,6 +3789,22 @@ func _pop_text(at: Vector3, text: String, col: Color) -> void:
 	tw.parallel().tween_property(l, "modulate:a", 0.0, 0.3).set_delay(0.8)
 	tw.parallel().tween_property(l, "outline_modulate:a", 0.0, 0.3).set_delay(0.8)
 	tw.tween_callback(l.hide)
+
+
+# ================================================================ construction (dhaba growth step 3)
+## The site of the running construction (ConstructionSite), or null.
+var construction: ConstructionSite = null
+
+
+func _on_build_job_changed(kind: String) -> void:
+	if is_instance_valid(construction):
+		construction.queue_free()
+		construction = null
+	if kind == "":
+		return
+	construction = ConstructionSite.new()
+	add_child(construction)
+	construction.setup(kind, self)
 
 
 # ================================================================ static world

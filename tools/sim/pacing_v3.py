@@ -105,6 +105,15 @@ renovated, NH 48 unlock, moved, NH 48 all dishes), the signboard buys, the
 bind shares per stage and the waiter levels at each promotion; the SUMMARY
 JSON carries them under "promo".
 
+DHABA GROWTH (docs/growth/plan.md step 5, 7 Nov 2026; --growth): the tutorial now
+ends in the tin shack (growth stage 1), so part B starts there: the shack's
+caps (growth.stages[1]: waiters_max, tables_max) hold, lassi and kadai wait for
+the dhaba (growth.station_stage), and the bot saves for THE DHABA
+(growth.builds.dhaba: cost x the dial once its requires are met, the NEXT
+chip's goal) and buys it as soon as it can; the dhaba opens dur_s later
+(--grow-skip: at once, the FINISH NOW ad). The GROWTH block prints when the
+dhaba became buyable, was bought and opened, and when lassi and kadai were built.
+
 Exit status 1 when the menu check, the bill check or the rule check fails.
 
 Usage:
@@ -1138,7 +1147,19 @@ class SeatedGame(Game):
         # C3.4 trays and C5.3 signboard switches (--no-trays, --no-signboard)
         self.trays_on = bool(eco["waiters"].get("tray_levels"))
         self.sign_on = bool(eco.get("signboard"))
+        # DHABA GROWTH (--growth): 0 cart, 1 shack, 2 dhaba (game.gd _stage); the
+        # dhaba unless part B starts in the shack
+        self.grow = 2
         super().__init__(eco)
+
+    def grow_def(self):
+        """growth.stages[grow] before the dhaba ({} on the dhaba)."""
+        arr = self.e.get("growth", {}).get("stages", [])
+        return arr[self.grow] if self.grow < 2 and self.grow < len(arr) else {}
+
+    def _grow_cap(self, key, m):
+        d = self.grow_def()
+        return min(m, int(d[key])) if key in d else m
 
     # ---- CORE AND FEEL: layout variant, caps, trays, signboard (game.gd W1-CORE)
     def variant(self):
@@ -1147,11 +1168,13 @@ class SeatedGame(Game):
 
     def waiters_max(self):
         w = self.e["waiters"]
-        return int(w.get("max_family", w["max"])) if self.variant() == "family" else int(w["max"])
+        m = int(w.get("max_family", w["max"])) if self.variant() == "family" else int(w["max"])
+        return self._grow_cap("waiters_max", m)
 
     def tables_max(self):
         s = self.e["seating"]
-        return int(s.get("tables_max_family", s["tables_max"])) if self.variant() == "family" else int(s["tables_max"])
+        m = int(s.get("tables_max_family", s["tables_max"])) if self.variant() == "family" else int(s["tables_max"])
+        return self._grow_cap("tables_max", m)
 
     def tables_start(self):
         s = self.e["seating"]
@@ -1277,7 +1300,20 @@ class SeatedGame(Game):
     def can_build(self, sid):
         if not super().can_build(sid):
             return False
+        if int(self.e.get("growth", {}).get("station_stage", {}).get(sid, 0)) > self.grow:
+            return False
         return len(self.waiters) >= int(self.sdef(sid).get("requires_waiters", 0))
+
+    def dhaba_build(self):
+        """(cost, dur_s, requires met) of growth.builds.dhaba (game.gd growth_state)."""
+        d = self.e.get("growth", {}).get("builds", {}).get("dhaba", {})
+        req = d.get("requires", {})
+        ok = True
+        if "built" in req and not self.st[req["built"]]["built"]:
+            ok = False
+        if "tables" in req and self.tables < int(req["tables"]):
+            ok = False
+        return snap(float(d.get("cost", 0.0)) * self.dial()), float(d.get("dur_s", 0.0)), ok
 
     def buy(self, kind, arg=None):
         if kind == "waiter_hire":
@@ -1613,6 +1649,11 @@ class SeatedModel:
         self.checks = []
         self.check_mins = [1, 2, 3, 5, 7.5, 10, 12.5, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 120]
         self.unlock_t = {}
+        # DHABA GROWTH: the dhaba's opening time while it is being built, the
+        # FINISH NOW ad (--grow-skip), the marks
+        self.grow_open_at = None
+        self.grow_skip = False
+        self.grow_marks = {}
 
     def arrivals(self):
         """Realized arrivals/min: the ramp target x REALIZED (headless runs land
@@ -1810,6 +1851,28 @@ class SeatedModel:
             self.marks["starter"] = t
             self.log(f"STARTER +{rupees(self.starter_amount)}")
         reserve = 0.0
+        # DHABA GROWTH: in the shack the NEXT chip's goal is THE DHABA; save for it
+        # (that cash is never spent on anything else), buy it, open it dur_s later
+        if g.grow < 2:
+            if self.grow_open_at is not None:
+                if t >= self.grow_open_at - 1e-9:
+                    g.grow = 2
+                    self.grow_open_at = None
+                    self.grow_marks["opened"] = t
+                    self.log("DHABA OPEN (lassi and kadai can be built)")
+            else:
+                cost, dur, ok = g.dhaba_build()
+                if ok:
+                    if "buyable" not in self.grow_marks:
+                        self.grow_marks["buyable"] = t
+                        self.log(f"DHABA BUYABLE ({rupees(cost)})")
+                    if g.cash >= cost:
+                        g.cash -= cost
+                        self.grow_marks["bought"] = t
+                        self.grow_open_at = t if self.grow_skip else t + dur
+                        self.log(f"DHABA BOUGHT ({rupees(cost)}), opens in {0 if self.grow_skip else dur:.0f} s")
+                    else:
+                        reserve = cost
         if self.content_done() and f"end{g.stage}" not in self.marks:
             self.marks[f"end{g.stage}"] = t
             self.log(f"ALL DISHES (stage {g.stage})")
@@ -2057,7 +2120,7 @@ def part_b(eco, run, minutes, ads, opts=None):
     `opts` (core and feel): promo, no_signboard, no_trays, realized, ad_sessions,
     starter, starter_amount."""
     o = dict(promo=False, no_signboard=False, no_trays=False, realized=REALIZED, ad_sessions=0.0,
-             starter=0.0, starter_amount=None)
+             starter=0.0, starter_amount=None, growth=False, grow_skip=False)
     o.update(opts or {})
     g0 = run["game"]
     # the model's own copy: a move applies the location overlay to it
@@ -2084,6 +2147,8 @@ def part_b(eco, run, minutes, ads, opts=None):
     # bought (measured in-game: W2 T3 G2 [3, 2] at TUTORIAL_END, every seed)
     g.waiters = [1] * TUT_END_WAITERS[0]
     g.tables = TUT_END_TABLES[0]
+    if o["growth"]:
+        g.grow = 1   # the step 4 tutorial ends in the shack
     g._refresh_abs()
     g._check()
     stages = 0
@@ -2113,6 +2178,7 @@ def part_b(eco, run, minutes, ads, opts=None):
     print("=" * 96)
     m = SeatedModel(g, ads=ads, realized=o["realized"], stages=stages, starter_min=o["starter"],
                     starter_amount=o["starter_amount"], ad_sessions=o["ad_sessions"])
+    m.grow_skip = bool(o["grow_skip"])
     if stages:
         # the prototype's checkpoints past the first hour
         m.check_mins = sorted(set(m.check_mins) | {70, 80, 100, 150, 180})
@@ -2120,6 +2186,18 @@ def part_b(eco, run, minutes, ads, opts=None):
     print_round2(eco, m)
     if stages:
         print_promo(m)
+    if o["growth"]:
+        cost, dur, _ok = g.dhaba_build()
+        gm = m.grow_marks
+        f = lambda k: fmt_t(gm[k]) if k in gm else "never"
+        print()
+        print(f"GROWTH (started in the shack; the dhaba {rupees(cost)}, {'FINISH NOW at once' if m.grow_skip else f'{dur:.0f} s build'}):"
+              f" buyable {f('buyable')}, bought {f('bought')}, open {f('opened')},"
+              f" lassi {fmt_t(m.built_at['lassi']) if 'lassi' in m.built_at else 'never'},"
+              f" kadai {fmt_t(m.built_at['kadai']) if 'kadai' in m.built_at else 'never'}")
+        print("GROWTH_SUMMARY " + json.dumps({k: round(v, 1) for k, v in gm.items()} |
+                                             {"lassi": round(m.built_at.get("lassi", -1), 1),
+                                              "kadai": round(m.built_at.get("kadai", -1), 1), "cost": cost}))
     print()
     print("Timeline (station affordable / built, staff, milestones):")
     for t, ev in m.events:
@@ -2329,6 +2407,9 @@ def main():
                     help=f"realized arrivals / ramp target in part B (default {REALIZED})")
     ap.add_argument("--ad-sessions", type=float, default=0.0, metavar="M",
                     help="part B as sessions of M minutes: the wall-ad cap (ad_bubble.max_per_session) resets each one")
+    ap.add_argument("--growth", action="store_true",
+                    help="part B starts in the tin shack (dhaba growth step 4): caps, and THE DHABA before lassi")
+    ap.add_argument("--grow-skip", action="store_true", help="with --growth: the dhaba opens at once (FINISH NOW ad)")
     ap.add_argument("--starter", type=float, default=0.0, metavar="MIN",
                     help="grant the starter pack (offers.starter.amount) MIN minutes into part B (C7.4)")
     ap.add_argument("--starter-amount", type=float, default=None, metavar="REF",
@@ -2362,7 +2443,7 @@ def main():
         m = part_b(eco, run, args.minutes, not args.no_ads,
                    dict(promo=args.promo, no_signboard=args.no_signboard, no_trays=args.no_trays,
                         realized=args.realized, ad_sessions=args.ad_sessions, starter=args.starter,
-                        starter_amount=args.starter_amount))
+                        starter_amount=args.starter_amount, growth=args.growth, grow_skip=args.grow_skip))
         fails += m.bill_fail
     if args.matrix:
         fails += print_matrix(eco)

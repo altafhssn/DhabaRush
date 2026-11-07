@@ -834,7 +834,8 @@ func _chip_lines() -> bool:
 	if not Game.note_seen("reno_tease"):
 		if Game.renovations() > 0 or bool(Game.renovation_state().get("unlocked", false)):
 			Game.mark_note("reno_tease")   # the real thing is here: no tease
-		elif Game.free_play_min() >= TEASE_AFTER_MIN:
+		elif Game.free_play_min() >= TEASE_AFTER_MIN and Game.stage() >= Game.STAGE_DHABA:
+			# Step 4: the Family Dhaba tease waits until the place is a dhaba.
 			return _chip_note("reno_tease", "reno_tease")
 	return false
 
@@ -882,7 +883,13 @@ func _promo_done_line() -> bool:
 	var loc_i: int = Game.location_ids().find(Game.location_id())
 	var kind: String = ""
 	var note: String = ""
-	if loc_i > 0:
+	# Dhaba growth step 3: a new stage's line ("shack_done" / "dhaba_done").
+	var sid: String = str(UiKit.gcall("stage_id", [], "dhaba"))
+	if (sid == "shack" and not Game.note_seen("shack_done")) or (sid == "dhaba" and loc_i <= 0
+			and Game.renovations() == 0 and Game.note_seen("shack_done") and not Game.note_seen("dhaba_done")):
+		kind = sid
+		note = sid + "_done"
+	elif loc_i > 0:
 		kind = "move"
 		note = "move_done_%d" % loc_i
 	elif Game.renovations() > 0:
@@ -896,7 +903,8 @@ func _promo_done_line() -> bool:
 	if cam != null and is_instance_valid(cam) and cam.has_method("has_pending_return") \
 			and bool(cam.call("has_pending_return")):
 		return true
-	_say("", note, "move_done" if kind == "move" else "reno_done", Vector3.INF, CameraRig.GAME, true)
+	var line_id: String = note if kind == "shack" or kind == "dhaba" else ("move_done" if kind == "move" else "reno_done")
+	_say("", note, line_id, Vector3.INF, CameraRig.GAME, true)
 	return true
 
 

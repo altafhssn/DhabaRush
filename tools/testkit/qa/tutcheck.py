@@ -299,8 +299,10 @@ def check_run(run, base, prev, opts):
         hi10 = 5.31 if (base_seats_off is not None and base_seats_off > 8.0) else 1.77
         if dc < -1.77 - EPS or dc > hi10 + EPS:
             fail(2, "cash at done %.2f %s (R10 bar %s of %.2f)" % (run.cash["done"], fmt_d(dc), bar_txt(-1.77, hi10), base.cash["done"]))
-    if d["done_state_chai"] is not None and d["done_state_chai"] != 12:
-        fail(2, "done state chai L%d (R10 wants L12)" % d["done_state_chai"])
+    # Dhaba growth step 4 (7 Nov): the tutorial reloads into the shack, whose floor starts empty, so the
+    # scripted free-play LEVEL UPs may be skipped for cash: L10 to L12.
+    if d["done_state_chai"] is not None and not (10 <= d["done_state_chai"] <= 12):
+        fail(2, "done state chai L%d (R10 wants L10-L12)" % d["done_state_chai"])
     # ---- R11: against the previous gate's baseline
     if prev is not None:
         allow = opts["allow"]

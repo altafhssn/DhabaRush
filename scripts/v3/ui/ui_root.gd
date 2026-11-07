@@ -233,6 +233,8 @@ var waiter_tag: HireSlot
 var rack_tag: HireSlot
 var build_tag: BuildTag
 var seats_pill: SeatsFullPill
+## Dhaba growth step 3: the timer tag over a building site.
+var build_site_tag: BuildSiteTag
 ## The 2-tap card on a ghost (layer 13).
 var quick_buy: QuickBuy
 ## The old tutorial's waiter beat lets the ghost-waiter tag show before the
@@ -391,6 +393,12 @@ func _ready() -> void:
 	_bubble_layer.add_child(waiter_tag)
 	waiter_tag.tapped.connect(_on_waiter_tag_tapped)
 	rack_tag = waiter_tag
+	build_site_tag = BuildSiteTag.new()
+	build_site_tag.name = "BuildSiteTag"
+	build_site_tag.ad_ready_fn = func() -> bool: return Ads.is_rewarded_ready("build_skip")
+	build_site_tag.free_fn = func() -> bool: return Game.build_free_skip_ready()
+	_bubble_layer.add_child(build_site_tag)
+	build_site_tag.tapped.connect(_on_build_site_tapped)
 	hud.next_chip.tapped.connect(_on_next_chip_tapped)
 
 	_quick_layer = CanvasLayer.new()
@@ -1239,7 +1247,9 @@ func anchor(n: String) -> Control:
 		"promo_button":
 			var pb: UiButton = promo_popup.primary_button
 			return pb if current_popup == "promo" and pb != null and pb.is_visible_in_tree() else null
-		"build_row_renovation", "build_row_signboard", "build_row_move":
+		"build_site_tag":
+			return build_site_tag if build_site_tag.is_showing() else null
+		"build_row_renovation", "build_row_signboard", "build_row_move", "build_row_grow":
 			return daftar.row_button(n.substr(10)) if daftar.is_open() else null
 		"event_button":
 			var eb: Object = _hud_widget("event_button")
@@ -1936,6 +1946,9 @@ func _on_next_chip_tapped(hint: Dictionary) -> void:
 		"daftar:signboard":
 			open_daftar("build")
 			daftar.focus_row("signboard")
+		"daftar:grow":
+			open_daftar("build")
+			daftar.focus_row("grow")
 		"event":
 			open_event()
 		"seating", "tables":
@@ -2060,6 +2073,10 @@ func _on_daftar_action(id: String) -> void:
 		return
 	if id == "see_renovation":
 		open_promo("renovation")
+		return
+	if id == "grow_start":
+		# Dhaba growth step 3: back to the world, where the site goes up.
+		close_all()
 		return
 	if id == "see_move":
 		open_promo("move", Daftar.move_target())
@@ -2440,6 +2457,33 @@ func _close_staff_and_show(i: int) -> void:
 		var p: Vector3 = Layout3.waiter_home(i)
 		if not _cam_call("fly_to_and_return", [p, -1.0, SHOW_HOLD_S]):
 			_cam_call("fly_to", [p, -1.0])
+
+
+# ================================================================ dhaba growth step 3: construction
+## The site tag's FINISH NOW: a rewarded ad ("build_skip"); its reward finishes
+## the construction (Game reloads the scene for a new stage, or applies the
+## renovation / move). No ad ready: a toast. If the app dies mid-ad nothing
+## is owed: the construction just runs on by the clock.
+func _on_build_site_tapped() -> void:
+	if current_popup != "" or current_panel != "" or not Game.build_job_active():
+		return
+	if Game.build_free_skip_ready():
+		# Step 4: the shack's one free skip (no ad).
+		Analytics.event("build_skip_free", {"kind": Game.build_job_kind()})
+		button_pressed.emit("build_skip_free")
+		Game.finish_build_job_now("free")
+		return
+	if not Ads.is_rewarded_ready("build_skip"):
+		hud.toast(tr("No video right now. The workers keep going!"))
+		return
+	Analytics.event("ad_offer_tapped", {"placement": "build_skip", "kind": Game.build_job_kind()})
+	Ads.show_rewarded("build_skip", _on_build_skip_done)
+
+
+func _on_build_skip_done(ok: bool) -> void:
+	print("[ui] build_skip ad -> %s" % str(ok))
+	if ok:
+		Game.finish_build_job_now("ad")
 
 
 # ================================================================ core and feel: promotions (C5.2, C6.1, C6.3)

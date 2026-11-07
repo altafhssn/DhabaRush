@@ -413,6 +413,9 @@ func _intro_card(title: String, icon_name: String, text: String, h: float) -> Pa
 func _build_tab_content() -> void:
 	_scroll.content.add_child(_intro_card("BUILD", "blueprint",
 			"Build new counters and tables. Each counter adds a dish to every order.", 172.0))
+	# Dhaba growth step 3 (6 Nov): before the dhaba, the next stage leads the list.
+	if bool(Game.growth_state().get("shown", false)):
+		_scroll.content.add_child(_grow_row())
 	_scroll.content.add_child(_tables_row())
 	for id: String in Game.station_ids():
 		_scroll.content.add_child(_station_row(id))
@@ -1056,6 +1059,82 @@ func _signboard_row() -> Panel:
 	return card
 
 
+## Dhaba growth step 3: THE SHACK (on the cart) or THE DHABA (in the shack).
+## BUILD with the price when its needs are met, the need ("CHAI AT LV 10")
+## with a lock before, "BUILDING · m:ss" while it is being built.
+func _grow_row() -> Panel:
+	var gs: Dictionary = Game.growth_state()
+	var shack: bool = str(gs.get("kind", "")) == "shack"
+	var d: Dictionary = _extra_card("grow", "blueprint", UiKit.MARIGOLD_PALE, str(gs.get("title", "THE SHACK")),
+			"A tin roof, tables, a tandoor and lassi. Built while the cart keeps selling." if shack
+			else "Brick walls, a painted front and a kadai. Built while the shack keeps serving.")
+	var card: Panel = d["card"]
+	var btn := UiButton.new("BUILD", UiKit.SAFFRON, Vector2(196, 72))
+	btn.name = "GrowButton"
+	btn.set_font_sizes(20, 24)
+	btn.big_ring = true
+	btn.press_sound = "build_done"
+	card.add_child(btn)
+	btn.position = Vector2(690.0 - 196.0 - 18.0, 28.0)
+	btn.tapped.connect(_on_grow)
+	d["btn"] = btn
+	_refresh_grow_row()
+	return card
+
+
+func _refresh_grow_row() -> void:
+	if not _extra_rows.has("grow"):
+		return
+	var d: Dictionary = _extra_rows["grow"]
+	var gs: Dictionary = Game.growth_state()
+	var btn: UiButton = d["btn"]
+	var lock: Control = d["lock"]
+	var soon: Label = d["soon"]
+	var line: Label = d["line"]
+	var gain: Label = d["gain"]
+	var reason: String = str(gs.get("reason", ""))
+	btn.visible = reason == "" or reason == "cash"
+	lock.visible = reason == "needs"
+	soon.visible = reason == "needs" or reason == "building"
+	var txt: String = ""
+	if reason == "needs":
+		txt = UiKit.t(str(gs.get("needs", ""))).replace("{n}", str(int(gs.get("needs_n", 0)))).to_upper()
+	elif reason == "building":
+		txt = UiKit.t("BUILDING · %s") % _mmss(Game.build_job_left())
+	if soon.text != txt:
+		soon.text = txt
+		soon.add_theme_font_size_override("font_size", _fit_px(txt, REASON_PX, REASON_MAX_W))
+	line.text = UiKit.t("Builds in {t}").replace("{t}", _mmss(float(gs.get("dur", 0.0))))
+	gain.text = ""
+	if btn.visible:
+		btn.set_cost(Fmt.price(float(gs.get("cost", 0.0))))
+		btn.set_affordable(reason == "")
+	_mark_ready(d, reason == "")
+
+
+## "3:00", "10:00", "1:05:00".
+static func _mmss(sec: float) -> String:
+	var s: int = int(ceilf(maxf(0.0, sec)))
+	if s >= 3600:
+		return "%d:%02d:%02d" % [s / 3600, (s / 60) % 60, s % 60]
+	return "%d:%02d" % [s / 60, s % 60]
+
+
+func _on_grow() -> void:
+	if not _allowed("grow_start"):
+		return
+	var b: UiButton = row_button("grow")
+	if b == null:
+		return
+	if str(Game.growth_state().get("reason", "")) != "":
+		b.deny()
+		return
+	b.juice()
+	if Game.start_growth_build():
+		_refresh_extra_rows()
+		action.emit("grow_start")
+
+
 ## C6.1 / C6.3: FAMILY DHABA ("renovation") or NH 48 · RAJASTHAN ("move").
 func _promo_row(kind: String) -> Panel:
 	var reno: bool = kind == "renovation"
@@ -1085,6 +1164,7 @@ func _promo_row(kind: String) -> Panel:
 
 
 func _refresh_extra_rows() -> void:
+	_refresh_grow_row()
 	_refresh_signboard_row()
 	for k in ["renovation", "move"]:
 		_refresh_promo_row(k)

@@ -48,7 +48,8 @@ extends Node3D
 ##                       hall food .. road food .." from the Sim's getters,
 ##                       "-" where this build's Sim has none)
 ##   --buy=a,b,...       purchases at start: galla, waiter, table, waiter_up,
-##                       galla_up (galla 1 level), a station id to build it
+##                       galla_up (galla 1 level), grow (start the next stage's
+##                       paid build), a station id to build it
 ##                       (tandoor, lassi, kadai), <id>_up (level up),
 ##                       <id>_hire (hire a cook), <id>_speed (processing),
 ##                       <id>_lvl<N> (set the level outright, station menus:
@@ -148,6 +149,9 @@ extends Node3D
 ##   --reno-ready        Game.debug_reno_ready(): every counter built and at
 ##                       L100, the Family Dhaba unlocked (cash untouched);
 ##                       prints "[promo] renovation ready: dishes n/16 cost c"
+##   --renovate-paid     --reno-ready, then a paid Game.renovate() (dhaba
+##                       growth step 3: starts the timed construction; give
+##                       cash with --money; --build-dur=SEC shortens it)
 ##   --renovate          --reno-ready, then Game.renovate(true) once the scene
 ##                       is up: the scene reloads (the production path) and
 ##                       the run goes on in the family layout
@@ -247,6 +251,8 @@ const AUTO_DWELL := {
 	"l8": 1.7, "l9": 1.8, "l10": 5.0,
 	"lw1": 2.9, "lw2": 2.65, "lw3": 2.65, "lt1": 2.9, "lt2": 2.65,
 	"l14": 4.4, "l15": 4.3, "l16": 4.4, "l17": 3.0,
+	# Step 4 (the cart): 0.9 s + 0.25 s per word, like the UX fix lines.
+	"l1c": 7.4, "g1": 3.4, "g2": 2.65, "g3": 3.15, "shack_done": 3.65,
 }
 ## Reference reaction time per hand gate (hand shown -> tap, from the video);
 ## other gates use AUTO_HAND_SETTLE.
@@ -254,6 +260,7 @@ const AUTO_HAND_DWELL := {
 	"tap_out": 2.4, "hire": 1.0, "close_galla": 1.0, "bubble": 1.0, "vip": 1.5,
 	"build_btn": 2.0, "build_row": 1.0, "build_close": 1.3,
 	"tap_staff": 1.0, "hire_waiter": 1.0, "close_waiters": 1.0, "tap_table": 1.0, "add_table": 1.0,
+	"grow_btn": 2.0, "grow_row": 1.0, "grow_site": 1.0,
 }
 ## Free-play purchases the reference player made (seconds after the
 ## tutorial's free step began, action; ref: free step at 88.0 s).
@@ -344,6 +351,9 @@ static var _session_settings_sent: bool = false
 ## promotion reload) does not apply the one-shot flags (--buy, --open, the
 ## game-state flags) again (plan 2.7).
 static var _final_done: bool = false
+## Step 4: the game clock carried over a promotion's reload (the tutorial's
+## shack beat reloads mid-run; logs keep one timeline). -1 = none.
+static var _game_t_carry: float = -1.0
 ## This scene only runs a promotion flag's step and reloads (debug).
 var _promo_scene: bool = false
 ## The promoted signal arrived: this scene is about to be replaced.
@@ -398,6 +408,9 @@ var _auto_card_stage: int = 0
 
 
 func _ready() -> void:
+	if _game_t_carry >= 0.0:
+		_game_t = _game_t_carry
+		_game_t_carry = -1.0
 	_parse_cmdline()
 	_detect_tier()
 	Refs.world = self
@@ -816,6 +829,7 @@ func _on_promoted(kind: String, count: int) -> void:
 	if _reloading:
 		return
 	_reloading = true
+	_game_t_carry = _game_t
 	print("[promo] %s %d: reloading scene" % [kind, count])
 	var tree: SceneTree = get_tree()
 	if tree == null:
@@ -861,6 +875,9 @@ func _run_promo_step() -> void:
 	if step == "renovate":
 		if Game.has_method("renovate"):
 			ok = bool(Game.call("renovate", true))
+	elif step == "renovate_paid":
+		ok = bool(Game.call("renovate", false))
+		print("[main3] paid renovation: %s, job %s" % [str(ok), str(Game.call("build_job"))])
 	elif step.begins_with("move:"):
 		if Game.has_method("move_highway"):
 			_reno_ready_now()
@@ -1036,6 +1053,11 @@ func _parse_cmdline() -> void:
 			reno_ready = true
 			if not steps.has("renovate"):
 				steps.push_front("renovate")
+		elif arg == "--renovate-paid":
+			# Dhaba growth step 3: a paid (timed) renovation, as the BUILD button
+			# starts it (give cash with --money).
+			reno_ready = true
+			steps.append("renovate_paid")
 		elif arg.begins_with("--move="):
 			reno_ready = true
 			if not steps.has("renovate"):
@@ -1110,6 +1132,9 @@ func _parse_cmdline() -> void:
 		MunshiNotes.enabled = false
 	if not first:
 		# A promotion reloaded the scene: the run goes on with the next step.
+		# Game time carries over, so shots already taken are dropped.
+		while not _shots.is_empty() and _shots[0] <= _game_t:
+			_shots.pop_front()
 		_promo_scene = not _promo_steps.is_empty()
 		if _final_done:
 			# Plan 2.7: a reload never re-applies --buy (nor --open and the
@@ -1132,6 +1157,10 @@ func _parse_cmdline() -> void:
 				print("[main3] reload: one-shot flags not re-applied")
 		return
 	_once_done = true
+	# Step 4: tests that skip the tutorial expect today's dhaba (a new game
+	# now starts on the cart); --stage= still picks the stage.
+	if _skip_tutorial and Game.stage() < Game.STAGE_DHABA and int(Game.get("_debug_stage")) < 0:
+		Game.set_stage(Game.STAGE_DHABA)
 	if _skip_tutorial and not Game.is_tutorial_done():
 		Game.tutorial_set("step", "done")
 		Game.tutorial_set("done", true)
@@ -1296,6 +1325,9 @@ func _debug_buy() -> void:
 				ok = Game.buy_waiter_upgrade(0)
 			"galla_up":
 				ok = Game.buy_galla_upgrade(0)
+			"grow":
+				# Growth step 3: starts the next stage's paid build.
+				ok = Game.start_growth_build()
 			_:
 				if b.begins_with("waiter_lvl") and b.substr(10).is_valid_int():
 					ok = _debug_waiter_levels(int(b.substr(10)))

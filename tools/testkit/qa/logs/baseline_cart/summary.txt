@@ -1,0 +1,40 @@
+SUITE cart4c
+sdktest      rc=0 script_errors=0 errors=1
+    [sim] conservation arrived 0 paid 0 inside 0 left_unpaid 0 drove_past 0
+tapcheck     rc=0 script_errors=0 errors=4
+    [sim] conservation arrived 22 paid 2 inside 20 left_unpaid 0 drove_past 0
+    TAPCHECK fails=0
+tut_en_s1    rc=0 script_errors=0 errors=1
+    [auto] 190.72 home check: dist 0.00 m, in view true, next chip true 'save'
+    [auto] 189.25 step -> done (cash 4.89)
+    [sim] conservation arrived 170 paid 155 inside 15 left_unpaid 0 drove_past 0
+    [window] 600 s after start | arrivals 133 = 13.3/min | buses 22 (bringing 80 riders) | lost 0 | passed 0 | takings 45.1/min | food wait mean 19.7 s (n 128), max 42.2 s | HISAAB avg food wait 24.3 s | ramp 12.8/min (raw 13.3), bus every 41 s
+    [summary] daynight phase 0.301 band day night 0.00 | time: day 405 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 10 other 4, through lorry 41 bus 10 other 81, stop bus 15 | dusk: park lorry 2 other 0, through lorry 13 bus 2 other 15, stop bus 2 | night: park lorry 5 other 1, through lorry 38 bus 0 other 22, stop bus 8 | dawn: park lorry 2 other 0, through lorry 5 bus 1 other 12, stop bus 1 | 
+tut_en_s2    rc=0 script_errors=0 errors=0
+    [auto] 189.82 home check: dist 0.00 m, in view true, next chip true 'save'
+    [auto] 188.35 step -> done (cash 3.40)
+    [sim] conservation arrived 168 paid 155 inside 13 left_unpaid 0 drove_past 0
+    [window] 600 s after start | arrivals 131 = 13.1/min | buses 24 (bringing 89 riders) | lost 0 | passed 0 | takings 44.0/min | food wait mean 21.3 s (n 125), max 45.1 s | HISAAB avg food wait 18.0 s | ramp 13.5/min (raw 13.5), bus every 29 s
+    [summary] daynight phase 0.303 band day night 0.00 | time: day 406 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 10 other 4, through lorry 32 bus 11 other 83, stop bus 16 | dusk: park lorry 1 other 1, through lorry 6 bus 2 other 15, stop bus 3 | night: park lorry 6 other 0, through lorry 41 bus 1 other 16, stop bus 8 | dawn: park lorry 1 other 0, through lorry 5 bus 0 other 17, stop bus 1 | 
+tut_en_s3    rc=0 script_errors=0 errors=1
+    [auto] 196.85 home check: dist 0.00 m, in view true, next chip true 'save'
+    [auto] 195.38 step -> done (cash 0.00)
+    [sim] conservation arrived 165 paid 155 inside 10 left_unpaid 0 drove_past 0
+    [window] 600 s after start | arrivals 136 = 13.6/min | buses 24 (bringing 87 riders) | lost 0 | passed 0 | takings 46.2/min | food wait mean 18.5 s (n 130), max 42.7 s | HISAAB avg food wait 15.2 s | ramp 13.5/min (raw 13.5), bus every 36 s
+    [summary] daynight phase 0.291 band day night 0.00 | time: day 399 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 11 other 3, through lorry 40 bus 10 other 78, stop bus 14 | dusk: park lorry 2 other 0, through lorry 4 bus 1 other 17, stop bus 4 | night: park lorry 5 other 1, through lorry 40 bus 1 other 17, stop bus 7 | dawn: park lorry 2 other 0, through lorry 4 bus 1 other 14, stop bus 2 | 
+tut_en_s4    rc=0 script_errors=0 errors=1
+    [auto] 190.10 home check: dist 0.00 m, in view true, next chip true 'save'
+    [auto] 188.63 step -> done (cash 5.31)
+    [sim] conservation arrived 174 paid 159 inside 15 left_unpaid 0 drove_past 0
+    [window] 600 s after start | arrivals 136 = 13.6/min | buses 23 (bringing 87 riders) | lost 0 | passed 0 | takings 46.7/min | food wait mean 17.5 s (n 133), max 37.8 s | HISAAB avg food wait 21.3 s | ramp 13.5/min (raw 13.5), bus every 28 s
+    [summary] daynight phase 0.302 band day night 0.00 | time: day 406 s dusk 79 s night 198 s dawn 59 s | vehicles: day: park lorry 9 other 4, through lorry 29 bus 10 other 89, stop bus 15 | dusk: park lorry 3 other 0, through lorry 6 bus 4 other 17, stop bus 3 | night: park lorry 4 other 1, through lorry 45 bus 2 other 16, stop bus 7 | dawn: park lorry 2 other 0, through lorry 7 bus 0 other 10, stop bus 3 | 
+tut_hi_s1    rc=0 script_errors=0 errors=1
+    [auto] 190.72 home check: dist 0.00 m, in view true, next chip true 'save'
+    [auto] 189.25 step -> done (cash 0.00)
+    [sim] conservation arrived 55 paid 39 inside 16 left_unpaid 0 drove_past 0
+zoomtest     rc=0 script_errors=0 errors=1
+    [sim] conservation arrived 6 paid 0 inside 6 left_unpaid 0 drove_past 0
+    ZOOMTEST fails=0
+save: SAVE OK
+tutcheck: TUTCHECK fails=5
+RESULT: FAIL

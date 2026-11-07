@@ -198,6 +198,20 @@ func debug_send(id: String) -> bool:
 
 
 # ================================================================ rules
+## Dhaba growth step 5 (7 Nov): the cart and the shack cap tables, waiters and
+## cashiers; a tip that asks for one more of a capped thing waits (it can
+## come once the next stage lifts the cap).
+func _capped(limit: String) -> bool:
+	match limit:
+		"seats":
+			return bool(game.table_maxed())
+		"waiters":
+			return int(game.waiter_count()) >= int(game.waiter_max())
+		"cashiers":
+			return int(game.galla_count()) >= int(game.galla_max())
+	return false
+
+
 func _check(step: float) -> void:
 	if not has("day1"):
 		if float(game.free_play_min()) >= DAY1_MIN:
@@ -222,7 +236,7 @@ func _check(step: float) -> void:
 	if limit == "road":
 		if game.signboard_unlocked() and int(game.signboard_level()) == 0:
 			tip = "tip_road"
-	elif STAGE_TIPS.has(limit):
+	elif STAGE_TIPS.has(limit) and not _capped(limit):
 		tip = str(STAGE_TIPS[limit])
 	if tip != "" and not has(tip) and float(_hold.get(limit, 0.0)) >= TIP_HOLD_S:
 		_receive(tip)
