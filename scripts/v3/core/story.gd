@@ -200,8 +200,11 @@ func debug_send(id: String) -> bool:
 # ================================================================ rules
 ## Dhaba growth step 5 (7 Nov): the cart and the shack cap tables, waiters and
 ## cashiers; a tip that asks for one more of a capped thing waits (it can
-## come once the next stage lifts the cap).
+## come once the next stage lifts the cap). On the dhaba the tips come as
+## before (levelling the staff still helps; audit fix).
 func _capped(limit: String) -> bool:
+	if game.has_method("stage") and int(game.stage()) >= 2:
+		return false
 	match limit:
 		"seats":
 			return bool(game.table_maxed())

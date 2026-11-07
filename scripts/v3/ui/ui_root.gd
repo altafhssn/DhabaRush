@@ -1001,6 +1001,25 @@ func is_any_open() -> bool:
 	return current_panel != "" or current_popup != "" or Analytics.is_card_open()
 
 
+## Audit fix (7 Nov): why a construction finished by the clock must wait
+## before Game reloads the scene ("" = it may finish): a pop-up, the consent
+## card, the quit question, a Rani line or a reward burst. Panels do not hold
+## it (closing them loses nothing).
+func build_finish_blocked() -> String:
+	if current_popup != "":
+		return "popup " + current_popup
+	if Analytics.is_card_open():
+		return "card"
+	if is_instance_valid(quit_popup) and quit_popup.has_method("is_open") and bool(quit_popup.call("is_open")):
+		return "quit question"
+	var dlg: Node = Refs.dialogue
+	if dlg != null and is_instance_valid(dlg) and dlg.has_method("is_open") and bool(dlg.call("is_open")):
+		return "dialogue"
+	if Fx.reward_playing():
+		return "reward"
+	return ""
+
+
 # ================================================================ C4.4 launch pop-up budget
 ## kinds "consent" | "offline" | "eco_note": true when that launch pop-up may
 ## open now: none shown yet this launch (Game.popup_budget_used() < 1),

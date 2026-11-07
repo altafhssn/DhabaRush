@@ -60,7 +60,7 @@ func _update_content() -> void:
 	if k != _kind:
 		_kind = k
 		world_point = POINTS.get(k, POINTS["shack"])
-	var left: String = Daftar._mmss(Game.build_job_left())
+	var left: String = Fmt.clock(Game.build_job_left())
 	var ad: bool = ad_ready_fn.is_valid() and bool(ad_ready_fn.call())
 	var free: bool = free_fn.is_valid() and bool(free_fn.call())
 	if left != _left or ad != _ad or free != _free:

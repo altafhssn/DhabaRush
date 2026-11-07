@@ -45,6 +45,8 @@
 | 5 Story and money | Applied, not committed. Prices and the lassi move; father's visit 1 already lands in the shack (it needs the 3rd table), Simran's "tea stall" message lands there too |
 | 6 Test | Full suite clean (274 SDK checks, tap and zoom checks, 5 tutorial runs); new tutorial baseline in tools/testkit/qa/logs/baseline_cart; windowed captures done 7 Nov (tutorial on the cart, the free FINISH NOW tag, the shack reveal, both BUILD rows, the dhaba site with the ad button): no layout problems |
 
+**Audit fixes (7 Nov, after b45395a):** a build finished by the clock now waits while a rewarded ad, pop-up, Rani line or reward burst is up (and a renovation or move waits for WELCOME BACK), so no reward is lost to the reload; cash spent on levels, staff, speed and tables while a renovation or move is built is paid back when it finishes; the Family Dhaba row says "Building now" during a build; Simran's staff tips are only held back before the dhaba; a stale saved build is refunded; the BUILD row's countdown ticks on its own.
+
 **Pacing** (`python3 tools/sim/pacing_v3.py --growth`, from the end of the tutorial in the shack):
 
 | Run | Lassi | Dhaba bought | Dhaba open | Kadai |

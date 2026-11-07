@@ -842,6 +842,15 @@ func _tone_color(t: String) -> Color:
 
 # ================================================================ live updates
 func _process(delta: float) -> void:
+	if tab == "build":
+		# Audit fix (7 Nov): the grow row's BUILDING countdown runs on its own
+		# (sales no longer have to refresh it).
+		if visible and Game.build_job_active():
+			_poll += delta
+			if _poll >= 0.5:
+				_poll = 0.0
+				_refresh_grow_row()
+		return
 	if tab != "hisaab":
 		return
 	_poll += delta
@@ -1098,26 +1107,19 @@ func _refresh_grow_row() -> void:
 	soon.visible = reason == "needs" or reason == "building"
 	var txt: String = ""
 	if reason == "needs":
-		txt = UiKit.t(str(gs.get("needs", ""))).replace("{n}", str(int(gs.get("needs_n", 0)))).to_upper()
+		txt = UiKit.t(str(gs.get("needs", ""))).replace("{n}", str(int(gs.get("needs_n", 0)))) \
+				.replace("{name}", UiKit.t(str(gs.get("needs_name", "")))).to_upper()
 	elif reason == "building":
-		txt = UiKit.t("BUILDING · %s") % _mmss(Game.build_job_left())
+		txt = UiKit.t("BUILDING · %s") % Fmt.clock(Game.build_job_left())
 	if soon.text != txt:
 		soon.text = txt
 		soon.add_theme_font_size_override("font_size", _fit_px(txt, REASON_PX, REASON_MAX_W))
-	line.text = UiKit.t("Builds in {t}").replace("{t}", _mmss(float(gs.get("dur", 0.0))))
+	line.text = UiKit.t("Builds in {t}").replace("{t}", Fmt.clock(float(gs.get("dur", 0.0))))
 	gain.text = ""
 	if btn.visible:
 		btn.set_cost(Fmt.price(float(gs.get("cost", 0.0))))
 		btn.set_affordable(reason == "")
 	_mark_ready(d, reason == "")
-
-
-## "3:00", "10:00", "1:05:00".
-static func _mmss(sec: float) -> String:
-	var s: int = int(ceilf(maxf(0.0, sec)))
-	if s >= 3600:
-		return "%d:%02d:%02d" % [s / 3600, (s / 60) % 60, s % 60]
-	return "%d:%02d" % [s / 60, s % 60]
 
 
 func _on_grow() -> void:

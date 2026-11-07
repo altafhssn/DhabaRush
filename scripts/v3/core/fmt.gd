@@ -119,6 +119,14 @@ static func per_min(v: float) -> String:
 	return ("-" + s) if d <= -0.5 else s
 
 
+## A countdown: "3:00", "10:00", "1:05:00" (whole seconds, rounded up).
+static func clock(sec: float) -> String:
+	var s: int = int(ceilf(maxf(0.0, sec)))
+	if s >= 3600:
+		return "%d:%02d:%02d" % [s / 3600, (s / 60) % 60, s % 60]
+	return "%d:%02d" % [s / 60, s % 60]
+
+
 ## Processing time: "2 s", "1.95 s" (no scale).
 static func secs(v: float) -> String:
 	var c: float = snappedf(v, 0.01)

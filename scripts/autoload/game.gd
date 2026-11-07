@@ -696,6 +696,8 @@ var _build_poll_t: float = 0.0
 ## Debug: --build-dur=SEC overrides every construction time (tests);
 ## --grow starts the next stage's build for free once the game runs.
 var _debug_build_dur: float = -1.0
+## The last reason a finished construction waited (log once per reason).
+var _build_hold_why: String = ""
 var _debug_grow: bool = false
 ## C7.2: UiRoot holds the wall-ad bubble while the FREE / VIP popup is open.
 var _ad_hold: bool = false
@@ -765,7 +767,10 @@ func _ready() -> void:
 		_ad_wait_after_return()
 		if build_job_active():
 			_build_job["done"] = float(_build_job["done"]) + maxf(0.0, _load_away)
-	if build_job_active() and build_job_left() <= 0.0:
+	# A new stage finishes before the scene is built (it opens with the
+	# reveal). A renovation or move waits for the scene (_tick_build_job), so
+	# WELCOME BACK can still offer its x2 before the reset.
+	if build_job_active() and build_job_left() <= 0.0 and _build_job["kind"] in ["shack", "dhaba"]:
 		_complete_build_job("launch")
 	# Module registry: once, after the load (the special picks here).
 	for o in _systems.values():
@@ -2513,8 +2518,27 @@ func spend(amount: float, what: String = "") -> bool:
 	if not can_afford(amount):
 		return false
 	cash = maxf(0.0, cash - amount)
+	if _build_refundable(what):
+		_build_job["spent"] = float(_build_job.get("spent", 0.0)) + amount
 	cash_spent.emit(amount, what)
 	return true
+
+
+## Audit fix (7 Nov): while a renovation or move is being built the old dhaba
+## trades on, but its finish resets levels, staff, cooks, speed steps and
+## tables (a move also every counter built after the start). Cash spent on
+## those meanwhile is paid back when the reset happens (_complete_build_job).
+## Signboard levels survive the reset, so they are not counted.
+func _build_refundable(what: String) -> bool:
+	var kind: String = build_job_kind()
+	if kind != "renovation" and kind != "move":
+		return false
+	for pre in ["level:", "hire:", "speed:", "waiter_up", "waiter_hire", "galla_up", "galla_hire", "table"]:
+		if what.begins_with(pre):
+			return true
+	if what.begins_with("build:"):
+		return kind == "move" and not bool(station_def(what.substr(6)).get("start_built", false))
+	return false
 
 
 ## Visible top-up (A9.4; the tutorial before a purchase it walks through):
@@ -5262,17 +5286,20 @@ func growth_state() -> Dictionary:
 	var req: Dictionary = _dict(def, "requires")
 	var needs: String = ""
 	var needs_n: int = 0
+	var needs_name: String = ""
 	if req.has("chai_level") and station_level("chai") < int(req["chai_level"]):
 		needs = "Chai at Lv {n}"
 		needs_n = int(req["chai_level"])
 	elif req.has("built") and not is_built(str(req["built"])):
-		needs = "Build the %s first" % str(req["built"]).to_upper()
+		# Audit fix: the station's name goes in after translation ({name}).
+		needs = "Build the {name} first"
+		needs_name = str(station_def(str(req["built"])).get("name", str(req["built"]))).to_upper()
 	elif req.has("tables") and table_count() < int(req["tables"]):
 		needs = "{n} tables"
 		needs_n = int(req["tables"])
 	var building: bool = build_job_active() and str(_build_job.get("kind", "")) == kind
 	var reason: String = ""
-	if building or build_job_active():
+	if build_job_active():
 		reason = "building"
 	elif needs != "":
 		reason = "needs"
@@ -5281,7 +5308,8 @@ func growth_state() -> Dictionary:
 	var unlocked: bool = reason == "" or reason == "cash"
 	return {"shown": true, "kind": kind, "title": "THE SHACK" if kind == "shack" else "THE DHABA",
 			"unlocked": unlocked, "affordable": reason == "", "building": building, "cost": cost,
-			"short": maxf(0.0, cost - cash), "dur": build_dur(kind), "reason": reason, "needs": needs, "needs_n": needs_n}
+			"short": maxf(0.0, cost - cash), "dur": build_dur(kind), "reason": reason, "needs": needs, "needs_n": needs_n,
+			"needs_name": needs_name}
 
 
 ## Buys the next stage: the cost now, the construction from now. False when
@@ -5361,7 +5389,35 @@ func _tick_build_job() -> void:
 		_debug_grow = false
 		print("[build] debug grow: %s" % str(start_growth_build(true)))
 	if build_job_active() and build_job_left() <= 0.0:
+		var why: String = _build_finish_hold()
+		if why != "":
+			if why != _build_hold_why:
+				print("[build] %s done, waiting (%s)" % [build_job_kind(), why])
+			_build_hold_why = why
+			return
+		_build_hold_why = ""
 		_complete_build_job("time")
+
+
+## Audit fix (7 Nov): a construction finished by the clock reloads the scene,
+## so it waits while a rewarded ad plays (its reward would be lost), a pop-up,
+## card, Rani line or reward burst is up, or WELCOME BACK can still open (a
+## renovation or move would claim the offline pay at x1). FINISH NOW taps
+## (finish_build_job_now) never wait. "" = finish now.
+func _build_finish_hold() -> String:
+	if Ads.is_busy():
+		return "ad"
+	var ui: Node = _ui_node()
+	if ui == null:
+		return "no scene"
+	if ui.has_method("build_finish_blocked"):
+		var b: String = str(ui.call("build_finish_blocked"))
+		if b != "":
+			return b
+	if pending_offline > 0.0 and (build_job_kind() == "renovation" or build_job_kind() == "move") \
+			and ui.has_method("can_interrupt") and bool(ui.call("can_interrupt", "offline")):
+		return "welcome back"
+	return ""
 
 
 func _free_play_ready() -> bool:
@@ -5375,6 +5431,12 @@ func _complete_build_job(source: String) -> void:
 	_build_job = {}
 	var kind: String = str(j.get("kind", ""))
 	print("[build] %s finished (%s)" % [kind, source])
+	var refund: float = float(j.get("spent", 0.0))
+	if refund > 0.0 and (kind == "renovation" or kind == "move"):
+		# Audit fix: what the old dhaba spent during the build comes back.
+		cash += refund
+		print("[build] %s: paid back %.2f spent on the old dhaba while it was built" % [kind, refund])
+		Analytics.event("build_refund", {"kind": kind, "amount": refund})
 	Analytics.event("build_finished", {"kind": kind, "source": source, "min_since_tutorial": free_play_min()})
 	build_job_changed.emit("")
 	match kind:
@@ -5458,6 +5520,8 @@ func renovation_state() -> Dictionary:
 	var reason: String = ""
 	if done:
 		reason = "done"
+	elif build_job_active():
+		reason = "building"   # audit fix: not "dishes" while something is being built
 	elif not unlocked:
 		reason = "dishes"
 	elif not aff:
@@ -6343,12 +6407,18 @@ func load_game() -> bool:
 	if _renovations > 0 or not _locations_done.is_empty():
 		_stage = STAGE_DHABA
 	_build_job = {}
+	var bj_refund: float = 0.0
 	var bjv: Variant = d.get("build_job", {})
 	if bjv is Dictionary and BUILD_KINDS.has(str((bjv as Dictionary).get("kind", ""))):
 		var bj: Dictionary = bjv
 		_build_job = {"kind": str(bj["kind"]), "target": str(bj.get("target", "")), "done": maxf(0.0, float(bj.get("done", 0.0))),
-				"dur": maxf(0.0, float(bj.get("dur", 0.0))), "paid": maxf(0.0, float(bj.get("paid", 0.0)))}
+				"dur": maxf(0.0, float(bj.get("dur", 0.0))), "paid": maxf(0.0, float(bj.get("paid", 0.0))),
+				"spent": maxf(0.0, float(bj.get("spent", 0.0)))}
 		if (_build_job["kind"] == "shack" and _stage != 0) or (_build_job["kind"] == "dhaba" and _stage != 1):
+			# Audit fix: a stale stage build is dropped and its price paid back
+			# (credited after the cash loads below).
+			bj_refund = float(_build_job["paid"])
+			print("[build] saved %s build does not fit stage %d: dropped, %.2f paid back" % [_build_job["kind"], _stage, bj_refund])
 			_build_job = {}
 	_dish_floor = {}
 	var dfv: Variant = d.get("dish_floor", {})
@@ -6357,7 +6427,7 @@ func load_game() -> bool:
 			if not station_def(str(k)).is_empty():
 				_dish_floor[str(k)] = maxi(0, int((dfv as Dictionary)[k]))
 	passed_total = maxi(0, int(d.get("passed_total", 0)))
-	cash = maxf(0.0, float(d.get("cash", cash)))
+	cash = maxf(0.0, float(d.get("cash", cash))) + bj_refund
 	sikke = int(d.get("sikke", sikke))
 	vip = bool(d.get("vip", false))
 	remove_ads = bool(d.get("remove_ads", false))
