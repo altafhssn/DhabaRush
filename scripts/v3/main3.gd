@@ -253,6 +253,9 @@ const AUTO_DWELL := {
 	"l14": 4.4, "l15": 4.3, "l16": 4.4, "l17": 3.0,
 	# Step 4 (the cart): 0.9 s + 0.25 s per word, like the UX fix lines.
 	"l1c": 7.4, "g1": 3.4, "g2": 2.65, "g3": 3.15, "shack_done": 3.65,
+	# 9 Nov, the cart's L3 / L4 (Chhotu, the cash box): L3 / L4's dwell, so the
+	# tutorial's beat times stay on the baseline.
+	"l3c": 2.8, "l4c": 5.1,
 }
 ## Reference reaction time per hand gate (hand shown -> tap, from the video);
 ## other gates use AUTO_HAND_SETTLE.

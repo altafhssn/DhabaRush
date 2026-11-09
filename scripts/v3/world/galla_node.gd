@@ -1,7 +1,9 @@
 class_name GallaNode
 extends Node3D
 ## One galla (billing counter, spec 3.5): wooden desk + cash box, its cashier
-## (Munna / Bablu), its own line and its own radial timer.
+## (Munna / Bablu), its own line and its own radial timer. On the chai cart
+## (9 Nov) galla 1 is the cart's cash table: no desk, no cashier, no tap
+## (Layout3.is_cart_galla).
 ##
 ## Bill: Game.galla_service_time(index) (5.0 s / 1.02^(lvl-1)), frozen while
 ## Game.sim_paused. On completion, in the same frame: the timer shrinks out,
@@ -55,7 +57,15 @@ func setup(i: int) -> void:
 	queue_poly = Layout3.galla_queue(i)
 	_look = desk_pos - pay_spot
 	_look.y = 0.0
-	desk = Models.make(Layout3.galla_model(), Vector3(1.2, 0.8, 0.6), Color(0.55, 0.36, 0.2))
+	# On the chai cart the cash table is the Sim's waiter-stand model and
+	# nobody stands at the till (Layout3.is_cart_galla): an empty desk node,
+	# a hidden cashier and no tap.
+	var cart: bool = Layout3.is_cart_galla(i)
+	if cart:
+		desk = Node3D.new()
+		desk.name = "CartTill"
+	else:
+		desk = Models.make(Layout3.galla_model(), Vector3(1.2, 0.8, 0.6), Color(0.55, 0.36, 0.2))
 	desk.position = desk_pos
 	desk.rotation.y = Layout3.GALLA_YAW
 	add_child(desk)
@@ -69,6 +79,7 @@ func setup(i: int) -> void:
 		ids.append(staff_name.to_lower())
 	ids.append_array(Layout3.galla_staff_models(i))
 	cashier.setup(ids, Layout3.GALLA_YAW, staff_name)
+	cashier.visible = not cart
 	_anchor = Node3D.new()
 	_anchor.name = "TimerAnchor"
 	add_child(_anchor)
@@ -77,6 +88,7 @@ func setup(i: int) -> void:
 	tap_area.set_meta("galla_index", i)
 	tap_area.monitorable = false
 	tap_area.position = Layout3.galla_tap_center(i)
+	tap_area.input_ray_pickable = not cart
 	add_child(tap_area)
 
 

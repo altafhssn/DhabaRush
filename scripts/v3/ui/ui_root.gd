@@ -1251,6 +1251,16 @@ func _open_queued_daftar() -> void:
 ## Tutorial hand anchors (see the class doc); anything else goes to
 ## Hud.anchor().
 func anchor(n: String) -> Control:
+	var c: Control = _anchor(n)
+	# Bottom-sheet panels scroll (9 Nov): bring the anchored row into view.
+	if c != null:
+		for pnl in [staff_panel, menu_panel, event_panel]:
+			if pnl != null and is_instance_valid(pnl) and (pnl as Control).visible and (pnl as Node).is_ancestor_of(c):
+				pnl.call("reveal", c)
+	return c
+
+
+func _anchor(n: String) -> Control:
 	var staff_open: bool = current_panel.begins_with("staff:") and staff_panel.is_open()
 	var quick: String = quick_buy.kind if quick_buy.is_open() else ""
 	match n:
@@ -1508,7 +1518,9 @@ func _process(delta: float) -> void:
 func _sync_world_cover() -> void:
 	# _world_covered starts true, so a new UiRoot (a promotion's scene reload
 	# keeps the root viewport) always writes disable_3d once.
-	var covered: bool = visible and (_covers(staff_panel) or _covers(daftar) or _covers(event_panel) or _covers(menu_panel))
+	# STAFF, MENU and the baraat panel are bottom sheets since 9 Nov: the world
+	# shows above them, so only BUILD / STATS (the Daftar) still cover it.
+	var covered: bool = visible and _covers(daftar)
 	if covered == _world_covered:
 		return
 	_world_covered = covered

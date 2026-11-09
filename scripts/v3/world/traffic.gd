@@ -501,6 +501,15 @@ class Walker:
 
 
 var _active: Array = []                 # of Car
+## Story (owner, 9 Nov: the father's car was hidden behind buses): while
+## FatherVisits plays, the road in front of his car is kept clear. The +X
+## lane spawns nothing (his car drives in on it), the -X lane holds at
+## STORY_HOLD_X.y, no lorry is called for a bay, a parked vehicle in a bay
+## inside the window waits to leave and drive-pasts are skipped.
+## story_view_clear() says when the vehicles already there have driven off.
+var story_hold: bool = false
+const STORY_HOLD_X := Vector2(-9.5, 4.5)
+const STORY_ROAD_Z := Vector2(10.6, 16.2)
 var _free: Dictionary = {}              # model id -> Array of Car
 var _dims: Dictionary = {}              # model id -> PackedFloat32Array [len, width, height, cx, cz]
 var _kind_models: Array = []            # kind -> Array of existing model ids
@@ -690,6 +699,8 @@ func _ready() -> void:
 ## A free bay: a parker is dispatched down the -X lane (bay reserved now) ->
 ## true. All bays taken: a lorry drives past honking -> false.
 func request_arrival() -> bool:
+	if story_hold:
+		return false
 	var free: Array[int] = []
 	for i in _slots.size():
 		if _slots[i] == null:
@@ -1493,6 +1504,9 @@ func _tick_parked(c: Car, delta: float) -> void:
 			c.t = 0.0
 	else:
 		leave = c.parked_t >= c.dwell
+	if leave and story_hold and c.slot >= 0 \
+			and absf(Layout3.bay_x(c.slot) - clampf(Layout3.bay_x(c.slot), STORY_HOLD_X.x, STORY_HOLD_X.y)) < c.length * 0.5 + 0.5:
+		leave = false
 	if leave:
 		c.phase = Ph.LEAVING
 		c.t = 0.0
@@ -1965,11 +1979,43 @@ func _follow_target(c: Car) -> float:
 		if c.impatient_t <= 0.0:
 			best_gap = claim_gap
 			lead_speed = 0.0
+	# Story hold: the -X lane stops short of the father's car (only a vehicle
+	# still wholly east of the window; one already in it drives on out).
+	if story_hold and lane == 1 and (c.phase == Ph.DRIVE or c.phase == Ph.BUS_GO):
+		var hold_gap: float = (x - half) - STORY_HOLD_X.y
+		if hold_gap >= -0.05 and hold_gap < best_gap:
+			best_gap = maxf(hold_gap, 0.0)
+			lead_speed = 0.0
 	if best_gap == INF:
 		return SPEED
 	if best_gap <= FOLLOW_GAP:
 		return 0.0
 	return clampf(lead_speed + (best_gap - FOLLOW_GAP) * FOLLOW_K, 0.0, SPEED)
+
+
+## Story hold on / off (FatherVisits).
+func set_story_hold(on: bool) -> void:
+	story_hold = on
+
+
+## No vehicle on the road between the camera and the father's car: none
+## overlapping STORY_HOLD_X along x within the lanes' z band, and none in
+## the +X lane anywhere short of the window's east end (his way in).
+func story_view_clear() -> bool:
+	for v in _active:
+		var c: Car = v
+		if c.root == null:
+			continue
+		var p: Vector3 = c.root.position
+		var r: float = c.length * 0.5 + 0.3
+		# The +X lane all the way from its entry: the father's car drives in on it.
+		var x0: float = Layout3.TRAFFIC_X.x - 10.0 if absf(p.z - Layout3.LANE_EAST_Z) < 1.0 else STORY_HOLD_X.x
+		if p.x + r < x0 or p.x - r > STORY_HOLD_X.y:
+			continue
+		if p.z < STORY_ROAD_Z.x or p.z > STORY_ROAD_Z.y:
+			continue
+		return false
+	return true
 
 
 func _accel(c: Car, target: float, delta: float) -> void:
@@ -3689,6 +3735,8 @@ func _lane_kinds(lane: int) -> Array:
 
 
 func _try_spawn_lane(lane: int) -> bool:
+	if story_hold and lane == 0:
+		return false
 	if _lane_kinds(lane).is_empty() or not _lane_clear(lane):
 		return false
 	var c: Car = _get_car(_pick_kind(_lane_kinds(lane)))
@@ -3734,6 +3782,12 @@ func _dispatch_pass() -> void:
 ## (W4-FIX-world: both fired at the off-camera spawn, 7 to 20 s early).
 ## Always sent: true.
 func drive_past(riders: int = -1, kind: String = "") -> bool:
+	if story_hold:
+		# Counted, not drawn: nothing drives between the camera and the
+		# father's car (story_hold).
+		_passes += 1
+		drive_pasts += 1
+		return true
 	var mid: String = ""
 	var k: int = K_TRUCK
 	match kind:

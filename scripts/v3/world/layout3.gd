@@ -245,6 +245,16 @@ const GALLA_QUEUES := [
 	[Vector3(3.75, 0.0, 7.2), Vector3(4.3, 0.0, 7.2), Vector3(4.3, 0.0, 8.45), Vector3(2.6, 0.0, 8.45)],
 ]
 const GALLA_STAFF_MODELS := [["munna"], ["bablu", "munna"]]
+## The chai cart's till (is_cart_galla): the pay spot on the aisle in front
+## of the cash table (TRAY_RACK, its PAY HERE side faces +Z), the line west
+## along the aisle then down the yard's left edge (clear of the matka at
+## x 0.45, z 3.1 and of everything east of x 0.8), the hidden cashier's spot
+## (the bill timer stands over the cash table's back) and where payers leave
+## the aisle for the line.
+const CART_PAY := Vector3(1.6, 0.0, 4.05)
+const CART_QUEUE := [Vector3(1.05, 0.0, 4.05), Vector3(0.55, 0.0, 4.1), Vector3(0.55, 0.0, 8.3)]
+const CART_TILL := Vector3(1.42, 0.0, 3.05)
+const CART_JUNCTION := Vector3(2.4, 0.0, 4.05)
 
 # ------------------------------------------------------------------ seating
 ## Table sets: one `dining_table` (1.7 x 0.8, top 0.50, long side along X) +
@@ -659,12 +669,22 @@ static func stage_world_models() -> Array:
 
 ## The billing desk, the waiter stand and a table set's three models
 ## ([table, back seat (local z -CHARPAI_Z), front seat]) of the stage.
+## Chai cart (owner, 9 Nov: "a chai stall usually doesn't have a server and a
+## cashier"): no billing desk and no cashier. The cash table (cash tin,
+## hisaab notebook, bell, PAY HERE card) stands at the cart's front end where
+## the waiter stand goes, beside Chhotu's spot; travellers pay there on the
+## aisle (CART_PAY) and line up west then down the left edge (CART_QUEUE).
 static func galla_model() -> String:
-	return "growth_cash_box" if stage_id() == "cart" else "galla_desk"
+	return "" if stage_id() == "cart" else "galla_desk"
 
 
 static func tray_rack_model() -> String:
-	return "growth_kulhad_crate" if stage_id() == "cart" else "tray_rack"
+	return "growth_cash_box" if stage_id() == "cart" else "tray_rack"
+
+
+## Galla i is the cart's cash table (no desk, no cashier, no tap).
+static func is_cart_galla(i: int) -> bool:
+	return i == 0 and stage_id() == "cart"
 
 
 static func set_models() -> Array:
@@ -978,6 +998,8 @@ static func pass_item_model(id: String) -> String:
 
 # ================================================================== galla
 static func galla_desk(i: int) -> Vector3:
+	if is_cart_galla(i):
+		return TRAY_RACK
 	if i < GALLA_DESKS.size():
 		return GALLA_DESKS[i]
 	# Design gap (max 2 at this stage): further gallas go behind galla 1.
@@ -985,18 +1007,24 @@ static func galla_desk(i: int) -> Vector3:
 
 
 static func galla_cashier(i: int) -> Vector3:
+	if is_cart_galla(i):
+		return CART_TILL
 	if i < GALLA_CASHIERS.size():
 		return GALLA_CASHIERS[i]
 	return galla_desk(i) + Vector3(-0.9, 0.0, 0.0)
 
 
 static func galla_pay(i: int) -> Vector3:
+	if is_cart_galla(i):
+		return CART_PAY
 	if i < GALLA_PAY.size():
 		return GALLA_PAY[i]
 	return galla_desk(i) + Vector3(1.0, 0.0, 0.0)
 
 
 static func galla_queue(i: int) -> Array:
+	if is_cart_galla(i):
+		return CART_QUEUE
 	if i < GALLA_QUEUES.size():
 		return GALLA_QUEUES[i]
 	var p: Vector3 = galla_pay(i)
@@ -1025,8 +1053,18 @@ static func galla_tap_size(_i: int) -> Vector3:
 	return Vector3(2.5, 1.8, 1.5)
 
 
+## The camera's home framing hangs on this, so it stays galla 1's desk spot
+## at every stage (galla_view is where the bill is seen).
 static func galla_focus(i: int) -> Vector3:
+	if i < GALLA_DESKS.size():
+		return GALLA_DESKS[i]
 	return galla_desk(i)
+
+
+## Where a bill is watched (the tutorial's pay beat): the desk, or on the
+## cart the pay spot by the cash table.
+static func galla_view(i: int) -> Vector3:
+	return CART_PAY if is_cart_galla(i) else galla_focus(i)
 
 
 static func marker_galla(i: int) -> Vector3:
@@ -1156,7 +1194,7 @@ static func door_chain() -> Array:
 
 static func galla_chain() -> Array:
 	var out: Array = []
-	out.append(GALLA_JUNCTION)
+	out.append(CART_JUNCTION if is_cart_galla(0) else GALLA_JUNCTION)
 	return out
 
 

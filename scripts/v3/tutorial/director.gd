@@ -847,7 +847,7 @@ func _enter_chai_pause() -> void:
 	await _wait(SETTLE_GATE)
 	if g != _gen:
 		return
-	await _say(["l3"])
+	await _say(["l3c" if Game.stage() == 0 else "l3"])
 	if g != _gen:
 		return
 	if cam != null:
@@ -877,7 +877,7 @@ func _enter_to_galla() -> void:
 
 func _enter_galla_pause() -> void:
 	var g := _gen
-	var focus: Vector3 = Layout3.galla_focus(0)
+	var focus: Vector3 = Layout3.galla_view(0)
 	if _trav_ok():
 		focus = (focus + _trav.global_position) * 0.5
 	var cam := _cam()
@@ -890,7 +890,7 @@ func _enter_galla_pause() -> void:
 	await _wait(SETTLE_GATE)
 	if g != _gen:
 		return
-	await _say(["l4"])
+	await _say(["l4c" if Game.stage() == 0 else "l4"])
 	if g != _gen:
 		return
 	# Stay on the galla at the settle zoom (ref 32-35.5 s: no zoom-in after L4;

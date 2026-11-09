@@ -39,6 +39,11 @@ const MESSAGES := {
 	"after_v3": "I saw it. All of it. I'm so proud of you.",
 	"missed_you": "You didn't reply yesterday. Papa says a man who ignores his phone ignores his customers.",
 }
+## The player's own answers, shown under her message in the chat (owner,
+## 9 Nov: the hero promises too). English msgids like MESSAGES.
+const REPLIES := {
+	"day1": "I'm not giving up either.",
+}
 const STAGE_TIPS := {"seats": "tip_seats", "cooks": "tip_cooks", "waiters": "tip_waiters", "cashiers": "tip_cashiers"}
 ## The payoff after visit n comes this many play seconds after it.
 const AFTER_VISIT_S := {1: 20.0, 2: 600.0, 3: 30.0}
@@ -130,12 +135,14 @@ func on_promoted(_kind: String) -> void:
 
 
 # ================================================================ public (Game delegates here)
-## Every received message, oldest first: [{id, text, unix, read}].
+## Every received message, oldest first: [{id, text, unix, read, reply}]
+## (reply: the player's answer from REPLIES, "" for none).
 func inbox() -> Array:
 	var out: Array = []
 	for i in _inbox.size():
 		var e: Array = _inbox[i]
-		out.append({"id": e[0], "text": str(MESSAGES[e[0]]), "unix": e[1], "read": i < _read})
+		out.append({"id": e[0], "text": str(MESSAGES[e[0]]), "unix": e[1], "read": i < _read,
+				"reply": str(REPLIES.get(e[0], ""))})
 	return out
 
 

@@ -58,6 +58,9 @@ const TAG_FONT_SIZE := 20
 const ARROW_SIZE := Vector2(35.0, 26.0)
 ## The bust is clipped this many px below the box top (hidden by the box).
 const BUST_CLIP_OVERLAP := 2.0
+## Design width (project viewport_width): on a phone the narrator stands at
+## MunshiBust.HEAD_X of it; wider windows keep that offset from the box.
+const BUST_BASE_W := 720.0
 const MAIN_FONT := "res://ui/main_font.tres"
 const WGHT := 2003265652  # OpenType 'wght'
 const TAP_GUARD_OPEN := 0.25
@@ -616,12 +619,10 @@ func _layout() -> void:
 	if _root == null:
 		return
 	var vp := get_viewport().get_visible_rect().size
-	var w := minf(BOX_W, vp.x - 70.0)
-	var bx := (vp.x - w) * 0.5
 	_box_side = str(_line.get("box_side", ""))
-	if _box_side == "right" or _box_side == "left":
-		w = minf(BOX_W_SIDE, vp.x - 2.0 * BOX_SIDE_MARGIN)
-		bx = vp.x - BOX_SIDE_MARGIN - w if _box_side == "right" else BOX_SIDE_MARGIN
+	var span := _box_span(vp.x)
+	var bx := span.x
+	var w := span.y
 	var by := vp.y - BOX_BOTTOM - _safe_bottom() - BOX_H
 	_box.position = Vector2(bx, by)
 	_box.size = Vector2(w, BOX_H)
@@ -633,9 +634,25 @@ func _layout() -> void:
 	_arrow.position = Vector2(bx + w * 0.5 - ARROW_SIZE.x * 0.5, by + BOX_H - ARROW_SIZE.y * 0.5)
 	_bust_clip.position = Vector2.ZERO
 	_bust_clip.size = Vector2(vp.x, by + BUST_CLIP_OVERLAP)
-	_bust.layout_for(by, vp)
+	# The narrator keeps her phone-width offset from the box's right edge, so
+	# her cut-off waist always sits on the box: a wide window (desktop, tablet)
+	# keeps the box phone-sized in the middle, where HEAD_X of the width put
+	# her past the box's end with the cut line floating in mid-air (9 Nov).
+	var base := _box_span(BUST_BASE_W)
+	var head_x := bx + w - (base.x + base.y - BUST_BASE_W * MunshiBust.HEAD_X)
+	_bust.layout_for(by, vp, head_x)
 	_paper.margin_x = TEXT_PAD_X - 12.0
 	_paper.queue_redraw()
+
+
+## Box (x, width) for a viewport `vw` px wide and the current _box_side.
+func _box_span(vw: float) -> Vector2:
+	var w := minf(BOX_W, vw - 70.0)
+	var bx := (vw - w) * 0.5
+	if _box_side == "right" or _box_side == "left":
+		w = minf(BOX_W_SIDE, vw - 2.0 * BOX_SIDE_MARGIN)
+		bx = vw - BOX_SIDE_MARGIN - w if _box_side == "right" else BOX_SIDE_MARGIN
+	return Vector2(bx, w)
 
 
 func _safe_bottom() -> float:

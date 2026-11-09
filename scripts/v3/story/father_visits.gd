@@ -17,7 +17,7 @@ extends Node
 ## reward burst or camera return), the camera frames the gate, Rani says the
 ## arrival line (visit<n>_arrive) as a chip (ARRIVE_CHIP_S; the dialogue box
 ## and her bust would hide the car), the car drives in on the near lane and
-## pulls onto the sidewalk west of the gate (CAR_STOP), the visit plays, the
+## pulls in to the kerb west of the gate (CAR_STOP), the visit plays, the
 ## car drives on east, then Rani reads it (visit<n>_read) and the camera goes
 ## home. Game.story_visit_done(n) counts it (Simran's payoff message follows,
 ## module "story"). A visit whose moment has passed (the player renovated
@@ -33,16 +33,18 @@ extends Node
 const CAR_ID := "car_ambassador"
 const FATHER_ID := "story_father"
 const SIMRAN_ID := "story_simran"
-## Where the Ambassador stops: on the near sidewalk west of the gate and its
-## door line (Layout3.DOOR_WAIT reaches x 1.1), facing +X. East of the gate the
-## bus stopped in the far lane (x 11.5..18.5) stands between it and the camera.
-const CAR_STOP := Vector3(-1.9, 0.0, 9.85)
+## Where the Ambassador stops: west of the gate and its door line
+## (Layout3.DOOR_WAIT reaches x 1.1), facing +X, on the road against the near
+## kerb (the road starts at Layout3.HIGHWAY_Z.x; the car is 1.23 m wide), not
+## on the footpath (owner, 9 Nov). Traffic.story_hold keeps the lanes in
+## front of it clear while it is there.
+const CAR_STOP := Vector3(-1.9, 0.0, 11.3)
 const ENTER_X := -26.0
 const LEAVE_X := 32.0
 const DRIVE_IN_S := 5.5
 const DRIVE_OUT_S := 4.5
 ## He steps out on the car's dhaba side (-Z), and walks along the sidewalk.
-const EXIT_SPOT := Vector3(-1.5, 0.0, 9.3)
+const EXIT_SPOT := Vector3(-1.5, 0.0, 10.15)
 const GATE_WALK := Vector3(3.8, 0.0, 9.35)
 ## The gate framing (the box covers the bottom of the screen).
 const GATE_VIEW := Vector3(-1.6, 0.0, 10.3)
@@ -56,6 +58,13 @@ const BUBBLE_S := 3.2
 const BUBBLE_UP := 0.45
 const VIEW_WAIT := 0.9
 const ARRIVE_CHIP_S := 4.5
+## Attention (owner, 9 Nov: "his car is not visible"): the road in front of
+## the car is cleared first (Traffic.story_hold, up to CLEAR_WAIT_MAX s for
+## the vehicles already there to drive off), visit 1 frames it closer
+## (CameraRig.FOCUS), it honks (the car horn) as it pulls up and the marigold marker
+## stands over it while it waits.
+const CLEAR_WAIT_MAX := 8.0
+const MARKER_TIP := 2.1
 const SIMRAN_LAG := 0.9
 
 ## A visit is playing (MunshiNotes and the visits' own check read it).
@@ -80,6 +89,32 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	busy = false
+	_hold_road(false)
+
+
+func _traffic() -> Node:
+	var sim: Node = Refs.sim
+	if sim == null or not is_instance_valid(sim):
+		return null
+	var t: Variant = sim.get("traffic")
+	return t if t != null and is_instance_valid(t) else null
+
+
+func _hold_road(on: bool) -> void:
+	var t: Node = _traffic()
+	if t != null and t.has_method("set_story_hold"):
+		t.call("set_story_hold", on)
+
+
+func _road_clear() -> bool:
+	var t: Node = _traffic()
+	return t == null or not t.has_method("story_view_clear") or bool(t.call("story_view_clear"))
+
+
+func _honk_later(delay: float) -> void:
+	await _wait(maxf(0.0, delay))
+	if busy:
+		Sfx.play("horn")
 
 
 func _process(delta: float) -> void:
@@ -160,13 +195,21 @@ func _play(n: int) -> void:
 	busy = true
 	print("[story] visit %d start at %.1f" % [n, Refs.clock])
 	Analytics.event("father_visit", {"n": n, "min_since_tutorial": Game.free_play_min()})
-	_cam("fly_to", [GATE_VIEW, CameraRig.GAME])
+	_hold_road(true)
+	_cam("fly_to", [GATE_VIEW, CameraRig.FOCUS if n == 1 else CameraRig.GAME])
 	await _wait(VIEW_WAIT)
+	var waited: float = 0.0
+	while waited < CLEAR_WAIT_MAX and not _road_clear():
+		await _wait(0.2)
+		waited += 0.2
+	print("[story] visit %d road %s after %.1f s" % [n, "clear" if _road_clear() else "NOT clear", waited])
 	var mn: MunshiNotes = MunshiNotes.current
 	if mn != null and is_instance_valid(mn):
 		mn.say_chip("visit%d_arrive" % n, ARRIVE_CHIP_S)
 	var car: Node3D = _spawn_model(CAR_ID, Vector3(ENTER_X, 0.0, Layout3.LANE_EAST_Z))
+	_honk_later(DRIVE_IN_S - 1.6)
 	await _drive(car, _in_curve(), DRIVE_IN_S, Tween.EASE_OUT)
+	Fx.marker_show(CAR_STOP, MARKER_TIP)
 	match n:
 		1:
 			await _wait(1.0)
@@ -176,8 +219,10 @@ func _play(n: int) -> void:
 			await _visit_meal()
 		_:
 			await _visit_daughter()
+	Fx.marker_hide()
 	await _drive(car, _out_curve(), DRIVE_OUT_S, Tween.EASE_IN)
 	_despawn(car)
+	_hold_road(false)
 	Game.story_visit_done(n)
 	await _wait_dialogue(20.0)
 	_line("visit%d_read" % n)

@@ -61,7 +61,7 @@ const KEYWORD_COLOR := "#0E7C86"
 ## after the chai lesson, "g3" points at the building site's free FINISH NOW,
 ## and "shack_done" opens the shack, where L8 onwards run as before (L1 stays
 ## for a game that starts on the dhaba). English only; Hindi frozen.
-const TUTORIAL_IDS := ["l1c", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "g1", "g2", "g3", "shack_done",
+const TUTORIAL_IDS := ["l1c", "l1", "l2", "l3c", "l3", "l4c", "l4", "l5", "l6", "l7", "g1", "g2", "g3", "shack_done",
 		"l8", "l9", "l10", "lw1", "lw2", "lw3",
 		"lt1", "lt2", "l14", "l15", "l16", "l17"]
 const NEW_COLOR := "#3E9B3A"
@@ -101,6 +101,17 @@ const LINES := {
 	"l3": {
 		"text": "[k]Pinky[/k] cooks, [k]Raju[/k] serves. Your job: fix what's slow.",
 		"pose": "point", "enter": "right", "pause_sim": true,
+	},
+	# ---- 9 Nov, on the chai cart (owner: a chai stall has no server and
+	#      cashier): L3 / L4 there. Chhotu serves; the bill goes into the
+	#      cash box at the cart (no cashier, Layout3.is_cart_galla).
+	"l3c": {
+		"text": "[k]Pinky[/k] makes the chai, [k]Chhotu[/k] serves. Your job: fix what's slow.",
+		"pose": "point", "enter": "right", "pause_sim": true,
+	},
+	"l4c": {
+		"text": "All done! He pays at the cart, into Pinky's [k]CASH BOX[/k].",
+		"pose": "ledger", "enter": "right", "chain": ["namaste"], "pause_sim": true,
 	},
 	# ---- served, ate, walked over; galla timer popped; camera settled (pause line)
 	"l4": {

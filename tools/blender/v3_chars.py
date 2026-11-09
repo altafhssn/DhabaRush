@@ -769,7 +769,7 @@ def build_menu_helpers(mat):
 # arm_l / arm_r (x axis, like the rig's "serve" pose) so the hands come up under the rim.
 #   tray_socket = (0, 0.55 * s, 0.32 * s) Godot, s = WAITER_SCALES[name]
 # (core-and-feel C8.4: Sonu is an adult at scale 1.0; Lakhan and Gopal are new.)
-WAITER_SCALES = {"raju": 1.02, "pappu": 1.0, "sonu": 1.0, "lakhan": 1.02, "gopal": 1.01}
+WAITER_SCALES = {"raju": 1.02, "pappu": 1.0, "sonu": 1.0, "lakhan": 1.02, "gopal": 1.01, "chhotu": 1.0}
 
 
 def _tray_socket(s):
@@ -778,6 +778,33 @@ def _tray_socket(s):
 
 def build_waiters(mat):
     out = []
+
+    # -- Chhotu (owner, 9 Nov): the chai cart's tea server, waiter 1 while the dhaba is a cart
+    #    (Game.waiter_staff_name). A lanky lad of about 18, NOT a child (C8.4: a waiter must
+    #    never read as a boy): Raju's height in game (CharacterRig), faded sky-blue half-sleeve shirt with white
+    #    buttons and a pocket, a red-and-white gamchha round the neck, khaki trousers rolled at
+    #    the shin, brown chappals. Approved from the 9 Nov render (scratchpad chhotu/).
+    def chhotu(P, L):
+        b = P["body"]
+        b.rbox((0.012, 0.012, 0.22), (0, -0.128, 0.45), TIN, bevel=0.004)             # placket
+        for z in (0.53, 0.46, 0.39):
+            b.ball(0.012, (0.0, -0.138, z), WHITE, seg=5, rings=3)                    # buttons
+        b.rbox((0.07, 0.014, 0.065), (-0.09, -0.124, 0.52), TIN, bevel=0.01)          # pocket
+        pts = []
+        for k in range(5):                                                              # gamchha
+            t = math.pi * (k / 4)
+            pts.append((0.13 * math.cos(t), -0.105 * math.sin(t) + 0.02, 0.6 - 0.05 * math.sin(t)))
+        limb(b, pts, [0.036] * 5, RED, seg=6, joint_seg=6, joint_rings=4, end_ball=True)
+        b.rbox((0.07, 0.03, 0.15), (0.09, -0.13, 0.52), RED, bevel=0.012)
+        b.rbox((0.072, 0.032, 0.022), (0.09, -0.131, 0.47), WHITE, bevel=0.006)
+        for sx, k in ((1, "leg_l"), (-1, "leg_r")):                                    # rolled cuffs
+            P[k].rbox((0.122, 0.137, 0.035), (sx * HIP_X, 0, 0.105), KHAKI, bevel=0.012)
+    P = chibi("chhotu", WAITER_SCALES["chhotu"],
+              Look(skin=SKIN1, top=GLASS, sleeve=GLASS, legs=KHAKI, shoes=TRUNK, torso=(0.33, 0.235, 0.33)),
+              chhotu, hair="short")
+    g = P.finish(mat, CHAR_SMOOTH)
+    g.extras.append(_tray_socket(WAITER_SCALES["chhotu"]))
+    out.append(g)
 
     # -- Raju: white half-sleeve shirt, maroon bandi with brass buttons, navy trousers,
     #    oiled side-part, thin moustache, cream napkin with a red stripe over the left forearm

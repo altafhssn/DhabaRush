@@ -9,7 +9,9 @@ extends Control
 ##    filled per visit of her father (Game.story_visits()).
 ##  - Her messages, oldest first, as white bubbles on the left with their
 ##    time (Game.phone_inbox()), scrolled to the newest; "No messages yet."
-##    while there are none.
+##    while there are none. A message with a reply (Story.REPLIES) gets the
+##    player's answer under it: a green bubble on the right, typed in
+##    REPLY_DELAY s after the popup opens while the message is new.
 ## Opening it reads everything (Game.phone_read_all()).
 ## Signal: close_pressed (X). Captions and messages are English msgids the
 ## labels auto-translate.
@@ -25,6 +27,9 @@ const AVATAR := 72.0
 const AVATAR_PATH := "res://assets/textures/story/simran_avatar.png"
 const HEART_PINK := Color(0.93, 0.3, 0.45)
 const BUBBLE_INK := Color(0.2, 0.15, 0.13)
+const MINE_FILL := Color(0.86, 0.96, 0.82)
+const MINE_EDGE := Color(0.55, 0.78, 0.5)
+const REPLY_DELAY := 0.9
 
 var close_button: UiButton
 var _body: Control
@@ -171,19 +176,35 @@ func _refresh() -> void:
 	_empty.visible = msgs.is_empty()
 	for mv in msgs:
 		var m: Dictionary = mv
-		_list.add_child(_bubble(str(m.get("text", "")), float(m.get("unix", 0.0)), not bool(m.get("read", true))))
+		var fresh: bool = not bool(m.get("read", true))
+		_list.add_child(_bubble(str(m.get("text", "")), float(m.get("unix", 0.0)), fresh))
+		var reply: String = str(m.get("reply", ""))
+		if reply != "":
+			var mine: Control = _bubble(reply, float(m.get("unix", 0.0)), false, true)
+			_list.add_child(mine)
+			if fresh:
+				mine.modulate.a = 0.0
+				var tw := mine.create_tween()
+				tw.tween_interval(REPLY_DELAY)
+				tw.tween_property(mine, "modulate:a", 1.0, 0.2)
+				tw.tween_callback(_scroll_to_end)
 
 
-## One message: a white bubble (pale pink while new) and its time under it.
-func _bubble(text: String, unix: float, fresh: bool) -> Control:
+## One message: a white bubble (pale pink while new) and its time under it;
+## `mine`: the player's reply, a green bubble on the right.
+func _bubble(text: String, unix: float, fresh: bool, mine: bool = false) -> Control:
 	var row := VBoxContainer.new()
 	row.add_theme_constant_override("separation", 2)
 	row.set_meta("text", text)
 	var pc := PanelContainer.new()
-	pc.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	var sb: StyleBoxFlat = UiKit.box(Color(1.0, 0.94, 0.95) if fresh else UiKit.CARD, 20.0, 2,
-			Color(0.93, 0.6, 0.68) if fresh else Color(0.86, 0.8, 0.72))
-	sb.corner_radius_top_left = 6
+	pc.size_flags_horizontal = Control.SIZE_SHRINK_END if mine else Control.SIZE_SHRINK_BEGIN
+	var fill: Color = MINE_FILL if mine else (Color(1.0, 0.94, 0.95) if fresh else UiKit.CARD)
+	var edge: Color = MINE_EDGE if mine else (Color(0.93, 0.6, 0.68) if fresh else Color(0.86, 0.8, 0.72))
+	var sb: StyleBoxFlat = UiKit.box(fill, 20.0, 2, edge)
+	if mine:
+		sb.corner_radius_top_right = 6
+	else:
+		sb.corner_radius_top_left = 6
 	sb.content_margin_left = 20
 	sb.content_margin_right = 20
 	sb.content_margin_top = 12
@@ -195,7 +216,7 @@ func _bubble(text: String, unix: float, fresh: bool) -> Control:
 	pc.add_child(l)
 	row.add_child(pc)
 	var t: Label = UiKit.label(_clock(unix), 18, UiKit.INK_SOFT)
-	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if mine else HORIZONTAL_ALIGNMENT_LEFT
 	row.add_child(t)
 	# A short message gets a narrower bubble (the label's minimum width is
 	# its one-line width when that is smaller).

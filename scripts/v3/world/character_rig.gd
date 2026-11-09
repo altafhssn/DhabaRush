@@ -90,6 +90,9 @@ const HEIGHTS := {
 	"trav_elder": 1.02, "trav_sardar": 1.12, "trav_farmer": 1.05, "trav_techie": 1.01,
 	"trav_baraati_m": 1.08, "trav_baraati_f": 1.0,
 	"gopal": 1.05, "lakhan": 1.06, "balwant": 1.1,
+	# the chai cart's waiter (9 Nov; a lad of about 18 at Raju's height, so
+	# waiter 1 walks at the same speed on the cart as in the shack)
+	"chhotu": 1.05,
 }
 const DEFAULT_HEIGHT := 1.05
 

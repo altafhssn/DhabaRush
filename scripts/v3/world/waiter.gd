@@ -86,7 +86,9 @@ enum W { IDLE, TO_PASS, PICKING, TO_TABLE, SERVING, RETURNING, WAIT_ITEM, LINGER
 
 ## Model ids per waiter (first existing wins; the economy name goes first).
 ## C8.4: no chotu (a waiter must never read as a boy); waiter 3 Lakhan has his
-## own model, waiter 4 Gopal (family layout) too.
+## own model, waiter 4 Gopal (family layout) too. The chai cart's waiter 1 is
+## "Chhotu" (owner, 9 Nov): Game.waiter_staff_name names him, so his own
+## adult model "chhotu" (a lad of about 18, Raju's height) wins first.
 const MODELS := [["raju", "munna"], ["pappu", "shambhu", "bablu"], ["lakhan", "sonu", "munna"], ["gopal", "raju", "munna"]]
 ## C2.8: seconds he stands at the table after serving with nothing to take;
 ## then he walks home unless an order will be ready within his walk home and

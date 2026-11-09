@@ -155,10 +155,13 @@ func _ready() -> void:
 # ================================================================ placement
 ## Rest placement: head centred at HEAD_X of the width, model height CUT_Y
 ## on the dialogue box top; the lower body continues behind the box.
-func layout_for(box_top: float, vp: Vector2) -> void:
+## `head_x` (screen px) overrides HEAD_X of the width; DialogueBox passes one
+## that follows the box on wide windows.
+func layout_for(box_top: float, vp: Vector2, head_x: float = -1.0) -> void:
 	size = RECT
 	pivot_offset = Vector2(_head_px(), RECT.y + PIVOT_BELOW)
-	rest_pos = Vector2(vp.x * HEAD_X - _head_px(), box_top - (WIN_Y.y - CUT_Y) * PPM)
+	var hx := head_x if head_x >= 0.0 else vp.x * HEAD_X
+	rest_pos = Vector2(hx - _head_px(), box_top - (WIN_Y.y - CUT_Y) * PPM)
 	if not is_processing():
 		position = rest_pos + enter_off
 

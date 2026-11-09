@@ -1,10 +1,20 @@
 class_name UiFullPanel
 extends Control
-## Shared frame for the full-screen panels built in the GALLA style (spec 4.4,
-## J5, J14): painted-tin header with original doodles and a truck-art trim,
-## a big title, a red X, the 720-wide body column, the info card builder and
-## the staged fade-in (info +0.0, rows +0.17, +0.27 ...). Full-screen panels
-## never move the camera. Used by WaiterPanel and SeatingPanel.
+## Shared frame for the GALLA-style panels (spec 4.4, J5, J14): painted-tin
+## header with original doodles and a truck-art trim, a big title, a red X,
+## the 720-wide body column, the info card builder and the staged fade-in
+## (info +0.0, rows +0.17, +0.27 ...). The panels never move the camera.
+## Used by STAFF, MENU and the baraat panel.
+##
+## Bottom sheet (owner, 9 Nov: "why can't we have it in such a way that it
+## doesn't take us away from the main screen"): the frame covers the lower
+## SHEET_FRAC of the screen like the counter sheet, the dhaba stays live
+## above it, and a tap there closes it (`catcher`, gate id "panel_close" like
+## the X). The header is a HEAD_H ribbon with rounded top corners; the body
+## scrolls. Subclasses still place their rows in design coordinates from
+## BODY_TOP down (as on the old full screen): the frame shifts them under the
+## ribbon and sizes the scroll to the lowest visible row. reveal(control)
+## scrolls a row into view (UiRoot.anchor does it for the tutorial hand).
 ##
 ## Subclass hooks: _configure() (title / colours / doodles), _build_body(),
 ## _before_open() (rebuild rows), refresh(), _refresh_buttons(),
@@ -22,6 +32,14 @@ const ROWS_Y := 565.0
 const ROW_GAP := 22.0
 const POLL := 0.25
 const BTN_SIZE := Vector2(196, 72)
+const SHEET_FRAC := 0.62
+const HEAD_H := 100.0
+const HEAD_RADIUS := 24
+## Design y of the first body row (the old full-screen header's foot) and the
+## gap left above it under the ribbon.
+const BODY_TOP := 190.0
+const BODY_PAD := 14.0
+const BOTTOM_PAD := 40.0
 
 var gate: Callable = Callable()
 var close_button: UiButton
@@ -42,6 +60,11 @@ var _title: UiKit.TitleGroup
 var _body: Control
 var _fade_tw: Tween
 var _top: float = 40.0
+var _sheet_top: float = 0.0
+var _scroll: ScrollContainer
+var _inner: Control
+var catcher: Control
+var _content_h: float = 0.0
 var _closing: bool = false
 var _poll: float = 0.0
 
@@ -102,6 +125,8 @@ func open() -> void:
 	_before_open()
 	refresh()
 	_on_poll()
+	_fit_content()
+	_scroll.scroll_vertical = 0
 	visible = true
 	if _fade_tw != null and _fade_tw.is_valid():
 		_fade_tw.kill()
@@ -147,13 +172,30 @@ func _process(delta: float) -> void:
 	if _poll >= POLL:
 		_poll = 0.0
 		_on_poll()
+		_fit_content()
 
 
 # ================================================================ frame
 func _build_frame() -> void:
-	_bg = UiKit.panel(UiKit.BODY, 0.0, 0, Color(0, 0, 0, 0), true)
+	catcher = Control.new()
+	catcher.name = "SheetOutside"
+	catcher.mouse_filter = Control.MOUSE_FILTER_STOP
+	catcher.gui_input.connect(_on_catcher_input)
+	add_child(catcher)
+	_bg = Panel.new()
+	_bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	var bsb: StyleBoxFlat = UiKit.box(UiKit.BODY, float(HEAD_RADIUS))
+	bsb.shadow_color = Color(0, 0, 0, 0.22)
+	bsb.shadow_size = 14
+	_bg.add_theme_stylebox_override("panel", bsb)
 	add_child(_bg)
-	_header = UiKit.panel(header_color, 0.0)
+	_header = Panel.new()
+	_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_header.clip_contents = true
+	var hsb: StyleBoxFlat = UiKit.box(header_color, float(HEAD_RADIUS))
+	hsb.corner_radius_bottom_left = 0
+	hsb.corner_radius_bottom_right = 0
+	_header.add_theme_stylebox_override("panel", hsb)
 	add_child(_header)
 	_header_pat = UiPattern.new("doodles", doodles, Color(1, 1, 1, 0.1), 110.0)
 	_header_pat.bake = true
@@ -167,26 +209,75 @@ func _build_frame() -> void:
 	close_button.tapped.connect(_on_close)
 	add_child(close_button)
 
+	_scroll = ScrollContainer.new()
+	_scroll.name = "SheetScroll"
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	add_child(_scroll)
+	_inner = Control.new()
+	_inner.mouse_filter = Control.MOUSE_FILTER_PASS
+	_scroll.add_child(_inner)
 	_body = Control.new()
 	_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_body)
+	_inner.add_child(_body)
 	_body.size = Vector2(UiKit.DESIGN_W, 1000)
 
 
 func _layout() -> void:
 	var vp: Vector2 = get_viewport().get_visible_rect().size
 	_top = UiKit.hud_top(get_viewport())
-	# Header tall enough that the title clears the truck-art band and sits
-	# level with the X (ref 65.5 s).
-	var head_h: float = _top + 186.0
-	UiKit.place(_bg, Vector2.ZERO, vp)
-	UiKit.place(_header, Vector2.ZERO, Vector2(vp.x, head_h))
-	UiKit.place(_header_pat, Vector2.ZERO, Vector2(vp.x, head_h))
-	UiKit.place(_band, Vector2(0, head_h - 14.0), Vector2(vp.x, 14))
+	_sheet_top = maxf(vp.y - vp.y * SHEET_FRAC, _top)
+	var t: float = _sheet_top
+	UiKit.place(catcher, Vector2.ZERO, Vector2(vp.x, t))
+	UiKit.place(_bg, Vector2(0, t), Vector2(vp.x, vp.y - t + float(HEAD_RADIUS)))
+	UiKit.place(_header, Vector2(0, t), Vector2(vp.x, HEAD_H))
+	UiKit.place(_header_pat, Vector2.ZERO, Vector2(vp.x, HEAD_H))
+	UiKit.place(_band, Vector2(0, HEAD_H - 14.0), Vector2(vp.x, 14))
 	# Title box stops short of the X so long titles never run under it.
-	UiKit.place(_title, Vector2(80.0, _top + 70.0), Vector2(maxf(vp.x - 160.0, 100.0), 60))
-	close_button.position = Vector2(vp.x - 66.0 - 29.0, _top + 115.0 - 29.0)
-	_body.position = Vector2((vp.x - UiKit.DESIGN_W) * 0.5, _top)
+	UiKit.place(_title, Vector2(80.0, t + 14.0), Vector2(maxf(vp.x - 160.0, 100.0), 60))
+	close_button.position = Vector2(vp.x - 66.0 - 29.0, t + (HEAD_H - 14.0) * 0.5 - 29.0)
+	UiKit.place(_scroll, Vector2(0, t + HEAD_H), Vector2(vp.x, vp.y - t - HEAD_H))
+	_body.position = Vector2((vp.x - UiKit.DESIGN_W) * 0.5, BODY_PAD - BODY_TOP)
+	_fit_content()
+
+
+## Top of the sheet in screen px.
+func sheet_top() -> float:
+	return _sheet_top
+
+
+## Sizes the scroll to the lowest visible body row.
+func _fit_content() -> void:
+	if _inner == null:
+		return
+	var low: float = BODY_TOP
+	for ch in _body.get_children():
+		var c := ch as Control
+		if c == null or not c.visible or c.is_queued_for_deletion():
+			continue
+		low = maxf(low, c.position.y + c.size.y)
+	var h: float = low - BODY_TOP + BODY_PAD + BOTTOM_PAD
+	var w: float = get_viewport().get_visible_rect().size.x
+	if absf(h - _content_h) > 0.5 or absf(_inner.custom_minimum_size.x - w) > 0.5:
+		_content_h = h
+		_inner.custom_minimum_size = Vector2(w, h)
+
+
+## Scrolls `c` (a control inside the body) into view.
+func reveal(c: Control) -> void:
+	if c == null or _scroll == null or not is_ancestor_of(c):
+		return
+	_fit_content()
+	_scroll.ensure_control_visible(c)
+
+
+func _on_catcher_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			catcher.accept_event()
+			if _allowed("panel_close"):
+				close_pressed.emit()
 
 
 # ================================================================ builders

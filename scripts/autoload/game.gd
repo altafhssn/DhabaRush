@@ -2196,6 +2196,12 @@ func waiter_total_rate() -> float:
 func waiter_staff_name(i: int = -1) -> String:
 	var names: Array = _arr(_wdef(), "names")
 	var k: int = _wi(i)
+	# A stage before the dhaba can name its own staff (growth.stages[n]
+	# "waiter_names": the cart's waiter is Chhotu, 9 Nov).
+	if _stage < STAGE_DHABA:
+		var sn: Variant = stage_def().get("waiter_names", [])
+		if sn is Array and k >= 0 and k < (sn as Array).size():
+			return str((sn as Array)[k])
 	if k >= 0 and k < names.size():
 		return str(names[k])
 	return "Waiter %d" % (k + 1)

@@ -407,7 +407,8 @@
       "move": {"dur_s": 1800}
     },
     "stages": [
-      {"id": "cart", "tables_max": 2, "gallas_max": 1, "waiters_max": 1},
+      {"id": "cart", "tables_max": 2, "gallas_max": 1, "waiters_max": 1, "waiter_names": ["Chhotu"],
+       "_cart_comment": "9 Nov (owner: a chai stall has no server and cashier): the cart's waiter is Chhotu (his own model) and the bill is paid at the cart's cash table with no cashier (Layout3.is_cart_galla)."},
       {"id": "shack", "tables_max": 3, "gallas_max": 2, "waiters_max": 2},
       {"id": "dhaba"}
     ]
