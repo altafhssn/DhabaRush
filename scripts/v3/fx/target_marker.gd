@@ -1,21 +1,19 @@
 class_name TargetMarker
 extends Node3D
-## J10 tutorial target marker (critic-corrected): a big saffron / marigold
-## inverted square pyramid hovering over the target, its TIP level with the
-## staff member's head (~1.05 m), about 35% of the screen width at the
-## tutorial FOCUS zoom (measured on the reference: screen height ~ screen
-## width, ~2x a character's on-screen height).
+## J10 tutorial target marker: hovers over the target, its TIP level with
+## the staff member's head (~1.05 m).
+## Owner, 9 Nov ("change the arrow indicator", then "a different colour"):
+## a chunky GREEN down arrow with a white sticker outline (was a spinning
+## saffron pyramid that blended into the sandy yard). It is flat, so it
+## always turns to face the camera instead of spinning.
 ## Pop-in scale 0 -> 1.1 -> 1.0 over 0.3 s (back ease-out, grows from the tip);
-## idle bob +-8-10 px (sine, 0.9 s) and spin 90 deg/s around Y; exit scales to
-## 0 over 0.45 s (ease-in quad), optionally after a delay.
-## Uses the ART model `marker` (normalised: x/z extent = SIDE, tip = bottom
-## centre at the origin) or a code-built flat-shaded pyramid.
+## idle bob +-8-10 px (sine, 0.9 s); exit scales to 0 over 0.45 s (ease-in
+## quad), optionally after a delay.
+## Uses the ART model `marker` when USE_GLB (normalised: x/z extent = SIDE),
+## else the code-built arrow.
 
 const MODEL_ID := "marker"
-## The ART glb is only 0.87 tall per unit width, so at -50 deg its tip hides
-## behind the top face and it reads as a flat lemon slab (review 2026-10-19).
-## The code-built pyramid has the critic's proportions (height / side 1.35)
-## and the marigold / saffron faces; set true to go back to the glb.
+## The old ART glb (a squat pyramid); the code-built arrow is used.
 const USE_GLB := false
 ## Top-face side (m). Corner-on, the screen width is SIDE x sqrt(2) = 1.05 m,
 ## 35% of the 2.97 m wide FOCUS view (6.44 m tall on the 576x1248 canvas).
@@ -26,12 +24,20 @@ const TIP_HEIGHT := 1.05
 ## +-9 px at tutorial zoom = 0.046 m of screen = 0.072 m of world height.
 const BOB := 0.072
 const BOB_PERIOD := 0.9
-const SPIN := 1.5707963          # 90 deg/s
+## The arrow (m; tip at the origin, pointing down): overall width, head
+## height, shaft width and height, slab depth and the white outline's width.
+const ARROW_W := 0.62
+const HEAD_H := 0.42
+const SHAFT_W := 0.28
+const SHAFT_H := 0.42
+const DEPTH := 0.16
+const OUTLINE := 0.05
 const POP_TIME := 0.3
 const EXIT_TIME := 0.45
 
-const TOP_COLOR := Color("FFB627")            # marigold
-const SIDE_COLOR := Color("F28C28")           # saffron
+const FACE_COLOR := Color("2EBD4E")           # green
+const SIDE_COLOR := Color("1E8C38")           # dark green
+const OUTLINE_COLOR := Color("FFFDF6")        # white
 
 const ST_HIDDEN := 0
 const ST_SHOWN := 1
@@ -41,21 +47,14 @@ const SHADER_CODE := """
 shader_type spatial;
 render_mode unshaded, cull_disabled, shadows_disabled;
 
-uniform vec4 top_color : source_color = vec4(1.0, 0.78, 0.25, 1.0);
-uniform vec4 side_color : source_color = vec4(0.97, 0.56, 0.12, 1.0);
-uniform vec3 light_dir = vec3(0.25, 0.85, 0.6);
+uniform vec4 face_color : source_color = vec4(0.18, 0.74, 0.31, 1.0);
+uniform vec4 side_color : source_color = vec4(0.12, 0.55, 0.22, 1.0);
+uniform vec4 outline_color : source_color = vec4(1.0, 0.99, 0.96, 1.0);
 
-varying vec3 v_n;
-
-void vertex() {
-	v_n = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
-}
-
+// COLOR.r picks the part: 1 = arrow face, 0.5 = arrow side, 0 = outline.
 void fragment() {
-	vec3 n = normalize(v_n);
-	float d = clamp(dot(n, normalize(light_dir)), 0.0, 1.0);
-	vec3 base = n.y > 0.9 ? top_color.rgb : side_color.rgb;
-	ALBEDO = base * (0.66 + 0.42 * d);
+	float k = COLOR.r;
+	ALBEDO = k > 0.75 ? face_color.rgb : (k > 0.25 ? side_color.rgb : outline_color.rgb);
 }
 """
 
@@ -63,7 +62,6 @@ var _spinner: Node3D
 var _state: int = ST_HIDDEN
 var _t: float = 0.0
 var _clock: float = 0.0
-var _angle: float = 0.0
 var _scale: float = 0.0
 var _exit_delay: float = 0.0
 var _exit_from: float = 1.0
@@ -117,7 +115,6 @@ func _process(delta: float) -> void:
 		return
 	_t += delta
 	_clock = fmod(_clock + delta, BOB_PERIOD * 100.0)
-	_angle = wrapf(_angle + SPIN * delta, 0.0, TAU)
 	var s: float = 1.0
 	if _state == ST_SHOWN:
 		if _t < POP_TIME:
@@ -135,7 +132,11 @@ func _process(delta: float) -> void:
 	var sv: float = maxf(s, 0.001)
 	_spinner.scale = Vector3(sv, sv, sv)
 	_spinner.position = Vector3(0.0, sin(TAU * _clock / BOB_PERIOD) * BOB, 0.0)
-	_spinner.rotation = Vector3(0.0, _angle, 0.0)
+	# Face the camera (flat arrow): turn about Y toward it.
+	var cam: Camera3D = get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam != null:
+		var d: Vector3 = cam.global_position - global_position
+		_spinner.rotation = Vector3(0.0, atan2(d.x, d.z), 0.0)
 
 
 func _build() -> void:
@@ -150,7 +151,7 @@ func _build() -> void:
 		FxModel.normalise_width(model, SIDE, Vector3(0.5, 0.0, 0.5))
 	else:
 		var mi := MeshInstance3D.new()
-		mi.mesh = _pyramid()
+		mi.mesh = _arrow()
 		mi.material_override = _material()
 		_spinner.add_child(mi)
 	FxModel.no_shadows(_spinner)
@@ -162,50 +163,98 @@ static func _material() -> ShaderMaterial:
 		sh.code = SHADER_CODE
 		_mat = ShaderMaterial.new()
 		_mat.shader = sh
-		_mat.set_shader_parameter("top_color", TOP_COLOR)
+		_mat.set_shader_parameter("face_color", FACE_COLOR)
 		_mat.set_shader_parameter("side_color", SIDE_COLOR)
+		_mat.set_shader_parameter("outline_color", OUTLINE_COLOR)
 	return _mat
 
 
-## Inverted square pyramid, tip at the origin, top face at y = HEIGHT,
-## flat (per-face) normals pointing outward.
-static func _pyramid() -> ArrayMesh:
+## The arrow outline in its own plane (x right, y up), tip at the origin.
+static func _arrow_pts() -> PackedVector2Array:
+	var w: float = ARROW_W * 0.5
+	var sw: float = SHAFT_W * 0.5
+	return PackedVector2Array([Vector2(0.0, 0.0), Vector2(w, HEAD_H), Vector2(sw, HEAD_H), Vector2(sw, HEAD_H + SHAFT_H),
+			Vector2(-sw, HEAD_H + SHAFT_H), Vector2(-sw, HEAD_H), Vector2(-w, HEAD_H)])
+
+
+## `pts` grown outward by `d` (mitred corners).
+static func _grow(pts: PackedVector2Array, d: float) -> PackedVector2Array:
+	var n: int = pts.size()
+	var area: float = 0.0
+	for i in n:
+		var a: Vector2 = pts[i]
+		var b: Vector2 = pts[(i + 1) % n]
+		area += a.x * b.y - b.x * a.y
+	var sgn: float = 1.0 if area > 0.0 else -1.0
+	var out := PackedVector2Array()
+	for i in n:
+		var p0: Vector2 = pts[(i - 1 + n) % n]
+		var p1: Vector2 = pts[i]
+		var p2: Vector2 = pts[(i + 1) % n]
+		var n0: Vector2 = (p1 - p0).normalized()
+		n0 = Vector2(n0.y, -n0.x) * sgn
+		var n1: Vector2 = (p2 - p1).normalized()
+		n1 = Vector2(n1.y, -n1.x) * sgn
+		var m: Vector2 = n0 + n1
+		m = m / maxf(m.dot(n0), 0.35)
+		out.append(p1 + m * d)
+	return out
+
+
+## The chunky arrow: a slab DEPTH thick (front face toward +Z), its sides,
+## and a white outline slab OUTLINE wider sitting just behind it. COLOR.r
+## tells the shader which part a triangle is.
+static func _arrow() -> ArrayMesh:
 	if _mesh != null:
 		return _mesh
-	var a: float = SIDE * 0.5
-	var h: float = HEIGHT
-	var tip := Vector3.ZERO
-	var c0 := Vector3(-a, h, -a)
-	var c1 := Vector3(a, h, -a)
-	var c2 := Vector3(a, h, a)
-	var c3 := Vector3(-a, h, a)
-	var inner := Vector3(0.0, h * 0.66, 0.0)
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	_tri(st, c0, c1, c2, inner)
-	_tri(st, c0, c2, c3, inner)
-	_tri(st, tip, c0, c1, inner)
-	_tri(st, tip, c1, c2, inner)
-	_tri(st, tip, c2, c3, inner)
-	_tri(st, tip, c3, c0, inner)
+	var pts: PackedVector2Array = _arrow_pts()
+	_slab(st, pts, -DEPTH * 0.5, DEPTH * 0.5, 1.0, 0.5)
+	_slab(st, _grow(pts, OUTLINE), -DEPTH * 0.53, DEPTH * 0.37, 0.0, 0.0)
+	st.generate_normals()
 	_mesh = st.commit()
 	return _mesh
 
 
-## Adds one triangle wound clockwise as seen from outside (Godot's front
-## face), with its flat outward normal.
-static func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, inner: Vector3) -> void:
-	var n: Vector3 = (c - a).cross(b - a)
+## One extruded arrow polygon from z0 (back) to z1 (front): the head triangle
+## (points 0, 1, 6) and the shaft quad (2, 3, 4, 5) on both faces, plus a
+## side quad per edge.
+static func _slab(st: SurfaceTool, p: PackedVector2Array, z0: float, z1: float, face_k: float, side_k: float) -> void:
+	var tris: Array = [[0, 1, 6], [2, 3, 4], [2, 4, 5]]
+	for t in tris:
+		var a: Vector2 = p[t[0]]
+		var b: Vector2 = p[t[1]]
+		var c: Vector2 = p[t[2]]
+		_tri(st, Vector3(a.x, a.y, z1), Vector3(b.x, b.y, z1), Vector3(c.x, c.y, z1), Vector3(a.x, a.y, z1 - 1.0), face_k)
+		_tri(st, Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(c.x, c.y, z0), Vector3(a.x, a.y, z0 + 1.0), face_k)
+	var n: int = p.size()
+	for i in n:
+		var a: Vector2 = p[i]
+		var b: Vector2 = p[(i + 1) % n]
+		var e: Vector2 = (b - a).normalized()
+		var mid := Vector2((a.x + b.x) * 0.5, (a.y + b.y) * 0.5)
+		# The polygon runs counter-clockwise: the inside is to the left of each edge.
+		var inner2: Vector2 = mid + Vector2(-e.y, e.x) * 0.05
+		var inner := Vector3(inner2.x, inner2.y, (z0 + z1) * 0.5)
+		var fa := Vector3(a.x, a.y, z1)
+		var fb := Vector3(b.x, b.y, z1)
+		var ba := Vector3(a.x, a.y, z0)
+		var bb := Vector3(b.x, b.y, z0)
+		_tri(st, fa, fb, bb, inner, side_k)
+		_tri(st, fa, bb, ba, inner, side_k)
+
+
+## Adds one triangle wound so its front faces away from `inner` (a point on
+## the inside), with vertex colour (k, 0, 0).
+static func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, inner: Vector3, k: float) -> void:
+	var nrm: Vector3 = (c - a).cross(b - a)
 	var centroid: Vector3 = (a + b + c) / 3.0
-	if n.dot(centroid - inner) < 0.0:
+	if nrm.dot(centroid - inner) < 0.0:
 		var tmp: Vector3 = b
 		b = c
 		c = tmp
-		n = -n
-	n = n.normalized()
-	st.set_normal(n)
-	st.add_vertex(a)
-	st.set_normal(n)
-	st.add_vertex(b)
-	st.set_normal(n)
-	st.add_vertex(c)
+	var col := Color(k, 0.0, 0.0)
+	for v in [a, b, c]:
+		st.set_color(col)
+		st.add_vertex(v)
