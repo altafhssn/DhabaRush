@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwkx8n448ex1t"
-path="res://.godot/imported/rani_worried_palette.png-55b58b82e502bdc8e38a9918df5ede41.ctex"
+uid="uid://ccrxd7dbbv3ux"
+path="res://.godot/imported/rani_worried_rani_tex.png-1be1afd1a05c7f89a01484ddf5bbeccb.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "34b0d22f447a3dfd3901ac6e7c55b901"
+"md5": "8fed90ee193708aa1bb808ab536c40b6"
 }
 
 [deps]
 
-source_file="res://assets/models/rani_worried_palette.png"
-dest_files=["res://.godot/imported/rani_worried_palette.png-55b58b82e502bdc8e38a9918df5ede41.ctex"]
+source_file="res://assets/models/rani_worried_rani_tex.png"
+dest_files=["res://.godot/imported/rani_worried_rani_tex.png-1be1afd1a05c7f89a01484ddf5bbeccb.ctex"]
 
 [params]
 

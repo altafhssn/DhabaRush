@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cyl7sidxr47uv"
-path="res://.godot/imported/rani_point_palette.png-8b38886f22c82af1cdd3ff8b2a0ba1e1.ctex"
+uid="uid://c4awpipstwcfn"
+path="res://.godot/imported/rani_idle_rani_tex.png-b43713f8de5df10cd9cdfd5f3be456ec.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "34b0d22f447a3dfd3901ac6e7c55b901"
+"md5": "8fed90ee193708aa1bb808ab536c40b6"
 }
 
 [deps]
 
-source_file="res://assets/models/rani_point_palette.png"
-dest_files=["res://.godot/imported/rani_point_palette.png-8b38886f22c82af1cdd3ff8b2a0ba1e1.ctex"]
+source_file="res://assets/models/rani_idle_rani_tex.png"
+dest_files=["res://.godot/imported/rani_idle_rani_tex.png-b43713f8de5df10cd9cdfd5f3be456ec.ctex"]
 
 [params]
 

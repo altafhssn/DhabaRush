@@ -1686,6 +1686,8 @@ RANI_POSES = {
 
 
 def build_rani(mat, poses=None):
+    """The 5 Nov chibi Rani. No longer exported: v3_rani.build_rani3 (10 Nov) replaced her. Kept
+    because v3_rani uses this section's poses (RANI_POSES) and lofting helpers."""
     out = []
     S = Matrix.Translation(R_NECK) @ Matrix.Diagonal((R_HEAD_SCALE, R_HEAD_SCALE, R_HEAD_SCALE, 1.0)) \
         @ Matrix.Translation(-R_NECK)

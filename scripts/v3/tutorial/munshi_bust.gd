@@ -21,6 +21,9 @@ extends Control
 ## 3D Rani (5 Nov): when her busts exist (MODEL_PREFIX + pose, built by
 ## tools/blender/v3_chars.py build_rani with Munshi-ji's nodes and pivots)
 ## they win over the 2D art and the old munshi_* glbs; the rig is the same.
+## Film-style Rani (10 Nov): the busts are now built by tools/blender/v3_rani.py
+## (same nodes and pivots, her own texture); MODEL_SCALE draws her larger,
+## because her head is smaller against her body than the chibi's was.
 ##
 ## DialogueBox owns placement (layout_for) and fades `modulate` on dismiss.
 
@@ -57,6 +60,9 @@ const FACING_YAW := 0.0
 ## Slight turn toward screen centre (he stands right of centre); more turns
 ## the face into profile and the ear pencil out past the cheek.
 const TURN_YAW := -0.12
+## Size of the whole bust (the pivot's scale; her waist stays on y = 0). 1.18
+## keeps the film-style Rani's face about as large on screen as the chibi's.
+const MODEL_SCALE := 1.18
 ## Head centre x as a fraction of the viewport width (ref ≈ 425/576).
 const HEAD_X := 0.735
 const PIVOT_BELOW := 260.0
@@ -480,6 +486,7 @@ func _build_world() -> void:
 	_pivot.name = "Munshi"
 	_vp.add_child(_pivot)
 	_pivot.rotation = Vector3(0.0, FACING_YAW + TURN_YAW, 0.0)
+	_pivot.scale = Vector3.ONE * MODEL_SCALE
 	for p in POSES:
 		var pose: String = p
 		var m := _make_pose(pose)

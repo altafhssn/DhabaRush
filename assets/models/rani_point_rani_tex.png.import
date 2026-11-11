@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cb3te7a3ekdxh"
-path="res://.godot/imported/rani_cheer_palette.png-e17561c52a4d90060a2e83be213155d5.ctex"
+uid="uid://dmdtgv7v66hef"
+path="res://.godot/imported/rani_point_rani_tex.png-57aed0d3cd627c566d11da2442584f24.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "34b0d22f447a3dfd3901ac6e7c55b901"
+"md5": "8fed90ee193708aa1bb808ab536c40b6"
 }
 
 [deps]
 
-source_file="res://assets/models/rani_cheer_palette.png"
-dest_files=["res://.godot/imported/rani_cheer_palette.png-e17561c52a4d90060a2e83be213155d5.ctex"]
+source_file="res://assets/models/rani_point_rani_tex.png"
+dest_files=["res://.godot/imported/rani_point_rani_tex.png-57aed0d3cd627c566d11da2442584f24.ctex"]
 
 [params]
 

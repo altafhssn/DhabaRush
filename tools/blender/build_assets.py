@@ -1914,9 +1914,10 @@ V3_BUDGETS.update({n: 550 for n in ("pass_missi_roti", "pass_lahsun_roti", "pass
                                     "pass_shikanji")})
 # Story (4 Nov): the father is a hero character seen up close on his visits (pagdi, shawl, cane).
 V3_BUDGETS.update({"story_father": 2600, "story_simran": 2000})
-# Story (5 Nov): Rani, the narrator, is a 3D bust shown alone and large in the dialogue box; the
-# owner asked for better modelling at no more than the first draft's ~6100 triangles.
-V3_BUDGETS.update({"rani_" + p: 6100 for p in ("idle", "cheer", "worried", "point", "namaste", "ledger")})
+# Story: Rani, the narrator, is a 3D bust shown alone and large in the dialogue box. The 5 Nov
+# chibi bust was held to ~6100 triangles; the owner then asked for a polished film-style model
+# (10 Nov, v3_rani.py): 57k as first sculpted, rebuilt lighter to about 23,700 per pose.
+V3_BUDGETS.update({"rani_" + p: 24500 for p in ("idle", "cheer", "worried", "point", "namaste", "ledger")})
 # Dhaba growth (6 Nov): the cart stage, the tin shack (world-coord, in place of dhaba_v3's 24000)
 # and the construction set shown while a stage is being built.
 V3_BUDGETS.update({"growth_cart": 2800, "growth_neem": 2600, "growth_bench": 300, "growth_cart_yard": 3200,
@@ -1947,6 +1948,8 @@ def build_v3(mat):
     ns = dict(globals())
     common = _load_helper("v3_common", ns)
     chars = _load_helper("v3_chars", ns)
+    # Rani's resculpt (10 Nov): on a copy of the namespace, so its names stay out of the later helpers
+    rani = _load_helper("v3_rani", dict(ns))
     props = _load_helper("v3_props", ns)
     _load_helper("v3_world", ns)
     ext = _load_helper("v3_exterior", ns)
@@ -1963,7 +1966,7 @@ def build_v3(mat):
     groups = (w_groups + chars.build_travellers(mat) + chars.build_staff(mat) + chars.build_waiters(mat)
               + [props.build_cow(mat)] + props.build_menu_stations(mat) + chars.build_menu_cooks(mat)
               + chars.build_menu_helpers(mat)
-              + chars.build_munshi(mat) + chars.build_rani(mat) + props.build_core_feel_prop_groups(mat)
+              + chars.build_munshi(mat) + rani.build_rani3(mat) + props.build_core_feel_prop_groups(mat)
               + cf_groups)
     if growth is not None:
         for o in growth.build_growth_exports(mat):
@@ -2067,7 +2070,7 @@ def main():
                     lookup[g.name] = g.objs[0]
                     v3_render.WORLD_EXTRAS.extend(g.objs[1:])
                     continue
-                g.display = v3_common.merge_objects(g.name, g.objs, mat, g.smooth)
+                g.display = v3_common.merge_objects(g.name, g.objs, getattr(g, "mat", None) or mat, g.smooth)
                 lookup[g.name] = g.display
                 names.append(g.name)
                 v3_render.GROUPS[g.name] = g

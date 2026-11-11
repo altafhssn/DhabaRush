@@ -115,6 +115,7 @@ chai_counter_v3 4 000, tandoor_lock 3 500, characters 1 800, busts 3 000, others
 | `v3_common.py` | `Parts`/`Group`/`export_group`, text, fairy lights, limb/disc helpers |
 | `v3_props.py` | stations (chai counter, galla desk, tandoor, lassi, kadai), pass/tray/table dishes `pass_<dish>`, unlock props `prop_<name>`, banknote/sikka/marker/cash_brick, cow |
 | `v3_chars.py` | travellers, staff, waiters, Munshi-ji busts (`chibi`, `Look`) |
+| `v3_rani.py` | Rani, the narrator bust (10 Nov): sculpted head, own texture `rani_tex`, baked shading; build her alone with `docs/art/narrator/rani_build.py` |
 | `v3_world.py` | dhaba interior / compound layout (world-coord `dhaba_v3`) |
 | `v3_exterior.py` | highway, truck parking, trees, poles, fairy light strings (`street_v3`) |
 | `v3_render.py` | review renders and contact sheets (game camera = Blender Euler (40°, 0, 45°)) |
